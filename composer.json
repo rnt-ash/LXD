@@ -1,0 +1,10 @@
+{
+    "name": "rnt-forest/ovz",
+    "version": "0.1.0",
+    "description": "RNT OVZ",
+    "license": "AGPL-3.0",
+    "require": {
+        "php": ">=7.0",
+        "ext-phalcon": ">=3.0"
+    }
+}

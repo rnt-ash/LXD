@@ -1,0 +1,16 @@
+# All textfiles ending with LF (Linux)
+* text eol=lf
+
+# Explizite textfiles
+*.php text
+*.sql text
+*.tpl text
+*.tmpl text
+*.html text
+*.css text
+
+# Explizite binarys
+*.png binary
+*.jpg binary
+*.so binary
+*.ico binary
