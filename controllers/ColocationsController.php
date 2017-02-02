@@ -69,7 +69,7 @@ class ColocationsController extends TableSlideBase
         $content = "";
 
         $this->simpleview->item = $item;
-        $content .= $this->simpleview->render("colocations/slideDetail.volt");
+        $content .= $this->simpleview->render("partials/ovz/colocations/slideDetail.volt");
         return $content;
     }
 
