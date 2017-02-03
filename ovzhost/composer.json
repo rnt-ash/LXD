@@ -1,0 +1,14 @@
+{
+    "name":"rnt-forest/ovzjob",
+    "description":"Jobs for OVZCP Project",
+    "license": "AGPL-3.0",
+    
+    "require": {
+        
+    },
+    "autoload": {
+        "psr-4": {
+            "RNTFOREST\\OVZJOB\\": "ovzjob/"
+        }
+    }
+}

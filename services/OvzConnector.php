@@ -49,6 +49,8 @@ class OvzConnector extends \Phalcon\DI\Injectable
     private $ConfigMyPrivateKeyFilePath = '/srv/ovzhost/keys/private.key';
     private $ConfigAdminPublicKeyFilePath = '/srv/ovzhost/keys/adminpublic.key';
     
+    private $PathToOvzhostDirectoryOnAdminServer = BASE_PATH.'/vendor/rnt-forest/ovz/ovzhost/';
+    
     /**
     * @var Dependency Injection
     */
@@ -238,15 +240,15 @@ class OvzConnector extends \Phalcon\DI\Injectable
             // iterate recursively over the directory with source code files for ovzhost and store them in a array $files
             // this array consists of the source filepath in the key and the representative destination filepath in the value
             // the second array $directories is for previously creating the needed directories
-            $directory = new RecursiveDirectoryIterator(BASE_PATH.'/ovzhost/',FilesystemIterator::SKIP_DOTS);
+            $directory = new RecursiveDirectoryIterator($this->PathToOvzhostDirectoryOnAdminServer,FilesystemIterator::SKIP_DOTS);
             $iterator = new RecursiveIteratorIterator($directory);
             $files = array();
             $directories = array();
             foreach ($iterator as $info) {
                 $localFilepath = $info->getPathname();
-                $destinationFilepath = str_replace(BASE_PATH.'/ovzhost/',$this->ConfigOvzHostRootDir,$localFilepath);
+                $destinationFilepath = str_replace($this->PathToOvzhostDirectoryOnAdminServer,$this->ConfigOvzHostRootDir,$localFilepath);
                 $files[$localFilepath] = $destinationFilepath;
-                $destinationDirectory = str_replace(BASE_PATH.'/ovzhost/',$this->ConfigOvzHostRootDir,$info->getPath().'/');
+                $destinationDirectory = str_replace($this->PathToOvzhostDirectoryOnAdminServer,$this->ConfigOvzHostRootDir,$info->getPath().'/');
                 $directories[$destinationDirectory] = true;
             }
             
