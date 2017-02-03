@@ -175,7 +175,7 @@ class VirtualServers extends \Phalcon\Mvc\Model implements JobServerInterface
 
     /**
     *
-    * @var integer
+    * @var string
     */
     protected $pending;
 
@@ -474,18 +474,6 @@ class VirtualServers extends \Phalcon\Mvc\Model implements JobServerInterface
     }
 
     /**
-    * Server is pending
-    *
-    * @param integer $pending
-    * @return $this
-    */
-    public function setPending($pending)
-    {
-        $this->pending = $pending;
-        return $this;
-    }
-
-    /**
     * last modified time
     *
     * @param string $modified
@@ -735,16 +723,6 @@ class VirtualServers extends \Phalcon\Mvc\Model implements JobServerInterface
     public function getActivationDate()
     {
         return $this->activation_date;
-    }
-
-    /**
-    * Returns the value of field pending
-    *
-    * @return integer
-    */
-    public function getPending()
-    {
-        return $this->pending;
     }
 
     /**

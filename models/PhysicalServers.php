@@ -23,7 +23,7 @@ use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 
-class PhysicalServers extends \Phalcon\Mvc\Model implements JobServerInterface
+class PhysicalServers extends \Phalcon\Mvc\Model implements JobServerInterface, PendingInterface
 {
 
     /**
@@ -112,6 +112,12 @@ class PhysicalServers extends \Phalcon\Mvc\Model implements JobServerInterface
     */
     protected $modified;
 
+    /**
+    * 
+    * @var string
+    */
+    protected $pending;
+    
     /**
     * Method to set the value of field id
     *
@@ -539,5 +545,22 @@ class PhysicalServers extends \Phalcon\Mvc\Model implements JobServerInterface
 
         return $validator;
     }
-
+    
+    public function addPending($pendingToken){
+        $pendingArray = json_decode($this->pending,true);
+        $pendingArray[] = $pendingToken;        
+        $this->pending = json_encode($pendingArray);
+        $this->save();
+    }
+    
+    public function removePending($pendingToken){
+        $pendingArray = json_decode($this->pending,true);
+        $this->pending = json_encode(PendingHelpers::removePendingTokenInPendingArray($pendingToken,$pendingArray));
+        $this->save();
+    }
+    
+    public function isPending($pendingToken=''){
+        $pendingArray = json_decode($this->pending,true);
+        return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
+    }
 }

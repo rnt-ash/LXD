@@ -104,7 +104,7 @@ class PhysicalServersController extends TableSlideBase
 
             // execute ovz_host_info job        
             $push = $this->getPushService();
-            $job = $push->executeJob($physicalServer,'ovz_host_info',$params);
+            $job = $push->executeJob($physicalServer,'ovz_host_info',$params,'PhysicalServers:'.$physicalServer->getId());
             if(!$job || $job->getDone()==2) throw new Exception("Job (ovz_host_info) executions failed!");
 
             // save settings
