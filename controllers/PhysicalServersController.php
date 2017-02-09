@@ -21,6 +21,7 @@ class PhysicalServersController extends TableSlideBase
 {
     protected function getSlideDataInfo() {
         return array(
+            "type" => "slideData",
             "controller" => "physical_servers",
             "action" => "slidedata",
             "slidenamefield" => "name",

@@ -21,6 +21,7 @@ class ColocationsController extends TableSlideBase
 {
     protected function getSlideDataInfo() {
         return array(
+            "type" => "slideData",
             "controller" => "colocations",
             "action" => "slidedata",
             "slidenamefield" => "name",

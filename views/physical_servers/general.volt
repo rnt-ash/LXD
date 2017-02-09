@@ -16,7 +16,7 @@
                     {{ link_to("physical_servers/connectForm/"~item.id,'<i class="fa fa-link"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Connect OVZ') }}
                     <a href="#" link="/physical_servers/delete/{{item.id}}" text="Are you sure to delete this item?"
-                        class="btn btn-default btn-xs delete-tableslide-item" data-toggle="tooltip" data-placement="top" title="Remove this server">
+                        class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="Remove this server">
                         <i class="fa fa-trash-o"></i>
                     </a>
                             

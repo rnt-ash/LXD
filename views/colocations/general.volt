@@ -9,7 +9,7 @@
                     {{ link_to("colocations/edit/"~item.id,'<i class="fa fa-pencil"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Edit OVZ settings') }}
                     <a href="#" link="/colocations/delete/{{item.id}}" text="Are you sure to delete this item?"
-                        class="btn btn-default btn-xs delete-tableslide-item" data-toggle="tooltip" data-placement="top" title="Delete colocation"><i class="fa fa-trash-o"></i></a>
+                        class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="Delete colocation"><i class="fa fa-trash-o"></i></a>
 
                 </div>
             </th>

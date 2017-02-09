@@ -19,7 +19,7 @@
                 {{ link_to("physical_servers/editIpObject/"~ip.id,'<i class="fa fa-pencil"></i>',
                     'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Edit IP Object') }}
                 <a href="#" link="/physical_servers/deleteIpObject/{{ip.id}}" text="Are you sure to delete this IP Object?"
-                    class="btn btn-default btn-xs delete-tableslide-item" data-toggle="tooltip" data-placement="top" title="Delete IP Object"><i class="fa fa-trash-o"></i></a>
+                    class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="Delete IP Object"><i class="fa fa-trash-o"></i></a>
                 {% if ip.main == 0 AND ip.allocated != constant('Dcoipobjects::ALLOC_RESERVED') %}
                     {{ link_to("physical_servers/makeMainIpObject/"~ip.id,'<i class="fa fa-bolt"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Make IP Object to primary') }}

@@ -46,6 +46,6 @@
 <div class="well well-sm">
     <div class="text-center">
         {# Paginator #}
-        {{ partial("partials/paginator") }}
+        {{ partial("partials/core/partials/paginator") }}
     </div>
 </div>

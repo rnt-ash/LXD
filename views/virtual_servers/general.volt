@@ -30,7 +30,7 @@
                         #}
                     {% endif %}
                     <a href="#" link="/virtual_servers/delete/{{item.id}}" text="Are you sure to delete this item?"
-                        class="btn btn-default btn-xs delete-tableslide-item" data-toggle="tooltip" data-placement="top" title="Delete virtual server"><i class="fa fa-trash-o"></i></a>
+                        class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="Delete virtual server"><i class="fa fa-trash-o"></i></a>
 
                 </div>
             </th>

@@ -22,12 +22,24 @@ use Phalcon\Http\Client\Request;
 class VirtualServersController extends TableSlideBase
 {
     protected function getSlideDataInfo() {
+        $scope = $this->session->get('auth')['calculated_permissions']['virtual_servers']['general']['scope'];
+        $scopeQuery = "";
+        $joinQuery = NULL;
+        if ($scope == 'customers'){
+            $scopeQuery = "customers_id = ".$this->session->get('auth')['customers_id'];
+        } else if($scope == 'partners'){
+            $scopeQuery = "partners_id = ".$this->session->get('auth')['customers_id'];
+            $joinQuery = array("model"=>"CustomersPartners","conditions"=>"VirtualServers.customers_id = CustomersPartners.customers_id");
+        }
+                
         return array(
+            "type" => "slideData",
             "controller" => "virtual_servers",
             "action" => "slidedata",
             "slidenamefield" => "name",
             "slidenamefielddescription" => "Servername",
-            "scope" => "",
+            "scope" => $scopeQuery,
+            "join" => $joinQuery,
             "order" => "name",
             "orderdir" => "ASC",
             "filters" => array(),
