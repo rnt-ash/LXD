@@ -1,4 +1,4 @@
-{% extends "templates/slidedata.volt" %}
+{% extends "templates/core/slidedata.volt" %}
 
 {% block header %}
 <div class="page-header">

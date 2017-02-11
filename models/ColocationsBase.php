@@ -17,12 +17,14 @@
 *
 */
 
+namespace RNTForest\ovz\models;
+
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class Colocations extends \Phalcon\Mvc\Model
+class ColocationsBase extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -242,9 +244,6 @@ class Colocations extends \Phalcon\Mvc\Model
     */
     public function initialize()
     {
-        $this->belongsTo("customers_id","Customers","id",array("foreignKey"=>true));
-        $this->hasMany("id","PhysicalServers","colocations_id",array("foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id","Dcoipobjects","colocations_id",array("foreignKey"=>array("allowNulls"=>true)));
     }
 
     /**

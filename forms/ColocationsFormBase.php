@@ -17,13 +17,15 @@
 *
 */
 
+namespace RNTForest\ovz\forms;
+
 use Phalcon\Forms\Element\Text;
 use Phalcon\Forms\Element\TextArea;
 use Phalcon\Forms\Element\Hidden;
 use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Date;
 
-class ColocationsForm extends FormBase
+class ColocationsFormBase extends \RNTForest\core\forms\FormBase
 {
 
     public function initialize($entity = null)
@@ -33,7 +35,7 @@ class ColocationsForm extends FormBase
         // customer
         $element = new Select(
             "customers_id",
-            Customers::find(),
+            $this->getAppNs().'forms\Customers'::find(),
             array("using"=>array("id","company"),
                 "useEmpty"   => true,
                 "emptyText"  => "Please, choose a customer...",

@@ -96,7 +96,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
     
     public function go(){
         if(!$this->RemoteSshConnection->isOpen()){
-            throw new Exception("Remote SSH Connection is not open. Aborting...");
+            throw new \Exception("Remote SSH Connection is not open. Aborting...");
         }
         $this->checkEnvironment();
         $this->preInstallation();
@@ -121,18 +121,18 @@ class OvzConnector extends \Phalcon\DI\Injectable
         try{
             $output = $this->RemoteSshConnection->exec('cat /etc/system-release');    
             if(!preg_match('`^(OpenVZ release 7.0).*$`',$output)){
-                throw new Exception("Wrong linux distribution. Accepted: OpenVZ 7.0.x");       
+                throw new \Exception("Wrong linux distribution. Accepted: OpenVZ 7.0.x");       
             }
             
             unset($output);
             $output = $this->RemoteSshConnection->exec('php -v');
             if(!preg_match('`^(PHP 5.4).*`',$output)){
-                throw new Exception("No accepted PHP version found. Accepted: PHP 5.4.x");
+                throw new \Exception("No accepted PHP version found. Accepted: PHP 5.4.x");
             }
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'System is not supported: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);
+            throw new \Exception($error);
         }
     }
     
@@ -167,10 +167,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $output = $this->RemoteSshConnection->exec('ntpdate pool.ntp.org');
             $output = $this->RemoteSshConnection->exec('systemctl start ntpd');
                 
-        }catch (Exception $e) {                                                                                 
+        }catch (\Exception $e) {                                                                                 
             $error = 'Error while preInstallation: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);
+            throw new \Exception($error);
         }
     }
     
@@ -201,10 +201,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
             // and update the public key in the model 
             $this->PhysicalServer->setPublicKey($pubKey);
             $this->PhysicalServer->save();
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while creating asymmetric keypair: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);  
+            throw new \Exception($error);  
         }
     }
     
@@ -212,14 +212,14 @@ class OvzConnector extends \Phalcon\DI\Injectable
         try{
             $source = $this->di['config']->push['adminpublickeyfile'];
             if(!file_exists($source)){
-                throw new Exception("Public key file of adminserver does not exist in path '".$source."'. Please create this file (see INSTALL)");
+                throw new \Exception("Public key file of adminserver does not exist in path '".$source."'. Please create this file (see INSTALL)");
             }
             $destination = $this->ConfigAdminPublicKeyFilePath;
             $this->RemoteSshConnection->sendFile($source, $destination);
-        }catch(Exception $e){               
+        }catch(\Exception $e){               
             $error = 'Problem while sending admin public key: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);  
+            throw new \Exception($error);  
         }
     }
     
@@ -228,10 +228,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
             // --system means no shell and no password
             // --user-group means that it creates a group with same name
             $this->RemoteSshConnection->exec('useradd --system --user-group ovzcp');
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while creating linux user and group: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);  
+            throw new \Exception($error);  
         }
     }
     
@@ -260,10 +260,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 $this->RemoteSshConnection->sendFile($source, $destination);
             }   
             
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while sending ovzhost source code files: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);  
+            throw new \Exception($error);  
         }        
     }
     
@@ -276,10 +276,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
             foreach($folders as $folder) {
                 $this->createDirectoryIfNotExists($folder);
             }
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while creating further ovzhost directories: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);  
+            throw new \Exception($error);  
         }
     }
     
@@ -287,16 +287,16 @@ class OvzConnector extends \Phalcon\DI\Injectable
         try{
             $output = $this->RemoteSshConnection->exec('curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer 2>&1');
             if($this->RemoteSshConnection->getLastExitStatus() != 0){
-                throw new Exception('Could not install composer. Got exitcode '.$exitCode.' and output: "'.$output.'"');
+                throw new \Exception('Could not install composer. Got exitcode '.$exitCode.' and output: "'.$output.'"');
             }
             $output = $this->RemoteSshConnection->exec('(cd '.$this->ConfigOvzHostRootDir.'; composer update 2>&1)');
             if($this->RemoteSshConnection->getLastExitStatus() != 0){
-                throw new Exception('Could not update composer. Got exitcode '.$exitCode.' and output: "'.$output.'"');
+                throw new \Exception('Could not update composer. Got exitcode '.$exitCode.' and output: "'.$output.'"');
             }
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while configuring composer: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);  
+            throw new \Exception($error);  
         }
     }
     
@@ -308,10 +308,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->RemoteSshConnection->exec('chmod 660 -R '.$this->ConfigOvzHostRootDir.'db');
             $this->RemoteSshConnection->exec('chmod u+X,g+X -R '.$this->ConfigOvzHostRootDir.'*');
             $this->RemoteSshConnection->exec('chmod 750 '.$this->ConfigOvzHostRootDir.'JobSystemStarter.php');
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while cleaning permissions in ovzhost directories: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);  
+            throw new \Exception($error);  
         }
     }
     
@@ -323,10 +323,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
                     "Defaults!/srv/ovzhost/JobSystemStarter.php !requiretty\n";
                 $this->RemoteSshConnection->exec('echo "'.$sudoersConfig.'" >> /etc/sudoers');
             }         
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while configuring sudoers: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);  
+            throw new \Exception($error);  
         }
     }
     
@@ -361,13 +361,13 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->RemoteSshConnection->exec('systemctl daemon-reload');
             $output = $this->RemoteSshConnection->exec('systemctl start ovzcp.service');
             if($this->RemoteSshConnection->getLastExitStatus() != 0){
-                throw new Exception('Could not start ovzcp.service. Got exitcode '.$exitCode.' and output: "'.$output.'"');
+                throw new \Exception('Could not start ovzcp.service. Got exitcode '.$exitCode.' and output: "'.$output.'"');
             }
             
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while configuring ovzcp.service: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);  
+            throw new \Exception($error);  
         } 
     }
     
@@ -377,7 +377,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $output = $this->RemoteSshConnection->exec('uname -r');
             // kernel should be 3.10 with keyword vz7 in it
             if(!preg_match('`^(3.10).*(vz7).*`',$output)){
-                throw new Exception("Wrong linux kernel. Accepted: 3.10");       
+                throw new \Exception("Wrong linux kernel. Accepted: 3.10");       
             }
             
             //  check prlctl
@@ -385,13 +385,13 @@ class OvzConnector extends \Phalcon\DI\Injectable
             // whereis output is searched binary followed with a : and the location
             // if the output string is not longer than "prlctl:" it was not found and will be missing
             if(!(strlen($output) > strlen("prlctl:"))){
-                throw new Exception("prlctl not found/installed. there may be not a proper openvz installation. please consider the official openvz installation guide.");  
+                throw new \Exception("prlctl not found/installed. there may be not a proper openvz installation. please consider the official openvz installation guide.");  
             }
             
             // check ploop
             $output = $this->RemoteSshConnection->exec('whereis ploop');
             if(!(strlen($output) > strlen("ploop:"))){
-                throw new Exception("ploop not found/installed. there may be not a proper openvz installation. please consider the official openvz installation guide.");  
+                throw new \Exception("ploop not found/installed. there may be not a proper openvz installation. please consider the official openvz installation guide.");  
             } 
             
             $this->createOvzDirAndFilesIfNotExists();
@@ -400,10 +400,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
             // temporary not needed
             // $this->RemoteSshConnection->exec('systemctl restart vz');
                   
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while configuring OpenVz: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);
+            throw new \Exception($error);
         }    
     } 
     
@@ -453,10 +453,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->RemoteSshConnection->exec('echo "'.$config.'" > '.$configFilepath);
             $this->RemoteSshConnection->exec('chown root:ovzcp '.$configFilepath);    
             $this->RemoteSshConnection->exec('chmod 640 '.$configFilepath);
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem while writing ovzcp local config: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error);
+            throw new \Exception($error);
         }    
     }
     
@@ -464,10 +464,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
         try{
             $this->PhysicalServer->setOvz(1);
             $this->PhysicalServer->save(); 
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem in post installation: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error); 
+            throw new \Exception($error); 
         }
     }
     
@@ -476,10 +476,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $params = array("TO"=>$this->di['config']->mail['rootalias'],"MESSAGE"=>'This is a test message generated from the Connector while connecting to '.$this->PhysicalServer->getFqdn());
             $push = $this->getPushService();
             $push->executeJob($this->PhysicalServer,'general_test_sendmail',$params);
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $error = 'Problem in testing job system: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
-            throw new Exception($error); 
+            throw new \Exception($error); 
         }
     }
     
@@ -505,7 +505,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
         $output = $this->RemoteSshConnection->exec('if [ -d "'.$path.'" ]; 
                                                 then echo "1"; else echo 0; fi');
         if(intval($output)!=1){
-            throw new Exception("Directory ".$path." not found after creation (could not be created...)");   
+            throw new \Exception("Directory ".$path." not found after creation (could not be created...)");   
         }        
     }
     
@@ -515,7 +515,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
     * @param Exception $e
     * @return String
     */
-    private function MakePrettyException(Exception $e) {
+    private function MakePrettyException(\Exception $e) {
         $trace = $e->getTrace();
 
         $result = 'Exception: "';

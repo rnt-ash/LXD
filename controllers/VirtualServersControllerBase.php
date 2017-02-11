@@ -17,9 +17,11 @@
 *
 */
 
+namespace RNTForest\ovz\controllers;
+
 use Phalcon\Http\Client\Request;
 
-class VirtualServersController extends TableSlideBase
+class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
     protected function getSlideDataInfo() {
         $scope = $this->session->get('auth')['calculated_permissions']['virtual_servers']['general']['scope'];
@@ -99,8 +101,8 @@ class VirtualServersController extends TableSlideBase
 
         try{
             // find virtual server
-            $virtualServer = VirtualServers::findFirst($serverId);
-            if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $serverId);
+            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
@@ -109,7 +111,7 @@ class VirtualServersController extends TableSlideBase
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
-            if($job->getDone()==2) throw new Exception("Job (ovz_list_info) executions failed: ".$job->getError());
+            if($job->getDone()==2) throw new \Exception("Job (ovz_list_info) executions failed: ".$job->getError());
 
             // save settings
             $settings = $job->getRetval(true);
@@ -121,7 +123,7 @@ class VirtualServersController extends TableSlideBase
                 foreach ($messages as $message) {
                     $this->flashSession->warning($message);
                 }
-                throw new Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
+                throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
             }
 
             // success
@@ -141,15 +143,15 @@ class VirtualServersController extends TableSlideBase
     * @param VirtualServers $virtualServer
     * @param mixed $settings
     */
-    public static function assignSettings(VirtualServers $virtualServer,$settings){
+    public static function assignSettings(\RNTForest\ovz\models\VirtualServersBase $virtualServer,$settings){
         $virtualServer->setName($settings['Name']);
         $virtualServer->setDescription($settings['Description']);
         $virtualServer->setOvz(1);
         $virtualServer->setOvzVstype($settings['Type']);
         $virtualServer->setOvzState($settings['State']);
         $virtualServer->setCore(intval($settings['Hardware']['cpu']['cpus']));
-        $virtualServer->setMemory(intval(\Helpers::convertToBytes($settings['Hardware']['memory']['size'])/1024/1024));
-        $virtualServer->setSpace(intval(\Helpers::convertToBytes($settings['Hardware']['hdd0']['size'])/1024/1024/1024));
+        $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size'])/1024/1024));
+        $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size'])/1024/1024/1024));
     }
     
     /**
@@ -164,17 +166,17 @@ class VirtualServersController extends TableSlideBase
 
         try{
             // find virtual server
-            $virtualServer = VirtualServers::findFirst($serverId);
-            if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $serverId);
+            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
-            if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
+            if(!$virtualServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
 
             // execute ovz_start_vs job        
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_start_vs',$params);
-            if($job->getDone()==2) throw new Exception("Job (ovz_start_vs) executions failed: ".$job->getError());
+            if($job->getDone()==2) throw new \Exception("Job (ovz_start_vs) executions failed: ".$job->getError());
 
             // success
             $this->flashSession->success("Starting VS successfully");
@@ -199,17 +201,17 @@ class VirtualServersController extends TableSlideBase
 
         try{
             // find virtual server
-            $virtualServer = VirtualServers::findFirst($serverId);
-            if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $serverId);
+            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
-            if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
+            if(!$virtualServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
 
             // execute ovz_stop_vs job        
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_stop_vs',$params);
-            if($job->getDone()==2) throw new Exception("Job (ovz_stop_vs) executions failed: ".$job->getError());
+            if($job->getDone()==2) throw new \Exception("Job (ovz_stop_vs) executions failed: ".$job->getError());
 
             // success
             $this->flashSession->success("Stopping VS successfully");
@@ -234,17 +236,17 @@ class VirtualServersController extends TableSlideBase
 
         try{
             // find virtual server
-            $virtualServer = VirtualServers::findFirst($serverId);
-            if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $serverId);
+            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
-            if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
+            if(!$virtualServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
 
             // execute ovz_restart_vs job        
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params);
-            if($job->getDone()==2) throw new Exception("Job (ovz_restart_vs) executions failed: ".$job->getError());
+            if($job->getDone()==2) throw new \Exception("Job (ovz_restart_vs) executions failed: ".$job->getError());
 
             // success
             $this->flashSession->success("Restarting VS successfully");
@@ -267,7 +269,7 @@ class VirtualServersController extends TableSlideBase
     public function deleteAction($id){
 
         // find server
-        $virtualServer = VirtualServers::findFirst(intval($id));
+        $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst(intval($id));
         if(!$virtualServer){
             $this->flashSession->error("Virtual server not found.");
             return $this->redirecToTableSlideDataAction();
@@ -316,9 +318,9 @@ class VirtualServersController extends TableSlideBase
         // get OS templates from server
         $push = $this->getPushService();
         $params = array();
-        $physicalServer = PhysicalServers::findFirst("ovz = 1");
+        $physicalServer = ($this->getAppNs().'models\PhysicalServers')::findFirst("ovz = 1");
         $job = $push->executeJob($physicalServer,'ovz_get_ostemplates',$params);
-        if(!$job || $job->getDone()==2) throw new Exception("Job (ovz_get_ostemplates) executions failed!");
+        if(!$job || $job->getDone()==2) throw new \Exception("Job (ovz_get_ostemplates) executions failed!");
         $retval = $job->getRetval(true);
         $ostemplates = array();
         foreach($retval as $template){
@@ -386,7 +388,7 @@ class VirtualServersController extends TableSlideBase
         if($session['vstype'] == 'CT' || $session['vstype'] == 'VM' ){
             $virtualServer->setOvz(true);
             $virtualServer->setOvzVstype($session['vstype']);
-            $virtualServer->setOvzUuid(Helpers::genUuid());
+            $virtualServer->setOvzUuid(\RNTForest\core\libraries\Helpers::genUuid());
 
             $params = array(
                 "VSTYPE"=>$virtualServer->getOvzVstype(),
@@ -402,7 +404,7 @@ class VirtualServersController extends TableSlideBase
             );
 
             // get PhysicalServer
-            $physicalServer = PhysicalServers::findFirst($form->getValue('physical_servers_id'));
+            $physicalServer = ($this->getAppNs().'models\PhysicalServers')::findFirst($form->getValue('physical_servers_id'));
             if (!$physicalServer) {
                 $this->flashSession->error("Physical Server does not exist: " . $serverId);
                 return false;
@@ -447,7 +449,7 @@ class VirtualServersController extends TableSlideBase
             $serverId = $this->filter->sanitize($serverId, "int");
 
             // find virtual server
-            $virtualServer = VirtualServers::findFirst($serverId);
+            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
             if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
@@ -549,8 +551,8 @@ class VirtualServersController extends TableSlideBase
             $snapshotId = $this->filter->sanitize($snapshotId, "string");
 
             // find virtual server
-            $virtualServer = VirtualServers::findFirst($serverId);
-            if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $serverId);
+            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
@@ -559,7 +561,7 @@ class VirtualServersController extends TableSlideBase
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'SNAPSHOTID'=>$snapshotId);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_switch_snapshot',$params);
-            if(!$job || $job->getDone()==2) throw new Exception("Job (ovz_switch_snapshot) executions failed!");
+            if(!$job || $job->getDone()==2) throw new \Exception("Job (ovz_switch_snapshot) executions failed!");
 
             // save snapshots
             $snapshots = $job->getRetval();
@@ -569,7 +571,7 @@ class VirtualServersController extends TableSlideBase
                 foreach ($messages as $message) {
                     $this->flashSession->warning($message);
                 }
-                throw new Exception("Switch snapshot on server (".$virtualServer->getName().") failed.");
+                throw new \Exception("Switch snapshot on server (".$virtualServer->getName().") failed.");
             }
                         
             // success
@@ -622,14 +624,14 @@ class VirtualServersController extends TableSlideBase
         // switch to snapshot
         try {    
             // find virtual server
-            $virtualServer = VirtualServers::findFirst($item->virtual_servers_id);
-            if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $item->virtual_servers_id);
+            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($item->virtual_servers_id);
+            if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $item->virtual_servers_id);
             
             // execute ovz_list_snapshots job        
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'NAME'=>$item->name,'DESCRIPTION'=>$item->description);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_create_snapshot',$params);
-            if(!$job || $job->getDone()==2) throw new Exception("Job (ovz_create_snapshot) executions failed!");
+            if(!$job || $job->getDone()==2) throw new \Exception("Job (ovz_create_snapshot) executions failed!");
 
             // save snapshots
             $snapshots = $job->getRetval();
@@ -639,7 +641,7 @@ class VirtualServersController extends TableSlideBase
                 foreach ($messages as $message) {
                     $this->flashSession->warning($message);
                 }
-                throw new Exception("Create snapshot on server (".$virtualServer->getName().") failed.");
+                throw new \Exception("Create snapshot on server (".$virtualServer->getName().") failed.");
             }
             
             // success
@@ -667,8 +669,8 @@ class VirtualServersController extends TableSlideBase
             $snapshotId = $this->filter->sanitize($snapshotId, "string");
 
             // find virtual server
-            $virtualServer = VirtualServers::findFirst($serverId);
-            if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $serverId);
+            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enabled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
@@ -677,7 +679,7 @@ class VirtualServersController extends TableSlideBase
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'SNAPSHOTID'=>$snapshotId);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_delete_snapshot',$params);
-            if(!$job || $job->getDone()==2) throw new Exception("Job (ovz_delete_snapshot) executions failed!");
+            if(!$job || $job->getDone()==2) throw new \Exception("Job (ovz_delete_snapshot) executions failed!");
 
             // save snapshots
             $snapshots = $job->getRetval();
@@ -687,7 +689,7 @@ class VirtualServersController extends TableSlideBase
                 foreach ($messages as $message) {
                     $this->flashSession->warning($message);
                 }
-                throw new Exception("Deleting snapshot on server (".$virtualServer->getName().") failed.");
+                throw new \Exception("Deleting snapshot on server (".$virtualServer->getName().") failed.");
             }
             
             // success
@@ -722,6 +724,7 @@ class VirtualServersController extends TableSlideBase
         $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
         
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$dcoipobjectsForm],
@@ -746,6 +749,7 @@ class VirtualServersController extends TableSlideBase
         ));
 
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$ipobject],
@@ -770,6 +774,7 @@ class VirtualServersController extends TableSlideBase
         ));
 
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'delete',
             'params' => [$ipobject],
@@ -792,6 +797,7 @@ class VirtualServersController extends TableSlideBase
         ));
 
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'makeMain',
             'params' => [$ipobject],

@@ -17,13 +17,15 @@
 *
 */
 
+namespace RNTForest\ovz\models;
+
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 
-class PhysicalServers extends \Phalcon\Mvc\Model implements JobServerInterface, PendingInterface
+class PhysicalServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\interfaces\JobServerInterface, \RNTForest\core\interfaces\PendingInterface
 {
 
     /**
@@ -455,12 +457,6 @@ class PhysicalServers extends \Phalcon\Mvc\Model implements JobServerInterface, 
     */
     public function initialize()
     {
-        $this->belongsTo("customers_id","Customers","id",array("foreignKey"=>true));
-        $this->belongsTo("colocations_id","Colocations","id",array("foreignKey"=>true));
-        $this->hasMany("id","VirtualServers","physical_servers_id",array("foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id","Dcoipobjects","physical_servers_id",array("foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id","Jobs","physical_servers_id",array("foreignKey"=>array("allowNulls"=>true)));
-
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(
             'beforeUpdate' => array(

@@ -17,6 +17,8 @@
 *
 */
 
+namespace RNTForest\ovz\models;
+
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
@@ -24,7 +26,7 @@ use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Validation\Validator\Between as BetweenValidator;
 use Phalcon\Mvc\Model\Message as Message;
 
-class Dcoipobjects extends \Phalcon\Mvc\Model
+class DcoipobjectsBase extends \Phalcon\Mvc\Model
 {
 
     // IP Versions
@@ -388,9 +390,6 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
     */
     public function initialize()
     {
-        $this->belongsTo("colocations_id","Colocations","id",array("foreignKey"=>array("allowNulls"=>true)));
-        $this->belongsTo("physical_servers_id","PhysicalServers","id",array("foreignKey"=>array("allowNulls"=>true)));
-        $this->belongsTo("virtual_servers_id","VirtualServers","id",array("foreignKey"=>array("allowNulls"=>true)));
     }
 
     /**
@@ -440,18 +439,18 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
 
         // IP Object type
         if(empty($this->value2)){
-            $this->type = Dcoipobjects::TYPE_IPADDRESS;
+            $this->type = slef::TYPE_IPADDRESS;
             $this->value2 = "255.255.255.0";
         }else {
 
             if($this->isValidSubnetMask($this->value2)) {
-                $this->type = Dcoipobjects::TYPE_IPADDRESS;
+                $this->type = self::TYPE_IPADDRESS;
 
             } elseif($this->isValidIP($this->value2)){
-                $this->type = Dcoipobjects::TYPE_IPRANGE;
+                $this->type = self::TYPE_IPRANGE;
 
             } elseif($this->isValidPrefix($this->value2)) {
-                $this->type = Dcoipobjects::TYPE_IPNET;
+                $this->type = self::TYPE_IPNET;
 
             } else {
                 $message = new Message(
@@ -465,7 +464,7 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
         }
 
         // Reserved must be an IP
-        if($this->allocated != Dcoipobjects::ALLOC_RESERVED && $this->type != Dcoipobjects::TYPE_IPADDRESS){
+        if($this->allocated != self::ALLOC_RESERVED && $this->type != self::TYPE_IPADDRESS){
             $message = new Message(
                 "Assigned IPs can't be range or net",
                 "id"
@@ -475,7 +474,7 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
         }
 
         // Check for possible reservations
-        if($this->allocated != Dcoipobjects::ALLOC_RESERVED){
+        if($this->allocated != self::ALLOC_RESERVED){
             $reservations = $this->getReservations();
             if($reservations === false){
                 $message = new Message("No reservations found.","id");            
@@ -495,8 +494,8 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
 
             // Check for already in use
             if($op == 'new'){
-                $found = Dcoipobjects::findFirst(array(
-                    "id != '".$this->id."' AND value1 = '".$this->value1."' AND allocated != '".Dcoipobjects::ALLOC_RESERVED."'",
+                $found = self::findFirst(array(
+                    "id != '".$this->id."' AND value1 = '".$this->value1."' AND allocated != '".self::ALLOC_RESERVED."'",
                 ));
 
                 if($found){
@@ -507,7 +506,7 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
             }            
 
             // Check if there is already a main IP
-            $found = Dcoipobjects::findFirst(array(
+            $found = self::findFirst(array(
                 "colocations_id ".(is_null($this->colocations_id)?"IS NULL":"=".$this->colocations_id)." ".
                 "AND physical_servers_id ".(is_null($this->physical_servers_id)?"IS NULL":"=".$this->physical_servers_id)." ".
                 "AND virtual_servers_id ".(is_null($this->virtual_servers_id)?"IS NULL":"=".$this->virtual_servers_id)." ".
@@ -530,27 +529,27 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
 
         if(!empty($this->virtual_servers_id)){
             $searching = true;
-            $reservations = Dcoipobjects::find(array(
+            $reservations = self::find(array(
                 "conditions"=>"virtual_server_id = ".$this->virtual_servers_id,
-                "conditions"=>"allocated = ".Dcoipobjects::ALLOC_RESERVED,
+                "conditions"=>"allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations) return $reservations;
         }
 
         if($searching || !empty($this->physical_servers_id)){
             $searching = true;
-            $reservations = Dcoipobjects::find(array(
+            $reservations = self::find(array(
                 "conditions"=>"physical_server_id = ".$this->physical_servers_id,
-                "conditions"=>"allocated = ".Dcoipobjects::ALLOC_RESERVED,
+                "conditions"=>"allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations) return $reservations;
         }            
 
         if($searching || !empty($this->colocations_id)){
             $searching = true;
-            $reservations = Dcoipobjects::find(array(
+            $reservations = self::find(array(
                 "conditions"=>"colocations_id = ".$this->colocations_id,
-                "conditions"=>"allocated = ".Dcoipobjects::ALLOC_RESERVED,
+                "conditions"=>"allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations) return $reservations;
         }            
@@ -731,7 +730,7 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
     *     
     * @param IPObject $ip
     */
-    public function isPartOf(Dcoipobjects $ip)
+    public function isPartOf(self $ip)
     {
         if($this->version <> $ip->getVersion()) return false;
 
@@ -792,7 +791,7 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
     * @param Dcoipobjects $ipo2
     * @return integer 0:even, -1:ipo1<ipo2, 1:ipo1>ipo2
     */
-    public function cmp(Dcoipobjects $ipo1,Dcoipobjects $ipo2){
+    public function cmp(self $ipo1,self $ipo2){
         if ($ipo1->getStart() == $ipo2->getStart()) {
             return 0;
         }
@@ -806,16 +805,16 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
     */
     public function getStart(){
         switch($this->type){
-            case Dcoipobjects::TYPE_IPADDRESS:
+            case self::TYPE_IPADDRESS:
                 return gmp_strval($this->toGMP($this->value1));
                 break;
-            case Dcoipobjects::TYPE_IPNET:
+            case self::TYPE_IPNET:
                 # Netz-Maske berechnen
                 $mask = gmp_xor(gmp_sub(gmp_pow(2,32),1),gmp_sub(pow(2,32-$this->value2),1));
                 # Netz-Nummer berechnen (unterste IP)
                 return gmp_strval(gmp_and($this->toGMP($this->value1),$mask));
                 break;
-            case Dcoipobjects::TYPE_IPRANGE:
+            case self::TYPE_IPRANGE:
                 return gmp_strval($this->toGMP($this->value1));
                 break;
             default:
@@ -831,10 +830,10 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
     */
     public function getEnd(){
         switch($this->type){
-            case Dcoipobjects::TYPE_IPADDRESS:
+            case self::TYPE_IPADDRESS:
                 return gmp_strval($this->toGMP($this->value1));
                 break;
-            case Dcoipobjects::TYPE_IPNET:
+            case self::TYPE_IPNET:
                 # Netz-Maske berechnen
                 $mask = gmp_xor(gmp_sub(gmp_pow(2,32),1),
                     gmp_sub(pow(2,32-$this->value2),1));
@@ -842,7 +841,7 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
                 $bcmask = gmp_sub(gmp_pow(2,32-$this->value2),1);
                 return gmp_strval(gmp_or($this->toGMP($this->value1),$bcmask));
                 break;
-            case Dcoipobjects::TYPE_IPRANGE:
+            case self::TYPE_IPRANGE:
                 return gmp_strval($this->toGMP($this->value2));
                 break;
             default:
@@ -858,13 +857,13 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
     */
     public function toString(){
         switch($this->type){
-            case Dcoipobjects::TYPE_IPADDRESS:
+            case self::TYPE_IPADDRESS:
                 return $this->value1;
                 break;
-            case Dcoipobjects::TYPE_IPNET:
+            case self::TYPE_IPNET:
                 return $this->value1."/".$this->value2;
                 break;
-            case Dcoipobjects::TYPE_IPRANGE:
+            case self::TYPE_IPRANGE:
                 return $this->value1." - ".$this->value2;
                 break;
             default:

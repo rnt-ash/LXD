@@ -17,6 +17,8 @@
 *
 */
 
+namespace RNTForest\ovz\forms;
+
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Text;
 use Phalcon\Forms\Element\Hidden;
@@ -25,7 +27,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValidator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class SnapshotForm extends Form
+class SnapshotFormBase extends \RNTForest\core\forms\FormBase
 {
     
     public function initialize($entity = null, $userOptions = null)

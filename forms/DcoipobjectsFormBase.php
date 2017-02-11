@@ -17,6 +17,8 @@
 *
 */
 
+namespace RNTForest\ovz\forms;
+
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Text;
 use Phalcon\Forms\Element\TextArea;
@@ -30,7 +32,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class DcoipobjectsForm extends FormBase
+class DcoipobjectsFormBase extends \RNTForest\core\forms\FormBase
 {
 
     public function initialize($dcoipobject = null, $options = array())

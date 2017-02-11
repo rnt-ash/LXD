@@ -16,8 +16,10 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>
 *
 */
+
+namespace RNTForest\ovz\controllers;
  
-class ColocationsController extends TableSlideBase
+class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
     protected function getSlideDataInfo() {
         return array(
@@ -95,6 +97,7 @@ class ColocationsController extends TableSlideBase
         $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
         
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$dcoipobjectsForm],
@@ -119,6 +122,7 @@ class ColocationsController extends TableSlideBase
         ));
 
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$ipobject],
@@ -143,6 +147,7 @@ class ColocationsController extends TableSlideBase
         ));
 
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'delete',
             'params' => [$ipobject],

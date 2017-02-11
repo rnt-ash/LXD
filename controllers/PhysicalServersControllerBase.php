@@ -17,7 +17,9 @@
 *
 */
  
-class PhysicalServersController extends TableSlideBase
+namespace RNTForest\ovz\controllers;
+ 
+class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
     protected function getSlideDataInfo() {
         return array(
@@ -97,7 +99,7 @@ class PhysicalServersController extends TableSlideBase
             $serverId = $this->filter->sanitize($serverId, "int");
 
             // find virtual server
-            $physicalServer = PhysicalServers::findFirst($serverId);
+            $physicalServer = ($this->getAppNs().'models\PhysicalServers')::findFirst($serverId);
             if (!$physicalServer) throw new Exception("Physical Server does not exist: " . $serverId);
 
             // not ovz enabled
@@ -182,7 +184,7 @@ class PhysicalServersController extends TableSlideBase
                     'params' => [$form],
                 ]);
             }
-            $phys = PhysicalServers::findFirstById($data['physical_servers_id']);
+            $phys = ($this->getAppNs().'models\PhysicalServers')::findFirstById($data['physical_servers_id']);
             if(!$phys) throw new Exception("Physical Server not found!");
             $connector = new OvzConnector($phys,$data['username'],$data['password']);
             $connector->go();
@@ -217,6 +219,7 @@ class PhysicalServersController extends TableSlideBase
         $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
         
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$dcoipobjectsForm],
@@ -241,6 +244,7 @@ class PhysicalServersController extends TableSlideBase
         ));
 
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$ipobject],
@@ -265,6 +269,7 @@ class PhysicalServersController extends TableSlideBase
         ));
 
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'delete',
             'params' => [$ipobject],
@@ -287,6 +292,7 @@ class PhysicalServersController extends TableSlideBase
         ));
 
         return $this->dispatcher->forward([
+            "namespace"  => "RNTForest\\ovz\\controllers",
             'controller' => 'dcoipobjects',
             'action' => 'makeMain',
             'params' => [$ipobject],

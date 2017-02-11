@@ -17,6 +17,8 @@
 *
 */
 
+namespace RNTForest\ovz\forms;
+
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Text;
 use Phalcon\Forms\Element\Password;
@@ -26,7 +28,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValidator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class OvzConnectorForm extends Form
+class OvzConnectorFormBase extends namespace \RNTForest\core\forms\FormBase
 {
     
     public function initialize($entity = null, $userOptions = null)

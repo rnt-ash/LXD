@@ -17,7 +17,9 @@
 *
 */
 
-class DcoipobjectsController extends ControllerBase
+namespace RNTForest\ovz\controllers;
+
+class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
 {
 
     /**
@@ -54,7 +56,7 @@ class DcoipobjectsController extends ControllerBase
             $this->view->form = $item;
         } else {
             // Get item from Database
-            $item = Dcoipobjects::findFirstByid($item);
+            $item = ($this->getAppNs().'models\Dcoipobjects')::findFirstByid($item);
             if (!$item) {
                 $this->flash->error("item was not found");
                 return $this->forwardToOrigin();
@@ -81,9 +83,9 @@ class DcoipobjectsController extends ControllerBase
         // Edit or new Record
         $id = $this->request->getPost("id", "int");
         if(empty($id)){
-            $item = new Dcoipobjects();
+            $item = new $this->getAppNs().'models\Dcoipobjects';
         }else{
-            $item = Dcoipobjects::findFirstById($id);
+            $item = ($this->getAppNs().'models\Dcoipobjects')::findFirstById($id);
             if (!$item) {
                 $this->flashSession->error("Item does not exist");
                 return $this->forwardToOrigin();
@@ -134,7 +136,7 @@ class DcoipobjectsController extends ControllerBase
     {
         // find item
         $id = $this->filter->sanitize($id, "int");
-        $dcoipobject = Dcoipobjects::findFirstByid($id);
+        $dcoipobject = ($this->getAppNs().'models\Dcoipobjects')::findFirstByid($id);
         if (!$dcoipobject) {
             $this->flashSession->error("IP Object was not found");
             return $this->forwardToOrigin();
@@ -167,7 +169,7 @@ class DcoipobjectsController extends ControllerBase
     */
     public function makeMainAction($id){
         $id = $this->filter->sanitize($id, "int");
-        $dcoipobject = Dcoipobjects::findFirst($id);
+        $dcoipobject = ($this->getAppNs().'models\Dcoipobjects')::findFirst($id);
         if (!$dcoipobject) {
             $this->flashSession->error("IP Object was not found");
             return $this->forwardToOrigin();
@@ -230,7 +232,7 @@ class DcoipobjectsController extends ControllerBase
     protected function configureAllocatedIpOnVirtualServer(Dcoipobjects $ip, $op='add'){
 
         // find virtual server
-        $virtualServer = VirtualServers::findFirst($ip->getVirtualServersId());
+        $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($ip->getVirtualServersId());
         if (!$virtualServer) 
             return "Virtual Server does not exist: " . $item->virtual_servers_id;
         
