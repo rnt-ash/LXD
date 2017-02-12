@@ -26,7 +26,7 @@ use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Validation\Validator\Between as BetweenValidator;
 use Phalcon\Mvc\Model\Message as Message;
 
-class DcoipobjectsBase extends \Phalcon\Mvc\Model
+class Dcoipobjects extends \Phalcon\Mvc\Model
 {
 
     // IP Versions
@@ -390,6 +390,9 @@ class DcoipobjectsBase extends \Phalcon\Mvc\Model
     */
     public function initialize()
     {
+        $this->belongsTo("colocations_id",'RNTForest\OVZCP\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>array("allowNulls"=>true)));
+        $this->belongsTo("physical_servers_id",'RNTForest\OVZCP\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>array("allowNulls"=>true)));
+        $this->belongsTo("virtual_servers_id",'RNTForest\OVZCP\models\VirtualServers',"id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
     }
 
     /**

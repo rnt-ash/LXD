@@ -18,6 +18,8 @@
 */
  
 namespace RNTForest\ovz\controllers;
+
+use RNTForest\ovz\models\PhysicalServers;
  
 class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -99,7 +101,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $serverId = $this->filter->sanitize($serverId, "int");
 
             // find virtual server
-            $physicalServer = ($this->getAppNs().'models\PhysicalServers')::findFirst($serverId);
+            $physicalServer = PhysicalServers::findFirst($serverId);
             if (!$physicalServer) throw new Exception("Physical Server does not exist: " . $serverId);
 
             // not ovz enabled
@@ -184,7 +186,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
                     'params' => [$form],
                 ]);
             }
-            $phys = ($this->getAppNs().'models\PhysicalServers')::findFirstById($data['physical_servers_id']);
+            $phys = PhysicalServers::findFirstById($data['physical_servers_id']);
             if(!$phys) throw new Exception("Physical Server not found!");
             $connector = new OvzConnector($phys,$data['username'],$data['password']);
             $connector->go();

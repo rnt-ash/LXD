@@ -32,7 +32,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class DcoipobjectsFormBase extends \RNTForest\core\forms\FormBase
+class DcoipobjectsForm extends \RNTForest\core\forms\FormBase
 {
 
     public function initialize($dcoipobject = null, $options = array())

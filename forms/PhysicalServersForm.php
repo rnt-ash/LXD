@@ -31,25 +31,12 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class PhysicalServersFormBase extends \RNTForest\core\forms\FormBase
+use RNTForest\core\models\Customers;
+use RNTForest\ovz\models\Colocations;
+
+class PhysicalServersForm extends \RNTForest\core\forms\FormBase
 {
 
-    public function appendMessage($field = '', $msg)
-    {
-        if (!isset($this->_elements[$field])) 
-            $this->_elements[$field] = new \Phalcon\Validation\Message\Group();
-        $this->_elements[$field]->appendMessage($msg);
-        
-        /*
-        if (isset($this->_messages)) {
-            $this->_messages->appendMessage($msg);
-        } else {
-            $this->_messages = new \Phalcon\Validation\Message\Group();
-            $this->_messages->appendMessage($msg);
-        }
-        */
-    }
-    
     public function initialize($entity = null, $options = array())
     {
 
@@ -72,7 +59,7 @@ class PhysicalServersFormBase extends \RNTForest\core\forms\FormBase
         // customer
         $element = new Select(
             "customers_id",
-            $this->getAppNs().'forms\Customers'::find(),
+            Customers::find(),
             array("using"=>array("id","company"),
                 "useEmpty"   => true,
                 "emptyText"  => "Please, choose a customer...",
@@ -86,7 +73,7 @@ class PhysicalServersFormBase extends \RNTForest\core\forms\FormBase
         // colocation
         $element = new Select(
             "colocations_id",
-            $this->getAppNs().'forms\Colocations'::find(),
+            Colocations::find(),
             array("using"=>array("id","name",),
                 "useEmpty"   => true,
                 "emptyText"  => "Please, choose a colocation...",

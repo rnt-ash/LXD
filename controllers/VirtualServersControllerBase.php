@@ -19,6 +19,8 @@
 
 namespace RNTForest\ovz\controllers;
 
+use RNTForest\ovz\models\VirtualServers;
+use RNTForest\ovz\models\PhysicalServers;
 use Phalcon\Http\Client\Request;
 
 class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
@@ -101,7 +103,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         try{
             // find virtual server
-            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
@@ -166,7 +168,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         try{
             // find virtual server
-            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
@@ -201,7 +203,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         try{
             // find virtual server
-            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
@@ -236,7 +238,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         try{
             // find virtual server
-            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
@@ -269,7 +271,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public function deleteAction($id){
 
         // find server
-        $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst(intval($id));
+        $virtualServer = VirtualServers::findFirst(intval($id));
         if(!$virtualServer){
             $this->flashSession->error("Virtual server not found.");
             return $this->redirecToTableSlideDataAction();
@@ -318,7 +320,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // get OS templates from server
         $push = $this->getPushService();
         $params = array();
-        $physicalServer = ($this->getAppNs().'models\PhysicalServers')::findFirst("ovz = 1");
+        $physicalServer = PhysicalServers::findFirst("ovz = 1");
         $job = $push->executeJob($physicalServer,'ovz_get_ostemplates',$params);
         if(!$job || $job->getDone()==2) throw new \Exception("Job (ovz_get_ostemplates) executions failed!");
         $retval = $job->getRetval(true);
@@ -404,7 +406,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             );
 
             // get PhysicalServer
-            $physicalServer = ($this->getAppNs().'models\PhysicalServers')::findFirst($form->getValue('physical_servers_id'));
+            $physicalServer = PhysicalServers::findFirst($form->getValue('physical_servers_id'));
             if (!$physicalServer) {
                 $this->flashSession->error("Physical Server does not exist: " . $serverId);
                 return false;
@@ -449,7 +451,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $serverId = $this->filter->sanitize($serverId, "int");
 
             // find virtual server
-            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
@@ -551,7 +553,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $snapshotId = $this->filter->sanitize($snapshotId, "string");
 
             // find virtual server
-            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enalbled
@@ -624,7 +626,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // switch to snapshot
         try {    
             // find virtual server
-            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($item->virtual_servers_id);
+            $virtualServer = VirtualServers::findFirst($item->virtual_servers_id);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $item->virtual_servers_id);
             
             // execute ovz_list_snapshots job        
@@ -669,7 +671,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $snapshotId = $this->filter->sanitize($snapshotId, "string");
 
             // find virtual server
-            $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($serverId);
+            $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
             
             // not ovz enabled

@@ -23,10 +23,9 @@ use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
-use Phalcon\Validation\Validator\Confirmation as ConfirmationValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 
-class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\interfaces\JobServerInterface
+class PhysicalServers extends \Phalcon\Mvc\Model implements \RNTForest\core\interfaces\JobServerInterface, \RNTForest\core\interfaces\PendingInterface
 {
 
     /**
@@ -59,7 +58,7 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     *
     * @var integer
     */
-    protected $physical_servers_id;
+    protected $colocations_id;
 
     /**
     *
@@ -77,73 +76,7 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     *
     * @var string
     */
-    protected $ovz_uuid;
-    
-    /**
-    * 
-    * @var string
-    */
-    protected $ovz_vstype;
-
-    /**
-    *
-    * @var string
-    */
     protected $ovz_settings;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_state;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_snapshots;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica_id;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica_host;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_replica_cron;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_replica_lastrun;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_replica_nextrun;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica_status;
 
     /**
     *
@@ -179,16 +112,16 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     *
     * @var string
     */
-    protected $pending;
-
-    /**
-    *
-    * @var string
-    */
     protected $modified;
 
     /**
-    * Unique ID
+    * 
+    * @var string
+    */
+    protected $pending;
+    
+    /**
+    * Method to set the value of field id
     *
     * @param integer $id
     * @return $this
@@ -196,11 +129,12 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setId($id)
     {
         $this->id = $id;
+
         return $this;
     }
 
     /**
-    * Name of the virtual server
+    * Method to set the value of field name
     *
     * @param string $name
     * @return $this
@@ -208,11 +142,12 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
     /**
-    * Description
+    * Method to set the value of field description
     *
     * @param string $description
     * @return $this
@@ -220,11 +155,12 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setDescription($description)
     {
         $this->description = $description;
+
         return $this;
     }
 
     /**
-    * Foreign key: Customers
+    * Method to set the value of field customers_id
     *
     * @param integer $customers_id
     * @return $this
@@ -232,23 +168,25 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setCustomersId($customers_id)
     {
         $this->customers_id = $customers_id;
+
         return $this;
     }
 
     /**
-    * Foreign key: PhysicalServers
+    * Method to set the value of field colocations_id
     *
-    * @param integer $physical_servers_id
+    * @param integer $colocations_id
     * @return $this
     */
-    public function setPhysicalServersId($physical_servers_id)
+    public function setColocationsId($colocations_id)
     {
-        $this->physical_servers_id = $physical_servers_id;
+        $this->colocations_id = $colocations_id;
+
         return $this;
     }
 
     /**
-    * Public key (OpenSSL)
+    * Method to set the value of field public_key
     *
     * @param string $public_key
     * @return $this
@@ -256,47 +194,25 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setPublicKey($public_key)
     {
         $this->public_key = $public_key;
+
         return $this;
     }
 
     /**
-    * Virtual server is OpenVZ guest
+    * Method to set the value of field ovz
     *
-    * @param int $ovz
+    * @param integer $ovz
     * @return $this
     */
     public function setOvz($ovz)
     {
         $this->ovz = $ovz;
+
         return $this;
     }
 
     /**
-    * UUID of the virtual server
-    *
-    * @param string $ovz_uuid
-    * @return $this
-    */
-    public function setOvzUuid($ovz_uuid)
-    {
-        $this->ovz_uuid = $ovz_uuid;
-        return $this;
-    }
-    
-    /**
-    * VS Type of the virtual server
-    *
-    * @param string $ovz_vstyp CT or VM
-    * @return $this
-    */
-    public function setOvzVstype($ovz_vstyp)
-    {
-        $this->ovz_vstype = $ovz_vstyp;
-        return $this;
-    }
-
-    /**
-    * OpenVZ settings as JSON
+    * Method to set the value of field ovz_settings
     *
     * @param string $ovz_settings
     * @return $this
@@ -304,119 +220,12 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setOvzSettings($ovz_settings)
     {
         $this->ovz_settings = $ovz_settings;
+
         return $this;
     }
 
     /**
-    * saves OVT State
-    *
-    * @param string $ovz_state
-    * @return $this
-    */
-    public function setOvzState($ovz_state)
-    {
-        $this->ovz_state = $ovz_state;
-        return $this;
-    }
-
-    /**
-    * OpenVZ snapshots as JSON
-    *
-    * @param string $ovz_snapshots
-    * @return $this
-    */
-    public function setOvzSnapshots($ovz_snapshots)
-    {
-        $this->ovz_snapshots = $ovz_snapshots;
-        return $this;
-    }
-
-    /**
-    * OpenVZ guest has replica
-    *
-    * @param integer $ovz_replica 0=off, 1=master, 2=slave
-    * @return $this
-    */
-    public function setOvzReplica($ovz_replica)
-    {
-        $this->ovz_replica = $ovz_replica;
-        return $this;
-    }
-
-    /**
-    * Foreign key to replica slave/master
-    *
-    * @param integer $ovz_replica_id
-    * @return $this
-    */
-    public function setOvzReplicaId($ovz_replica_id)
-    {
-        $this->ovz_replica_id = $ovz_replica_id;
-        return $this;
-    }
-
-    /**
-    * Foreign key to replica host
-    *
-    * @param integer $ovz_replica_host
-    * @return $this
-    */
-    public function setOvzReplicaHost($ovz_replica_host)
-    {
-        $this->ovz_replica_host = $ovz_replica_host;
-        return $this;
-    }
-
-    /**
-    * cron entries to start teh replica preiodical
-    *
-    * @param string $ovz_replica_cron
-    * @return $this
-    */
-    public function setOvzReplicaCron($ovz_replica_cron)
-    {
-        $this->ovz_replica_cron = $ovz_replica_cron;
-        return $this;
-    }
-
-    /**
-    * date of the replcas last run
-    *
-    * @param string $ovz_replica_lastrun
-    * @return $this
-    */
-    public function setOvzReplicaLastrun($ovz_replica_lastrun)
-    {
-        $this->ovz_replica_lastrun = $ovz_replica_lastrun;
-        return $this;
-    }
-
-    /**
-    * date of the claculated next run of the replica
-    *
-    * @param string $ovz_replica_nextrun
-    * @return $this
-    */
-    public function setOvzReplicaNextrun($ovz_replica_nextrun)
-    {
-        $this->ovz_replica_nextrun = $ovz_replica_nextrun;
-        return $this;
-    }
-
-    /**
-    * replica status
-    *
-    * @param integer $ovz_replica_status 0:off, 1:idle, 2:sync, 3:initial, 9:error
-    * @return $this
-    */
-    public function setOvzReplicaStatus($ovz_replica_status)
-    {
-        $this->ovz_replica_status = $ovz_replica_status;
-        return $this;
-    }
-
-    /**
-    * FQDN
+    * Method to set the value of field fqdn
     *
     * @param string $fqdn
     * @return $this
@@ -424,11 +233,12 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setFqdn($fqdn)
     {
         $this->fqdn = $fqdn;
+
         return $this;
     }
 
     /**
-    * CPU cores
+    * Method to set the value of field core
     *
     * @param integer $core
     * @return $this
@@ -436,35 +246,38 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setCore($core)
     {
         $this->core = $core;
+
         return $this;
     }
 
     /**
-    * Memory
+    * Method to set the value of field memory
     *
-    * @param integer $memory in MB
+    * @param integer $memory
     * @return $this
     */
     public function setMemory($memory)
     {
         $this->memory = $memory;
+
         return $this;
     }
 
     /**
-    * Diskspace
+    * Method to set the value of field space
     *
-    * @param integer $space in GB
+    * @param integer $space
     * @return $this
     */
     public function setSpace($space)
     {
         $this->space = $space;
+
         return $this;
     }
 
     /**
-    * Activation date
+    * Method to set the value of field activation_date
     *
     * @param string $activation_date
     * @return $this
@@ -472,11 +285,12 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setActivationDate($activation_date)
     {
         $this->activation_date = $activation_date;
+
         return $this;
     }
 
     /**
-    * last modified time
+    * Method to set the value of field modified
     *
     * @param string $modified
     * @return $this
@@ -484,6 +298,7 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function setModified($modified)
     {
         $this->modified = $modified;
+
         return $this;
     }
 
@@ -528,13 +343,13 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     }
 
     /**
-    * Returns the value of field physical_servers_id
+    * Returns the value of field colocations_id
     *
     * @return integer
     */
-    public function getPhysicalServersId()
+    public function getColocationsId()
     {
-        return $this->physical_servers_id;
+        return $this->colocations_id;
     }
 
     /**
@@ -558,26 +373,6 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     }
 
     /**
-    * Returns the value of field ovz_uuid
-    *
-    * @return string
-    */
-    public function getOvzUuid()
-    {
-        return $this->ovz_uuid;
-    }
-
-    /**
-    * Returns the value of field ovz_vstype
-    *
-    * @return string
-    */
-    public function getOvzVstype()
-    {
-        return $this->ovz_vstype;
-    }
-
-    /**
     * Returns the value of field ovz_settings
     *
     * @return string
@@ -585,96 +380,6 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     public function getOvzSettings()
     {
         return $this->ovz_settings;
-    }
-
-    /**
-    * Returns the value of field ovz_state
-    *
-    * @return string
-    */
-    public function getOvzState()
-    {
-        return $this->ovz_state;
-    }
-
-    /**
-    * Returns the value of field ovz_snapshots
-    *
-    * @return string
-    */
-    public function getOvzSnapshots()
-    {
-        return $this->ovz_snapshots;
-    }
-
-    /**
-    * Returns the value of field ovz_replica
-    *
-    * @return integer
-    */
-    public function getOvzReplica()
-    {
-        return $this->ovz_replica;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_id
-    *
-    * @return integer
-    */
-    public function getOvzReplicaId()
-    {
-        return $this->ovz_replica_id;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_host
-    *
-    * @return integer
-    */
-    public function getOvzReplicaHost()
-    {
-        return $this->ovz_replica_host;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_cron
-    *
-    * @return string
-    */
-    public function getOvzReplicaCron()
-    {
-        return $this->ovz_replica_cron;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_lastrun
-    *
-    * @return string
-    */
-    public function getOvzReplicaLastrun()
-    {
-        return $this->ovz_replica_lastrun;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_nextrun
-    *
-    * @return string
-    */
-    public function getOvzReplicaNextrun()
-    {
-        return $this->ovz_replica_nextrun;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_status
-    *
-    * @return integer
-    */
-    public function getOvzReplicaStatus()
-    {
-        return $this->ovz_replica_status;
     }
 
     /**
@@ -744,14 +449,20 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     */
     public function getDcoType()
     {
-        return 3;
+        return 2;
     }
-    
+
     /**
     * Initialize method for model.
     */
     public function initialize()
     {
+        $this->belongsTo("customers_id",'RNTForest\OVZCP\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
+        $this->belongsTo("colocations_id",'RNTForest\OVZCP\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>true));
+        $this->hasMany("id",'RNTForest\OVZCP\models\VirtualServers',"physical_servers_id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasMany("id",'RNTForest\OVZCP\models\Dcoipobjects',"physical_servers_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasMany("id",'RNTForest\OVZCP\models\Jobs',"physical_servers_id",array("alias"=>"Jobs", "foreignKey"=>array("allowNulls"=>true)));
+
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(
             'beforeUpdate' => array(
@@ -760,7 +471,7 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
             )
         )));   
     }
-    
+
     /**
     * Validations and business logic
     *
@@ -768,33 +479,26 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
     */
     public function validation()
     {
-        // get params from session
-        $session = $this->getDI()->get("session")->get("VirtualServersValidator");
-        $op = $session['op'];
-        $vstype = $session['vstype'];
-
-        $validator = $this->generateValidator($op,$vstype);
+        $validator = $this->generateValidator();
         if(!$this->validate($validator)) return false;
 
         return true;
     }
 
-    
     /**
-    * generates validator for VirtualServer model
+    * generates validator for PhysicalServer model
     * 
     * return \Phalcon\Validation $validator
     * 
     */
-    public static function generateValidator($op,$vstype){
-        
+    public function generateValidator(){
+
         // validator
         $validator = new Validation();
 
         // name
         /**
         * Container name that can be used to refer to said container in commands.
-        * The virtual machine name must not exceed 40 characters
         * Names must be alphanumeric and may contain the characters \, -, _. Names
         * with white spaces must be enclosed in quotation marks.
         * 
@@ -804,7 +508,7 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
         ]));        
 
         $validator->add('name', new StringLengthValitator([
-            'max' => 40,
+            'max' => 50,
             'min' => 3,
             'messageMaximum' => 'name too long',
             'messageMinimum' => 'name too small',
@@ -816,22 +520,13 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
         ]));        
 
         // fqdn
-        if($op == 'edit'){
-            $validator->add('fqdn', new RegexValidator([
-                'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-                'message' => 'must be a string separated by points',
-                'allowEmpty' => true,
-            ]));        
-        }
-
-        // customer
-        $validator->add('customers_id', new PresenceOfValidator([
-            'message' => 'customer is required'
+        $validator->add('fqdn', new PresenceOfValidator([
+            'message' => 'fqdn is required'
         ]));        
 
-        // physical server
-        $validator->add('physical_servers_id', new PresenceOfValidator([
-            'message' => 'physical server is required'
+        $validator->add('fqdn', new RegexValidator([
+            'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
+            'message' => 'must be a string separated by points'
         ]));        
 
         // core
@@ -849,25 +544,25 @@ class VirtualServersBase extends \Phalcon\Mvc\Model implements \RNTForest\core\i
             'message' => 'space is required'
         ]));        
 
-        if($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')){
-            // password
-            $validator->add('password', new PresenceOfValidator([
-                'message' => 'Password is required'
-            ]));        
 
-            $validator->add('password', new StringLengthValitator([
-                'min' => 8,
-                'messageMinimum' => 'Password is too short. Minimum 8 characters'
-            ]));        
-        }
-
-        if($op == 'new' && $vstype == 'CT'){
-            // ostemplate
-            $validator->add('ostemplate', new PresenceOfValidator([
-                'message' => 'OS template is required'
-            ]));        
-        }        
         return $validator;
     }
     
+    public function addPending($pendingToken){
+        $pendingArray = json_decode($this->pending,true);
+        $pendingArray[] = $pendingToken;        
+        $this->pending = json_encode($pendingArray);
+        $this->save();
+    }
+    
+    public function removePending($pendingToken){
+        $pendingArray = json_decode($this->pending,true);
+        $this->pending = json_encode(PendingHelpers::removePendingTokenInPendingArray($pendingToken,$pendingArray));
+        $this->save();
+    }
+    
+    public function isPending($pendingToken=''){
+        $pendingArray = json_decode($this->pending,true);
+        return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
+    }
 }

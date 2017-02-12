@@ -24,7 +24,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class ColocationsBase extends \Phalcon\Mvc\Model
+class Colocations extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -244,6 +244,9 @@ class ColocationsBase extends \Phalcon\Mvc\Model
     */
     public function initialize()
     {
+        $this->belongsTo("customers_id",'RNTForest\OVZCP\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
+        $this->hasMany("id",'RNTForest\OVZCP\models\PhysicalServers',"colocations_id",array("alias"=>"Customers", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasMany("id",'RNTForest\OVZCP\models\Dcoipobjects',"colocations_id",array("alias"=>"Customers", "foreignKey"=>array("allowNulls"=>true)));
     }
 
     /**

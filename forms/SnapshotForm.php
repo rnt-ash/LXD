@@ -27,7 +27,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValidator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class SnapshotFormBase extends \RNTForest\core\forms\FormBase
+class SnapshotForm extends \RNTForest\core\forms\FormBase
 {
     
     public function initialize($entity = null, $userOptions = null)

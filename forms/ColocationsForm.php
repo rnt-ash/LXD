@@ -25,7 +25,9 @@ use Phalcon\Forms\Element\Hidden;
 use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Date;
 
-class ColocationsFormBase extends \RNTForest\core\forms\FormBase
+use RNTForest\core\models\Customers;
+
+class ColocationsForm extends \RNTForest\core\forms\FormBase
 {
 
     public function initialize($entity = null)
@@ -35,7 +37,7 @@ class ColocationsFormBase extends \RNTForest\core\forms\FormBase
         // customer
         $element = new Select(
             "customers_id",
-            $this->getAppNs().'forms\Customers'::find(),
+            Customers::find(),
             array("using"=>array("id","company"),
                 "useEmpty"   => true,
                 "emptyText"  => "Please, choose a customer...",

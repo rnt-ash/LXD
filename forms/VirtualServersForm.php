@@ -32,7 +32,10 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class VirtualServersForm\RNTForest\core\forms\FormBase extends \RNTForest\core\forms\FormBase
+use RNTForest\core\models\Customers;
+use RNTForest\ovz\models\PhysicalServers;
+
+class VirtualServersForm\RNTForest\core\forms\Form extends \RNTForest\core\forms\FormBase
 {
 
     public function initialize($virtualServer = null, $options = array())
@@ -64,7 +67,7 @@ class VirtualServersForm\RNTForest\core\forms\FormBase extends \RNTForest\core\f
         // customer
         $element = new Select(
             "customers_id",
-            $this->config->application['appBaseNamespaceName'].'models\Customers'::find(),
+            Customers::find(),
             array("using"=>array("id","company"),
                 "useEmpty"   => true,
                 "emptyText"  => "Please, choose a customer...",
@@ -78,7 +81,7 @@ class VirtualServersForm\RNTForest\core\forms\FormBase extends \RNTForest\core\f
         // physical servers
         $element = new Select(
             "physical_servers_id",
-            $this->config->application['appBaseNamespaceName'].'models\PhysicalServers'::find(),
+            PhysicalServers::find(),
             array("using"=>array("id","name",),
                 "useEmpty"   => true,
                 "emptyText"  => "Please, choose a physical Server...",

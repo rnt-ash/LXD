@@ -19,6 +19,8 @@
 
 namespace RNTForest\ovz\controllers;
 
+use RNTForest\ovz\models\Dcoipobjects;
+
 class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
 {
 
@@ -56,7 +58,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
             $this->view->form = $item;
         } else {
             // Get item from Database
-            $item = ($this->getAppNs().'models\Dcoipobjects')::findFirstByid($item);
+            $item = Dcoipobjects::findFirstByid($item);
             if (!$item) {
                 $this->flash->error("item was not found");
                 return $this->forwardToOrigin();
@@ -85,7 +87,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         if(empty($id)){
             $item = new $this->getAppNs().'models\Dcoipobjects';
         }else{
-            $item = ($this->getAppNs().'models\Dcoipobjects')::findFirstById($id);
+            $item = Dcoipobjects::findFirstById($id);
             if (!$item) {
                 $this->flashSession->error("Item does not exist");
                 return $this->forwardToOrigin();
@@ -136,7 +138,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
     {
         // find item
         $id = $this->filter->sanitize($id, "int");
-        $dcoipobject = ($this->getAppNs().'models\Dcoipobjects')::findFirstByid($id);
+        $dcoipobject = Dcoipobjects::findFirstByid($id);
         if (!$dcoipobject) {
             $this->flashSession->error("IP Object was not found");
             return $this->forwardToOrigin();
@@ -169,7 +171,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
     */
     public function makeMainAction($id){
         $id = $this->filter->sanitize($id, "int");
-        $dcoipobject = ($this->getAppNs().'models\Dcoipobjects')::findFirst($id);
+        $dcoipobject = Dcoipobjects::findFirst($id);
         if (!$dcoipobject) {
             $this->flashSession->error("IP Object was not found");
             return $this->forwardToOrigin();
@@ -232,7 +234,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
     protected function configureAllocatedIpOnVirtualServer(Dcoipobjects $ip, $op='add'){
 
         // find virtual server
-        $virtualServer = ($this->getAppNs().'models\VirtualServers')::findFirst($ip->getVirtualServersId());
+        $virtualServer = VirtualServers::findFirst($ip->getVirtualServersId());
         if (!$virtualServer) 
             return "Virtual Server does not exist: " . $item->virtual_servers_id;
         
