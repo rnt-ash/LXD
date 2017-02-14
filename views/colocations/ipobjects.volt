@@ -22,11 +22,11 @@
                     class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="Delete IP Object"><i class="fa fa-trash-o"></i></a>
             </td>
             <td>
-                {% if ip.allocated == constant('\RNTForest\ovz\models\DcoipobjectsBase::ALLOC_RESERVED') %}
+                {% if ip.allocated == constant('\RNTForest\ovz\models\Dcoipobjects::ALLOC_RESERVED') %}
                     Reserved
-                {% elseif ip.allocated == constant('\RNTForest\ovz\models\DcoipobjectsBase::ALLOC_ASSIGNED') %}
+                {% elseif ip.allocated == constant('\RNTForest\ovz\models\Dcoipobjects::ALLOC_ASSIGNED') %}
                     Assigned
-                {% elseif ip.allocated == constant('\RNTForest\ovz\models\DcoipobjectsBase::ALLOC_AUTOASSIGNED') %}
+                {% elseif ip.allocated == constant('\RNTForest\ovz\models\Dcoipobjects::ALLOC_AUTOASSIGNED') %}
                     Auto Assigned
                 {% endif %}   
             </td>

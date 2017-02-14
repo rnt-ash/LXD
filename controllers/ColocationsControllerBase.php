@@ -22,13 +22,29 @@ namespace RNTForest\ovz\controllers;
 class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
     protected function getSlideDataInfo() {
+        $scope = $this->session->get('auth')['calculated_permissions']['colocations']['general']['scope'];
+        $scopeQuery = "";
+        $joinQuery = NULL;
+        if ($scope == 'customers'){
+            $scopeQuery = "customers_id = ".$this->session->get('auth')['customers_id'];
+        } else if($scope == 'partners'){
+            $scopeQuery = 'RNTForest\ovz\models\Colocations.customers_id = '.$this->session->get('auth')['customers_id'];
+            $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'];
+            $joinQuery = array('model'=>'RNTForest\core\models\CustomersPartners',
+                                'conditions'=>'RNTForest\ovz\models\Colocations.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
+                                'type'=>'LEFT');
+        }
+
         return array(
             "type" => "slideData",
+            "model" => '\RNTForest\ovz\models\Colocations',
+            "form" => '\RNTForest\ovz\forms\Colocations',
             "controller" => "colocations",
             "action" => "slidedata",
             "slidenamefield" => "name",
             "slidenamefielddescription" => "Servername",
-            "scope" => "",
+            "scope" => $scopeQuery,
+            "join" => $joinQuery,
             "order" => "name",
             "orderdir" => "ASC",
             "filters" => array(),

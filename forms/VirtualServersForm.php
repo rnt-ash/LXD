@@ -34,8 +34,9 @@ use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
 use RNTForest\core\models\Customers;
 use RNTForest\ovz\models\PhysicalServers;
+use RNTForest\ovz\models\VirtualServers;
 
-class VirtualServersForm\RNTForest\core\forms\Form extends \RNTForest\core\forms\FormBase
+class VirtualServersForm extends \RNTForest\core\forms\FormBase
 {
 
     public function initialize($virtualServer = null, $options = array())

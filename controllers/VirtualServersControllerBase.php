@@ -32,12 +32,17 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         if ($scope == 'customers'){
             $scopeQuery = "customers_id = ".$this->session->get('auth')['customers_id'];
         } else if($scope == 'partners'){
-            $scopeQuery = "partners_id = ".$this->session->get('auth')['customers_id'];
-            $joinQuery = array("model"=>"CustomersPartners","conditions"=>"VirtualServers.customers_id = CustomersPartners.customers_id");
+            $scopeQuery = 'RNTForest\ovz\models\VirtualServers.customers_id = '.$this->session->get('auth')['customers_id'];
+            $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'];
+            $joinQuery = array('model'=>'RNTForest\core\models\CustomersPartners',
+                                'conditions'=>'RNTForest\ovz\models\VirtualServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
+                                'type'=>'LEFT');
         }
                 
         return array(
             "type" => "slideData",
+            "model" => '\RNTForest\ovz\models\VirtualServers',
+            "form" => '\RNTForest\ovz\forms\VirtualServersForm',
             "controller" => "virtual_servers",
             "action" => "slidedata",
             "slidenamefield" => "name",
@@ -145,7 +150,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * @param VirtualServers $virtualServer
     * @param mixed $settings
     */
-    public static function assignSettings(\RNTForest\ovz\models\VirtualServersBase $virtualServer,$settings){
+    public static function assignSettings(\RNTForest\ovz\models\VirtualServers $virtualServer,$settings){
         $virtualServer->setName($settings['Name']);
         $virtualServer->setDescription($settings['Description']);
         $virtualServer->setOvz(1);

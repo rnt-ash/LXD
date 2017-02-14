@@ -20,17 +20,17 @@
                     'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Edit IP Object') }}
                 <a href="#" link="/physical_servers/deleteIpObject/{{ip.id}}" text="Are you sure to delete this IP Object?"
                     class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="Delete IP Object"><i class="fa fa-trash-o"></i></a>
-                {% if ip.main == 0 AND ip.allocated != constant('\RNTForest\ovz\models\DcoipobjectsBase::ALLOC_RESERVED') %}
+                {% if ip.main == 0 AND ip.allocated != constant('\RNTForest\ovz\models\Dcoipobjects::ALLOC_RESERVED') %}
                     {{ link_to("physical_servers/makeMainIpObject/"~ip.id,'<i class="fa fa-bolt"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Make IP Object to primary') }}
                 {% endif %}
             </td>
             <td>
-                {% if ip.allocated == constant('\RNTForest\ovz\models\DcoipobjectsBase::ALLOC_RESERVED') %}
+                {% if ip.allocated == constant('\RNTForest\ovz\models\Dcoipobjects::ALLOC_RESERVED') %}
                     Reserved
-                {% elseif ip.allocated == constant('\RNTForest\ovz\models\DcoipobjectsBase::ALLOC_ASSIGNED') %}
+                {% elseif ip.allocated == constant('\RNTForest\ovz\models\Dcoipobjects::ALLOC_ASSIGNED') %}
                     Assigned
-                {% elseif ip.allocated == constant('\RNTForest\ovz\models\DcoipobjectsBase::ALLOC_AUTOASSIGNED') %}
+                {% elseif ip.allocated == constant('\RNTForest\ovz\models\Dcoipobjects::ALLOC_AUTOASSIGNED') %}
                     Auto Assigned
                 {% endif %}   
             </td>

@@ -390,9 +390,9 @@ class Dcoipobjects extends \Phalcon\Mvc\Model
     */
     public function initialize()
     {
-        $this->belongsTo("colocations_id",'RNTForest\OVZCP\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>array("allowNulls"=>true)));
-        $this->belongsTo("physical_servers_id",'RNTForest\OVZCP\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>array("allowNulls"=>true)));
-        $this->belongsTo("virtual_servers_id",'RNTForest\OVZCP\models\VirtualServers',"id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
+        $this->belongsTo("colocations_id",'RNTForest\ovz\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>array("allowNulls"=>true)));
+        $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>array("allowNulls"=>true)));
+        $this->belongsTo("virtual_servers_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
     }
 
     /**

@@ -24,13 +24,29 @@ use RNTForest\ovz\models\PhysicalServers;
 class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
     protected function getSlideDataInfo() {
+        $scope = $this->session->get('auth')['calculated_permissions']['physical_servers']['general']['scope'];
+        $scopeQuery = "";
+        $joinQuery = NULL;
+        if ($scope == 'customers'){
+            $scopeQuery = "customers_id = ".$this->session->get('auth')['customers_id'];
+        } else if($scope == 'partners'){
+            $scopeQuery = 'RNTForest\ovz\models\PhysicalServers.customers_id = '.$this->session->get('auth')['customers_id'];
+            $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'];
+            $joinQuery = array('model'=>'RNTForest\core\models\CustomersPartners',
+                                'conditions'=>'RNTForest\ovz\models\PhysicalServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
+                                'type'=>'LEFT');
+        }
+
         return array(
             "type" => "slideData",
+            "model" => '\RNTForest\ovz\models\PhysicalServers',
+            "form" => '\RNTForest\ovz\forms\PhysicalServersForm',
             "controller" => "physical_servers",
             "action" => "slidedata",
             "slidenamefield" => "name",
             "slidenamefielddescription" => "Servername",
-            "scope" => "",
+            "scope" => $scopeQuery,
+            "join" => $joinQuery,
             "order" => "name",
             "orderdir" => "ASC",
             "filters" => array(),
@@ -109,7 +125,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
 
             // execute ovz_host_info job        
             $push = $this->getPushService();
-            $job = $push->executeJob($physicalServer,'ovz_host_info',$params,'PhysicalServers:'.$physicalServer->getId());
+            $job = $push->executeJob($physicalServer,'ovz_host_info',array(),'PhysicalServers:'.$physicalServer->getId());
             if(!$job || $job->getDone()==2) throw new Exception("Job (ovz_host_info) executions failed!");
 
             // save settings
