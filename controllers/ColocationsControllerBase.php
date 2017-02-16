@@ -19,6 +19,8 @@
 
 namespace RNTForest\ovz\controllers;
  
+use RNTForest\ovz\models\Colocations;
+
 class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
     protected function getSlideDataInfo() {
