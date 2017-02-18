@@ -26,7 +26,7 @@ use Phalcon\Http\Client\Request;
 class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
     protected function getSlideDataInfo() {
-        $scope = $this->session->get('auth')['calculated_permissions']['virtual_servers']['general']['scope'];
+        $scope = $this->session->get('auth')['permissions']['virtual_servers']['general']['scope'];
         $scopeQuery = "";
         $joinQuery = NULL;
         if ($scope == 'customers'){
@@ -175,6 +175,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // find virtual server
             $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
+
+            // permissions for this virtual server
+            if (!$this->isAllowedItem($virtualServer,"changestate")) return $this->forwardTo401();
             
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
@@ -210,6 +213,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // find virtual server
             $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
+
+            // permissions for this virtual server
+            if (!$this->isAllowedItem($virtualServer,"changestate")) return $this->forwardTo401();
             
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
@@ -245,6 +251,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // find virtual server
             $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
+
+            // permissions for this virtual server
+            if (!$this->isAllowedItem($virtualServer,"changestate")) return $this->forwardTo401();
             
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
@@ -416,6 +425,13 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $this->flashSession->error("Physical Server does not exist: " . $serverId);
                 return false;
             }
+            
+            // permissions for this PhysicalServer
+            if (!$this->isAllowedItem($physicalServer)){
+                $this->flashSession->error("Not allowed for this Physical Server");
+                return false;
+            }
+            
 
             if (!$physicalServer->getOvz()) {
                 $this->flashSession->error("Physical Server is not OVZ integrated. ");

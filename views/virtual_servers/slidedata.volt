@@ -12,7 +12,7 @@
     
         <div class="row">
             <div class="col-sm-5">
-                {% if acl.isAllowed("myRole" ,"virtual_servers", "createdelete") %}
+                {% if permissions.checkPermission("virtual_servers", "create") %}
                 <div class="btn-group">
                   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                      <b>New</b> <span class="caret"></span>

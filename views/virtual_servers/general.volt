@@ -8,7 +8,7 @@
                 <div class="pull-right">
                     {% if item.ovz == 1 %}
                     <div class="btn-group">
-                        {% if acl.isAllowed("myRole" ,"virtual_servers", "changestate") %}
+                        {% if permissions.checkPermission("virtual_servers", "changestate") %}
                         <button type="button" class="btn btn-success dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-lightbulb-o text-default"></i>&nbsp;<span class="caret"></span>
                         </button>
