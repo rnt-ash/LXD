@@ -20,6 +20,8 @@
 namespace RNTForest\ovz\controllers;
 
 use RNTForest\ovz\models\PhysicalServers;
+use RNTForest\ovz\forms\OvzConnectorForm;
+use RNTForest\ovz\services\OvzConnector;
  
 class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -99,7 +101,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     /**
     * dummy method only for IDE auto completion purpose
     * 
-    * @return Push
+    * @return \RNTForest\core\services\Push
     */
     protected function getPushService(){
         return $this->di['push'];
@@ -125,7 +127,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
 
             // execute ovz_host_info job        
             $push = $this->getPushService();
-            $job = $push->executeJob($physicalServer,'ovz_host_info',array(),'PhysicalServers:'.$physicalServer->getId());
+            $job = $push->executeJob($physicalServer,'ovz_host_info',array(),'RNTForest\ovz\models\PhysicalServers:'.$physicalServer->getId());
             if(!$job || $job->getDone()==2) throw new Exception("Job (ovz_host_info) executions failed!");
 
             // save settings
