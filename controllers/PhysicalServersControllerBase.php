@@ -101,7 +101,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     /**
     * dummy method only for IDE auto completion purpose
     * 
-    * @return Push
+    * @return \RNTForest\core\services\Push
     */
     protected function getPushService(){
         return $this->di['push'];

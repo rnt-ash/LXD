@@ -25,6 +25,8 @@ use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 
+use RNTForest\core\libraries\PendingHelpers;
+
 class PhysicalServers extends \Phalcon\Mvc\Model implements \RNTForest\core\interfaces\JobServerInterface, \RNTForest\core\interfaces\PendingInterface
 {
 
