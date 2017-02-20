@@ -18,7 +18,7 @@
 */
 
 namespace RNTForest\ovz\controllers;
- 
+
 use RNTForest\ovz\models\Colocations;
 
 class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBase
@@ -40,7 +40,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         return array(
             "type" => "slideData",
             "model" => '\RNTForest\ovz\models\Colocations',
-            "form" => '\RNTForest\ovz\forms\Colocations',
+            "form" => '\RNTForest\ovz\forms\ColocationsForm',
             "controller" => "colocations",
             "action" => "slidedata",
             "slidenamefield" => "name",

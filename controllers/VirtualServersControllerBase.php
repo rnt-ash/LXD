@@ -351,7 +351,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         ));
 
         $virtualServerForm = new VirtualServersForm(new VirtualServers());
-        $this->forwardToEditAction($virtualServerForm);
+        $this->forwardToFormAction($virtualServerForm);
         
     }
 
@@ -370,7 +370,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         ));
 
         $virtualServerForm = new VirtualServersForm(new VirtualServers());
-        $this->forwardToEditAction($virtualServerForm);
+        $this->forwardToFormAction($virtualServerForm);
         
     }
 
@@ -387,7 +387,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         ));
 
         $virtualServerForm = new VirtualServersForm(new VirtualServers());
-        $this->forwardToEditAction($virtualServerForm);
+        $this->forwardToFormAction($virtualServerForm);
         
     }
 

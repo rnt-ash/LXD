@@ -26,6 +26,7 @@ use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Date;
 
 use RNTForest\core\models\Customers;
+use RNTForest\ovz\models\Colocations;
 
 class ColocationsForm extends \RNTForest\core\forms\FormBase
 {
