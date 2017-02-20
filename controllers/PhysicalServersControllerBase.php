@@ -225,7 +225,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     public function addIpObjectAction($id){
 
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "op" => "new",
             "physical_servers_id" => intval($id),
             "origin" => array(
@@ -253,7 +253,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     public function editIpObjectAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "op" => "edit",
             "origin" => array(
                 'controller' => 'physical_servers',
@@ -278,7 +278,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     public function deleteIpObjectAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "op" => "delete",
             "origin" => array(
                 'controller' => 'physical_servers',
@@ -302,7 +302,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     */
     public function makeMainIpObjectAction($ipobject){
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "origin" => array(
                 'controller' => 'physical_servers',
                 'action' => 'slidedata',

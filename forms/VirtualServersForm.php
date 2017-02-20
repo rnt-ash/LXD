@@ -43,10 +43,11 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
     {
 
         // get params from session
-        $session = $this->session->get("VirtualServersValidator");
+        $session = $this->session->get("VirtualServersForm");
         $op = $session['op'];
         $vstype = $session['vstype'];
 
+        // id
         $this->add(new Hidden("id"));
 
         // name

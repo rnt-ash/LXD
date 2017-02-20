@@ -39,9 +39,10 @@ class DcoipobjectsForm extends \RNTForest\core\forms\FormBase
     {
 
         // get params from session
-        $session = $this->session->get("DcoipobjectsValidator");
+        $session = $this->session->get("DcoipobjectsForm");
         $op = $session['op'];
 
+        // id
         $this->add(new Hidden("id"));
 
         if ($op == 'new'){

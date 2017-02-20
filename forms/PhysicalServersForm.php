@@ -41,6 +41,11 @@ class PhysicalServersForm extends \RNTForest\core\forms\FormBase
     public function initialize($entity = null, $options = array())
     {
 
+        // get params from session
+        $session = $this->session->get("PhysicalServersForm");
+        $op = $session['op'];
+
+        // id
         $this->add(new Hidden("id"));
 
         // name

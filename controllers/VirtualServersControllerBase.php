@@ -344,8 +344,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
         
         // store in session
-        $this->session->set("VirtualServersValidator", array(
-            "op" => "new",
+        $this->session->set($this->getFormClassName(), array(
             "vstype" => "CT",
             "ostemplates" => $ostemplates,
         ));
@@ -362,7 +361,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public function newVMAction(){
 
         // store in session
-        $this->session->set("VirtualServersValidator", array(
+        $this->session->set($this->getFormClassName(), array(
             "op" => "new",
             "vstype" => "VM",
             //  prlctl set <VM_name> -d list  => get the list
@@ -381,7 +380,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public function newVSAction(){
 
         // store in session
-        $this->session->set("VirtualServersValidator", array(
+        $this->session->set($this->getFormClassName(), array(
             "op" => "new",
             "vstype" => "VS",
         ));
@@ -400,7 +399,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     */
     protected function preSave($virtualServer,$form){
         
-        $session = $this->session->get("VirtualServersValidator");
+        $session = $this->session->get($this->getFormClassName());
         if($session['vstype'] == 'CT' || $session['vstype'] == 'VM' ){
             $virtualServer->setOvz(true);
             $virtualServer->setOvzVstype($session['vstype']);
@@ -456,7 +455,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * @param VirtualServersForm $form
     */
     protected function postSave($virtualServer,$form){
-        $session = $this->session->remove("VirtualServersValidator");
+        $session = $this->session->remove($this->getFormClassName());
         return true;
     }
     
@@ -735,7 +734,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public function addIpObjectAction($id){
 
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "op" => "new",
             "virtual_servers_id" => intval($id),
             "origin" => array(
@@ -763,7 +762,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public function editIpObjectAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "op" => "edit",
             "origin" => array(
                 'controller' => 'virtual_servers',
@@ -788,7 +787,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public function deleteIpObjectAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "op" => "delete",
             "origin" => array(
                 'controller' => 'virtual_servers',
@@ -812,7 +811,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     */
     public function makeMainIpObjectAction($ipobject){
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "origin" => array(
                 'controller' => 'virtual_servers',
                 'action' => 'slidedata',

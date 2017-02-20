@@ -103,7 +103,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     public function addIpObjectAction($id){
 
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "op" => "new",
             "colocations_id" => intval($id),
             "origin" => array(
@@ -131,7 +131,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     public function editIpObjectAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "op" => "edit",
             "origin" => array(
                 'controller' => 'colocations',
@@ -156,7 +156,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     public function deleteIpObjectAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsValidator", array(
+        $this->session->set("DcoipobjectsForm", array(
             "op" => "delete",
             "origin" => array(
                 'controller' => 'colocations',

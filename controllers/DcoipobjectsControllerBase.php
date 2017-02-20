@@ -40,7 +40,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
     * 
     */
     protected function forwardToOrigin(){
-        $session = $this->session->get("DcoipobjectsValidator");
+        $session = $this->session->get("DcoipobjectsForm");
         return $this->dispatcher->forward($session['origin']);
     }
 
