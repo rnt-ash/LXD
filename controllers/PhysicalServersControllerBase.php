@@ -127,7 +127,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
 
             // execute ovz_host_info job        
             $push = $this->getPushService();
-            $job = $push->executeJob($physicalServer,'ovz_host_info',array(),'PhysicalServers:'.$physicalServer->getId());
+            $job = $push->executeJob($physicalServer,'ovz_host_info',array(),'RNTForest\ovz\models\PhysicalServers:'.$physicalServer->getId());
             if(!$job || $job->getDone()==2) throw new Exception("Job (ovz_host_info) executions failed!");
 
             // save settings
