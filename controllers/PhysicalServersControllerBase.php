@@ -20,6 +20,8 @@
 namespace RNTForest\ovz\controllers;
 
 use RNTForest\ovz\models\PhysicalServers;
+use RNTForest\ovz\forms\OvzConnectorForm;
+use RNTForest\ovz\services\OvzConnector;
  
 class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {

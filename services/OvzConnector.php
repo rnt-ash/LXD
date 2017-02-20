@@ -17,6 +17,11 @@
 *
 */
 
+namespace RNTForest\ovz\services;
+
+use RNTForest\ovz\models\PhysicalServers;
+use RNTForest\core\libraries\RemoteSshConnection;
+
 /**
 * The OvzConnector is used to connect a preinstalled OpenVZ 7 server to the OVZCP.
 * Consult the INSTALL-OVZ7LEMP.md to read about the correct usage.
@@ -240,8 +245,8 @@ class OvzConnector extends \Phalcon\DI\Injectable
             // iterate recursively over the directory with source code files for ovzhost and store them in a array $files
             // this array consists of the source filepath in the key and the representative destination filepath in the value
             // the second array $directories is for previously creating the needed directories
-            $directory = new RecursiveDirectoryIterator($this->PathToOvzhostDirectoryOnAdminServer,FilesystemIterator::SKIP_DOTS);
-            $iterator = new RecursiveIteratorIterator($directory);
+            $directory = new \RecursiveDirectoryIterator($this->PathToOvzhostDirectoryOnAdminServer,\FilesystemIterator::SKIP_DOTS);
+            $iterator = new \RecursiveIteratorIterator($directory);
             $files = array();
             $directories = array();
             foreach ($iterator as $info) {
