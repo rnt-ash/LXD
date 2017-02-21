@@ -116,7 +116,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
 
-            // execute ovz_list_info job        
+            // execute ovz_list_info job 
+            // no pending needed because job is readonly     
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
@@ -184,10 +185,12 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
 
-            // execute ovz_start_vs job        
+            // execute ovz_start_vs job 
+            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_start_vs',$params);
+            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_start_vs',$params,$pending);
             if($job->getDone()==2) throw new \Exception("Job (ovz_start_vs) executions failed: ".$job->getError());
 
             // success
@@ -223,9 +226,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if(!$virtualServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
 
             // execute ovz_stop_vs job        
+            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_stop_vs',$params);
+            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_stop_vs',$params,$pending);
             if($job->getDone()==2) throw new \Exception("Job (ovz_stop_vs) executions failed: ".$job->getError());
 
             // success
@@ -261,9 +266,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if(!$virtualServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
 
             // execute ovz_restart_vs job        
+            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params,'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId());
+            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params,$pending);
             if($job->getDone()==2) throw new \Exception("Job (ovz_restart_vs) executions failed: ".$job->getError());
 
             // success
@@ -295,12 +302,16 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         // execute ovz_destroy_vs job   
         if($virtualServer->getOvz()){     
+            // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId();
             $push = $this->getPushService();
             $params = array("UUID"=>$virtualServer->getOvzUuid());
-            $job = $push->executeJob($virtualServer->physicalServers,'ovz_destroy_vs',$params);
+            $job = $push->executeJob($virtualServer->physicalServers,'ovz_destroy_vs',$params,$pending);
             if($job->getDone() == 2){
                 $this->flashSession->error("Virtual server destroy job failed: ".$job->getError());
                 return $this->redirecToTableSlideDataAction();
+            }elseif(!empty($job->getRetval())){
+                $this->flashSession->warning($job->getRetval());
             }
         }
         
