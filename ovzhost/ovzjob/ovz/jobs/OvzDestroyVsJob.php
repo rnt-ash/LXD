@@ -48,7 +48,11 @@ class OvzDestroyVsJob extends AbstractOvzJob {
             $this->Done = 1;
             $this->Context->getLogger()->debug("Destroy VS done.");
         }else{
+            // if the container does not exist on this host the job is still successfull
+            // because if a container is deleted manually in the shell and afterwards deleted on the panel
+            // which starts a job, the job should be successfull if the container doesn't exist anymore on the ovz host.
             $this->Done = 1;
+            $this->Error = "";
             $this->Retval = "VS does not exist so it cannot be destroyed.";
             $this->Context->getLogger()->debug($this->Retval);
         }
