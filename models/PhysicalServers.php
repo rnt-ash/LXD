@@ -550,6 +550,12 @@ class PhysicalServers extends \Phalcon\Mvc\Model implements \RNTForest\core\inte
         return $validator;
     }
     
+    /**
+    * Add a PendingToken to the PendingEntity.
+    * For conversion of a PendingString to a PendingToken use PendingHelpers::convert Method.
+    * 
+    * @param array $pendingToken a valid PendingToken
+    */
     public function addPending($pendingToken){
         $pendingArray = json_decode($this->pending,true);
         $pendingArray[] = $pendingToken;        
@@ -557,12 +563,25 @@ class PhysicalServers extends \Phalcon\Mvc\Model implements \RNTForest\core\inte
         $this->save();
     }
     
+    /**
+    * Remove a PendingToken from the PendingEntity.
+    * For conversion of a PendingString to a PendingToken use PendingHelpers::convert Method.
+    * 
+    * @param array $pendingToken a valid PendingToken
+    */
     public function removePending($pendingToken){
         $pendingArray = json_decode($this->pending,true);
         $this->pending = json_encode(PendingHelpers::removePendingTokenInPendingArray($pendingToken,$pendingArray));
         $this->save();
     }
     
+    /**
+    * Checks if a PendingEntity is pending representative to the given PendingToken.
+    * If no PendingToken is given it will return true if any PendingToken is in the PendingEntity. 
+    * 
+    * @param array $pendingToken (optional) a valid PendingToken 
+    * @return boolean 
+    */
     public function isPending($pendingToken=''){
         $pendingArray = json_decode($this->pending,true);
         return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);

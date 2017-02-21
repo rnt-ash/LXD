@@ -261,7 +261,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // execute ovz_restart_vs job        
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params);
+            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params,'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId());
             if($job->getDone()==2) throw new \Exception("Job (ovz_restart_vs) executions failed: ".$job->getError());
 
             // success

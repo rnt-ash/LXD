@@ -26,7 +26,9 @@ use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Validation\Validator\Confirmation as ConfirmationValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 
-class VirtualServers extends \Phalcon\Mvc\Model implements \RNTForest\core\interfaces\JobServerInterface
+use RNTForest\core\libraries\PendingHelpers;
+
+class VirtualServers extends \Phalcon\Mvc\Model implements \RNTForest\core\interfaces\JobServerInterface, \RNTForest\core\interfaces\PendingInterface
 {
 
     /**
@@ -875,4 +877,40 @@ class VirtualServers extends \Phalcon\Mvc\Model implements \RNTForest\core\inter
         return $validator;
     }
     
+    /**
+    * Add a PendingToken to the PendingEntity.
+    * For conversion of a PendingString to a PendingToken use PendingHelpers::convert Method.
+    * 
+    * @param array $pendingToken a valid PendingToken
+    */
+    public function addPending($pendingToken){
+        $pendingArray = json_decode($this->pending,true);
+        $pendingArray[] = $pendingToken;        
+        $this->pending = json_encode($pendingArray);
+        $this->save();
+    }
+    
+    /**
+    * Remove a PendingToken from the PendingEntity.
+    * For conversion of a PendingString to a PendingToken use PendingHelpers::convert Method.
+    * 
+    * @param array $pendingToken a valid PendingToken
+    */
+    public function removePending($pendingToken){
+        $pendingArray = json_decode($this->pending,true);
+        $this->pending = json_encode(PendingHelpers::removePendingTokenInPendingArray($pendingToken,$pendingArray));
+        $this->save();
+    }
+    
+    /**
+    * Checks if a PendingEntity is pending representative to the given PendingToken.
+    * If no PendingToken is given it will return true if any PendingToken is in the PendingEntity. 
+    * 
+    * @param array $pendingToken (optional) a valid PendingToken 
+    * @return boolean 
+    */
+    public function isPending($pendingToken=''){
+        $pendingArray = json_decode($this->pending,true);
+        return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
+    }
 }
