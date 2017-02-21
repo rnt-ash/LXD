@@ -757,7 +757,7 @@ class VirtualServers extends \Phalcon\Mvc\Model implements \RNTForest\core\inter
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
         $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
         $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"virtual_servers_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id",'RNTForest\ovz\models\Jobs',"virtual_servers_id",array("alias"=>"Jobs", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasMany("id",'RNTForest\core\models\Jobs',"virtual_servers_id",array("alias"=>"Jobs", "foreignKey"=>array("allowNulls"=>true)));
 
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(
