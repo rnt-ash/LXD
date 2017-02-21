@@ -31,7 +31,9 @@ class OvzListSnapshotsJob extends AbstractOvzJob {
     public function run() {
         $this->Context->getLogger()->debug("List snapshots!");
 
-        if(!$this->vsExists($this->Params['UUID'])) return 9;
+        if(!$this->vsExists($this->Params['UUID'])){
+             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+        }
         
         $exitstatus = $this->PrlctlCommands->listSnapshots($this->Params['UUID']);
         if($exitstatus > 0) return $this->commandFailed("Getting snapshots failed",$exitstatus);

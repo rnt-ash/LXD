@@ -24,7 +24,9 @@ class OvzSetPwdJob extends AbstractOvzJob {
     public function run() {
         $this->Context->getLogger()->debug("VS set root password!");
 
-        if(!$this->vsExists($this->Params['UUID'])) return 9;
+        if(!$this->vsExists($this->Params['UUID'])){
+             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+        }
 
         $exitstatus = $this->PrlctlCommands->setRootPwd($this->Params['UUID'],$this->Params['ROOTPWD']);
         if($exitstatus == 0){

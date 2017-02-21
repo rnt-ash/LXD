@@ -30,7 +30,9 @@ class OvzStartVsJob extends AbstractOvzJob {
     public function run() {
         $this->Context->getLogger()->debug("VS start!");
         
-        if(!$this->vsExists($this->Params['UUID'])) return 9;
+        if(!$this->vsExists($this->Params['UUID'])){
+             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+        }
 
         $exitstatus = $this->PrlctlCommands->status($this->Params['UUID']);
         if($exitstatus > 0) return $this->commandFailed("Getting status failed",$exitstatus);

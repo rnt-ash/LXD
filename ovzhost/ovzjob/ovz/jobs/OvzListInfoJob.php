@@ -31,7 +31,9 @@ class OvzListInfoJob extends AbstractOvzJob {
     public function run() {
         $this->Context->getLogger()->debug("Get info!");
 
-        if(!$this->vsExists($this->Params['UUID'])) return 9;
+        if(!$this->vsExists($this->Params['UUID'])){
+             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+        }
         
         $exitstatus = $this->PrlctlCommands->listInfo($this->Params['UUID']);
         if($exitstatus > 0) return $this->commandFailed("Getting info failed",$exitstatus);

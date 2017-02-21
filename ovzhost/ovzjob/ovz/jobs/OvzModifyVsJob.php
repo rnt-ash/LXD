@@ -28,7 +28,9 @@ class OvzModifyVsJob extends AbstractOvzJob{
     public function run() {
         $this->Context->getLogger()->debug("Modify VS!");
         
-        if(!$this->vsExists($this->Params['UUID'])) return 9;
+        if(!$this->vsExists($this->Params['UUID'])){
+             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+        }
         
         $config = $this->Params['CONFIG'];
         $errors = array();

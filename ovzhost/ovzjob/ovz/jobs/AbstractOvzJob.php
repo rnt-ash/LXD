@@ -57,12 +57,12 @@ abstract class AbstractOvzJob extends AbstractJob{
     /**
     * helper method
     * 
-    * @param dtring $message
+    * @param string $message
     */
     protected function commandFailed($message,$exitstatus){
         $this->Done = 2;
         $this->Error = $message." Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput());
-        $this->Context->getLogger()->debug($this->Error);
+        $this->Context->getLogger()->error($this->Error);
         return $exitstatus;
     }
 
@@ -80,13 +80,9 @@ abstract class AbstractOvzJob extends AbstractJob{
                 if($vs['uuid'] == $uuid) $found = true;
             }
         }
-        if(!$found){
-            $this->Done = 2;
-            $this->Error = "VS with UUID ".$uuid." not exists! ";
-            $this->Context->getLogger()->debug($this->Error);
-            return false;
-        }
-        return true;
+
+        $this->Context->getLogger()->debug('VS with UUID '.$uuid.' was '.($found?'':'not ').'found.');
+        return $found;
     }
 
 }

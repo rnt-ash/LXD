@@ -31,7 +31,9 @@ class OvzDeleteSnapshotJob extends AbstractOvzJob {
     public function run() {
         $this->Context->getLogger()->debug("Delete snapshot!");
 
-        if(!$this->vsExists($this->Params['UUID'])) return 9;
+        if(!$this->vsExists($this->Params['UUID'])){
+             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+        }
         
         $exitstatus = $this->PrlctlCommands->deleteSnapshot($this->Params['UUID'],$this->Params['SNAPSHOTID']);
         if($exitstatus > 0) return $this->commandFailed("delete snapshot failed",$exitstatus);

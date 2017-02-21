@@ -31,7 +31,9 @@ class OvzCreateSnapshotJob extends AbstractOvzJob {
     public function run() {
         $this->Context->getLogger()->debug("Create snapshot!");
 
-        if(!$this->vsExists($this->Params['UUID'])) return 9;
+        if(!$this->vsExists($this->Params['UUID'])){
+             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+        }
         
         $exitstatus = $this->PrlctlCommands->createSnapshot($this->Params['UUID'],$this->Params['NAME'],$this->Params['DESCRIPTION']);
         if($exitstatus > 0) return $this->commandFailed("creating snapshot failed",$exitstatus);

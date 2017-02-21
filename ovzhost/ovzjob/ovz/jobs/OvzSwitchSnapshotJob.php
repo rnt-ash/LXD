@@ -31,7 +31,9 @@ class OvzSwitchSnapshotJob extends AbstractOvzJob {
     public function run() {
         $this->Context->getLogger()->debug("Switch snapshot!");
 
-        if(!$this->vsExists($this->Params['UUID'])) return 9;
+        if(!$this->vsExists($this->Params['UUID'])){
+             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+        }
         
         $exitstatus = $this->PrlctlCommands->switchSnapshot($this->Params['UUID'],$this->Params['SNAPSHOTID']);
         if($exitstatus > 0) return $this->commandFailed("swich snapshot failed",$exitstatus);
