@@ -19,9 +19,11 @@
 
 namespace RNTForest\ovz\controllers;
 
+use Phalcon\Http\Client\Request;
+
 use RNTForest\ovz\models\VirtualServers;
 use RNTForest\ovz\models\PhysicalServers;
-use Phalcon\Http\Client\Request;
+use RNTForest\ovz\forms\VirtualServersForm;
 
 class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -345,6 +347,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         
         // store in session
         $this->session->set($this->getFormClassName(), array(
+            "op" => "new",
             "vstype" => "CT",
             "ostemplates" => $ostemplates,
         ));
