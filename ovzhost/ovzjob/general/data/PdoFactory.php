@@ -33,6 +33,7 @@ class PdoFactory{
             "executed NUMERIC,".
             "done INTEGER,".
             "error TEXT,".
+            "warning TEXT,".
             "retval TEXT".
             ");");
         return $pdo;

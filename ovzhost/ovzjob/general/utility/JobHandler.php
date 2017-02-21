@@ -72,6 +72,7 @@ class JobHandler implements JobExecutor{
         
         $jobDTO->setDone($this->RunnableJob->getDone());
         $jobDTO->setError($this->RunnableJob->getError());
+        $jobDTO->setWarning($this->RunnableJob->getWarning());
         $jobDTO->setRetval($this->RunnableJob->getRetval());
         $jobDTO = $this->genExecutedIfDone($jobDTO);
         

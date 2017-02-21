@@ -46,7 +46,7 @@ class DbJobDTORepository implements JobDTORepository{
     * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
     */
     public function get($id){
-        $stmt = $this->Pdo->prepare("SELECT id, type, params, executed, done, error, retval FROM jobs WHERE id=:id");
+        $stmt = $this->Pdo->prepare("SELECT id, type, params, executed, done, error, warning, retval FROM jobs WHERE id=:id");
         $stmt->execute(array(':id' => intval($id)));
         if(!$row = $stmt->fetch(\PDO::FETCH_ASSOC)){
             throw new \Exception("JobDTO does not exist on this Server.");
@@ -59,6 +59,7 @@ class DbJobDTORepository implements JobDTORepository{
         $jobDTO->setExecuted($row['executed']);
         $jobDTO->setDone($row['done']);
         $jobDTO->setError($row['error']);
+        $jobDTO->setWarning($row['warning']);
         $jobDTO->setRetval($row['retval']);
         return $jobDTO;                
     }
@@ -70,13 +71,14 @@ class DbJobDTORepository implements JobDTORepository{
     * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
     */
     public function create(JobDTO $jobDTO){
-        $stmt = $this->Pdo->prepare("INSERT INTO jobs (id, type, params, executed, done, error, retval) VALUES(:id, :type, :params, :executed, :done, :error, :retval)");
+        $stmt = $this->Pdo->prepare("INSERT INTO jobs (id, type, params, executed, done, error, warning, retval) VALUES(:id, :type, :params, :executed, :done, :error, :warning, :retval)");
         $stmt->bindValue(':id',intval($jobDTO->getId()));
         $stmt->bindValue(':type',$jobDTO->getType());
         $stmt->bindValue(':params',$jobDTO->getJsonParams());
         $stmt->bindValue(':executed',$jobDTO->getExecuted());
         $stmt->bindValue(':done',intval($jobDTO->getDone()));
         $stmt->bindValue(':error',$jobDTO->getError());
+        $stmt->bindValue(':warning',$jobDTO->getWarning());
         $stmt->bindValue(':retval',$jobDTO->getRetval());
         if(!$stmt->execute()){
             $this->Logger->error("Pdo Error in INSERT, Error Code ".$this->Pdo->errorCode()." Message: ".json_encode($this->Pdo->errorInfo()));
@@ -92,13 +94,14 @@ class DbJobDTORepository implements JobDTORepository{
     * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
     */
     public function update(JobDTO $jobDTO){
-        $stmt = $this->Pdo->prepare("UPDATE jobs SET type=:type, params=:params, executed=:executed, done=:done, error=:error, retval=:retval WHERE id=:id");
+        $stmt = $this->Pdo->prepare("UPDATE jobs SET type=:type, params=:params, executed=:executed, done=:done, error=:error, warning=:warning, retval=:retval WHERE id=:id");
         $stmt->bindValue(':id',intval($jobDTO->getId()));
         $stmt->bindValue(':type',$jobDTO->getType());
         $stmt->bindValue(':params',$jobDTO->getJsonParams());
         $stmt->bindValue(':executed',$jobDTO->getExecuted());
         $stmt->bindValue(':done',intval($jobDTO->getDone()));
         $stmt->bindValue(':error',$jobDTO->getError());
+        $stmt->bindValue(':warning',$jobDTO->getWarning());
         $stmt->bindValue(':retval',$jobDTO->getRetval());
         if(!$stmt->execute()){
             $this->Logger->error("Pdo Error in UPDATE, Error Code ".$this->Pdo->errorCode()." Message: ".json_encode($this->Pdo->errorInfo()));

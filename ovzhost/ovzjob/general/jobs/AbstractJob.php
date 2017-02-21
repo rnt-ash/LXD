@@ -31,6 +31,7 @@ abstract class AbstractJob {
     */
     protected $Context;
     protected $Error = '';
+    protected $Warning = '';
     protected $Retval = '';
     protected $Done = 0;
     
@@ -57,6 +58,10 @@ abstract class AbstractJob {
 
     public function getError(){
         return $this->Error;
+    }
+    
+    public function getWarning(){
+        return $this->Warning;
     }
     
     public function getRetval(){

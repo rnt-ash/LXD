@@ -25,7 +25,8 @@ class JobDTO {
     private $JsonParams = '';
     private $Executed = '0000-00-00 00:00:00';
     private $Done = 0;
-    private $Error = 0;
+    private $Error = '';
+    private $Warning = '';
     private $Retval = '';
     
     /**
@@ -111,7 +112,7 @@ class JobDTO {
     }
     
     /**
-    * @return int
+    * @return string
     */
     public function getError(){
         return $this->Error;
@@ -125,6 +126,24 @@ class JobDTO {
             $this->Error = 'incorrect error format set (should be string)';
         }else{
             $this->Error = $error;
+        }        
+    }
+    
+    /**
+    * @return string
+    */
+    public function getWarning(){
+        return $this->Warning;
+    }
+    
+    /**
+    * @param string $warning
+    */
+    public function setWarning($warning){
+        if(!is_string($warning)){
+            $this->Warning = 'incorrect warning format set (should be string)';
+        }else{
+            $this->Warning = $warning;
         }        
     }
     
@@ -161,6 +180,7 @@ class JobDTO {
             "executed"=>$this->Executed,
             "done"=>$this->Done,
             "error"=>$this->Error,
+            "warning"=>$this->Warning,
             "retval"=>$this->Retval
        ); 
        return $array;

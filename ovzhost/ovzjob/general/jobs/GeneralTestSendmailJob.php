@@ -32,5 +32,6 @@ class GeneralTestSendmailJob extends AbstractJob {
         mail($this->Params['TO'],'general_test_sendmail',$this->Params['MESSAGE']);
         $this->Done = 1;
         $this->Retval="Testmail sent.";
+        $this->Warning=json_encode(["Testwarning generated"]);
     }
 }
