@@ -59,6 +59,15 @@ class OvzNewVsBgJob extends AbstractOvzJob{
             $this->Context->getLogger()->debug($errors['RAM']);
             // go on with work...
         }
+        
+        // try to set DISKSPACE
+        $diskspaceInMB = $this->Params['DISKSPACE']*1024;
+        $exitstatus = $this->PrlctlCommands->setValue($this->Params['UUID'],'diskspace',$diskspaceInMB);
+        if($exitstatus > 0){
+            $errors[] = "Setting diskspace failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput());
+            $this->Context->getLogger()->debug($this->Error);
+            // go on with work...
+        }
 
         // try to set Root password
         $exitstatus = $this->PrlctlCommands->setRootPwd($this->Params['UUID'],$this->Params['ROOTPWD']);
