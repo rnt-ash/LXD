@@ -22,8 +22,11 @@ namespace RNTForest\ovz\controllers;
 use Phalcon\Http\Client\Request;
 
 use RNTForest\ovz\models\VirtualServers;
-use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\forms\VirtualServersForm;
+use RNTForest\ovz\forms\ConfigureVirtualServersForm;
+use RNTForest\ovz\models\PhysicalServers;
+use RNTForest\ovz\models\Dcoipobjects;
+use RNTForest\ovz\libraries\ByteConverter;
 
 class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -840,6 +843,227 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         ]);
     }
     
+    /**
+    * change the configuration of a virtual server
+    * 
+    * @param mixed $virtualServersId
+    */
+    public function configureVirtualServersAction($virtualServersId){
+        // get virtual server object
+        $virtualServersId = intval($virtualServersId);
+        $virtualServer = $this->getModelClass()::findFirstByid($virtualServersId);
+        if (!$virtualServer) {
+            $this->flashSession->error("virtual server doesn't exist");
+            return $this->forwardToTableSlideDataAction();
+        }
+        
+        // permissions for this item
+        if (!$this->isAllowedItem($virtualServer)) return $this->forwardTo401();
+        
+        // execute ovz_list_info
+        $push = $this->getPushService();
+        $params = array('UUID'=>$virtualServer->getOvzUuid());
+        $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
+        if($job->getDone()==2) throw new \Exception("Job (ovz_list_info) executions failed: ".$job->getError());
+
+        // save settings
+        $settings = $job->getRetval(true);
+        $virtualServer->setOvzSettings($job->getRetval());
+        self::assignSettings($virtualServer,$settings);
+            
+        if ($virtualServer->save() === false) {
+            $messages = $virtualServer->getMessages();
+            foreach ($messages as $message) {
+                $this->flashSession->warning($message);
+            }
+            throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
+        }
+        
+        // get OVZ Settings
+        $ovzSettings = json_decode($virtualServer->getOvzSettings(),true);
+        
+        // fill form fields
+        $configureVirtualServersFormFields = new ConfigureVirtualServersFormFields();
+        $configureVirtualServersFormFields->virtual_servers_id = $virtualServer->getId();
+        $configureVirtualServersFormFields->hostname = $ovzSettings['Hostname'];
+        $configureVirtualServersFormFields->dns = $ovzSettings['DNS Servers'];
+        $configureVirtualServersFormFields->cores = $virtualServer->getCore();
+        $configureVirtualServersFormFields->memory = $virtualServer->getMemory()." MB";
+        $configureVirtualServersFormFields->diskspace = \RNTForest\core\libraries\Helpers::formatBytesHelper(ByteConverter::convertByteStringToBytes($virtualServer->getSpace()."MB"));
+        if($ovzSettings['Autostart'] == 'on'){
+            $configureVirtualServersFormFields->startOnBoot = 1;
+        }elseif($ovzSettings['Autostart'] == 'off') {
+            $configureVirtualServersFormFields->startOnBoot = 0;
+        }
+        $configureVirtualServersFormFields->description = $virtualServer->getDescription();
+        
+        // go on to form action
+        return $this->dispatcher->forward([
+            'action' => 'configureVirtualServersForm',
+            'params' => [new ConfigureVirtualServersForm($configureVirtualServersFormFields)],
+        ]);
+    }
+    
+    /**
+    * Shows the configure virtual servers form
+    * 
+    * @param mixed $form
+    */
+    public function configureVirtualServersFormAction($form){
+        $this->view->form = $form;
+    }
+    
+    /**
+    * execute the job and safe the configuration
+    * 
+    */
+    public function sendConfigureVirtualServersAction(){
+        // POST request?
+        if (!$this->request->isPost())
+            return $this->redirectTo("virtual_servers/slidedata");
+
+        // get virtual server
+        $virtualServer = VirtualServers::findFirstById($this->request->getPost("virtual_servers_id", "int"));
+        if (!$virtualServer) {
+            $this->flashSession->error("Virtual Server does not exist");
+            return $this->redirectTo("virtual_servers/slidedata");
+        }
+        
+        // check permissions
+        if(!$this->permissions->checkPermission('virtual_servers', 'edit', array('item' => $virtualServer)))
+            return $this->forwardTo401();
+            
+        // validate FORM
+        $form = new ConfigureVirtualServersForm();
+        $data = $this->request->getPost();
+        if (!$form->isValid($data, $form)) {
+            return $this->dispatcher->forward([
+                'action' => 'configureVirtualServersForm',
+                'params' => [$form],
+            ]);
+        }
+        
+        // business logic
+        // dns
+        $dns = '';
+        if(!empty($form->dns)){
+            $dnsIPs = explode(' ',$form->dns);
+            // check if every IP is valid
+            foreach($dnsIPs as $dnsIP){
+                if(!empty($dnsIP)){
+                    if(!Dcoipobjects::isValidIPv4($dnsIP)){
+                        $message = $dnsIP.' is not a valid IP address';
+                        $this->redirectErrorToConfigureVirtualServers($message,'dns',$form);
+                    }else{
+                        // create string with all DNS IPs
+                        $dns .= $dnsIP.' ';
+                    }
+                }
+            }
+        }
+        
+        // cores
+        $core = intval($form->cores);
+        
+        if($core < 1){
+            $message = 'Minimum core is 1';
+            return $this->redirectErrorToConfigureVirtualServers($message,'cores',$form);
+        }
+        
+        if($core > $virtualServer->PhysicalServers->getCore()){
+            $message = 'Virtual server can\'t have more cores than the host (host cores: '.$virtualServer->PhysicalServers->getCore().')';
+            return $this->redirectErrorToConfigureVirtualServers($message,'cores',$form);
+        }
+        
+        try{
+            // memory
+            $memory = ByteConverter::convertByteStringToBytes($form->memory);
+            
+            // check if memory is numeric
+            if(!is_numeric($memory)){
+                $message = 'RAM is not numeric';
+                return $this->redirectErrorToConfigureVirtualServers($message,'memory',$form);
+            }
+            
+            // chech if memory is minmum 512 MB
+            if(gmp_cmp($memory,ByteConverter::convertByteStringToBytes('512MB'))<0){
+                $message = 'Minimum RAM is 512 MB';
+                return $this->redirectErrorToConfigureVirtualServers($message,'memory',$form);
+            } 
+
+            // check if memory of host is exceeded
+            $hostRam = ByteConverter::convertByteStringToBytes($virtualServer->PhysicalServers->getMemory().'MB');
+            if(gmp_cmp($memory,$hostRam)>0){
+                $message = 'Virtual Server can\'t have more memory than the host (host memory: '.$virtualServer->PhysicalServers->getMemory().' MB)';
+                return $this->redirectErrorToConfigureVirtualServers($message,'memory',$form);
+            }
+            
+            // final memory in MibiBytes
+            $memory = ByteConverter::convertBytesToMibiBytes($memory);
+            
+            // space
+            $diskspace = ByteConverter::convertByteStringToBytes($form->diskspace);
+            
+            // check if diskpace is numeric
+            if(!is_numeric($diskspace)){
+                $message = 'Space is not numeric';
+                return $this->redirectErrorToConfigureVirtualServers($message,'diskspace',$form);
+            }
+            
+            // check if diskspace is min
+            if(gmp_cmp($diskspace,ByteConverter::convertByteStringToBytes('20GB'))<0){
+                $message = 'Minimum space is 20 GB';
+                return $this->redirectErrorToConfigureVirtualServers($message,'diskspace',$form);
+            }
+            // check if diskspace of host is exceeded
+            $hostDiskspace = ByteConverter::convertByteStringToBytes($virtualServer->PhysicalServers->getSpace().'GB');
+            if(gmp_cmp($diskspace,$hostDiskspace)>0){
+                $message = 'Virtual Server can\'t use more space than the host (host space: '.$virtualServer->PhysicalServers->getSpace().' GB)';
+                return $this->redirectErrorToConfigureVirtualServers($message,'diskspace',$form);
+            }
+            
+            // final diskspcae in MibiBytes
+            $diskspace = ByteConverter::convertBytesToMibiBytes($diskspace);
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        
+        // job
+        $virtualServerConfig = array(
+            'hostname' => $form->hostname,
+            'nameserver' => $dns,
+            'cpus' => $core,
+            'memsize' => $memory,
+            'diskspace' => $diskspace,
+            'onboot' => ($form->startOnBoot)?'yes':'no',
+            'description' => $form->description
+        );
+        
+        // execute ovz_restart_vs job        
+        // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+        $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $push = $this->getPushService();
+        $params = array(
+            'UUID'=>$virtualServer->getOvzUuid(),
+            'CONFIG'=>$virtualServerConfig
+        );
+        $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
+        if($job->getDone()==2) throw new \Exception("Job (ovz_modify_vs) executions failed: ".$job->getError());
+
+        // success
+        $this->flashSession->success("Modifing VS successfully");
+
+        $this->redirectTo("/virtual_servers/ovzListInfo/".$virtualServer->getId());
+    }
+    
+    private function redirectErrorToConfigureVirtualServers($message,$field,$form){
+        $form->appendMessage(new \Phalcon\Validation\Message($message,$field));
+        return $this->dispatcher->forward([
+            'action' => 'configureVirtualServersForm',
+            'params' => [$form],
+        ]);
+    }
 }
 
 /**
@@ -848,5 +1072,16 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 class SnapshotFormFields{
     public $virtual_servers_id = 0;
     public $name = "";
+    public $description = "";
+}
+
+class ConfigureVirtualServersFormFields{
+    public $virtual_servers_id = 0;
+    public $hostname = "";
+    public $dns = "";
+    public $cores = 0;
+    public $memory = "";
+    public $diskspace = "";
+    public $startOnBoot = 0;
     public $description = "";
 }

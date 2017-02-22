@@ -15,7 +15,7 @@
 {%- endmacro %}    
 
 <div class="page-header">
-    <h2><i class="fa fa-server" aria-hidden="true"></i> Virtual Servers</h2>
+    <h2><i class="fa fa-cube" aria-hidden="true"></i> Virtual Servers</h2>
 </div>
 
 <div class="well">

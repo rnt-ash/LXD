@@ -31,7 +31,7 @@
     {{ renderElement('activation_date',form) }}
     
     {{ submit_button("Save", "class": "btn btn-primary") }}
-    {{ link_to('/customers/tabledata', 'Cancel', 'class': 'btn btn-default pull-right') }}
+    {{ link_to('/colocations/slidedata', 'Cancel', 'class': 'btn btn-default pull-right') }}
             
     </form>
 </div>
