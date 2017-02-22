@@ -120,15 +120,15 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
 
             // find virtual server
             $physicalServer = PhysicalServers::findFirst($serverId);
-            if (!$physicalServer) throw new Exception("Physical Server does not exist: " . $serverId);
+            if (!$physicalServer) throw new \Exception("Physical Server does not exist: " . $serverId);
 
             // not ovz enabled
-            if(!$physicalServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
+            if(!$physicalServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
 
             // execute ovz_host_info job        
             $push = $this->getPushService();
-            $job = $push->executeJob($physicalServer,'ovz_host_info',array(),'RNTForest\ovz\models\PhysicalServers:'.$physicalServer->getId());
-            if(!$job || $job->getDone()==2) throw new Exception("Job (ovz_host_info) executions failed!");
+            $job = $push->executeJob($physicalServer,'ovz_host_info',array());
+            if(!$job || $job->getDone()==2) throw new \Exception("Job (ovz_host_info) executions failed!");
 
             // save settings
             $settings = $job->getRetval(true);
@@ -138,7 +138,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
                 foreach ($messages as $message) {
                     $this->flashSession->warning($message);
                 }
-                throw new Exception("Update Virtual Server (".$physicalServer->getName().") failed.");
+                throw new \Exception("Update Virtual Server (".$physicalServer->getName().") failed.");
             }
 
             // success
@@ -205,13 +205,13 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
                 ]);
             }
             $phys = PhysicalServers::findFirstById($data['physical_servers_id']);
-            if(!$phys) throw new Exception("Physical Server not found!");
+            if(!$phys) throw new \Exception("Physical Server not found!");
             $connector = new OvzConnector($phys,$data['username'],$data['password']);
             $connector->go();
             
             $this->flashSession->success("OVZ connecting to ".$phys->getFqdn()." was successfull.");
             $this->flashSession->warning("It's strongly recommended to restart the server after connecting!");
-        }catch(Exception $e){
+        }catch(\Exception $e){
             $this->flashSession->error("OVZ connecting failed: ".$e->getMessage());
             $this->logger->error($e->getMessage());
         }
