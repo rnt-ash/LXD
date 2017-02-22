@@ -40,6 +40,7 @@ class JobSystemDebugStarter{
     * @var string
     */
     private $JsonJob = '{"method":"runJob","id":1,"type":"ovz_restart_vs","params":"{\"CTID\":2201}"}';
+    //private $JsonJob = '{"method":"runJob","id":2,"type":"ovz_modify_vs","params":"{\"UUID\":\"081b2b8e-bc5b-4a76-bd46-84251a8091fd\",\"CONFIG\":{\"hostname\":\"server.domain.tld\",\"cpus\":\"2\",\"memsize\":\"1024\",\"diskspace\":\"10240\",\"onboot\":\"yes\",\"nameserver\":\"8.8.8.8 123.123.123.123\",\"description\":\"\"}}"}';
     
     /**
     * @var \RNTFOREST\OVZJOB\general\utility\JobDTO
@@ -47,7 +48,7 @@ class JobSystemDebugStarter{
     private $JobDTO;
     
     public function __construct(){
-        $logger = new FileLogger();
+        $logger = new FileLogger('log/debugger.log');
         $logger->setLogLevel('debug');
         $pdo = PdoFactory::createSqlitePdo();
         $cli = new ExecCli($logger);
@@ -58,8 +59,12 @@ class JobSystemDebugStarter{
     }
     
     public function startNormal(){
-        // start the execution
-        $this->JobExecutorFactory->createOvzHandler($this->JobDTO->getId())->executeById(intval($this->JobDTO->getId()));
+        try{
+            // start the execution
+            $this->JobExecutorFactory->createOvzHandler($this->JobDTO->getId())->executeById(intval($this->JobDTO->getId()));
+        }catch(\Exception $e){
+            // just to get no uncatched exception
+        }
         
         // update JobDTO for view in debugger
         $this->JobDTO = $this->Context->getJobDTORepository()->get($this->JobDTO->getId());
@@ -91,8 +96,12 @@ class JobSystemDebugStarter{
         }else{
             throw new \Exception("Inkorrekter HTTP Request Body");
         }    
-
-        $this->Context->getJobDTORepository()->deleteById($id); 
+        
+        try{
+            $this->Context->getJobDTORepository()->deleteById($id); 
+        }catch(\Exception $e){
+            // if job does not exist yet, it is ok...
+        }
         
         $jobDTO = $this->createJobDTO($id, $type, $params);
         return $this->Context->getJobDTORepository()->create($jobDTO);
