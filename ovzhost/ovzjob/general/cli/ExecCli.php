@@ -82,7 +82,7 @@ class ExecCli implements CliInterface {
             exec($command,$this->Output,$exitstatus);
 
         }catch(\Exception $e){
-            $exitstatus = 255;
+            $exitstatus = 253;
             $output[] = $e->getMessage();
             $this->Logger->error("ExecCli Exception catched: ".$e->getMessage());
         }
@@ -112,7 +112,7 @@ class ExecCli implements CliInterface {
             exec($command,$this->Output,$exitstatus);
 
         }catch(\Exception $e){
-            $exitstatus = 255;
+            $exitstatus = 254;
             $output[] = $e->getMessage();
             $this->Logger->error("ExecCli Exception catched: ".$e->getMessage());
         }

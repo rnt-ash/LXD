@@ -36,7 +36,7 @@ class JobExecutorFactory{
         $jobType = $this->Context->getJobDTORepository()->get($id)->getType();
         $className = $this->genClassPath($jobType);
         
-        if(!class_exists($className)){
+        if(!class_exists($className, false)){
             throw new \Exception("could not load ".$className);
         }
         $job = new $className($this->Context);
