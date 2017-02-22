@@ -19,14 +19,28 @@
 
 namespace RNTFOREST\OVZJOB\ovz\jobs;
 
-/**
-* ovz_modify_vs    UUID, CONFIG
-*/
-
 class OvzModifyVsJob extends AbstractOvzJob{
 
     public function usage(){
-        return null;
+        return [
+            "type" => "ovz_modify_vs",
+            "params" => [
+                "UUID" => "Universally Unique Identifier (UUID)",
+                "CONFIG" => [
+                    "hostname" => "hostname of the system (string)",
+                    "cpus" => "number of cpu cores (int)",
+                    "memsize" => "amount of ram in mb (int)",
+                    "diskspace" => "amount of diskspace in mb (int)",
+                    "onboot" => "if it should be started automatically on boot of the host(string <yes|no>)",
+                    "nameserver" => "define the nameserver/s of the system in ip-address format (string 0-unlimited whitespace separated)",
+                    "description" => "description of the virtual system (string)"
+                ]
+            ],
+            "params_example" => '{"UUID":"717a8925-f92b-48d3-81aa-a948cfe177af","CONFIG":{"hostname":"server.domain.tld","cpus":"4","memsize":"1024","diskspace":"10240","onboot":"yes","nameserver":"8.8.8.8 123.123.123.123","description":""}}',
+            "retval" => "nothing specified",
+            "warning" => "nothing specified",
+            "error" => "different causes (UUID does not exist, ...)",
+        ];
     }
     
     public function run() {
