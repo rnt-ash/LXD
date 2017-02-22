@@ -36,7 +36,10 @@ class JobExecutorFactory{
         $jobType = $this->Context->getJobDTORepository()->get($id)->getType();
         $className = $this->genClassPath($jobType);
         
-        if(!class_exists($className, false)){
+        if(!class_exists($className)){
+            // if the class is found and php tries to load it but the class includes errors (such as a not overriden abstract method)
+            // php will gen a fatal E_ERROR, which is not possible to catch with an error_handler (by design)
+            // if the class is simply not found, this exception will be thrown
             throw new \Exception("could not load ".$className);
         }
         $job = new $className($this->Context);
@@ -97,5 +100,4 @@ class JobExecutorFactory{
         $splits = explode('_',$jobType);
         return $splits[0];
     }
-    
 }

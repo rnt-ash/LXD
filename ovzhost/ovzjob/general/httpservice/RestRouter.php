@@ -140,7 +140,7 @@ class RestRouter{
         $jobDTO = $this->Context->getJobDTORepository()->create($jobDTO);
 
         // execute job
-        exec('sudo /srv/ovzhost/JobSystemStarter.php normal '.intval($jobDTO->getId()),$output,$exitstatus);
+        exec('sudo /srv/ovzhost/JobSystemStarter.php normal '.intval($jobDTO->getId()).' 2<&1',$output,$exitstatus);
         
         // update jobDTO after job execution (in other process, so it has to be done manually)
         $jobDTO = $this->Context->getJobDTORepository()->get($jobDTO->getId());
