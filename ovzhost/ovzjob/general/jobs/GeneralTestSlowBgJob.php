@@ -21,6 +21,10 @@ namespace RNTFOREST\OVZJOB\general\jobs;
 
 class GeneralTestSlowBgJob extends AbstractJob{
     
+    public function usage(){
+        return null;
+    }
+    
     public function run() {
          $this->Context->getLogger()->debug("At this point the job is effectively started (asynchronously)!");
          

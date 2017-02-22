@@ -80,5 +80,11 @@ abstract class AbstractJob {
      * @return boolean
      */
     public abstract function run();
-        
+    
+    /**
+    * Returns an array in which the usage of the job is described.
+    * 
+    * @return array
+    */
+    public abstract function usage();    
 }

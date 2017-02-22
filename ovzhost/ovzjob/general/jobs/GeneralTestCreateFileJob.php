@@ -23,10 +23,10 @@ use RNTFOREST\OVZJOB\general\jobs\AbstractJob;
 
 class GeneralTestCreatefileJob extends AbstractJob {
     
-    protected function defineJobType() {
-        $this->JobType = "general_test_createfile";
+    public function usage(){
+        return null;
     }
-
+    
     public function run() {
         $this->Context->getLogger()->debug("Try to create testfile.");
         if(file_exists('testfile')){

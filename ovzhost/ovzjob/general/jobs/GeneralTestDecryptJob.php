@@ -21,10 +21,10 @@ namespace RNTFOREST\OVZJOB\general\jobs;
 
 class GeneralTestDecryptJob extends AbstractJob {
     
-    protected function defineJobType() {
-        $this->JobType = "general_test_decrypt";
+    public function usage(){
+        return null;
     }
-
+    
     public function run() {
         // todo implementation
     }

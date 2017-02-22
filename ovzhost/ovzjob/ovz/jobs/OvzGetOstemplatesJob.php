@@ -21,6 +21,10 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 
 class OvzGetOstemplatesJob extends AbstractOvzJob {
 
+    public function usage(){
+        return null;
+    }
+    
     public function run() {
         $this->Context->getLogger()->debug("Get templates!");
 

@@ -28,6 +28,10 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 
 class OvzDeleteSnapshotJob extends AbstractOvzJob {
 
+    public function usage(){
+        return null;
+    }
+    
     public function run() {
         $this->Context->getLogger()->debug("Delete snapshot!");
 

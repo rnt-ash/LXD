@@ -25,6 +25,10 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 
 class OvzNewVsBgJob extends AbstractOvzJob{
 
+    public function usage(){
+        return null;
+    }
+    
     public function run() {
         $this->Context->getLogger()->debug("VS create background!");
         

@@ -21,10 +21,10 @@ namespace RNTFOREST\OVZJOB\general\jobs;
 
 class GeneralTestDeletefileJob extends AbstractJob {
     
-    protected function defineJobType() {
-        $this->JobType = "general_test_deletefile";
+    public function usage(){
+        return null;
     }
-
+    
     public function run() {
         $this->Context->getLogger()->debug("Try to delete testfile.");
         if(!file_exists('testfile')){

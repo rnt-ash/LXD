@@ -23,8 +23,8 @@ use RNTFOREST\OVZJOB\general\jobs\AbstractJob;
 
 class GeneralTestSendmailJob extends AbstractJob {
     
-    protected function defineJobType() {
-        $this->JobType = "general_test_sendmail";
+    public function usage(){
+        return null;
     }
 
     public function run() {
