@@ -191,11 +191,26 @@ class PrlctlCommands {
     */
     public function setValue($UUID,$key,$value){
         switch(strtolower($key)){
+            case 'hostname':
+                $cmd = "prlctl set ".escapeshellarg($UUID)." --hostname ".escapeshellarg($value);
+                break;
             case 'memsize':
                 $cmd = "prlctl set ".escapeshellarg($UUID)." --memsize ".intval($value);
                 break;
             case 'cpus':
                 $cmd = "prlctl set ".escapeshellarg($UUID)." --cpus ".intval($value);
+                break;
+            case 'diskspace':
+                $cmd = "prlctl set ".escapeshellarg($UUID)." --diskspace ".intval($value);
+                break;
+            case 'onboot':
+                $cmd = "prlctl set ".escapeshellarg($UUID)." --onboot ".escapeshellarg($value);
+                break;
+            case 'nameserver':
+                $cmd = "prlctl set ".escapeshellarg($UUID)." --nameserver ".escapeshellarg($value);
+                break;
+            case 'description':
+                $cmd = "prlctl set ".escapeshellarg($UUID)." --description ".escapeshellarg($value);
                 break;
             case 'ipadd':
                 $cmd = "prlctl set ".escapeshellarg($UUID)." --ipadd ".escapeshellarg($value);
