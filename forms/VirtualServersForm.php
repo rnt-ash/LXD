@@ -113,8 +113,8 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         // space
         $element = new Numeric("space");
         $element->setLabel("Space");
-        $element->setDefault(100);
-        $element->setAttribute("placeholder","available space in GB  (e.g. 100)");
+        $element->setDefault(102400);
+        $element->setAttribute("placeholder","available space in MB (e.g. 102400)");
         $element->setFilters(array('int'));
         $this->add($element);
 

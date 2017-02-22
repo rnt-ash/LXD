@@ -61,8 +61,7 @@ class OvzNewVsBgJob extends AbstractOvzJob{
         }
         
         // try to set DISKSPACE
-        $diskspaceInMB = $this->Params['DISKSPACE']*1024;
-        $exitstatus = $this->PrlctlCommands->setValue($this->Params['UUID'],'diskspace',$diskspaceInMB);
+        $exitstatus = $this->PrlctlCommands->setValue($this->Params['UUID'],'diskspace',$this->Params['DISKSPACE']);
         if($exitstatus > 0){
             $errors[] = "Setting diskspace failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput());
             $this->Context->getLogger()->debug($this->Error);
