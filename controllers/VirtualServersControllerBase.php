@@ -857,8 +857,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             return $this->forwardToTableSlideDataAction();
         }
         
-        // permissions for this item
-        if (!$this->isAllowedItem($virtualServer)) return $this->forwardTo401();
+        // check permissions
+        if(!$this->permissions->checkPermission('virtual_servers', 'configure', array('item' => $virtualServer)))
+            return $this->forwardTo401();
         
         // execute ovz_list_info
         $push = $this->getPushService();
@@ -930,7 +931,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
         
         // check permissions
-        if(!$this->permissions->checkPermission('virtual_servers', 'edit', array('item' => $virtualServer)))
+        if(!$this->permissions->checkPermission('virtual_servers', 'configure', array('item' => $virtualServer)))
             return $this->forwardTo401();
             
         // validate FORM
