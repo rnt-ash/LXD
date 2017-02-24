@@ -24,7 +24,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class Colocations extends \Phalcon\Mvc\Model
+class Colocations extends \RNTForest\core\models\ModelBase
 {
 
     /**

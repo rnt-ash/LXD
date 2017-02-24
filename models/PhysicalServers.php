@@ -27,7 +27,7 @@ use Phalcon\Mvc\Model\Behavior\Timestampable;
 
 use RNTForest\core\libraries\PendingHelpers;
 
-class PhysicalServers extends \Phalcon\Mvc\Model implements \RNTForest\core\interfaces\JobServerInterface, \RNTForest\core\interfaces\PendingInterface
+class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTForest\core\interfaces\JobServerInterface, \RNTForest\core\interfaces\PendingInterface
 {
 
     /**
