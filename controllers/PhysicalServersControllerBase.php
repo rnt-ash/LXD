@@ -120,15 +120,18 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
 
             // find virtual server
             $physicalServer = PhysicalServers::findFirst($serverId);
-            if (!$physicalServer) throw new \Exception("Physical Server does not exist: " . $serverId);
+            $message = $this->translate("physicalserver_doesn_not_exist");
+            if (!$physicalServer) throw new \Exception($message . $serverId);
 
             // not ovz enabled
-            if(!$physicalServer->getOvz()) throw new \Exception("Server ist not OVZ enabled!");
+            $message = $this->translate("physicalserver_not_ovz_enabled");
+            if(!$physicalServer->getOvz()) throw new \Exception($message);
 
             // execute ovz_host_info job        
             $push = $this->getPushService();
             $job = $push->executeJob($physicalServer,'ovz_host_info',array());
-            if(!$job || $job->getDone()==2) throw new \Exception("Job (ovz_host_info) executions failed!");
+            $message =  $this->translate("physicalserver_job_failed");
+            if(!$job || $job->getDone()==2) throw new \Exception($message."(ovz_host_info) !");
 
             // save settings
             $settings = $job->getRetval(true);
@@ -138,11 +141,13 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
                 foreach ($messages as $message) {
                     $this->flashSession->warning($message);
                 }
-                throw new \Exception("Update Virtual Server (".$physicalServer->getName().") failed.");
+                $message = $this->translate("physicalserver_update_failed");
+                throw new \Exception($message . $physicalServer->getName());
             }
 
             // success
-            $this->flashSession->success("Settings successfully updated");
+            $message = $this->translate("physicalserver_update_success");
+            $this->flashSession->success($message);
 
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
@@ -160,7 +165,8 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     public function preDelete($physicalServer){
         // search for virtual servers
         if($physicalServer->virtualServers->count() >= 1){
-            $this->flashSession->error("Please remove virtual servers first!");
+            $message = $this->translate("physicalserver_remove_server_first");
+            $this->flashSession->error($message);
             return false;
         }
         
@@ -205,14 +211,18 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
                 ]);
             }
             $phys = PhysicalServers::findFirstById($data['physical_servers_id']);
-            if(!$phys) throw new \Exception("Physical Server not found!");
+            $message = $this->translate("physicalserver_not_found");
+            if(!$phys) throw new \Exception($message);
             $connector = new OvzConnector($phys,$data['username'],$data['password']);
             $connector->go();
             
-            $this->flashSession->success("OVZ connecting to ".$phys->getFqdn()." was successfull.");
-            $this->flashSession->warning("It's strongly recommended to restart the server after connecting!");
+            $message = $this->translate("physicalserver_connection_success");
+            $this->flashSession->success($message . $phys->getFqdn());
+            $message = $this->translate("physicalserver_connection_restart");
+            $this->flashSession->warning($message);
         }catch(\Exception $e){
-            $this->flashSession->error("OVZ connecting failed: ".$e->getMessage());
+            $message = $this->translate("physicalserver_connection_failed");
+            $this->flashSession->error($message .$e->getMessage());
             $this->logger->error($e->getMessage());
         }
         $this->redirecToTableSlideDataAction();
