@@ -245,8 +245,8 @@ class Colocations extends \RNTForest\core\models\ModelBase
     public function initialize()
     {
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
-        $this->hasMany("id",'RNTForest\ovz\models\PhysicalServers',"colocations_id",array("alias"=>"Customers", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"colocations_id",array("alias"=>"Customers", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasMany("id",'RNTForest\ovz\models\PhysicalServers',"colocations_id",array("alias"=>"PhysicalServers", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"colocations_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
     }
 
     /**

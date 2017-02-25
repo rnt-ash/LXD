@@ -32,6 +32,8 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
+use RNTForest\ovz\models\Dcoipobjects;
+
 class DcoipobjectsForm extends \RNTForest\core\forms\FormBase
 {
 
@@ -75,6 +77,11 @@ class DcoipobjectsForm extends \RNTForest\core\forms\FormBase
                 Dcoipobjects::ALLOC_RESERVED => "Reserved",
                 Dcoipobjects::ALLOC_ASSIGNED => "Assigned"
             ));
+            if($session['origin']['controller'] == 'colocations'){
+                $element->setDefault(Dcoipobjects::ALLOC_RESERVED);
+            } else {
+                $element->setDefault(Dcoipobjects::ALLOC_ASSIGNED);
+            }
             $element->setLabel("Allocated");
             $element->setFilters(array('int'));
             $this->add($element);
@@ -97,10 +104,6 @@ class DcoipobjectsForm extends \RNTForest\core\forms\FormBase
         $element->setFilters(array('striptags', 'string', 'trim'));
         $this->add($element);
         
-        // Validator
-        //$validator = Dcoipobjects::generateValidator($op);
-        //$this->setValidation($validator);
-
     }
 
 }

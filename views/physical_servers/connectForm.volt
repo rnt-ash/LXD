@@ -28,7 +28,7 @@
     {{ renderElement('username',form) }}
     {{ renderElement('password',form) }}
 
-    {{ submit_button("Save", "class": "btn btn-primary") }}
+    {{ submit_button("Connect", "class": "btn btn-primary") }}
     {{ link_to('/physical_servers/slidedata', 'Cancel', 'class': 'btn btn-default pull-right') }}
             
     </form>

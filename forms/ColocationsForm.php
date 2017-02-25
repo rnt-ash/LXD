@@ -43,8 +43,8 @@ class ColocationsForm extends \RNTForest\core\forms\FormBase
         // customer
         $element = new Select(
             "customers_id",
-            Customers::find(),
-            array("using"=>array("id","company"),
+            Customers::find(array("columns"=>"id,CONCAT(company,' (',lastname,' ' ,firstname,')',' ',city) as name","order"=>"name")),
+            array("using"=>array("id","name"),
                 "useEmpty"   => true,
                 "emptyText"  => "Please, choose a customer...",
                 "emptyValue" => "",            

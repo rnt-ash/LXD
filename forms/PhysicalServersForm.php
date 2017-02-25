@@ -65,8 +65,8 @@ class PhysicalServersForm extends \RNTForest\core\forms\FormBase
         // customer
         $element = new Select(
             "customers_id",
-            Customers::find(),
-            array("using"=>array("id","company"),
+            Customers::find(array("columns"=>"id,CONCAT(company,' (',lastname,' ' ,firstname,')',' ',city) as name","order"=>"name")),
+            array("using"=>array("id","name"),
                 "useEmpty"   => true,
                 "emptyText"  => "Please, choose a customer...",
                 "emptyValue" => "0",            
@@ -79,8 +79,8 @@ class PhysicalServersForm extends \RNTForest\core\forms\FormBase
         // colocation
         $element = new Select(
             "colocations_id",
-            Colocations::find(),
-            array("using"=>array("id","name",),
+            Colocations::find(array("order"=>"name")),
+            array("using"=>array("id","name"),
                 "useEmpty"   => true,
                 "emptyText"  => "Please, choose a colocation...",
                 "emptyValue" => "0",            
@@ -93,6 +93,7 @@ class PhysicalServersForm extends \RNTForest\core\forms\FormBase
         // core
         $element = new Numeric("core");
         $element->setLabel("Cores");
+        $element->setDefault(2);
         $element->setAttribute("placeholder","available cores  (e.g. 4)");
         $element->setFilters(array('int'));
         $this->add($element);
@@ -100,6 +101,7 @@ class PhysicalServersForm extends \RNTForest\core\forms\FormBase
         // memory
         $element = new Numeric("memory");
         $element->setLabel("Memory");
+        $element->setDefault(1024);
         $element->setAttribute("placeholder","available memory in MB (e.g. 2048)");
         $element->setFilters(array('int'));
         $this->add($element);

@@ -403,7 +403,7 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
     public function validation()
     {
         // get params from session
-        $session = $this->getDI()->get("session")->get("DcoipobjectsValidator");
+        $session = $this->getDI()->get("session")->get("DcoipobjectsForm");
         $op = $session['op'];
 
         // check DCO
@@ -442,7 +442,7 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
 
         // IP Object type
         if(empty($this->value2)){
-            $this->type = slef::TYPE_IPADDRESS;
+            $this->type = self::TYPE_IPADDRESS;
             $this->value2 = "255.255.255.0";
         }else {
 
@@ -533,28 +533,42 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
         if(!empty($this->virtual_servers_id)){
             $searching = true;
             $reservations = self::find(array(
-                "conditions"=>"virtual_server_id = ".$this->virtual_servers_id,
-                "conditions"=>"allocated = ".self::ALLOC_RESERVED,
+                "conditions" => "virtual_servers_id = ".$this->virtual_servers_id.
+                " AND allocated = ".self::ALLOC_RESERVED,
             ));
-            if($reservations) return $reservations;
+            if($reservations->count() > 0) return $reservations;
         }
 
         if($searching || !empty($this->physical_servers_id)){
             $searching = true;
+            if(!empty($this->virtual_servers_id)){
+                $condition = "physical_servers_id = ".$this->virtualServers->physical_servers_id;
+            }
+            if(!empty($this->physical_servers_id)){
+                $condition = "physical_servers_id = ".$this->physical_servers_id;
+            }
             $reservations = self::find(array(
-                "conditions"=>"physical_server_id = ".$this->physical_servers_id,
-                "conditions"=>"allocated = ".self::ALLOC_RESERVED,
+                "conditions" => $condition .
+                " AND allocated = ".self::ALLOC_RESERVED,
             ));
-            if($reservations) return $reservations;
+            if($reservations->count() > 0) return $reservations;
         }            
 
         if($searching || !empty($this->colocations_id)){
-            $searching = true;
+            if(!empty($this->virtual_servers_id)){
+                $condition = "colocations_id = ".$this->virtualServers->physicalServers->colocations_id;
+            }
+            if(!empty($this->physical_servers_id)){
+                $condition = "colocations_id = ".$this->physicalServers->colocations_id;
+            }
+            if(!empty($this->colocations_id)){
+                $condition = "colocations_id = ".$this->colocations_id;
+            }
             $reservations = self::find(array(
-                "conditions"=>"colocations_id = ".$this->colocations_id,
-                "conditions"=>"allocated = ".self::ALLOC_RESERVED,
+                "conditions" => $condition. 
+                " AND allocated = ".self::ALLOC_RESERVED,
             ));
-            if($reservations) return $reservations;
+            if($reservations->count() > 0) return $reservations;
         }            
 
         // no reservations found
@@ -679,20 +693,22 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
         if($this->version == 4){
             return $this->isValidSubnetMaskV4($subnetMask);
         }else {
-            return $this->isValidSubnetMaskV6($subnetMask);
+            // IPv6 has no subnetmask!
+            return false;
         }
     }
     
     public function isValidSubnetMaskV4($subnetMask){
-        $long = ip2long($subnetMask);  
-        $base = ip2long('255.255.255.255');  
-        return $this->isValidPrefixV4(32-log(($long ^ $base)+1,2));
-    }
-
-    public function isValidSubnetMaskV6($subnetMask){
-        // ToDo
+        $n = ip2long("128.0.0.0");
+        $allMasks = array();
+        for($i=0;$i<=31;$i++){
+            $allMasks[] = long2ip($n);
+            $n = $n >> 1 | $n;
+        }
+        if(in_array($subnetMask,$allMasks)) return true;
         return false;
     }
+
     
     
     /**

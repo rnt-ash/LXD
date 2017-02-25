@@ -22,6 +22,8 @@ namespace RNTForest\ovz\controllers;
 use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\forms\OvzConnectorForm;
 use RNTForest\ovz\services\OvzConnector;
+use RNTForest\ovz\models\Dcoipobjects;
+use RNTForest\ovz\forms\DcoipobjectsForm;
  
 class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -249,7 +251,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
         
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$dcoipobjectsForm],
@@ -274,7 +276,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         ));
 
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$ipobject],
@@ -299,7 +301,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         ));
 
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'delete',
             'params' => [$ipobject],
@@ -322,7 +324,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         ));
 
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'makeMain',
             'params' => [$ipobject],

@@ -26,6 +26,7 @@ use RNTForest\ovz\forms\VirtualServersForm;
 use RNTForest\ovz\forms\ConfigureVirtualServersForm;
 use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\models\Dcoipobjects;
+use RNTForest\ovz\forms\DcoipobjectsForm;
 use RNTForest\ovz\libraries\ByteConverter;
 
 class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
@@ -763,7 +764,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
         
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$dcoipobjectsForm],
@@ -788,7 +789,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         ));
 
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$ipobject],
@@ -813,7 +814,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         ));
 
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'delete',
             'params' => [$ipobject],
@@ -836,7 +837,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         ));
 
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'makeMain',
             'params' => [$ipobject],

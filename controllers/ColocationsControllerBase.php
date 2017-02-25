@@ -20,6 +20,8 @@
 namespace RNTForest\ovz\controllers;
 
 use RNTForest\ovz\models\Colocations;
+use RNTForest\ovz\models\Dcoipobjects;
+use RNTForest\ovz\forms\DcoipobjectsForm;
 
 class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -115,7 +117,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
         
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$dcoipobjectsForm],
@@ -140,7 +142,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         ));
 
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'edit',
             'params' => [$ipobject],
@@ -165,7 +167,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         ));
 
         return $this->dispatcher->forward([
-            "namespace"  => "RNTForest\\ovz\\controllers",
+            "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
             'action' => 'delete',
             'params' => [$ipobject],

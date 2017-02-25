@@ -20,6 +20,7 @@
 namespace RNTForest\ovz\controllers;
 
 use RNTForest\ovz\models\Dcoipobjects;
+use RNTForest\ovz\forms\DcoipobjectsForm;
 use RNTForest\ovz\models\VirtualServers;
 
 class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
@@ -54,7 +55,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
     */
     public function editAction($item)
     {
-        if(is_a($item,'DcoipobjectsForm')){
+        if(is_a($item,'\RNTForest\ovz\forms\DcoipobjectsForm')){
             // Get item from form
             $this->view->form = $item;
         } else {
@@ -86,7 +87,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         // Edit or new Record
         $id = $this->request->getPost("id", "int");
         if(empty($id)){
-            $item = new $this->getAppNs().'models\Dcoipobjects';
+            $item = new \RNTForest\ovz\models\Dcoipobjects;
         }else{
             $item = Dcoipobjects::findFirstById($id);
             if (!$item) {
@@ -96,7 +97,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         }
 
         // validate FORM
-        $form = new DcoipobjectsForm();
+        $form = new \RNTForest\ovz\forms\DcoipobjectsForm();
 
         $data = $this->request->getPost();
         if (!$form->isValid($data, $item)) {
@@ -108,7 +109,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
             // fetch all messages from model
             $messages = array();
             foreach ($item->getMessages() as $message) {
-                $form->appendMessage(new Phalcon\Validation\Message($message->getMessage(),$message->getField()));
+                $form->appendMessage(new \Phalcon\Validation\Message($message->getMessage(),$message->getField()));
             }            
             return $this->forwardToEditAction($form);
         }
@@ -189,7 +190,8 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         }
         
         if ($this->setMainIP($dcoipobject))
-            $this->flashSession->success("IP Object is now main");
+            $message = $this->translate("dcoipobjects_address_is_now_main",array("address"=>$dcoipobject->toString()));
+            $this->flashSession->success($message);
             
         return $this->forwardToOrigin();
     }
@@ -215,7 +217,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         $coId = $ip->getColocationsId();
         $psId = $ip->getPhysicalServersId();
         $vsId = $ip->getVirtualServersId();
-        $phql="UPDATE Dcoipobjects SET main = 0 ".
+        $phql="UPDATE \\RNTForest\\ovz\\models\\Dcoipobjects SET main = 0 ".
                 "WHERE allocated >= 2 ".
                 "AND id != ".$ip->getId()." ".
                 "AND colocations_id ".(is_null($coId)?"IS NULL":"=".$coId)." ".

@@ -7,18 +7,26 @@
         </tr>
     </thead>
     <tbody>
-    {% for index, physical_server in item.physicalServers %}
-        <tr>
+    {% if item.dcoipobjects.count() == 0 %}
+        <tr colspan="3">
             <td>
-                {{physical_server.name}}
-            </td>
-            <td>
-                {{physical_server.fqdn}}
-            </td>
-            <td>
-                {{physical_server.activation_date}}
+                No Physical Servers found...
             </td>
         </tr>
-    {% endfor %}
+    {% else %}
+        {% for index, physical_server in item.physicalServers %}
+            <tr>
+                <td>
+                    {{physical_server.name}}
+                </td>
+                <td>
+                    {{physical_server.fqdn}}
+                </td>
+                <td>
+                    {{physical_server.activation_date}}
+                </td>
+            </tr>
+        {% endfor %}
+    {% endif %}
     </tbody>
 </table>
