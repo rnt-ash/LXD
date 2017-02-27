@@ -25,7 +25,7 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 
 class OvzNewVsJob extends AbstractOvzJob{
     
-    public function usage(){
+    public static function usage(){
         return [
             "type" => "ovz_new_vs",
             "params" => [

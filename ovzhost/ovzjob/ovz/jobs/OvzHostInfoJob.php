@@ -21,7 +21,7 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 
 class OvzHostInfoJob extends AbstractOvzJob {
 
-    public function usage(){
+    public static function usage(){
         return null;
     }
     

@@ -23,7 +23,7 @@ use RNTFOREST\OVZJOB\general\jobs\AbstractJob;
 
 class GeneralTestCreatefileJob extends AbstractJob {
     
-    public function usage(){
+    public static function usage(){
         return null;
     }
     
