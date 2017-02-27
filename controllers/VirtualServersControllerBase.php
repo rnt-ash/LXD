@@ -1026,37 +1026,51 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             
             // final diskspcae in MibiBytes
             $diskspace = ByteConverter::convertBytesToMibiBytes($diskspace);
+        
+            // job
+            $virtualServerConfig = array(
+                'hostname' => $form->hostname,
+                'nameserver' => $dns,
+                'cpus' => $core,
+                'memsize' => $memory,
+                'diskspace' => $diskspace,
+                'onboot' => ($form->startOnBoot)?'yes':'no',
+                'description' => $form->description
+            );
+            
+            // execute ovz_restart_vs job        
+            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $push = $this->getPushService();
+            $params = array(
+                'UUID'=>$virtualServer->getOvzUuid(),
+                'CONFIG'=>$virtualServerConfig
+            );
+            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
+            if($job->getDone()==2) throw new \Exception("Job (ovz_modify_vs) executions failed: ".$job->getError());
+
+            // save settings
+            $settings = $job->getRetval(true);
+            $virtualServer->setOvzSettings($job->getRetval());
+            self::assignSettings($virtualServer,$settings);
+            
+            if ($virtualServer->save() === false) {
+                $messages = $virtualServer->getMessages();
+                foreach ($messages as $message) {
+                    $this->flashSession->warning($message);
+                }
+                throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
+            }
+            
+            // success
+            $this->flashSession->success("Modifing VS successfully");
+
+            // go back to slidedata view
+            $this->redirectTo("virtual_servers/slidedata");
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
         }
-        
-        // job
-        $virtualServerConfig = array(
-            'hostname' => $form->hostname,
-            'nameserver' => $dns,
-            'cpus' => $core,
-            'memsize' => $memory,
-            'diskspace' => $diskspace,
-            'onboot' => ($form->startOnBoot)?'yes':'no',
-            'description' => $form->description
-        );
-        
-        // execute ovz_restart_vs job        
-        // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
-        $push = $this->getPushService();
-        $params = array(
-            'UUID'=>$virtualServer->getOvzUuid(),
-            'CONFIG'=>$virtualServerConfig
-        );
-        $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
-        if($job->getDone()==2) throw new \Exception("Job (ovz_modify_vs) executions failed: ".$job->getError());
-
-        // success
-        $this->flashSession->success("Modifing VS successfully");
-
-        $this->redirectTo("/virtual_servers/ovzListInfo/".$virtualServer->getId());
     }
     
     private function redirectErrorToConfigureVirtualServers($message,$field,$form){
