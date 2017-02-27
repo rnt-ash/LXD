@@ -341,6 +341,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $push = $this->getPushService();
         $params = array();
         $physicalServer = PhysicalServers::findFirst("ovz = 1");
+        // no pending needed because job is readonly
         $job = $push->executeJob($physicalServer,'ovz_get_ostemplates',$params);
         if(!$job || $job->getDone()==2) throw new \Exception("Job (ovz_get_ostemplates) executions failed!");
         $retval = $job->getRetval(true);
@@ -445,6 +446,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // execute ovz_new_vs job        
+            // no pending needed because virtualserver does not yet exist in DB
             $push = $this->getPushService();
             $job = $push->executeJob($physicalServer,'ovz_new_vs',$params);
             if($job->getDone() == 2){
@@ -484,7 +486,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
 
-            // execute ovz_list_snapshots job        
+            // execute ovz_list_snapshots job 
+            // no pending needed because job is readonly       
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_list_snapshots',$params);
@@ -586,7 +589,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
             
-            // execute ovz_switch_snapshot job        
+            // execute ovz_switch_snapshot job
+            // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId();
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'SNAPSHOTID'=>$snapshotId);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_switch_snapshot',$params);
@@ -657,6 +662,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $item->virtual_servers_id);
             
             // execute ovz_list_snapshots job        
+            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'NAME'=>$item->name,'DESCRIPTION'=>$item->description);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_create_snapshot',$params);
@@ -705,6 +712,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
             
             // execute ovz_delete_snapshot job        
+            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'SNAPSHOTID'=>$snapshotId);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_delete_snapshot',$params);
@@ -858,6 +867,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
         
         // execute ovz_list_info
+        // no pending needed because job is readonly
         $push = $this->getPushService();
         $params = array('UUID'=>$virtualServer->getOvzUuid());
         $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
