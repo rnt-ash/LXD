@@ -127,19 +127,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
             if($job->getDone()==2) throw new \Exception("Job (ovz_list_info) executions failed: ".$job->getError());
 
-            // save settings
-            $settings = $job->getRetval(true);
-            $virtualServer->setOvzSettings($job->getRetval());
-            self::assignSettings($virtualServer,$settings);
+            $this->saveVirutalServerSettings($job,$virtualServer);
             
-            if ($virtualServer->save() === false) {
-                $messages = $virtualServer->getMessages();
-                foreach ($messages as $message) {
-                    $this->flashSession->warning($message);
-                }
-                throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
-            }
-
             // success
             $this->flashSession->success("Settings successfully updated");
 
@@ -874,18 +863,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
         if($job->getDone()==2) throw new \Exception("Job (ovz_list_info) executions failed: ".$job->getError());
 
-        // save settings
-        $settings = $job->getRetval(true);
-        $virtualServer->setOvzSettings($job->getRetval());
-        self::assignSettings($virtualServer,$settings);
-            
-        if ($virtualServer->save() === false) {
-            $messages = $virtualServer->getMessages();
-            foreach ($messages as $message) {
-                $this->flashSession->warning($message);
-            }
-            throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
-        }
+        $this->saveVirutalServerSettings($job,$virtualServer);
         
         // get OVZ Settings
         $ovzSettings = json_decode($virtualServer->getOvzSettings(),true);
@@ -1061,18 +1039,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
             if($job->getDone()==2) throw new \Exception("Job (ovz_modify_vs) executions failed: ".$job->getError());
 
-            // save settings
-            $settings = $job->getRetval(true);
-            $virtualServer->setOvzSettings($job->getRetval());
-            self::assignSettings($virtualServer,$settings);
-            
-            if ($virtualServer->save() === false) {
-                $messages = $virtualServer->getMessages();
-                foreach ($messages as $message) {
-                    $this->flashSession->warning($message);
-                }
-                throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
-            }
+            $this->saveVirutalServerSettings($job,$virtualServer);
             
             // success
             $this->flashSession->success("Modifing VS successfully");
@@ -1091,6 +1058,21 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             'action' => 'configureVirtualServersForm',
             'params' => [$form],
         ]);
+    }
+    
+    private function saveVirutalServerSettings($job,$virtualServer){
+        // save settings
+        $settings = $job->getRetval(true);
+        $virtualServer->setOvzSettings($job->getRetval());
+        self::assignSettings($virtualServer,$settings);
+        
+        if ($virtualServer->save() === false) {
+            $messages = $virtualServer->getMessages();
+            foreach ($messages as $message) {
+                $this->flashSession->warning($message);
+            }
+            throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
+        }
     }
 }
 
