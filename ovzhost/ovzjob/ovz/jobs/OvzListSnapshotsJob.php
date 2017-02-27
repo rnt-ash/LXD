@@ -28,7 +28,7 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 
 class OvzListSnapshotsJob extends AbstractOvzJob {
 
-    public function usage(){
+    public static function usage(){
         return null;
     }
     

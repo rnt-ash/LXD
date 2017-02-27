@@ -21,7 +21,7 @@ namespace RNTFOREST\OVZJOB\general\jobs;
 
 class GeneralTestDecryptJob extends AbstractJob {
     
-    public function usage(){
+    public static function usage(){
         return null;
     }
     

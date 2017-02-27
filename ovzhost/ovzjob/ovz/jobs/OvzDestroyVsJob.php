@@ -21,7 +21,7 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 
 class OvzDestroyVsJob extends AbstractOvzJob {
 
-    public function usage(){
+    public static function usage(){
         return null;
     }
     

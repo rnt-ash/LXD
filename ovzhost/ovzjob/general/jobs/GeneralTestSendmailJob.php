@@ -23,7 +23,7 @@ use RNTFOREST\OVZJOB\general\jobs\AbstractJob;
 
 class GeneralTestSendmailJob extends AbstractJob {
     
-    public function usage(){
+    public static function usage(){
         return null;
     }
 

@@ -86,5 +86,5 @@ abstract class AbstractJob {
     * 
     * @return array
     */
-    public abstract function usage();    
+    public abstract static function usage();    
 }
