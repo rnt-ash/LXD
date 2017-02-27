@@ -46,6 +46,9 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $session = $this->session->get("VirtualServersForm");
         $op = $session['op'];
         $vstype = $session['vstype'];
+        
+        // check if virtual server is ovz enabled
+        !empty($virtualServer)?$ovz = $virtualServer->getOvz():$ovz = '';
 
         // id
         $this->add(new Hidden("id"));
@@ -94,29 +97,31 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $element->setFilters(array('int'));
         $this->add($element);
 
-        // core
-        $element = new Numeric("core");
-        $element->setLabel("Cores");
-        $element->setDefault(4);
-        $element->setAttribute("placeholder","available cores  (e.g. 4)");
-        $element->setFilters(array('int'));
-        $this->add($element);
+        if($op == 'new' || $ovz == 0){
+            // core
+            $element = new Numeric("core");
+            $element->setLabel("Cores");
+            $element->setDefault(4);
+            $element->setAttribute("placeholder","available cores  (e.g. 4)");
+            $element->setFilters(array('int'));
+            $this->add($element);
 
-        // memory
-        $element = new Numeric("memory");
-        $element->setLabel("Memory");
-        $element->setDefault(1024);
-        $element->setAttribute("placeholder","available memory in MB (e.g. 2048)");
-        $element->setFilters(array('int'));
-        $this->add($element);
+            // memory
+            $element = new Numeric("memory");
+            $element->setLabel("Memory");
+            $element->setDefault(1024);
+            $element->setAttribute("placeholder","available memory in MB (e.g. 2048)");
+            $element->setFilters(array('int'));
+            $this->add($element);
 
-        // space
-        $element = new Numeric("space");
-        $element->setLabel("Space");
-        $element->setDefault(102400);
-        $element->setAttribute("placeholder","available space in MB (e.g. 102400)");
-        $element->setFilters(array('int'));
-        $this->add($element);
+            // space
+            $element = new Numeric("space");
+            $element->setLabel("Space");
+            $element->setDefault(102400);
+            $element->setAttribute("placeholder","available space in MB (e.g. 102400)");
+            $element->setFilters(array('int'));
+            $this->add($element);
+        }
 
         // activation_date
         $element = new Date("activation_date");
@@ -125,12 +130,14 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $element->setFilters(array('string', 'trim'));
         $this->add($element);
 
-        // comment
-        $element = new TextArea("description");
-        $element->setLabel("Description");
-        $element->setAttribute("placeholder","some additional information to this server...");
-        $element->setFilters(array('striptags', 'string', 'trim'));
-        $this->add($element);
+        if($op == 'new' || $ovz == 0){
+            // comment
+            $element = new TextArea("description");
+            $element->setLabel("Description");
+            $element->setAttribute("placeholder","some additional information to this server...");
+            $element->setFilters(array('striptags', 'string', 'trim'));
+            $this->add($element);
+        }
 
         // root pwd
         if ($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')) {

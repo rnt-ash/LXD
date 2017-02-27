@@ -7,7 +7,9 @@
                     <div class="btn-group">
                         {#{{ link_to("virtual_servers/todo/"~item.id,'<i class="fa fa-bar-chart"></i>','class': 'btn btn-default btn-xs') }}
                         {{ link_to("virtual_servers/todo/"~item.id,'<i class="fa fa-question-circle-o"></i>','class': 'btn btn-default btn-xs') }}#}
-                        {{ link_to("virtual_servers/configureVirtualServers/"~item.id,'<i class="fa fa-wrench"></i>','class': 'btn btn-default btn-xs') }}
+                        {% if item.ovz == 1 %}
+                            {{ link_to("virtual_servers/configureVirtualServers/"~item.id,'<i class="fa fa-wrench"></i>','class': 'btn btn-default btn-xs') }}
+                        {% endif %}
                     </div>
                 </div>
             </th>

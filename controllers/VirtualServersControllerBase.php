@@ -862,6 +862,12 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         if(!$this->permissions->checkPermission('virtual_servers', 'configure', array('item' => $virtualServer)))
             return $this->forwardTo401();
         
+        // check if server is ovz enabled    
+        if($virtualServer->getOvz() == 0){
+            $this->flashSession->error("virtual server is not ovz enabled");
+            return $this->forwardToTableSlideDataAction();
+        }
+        
         // execute ovz_list_info
         $push = $this->getPushService();
         $params = array('UUID'=>$virtualServer->getOvzUuid());
@@ -934,6 +940,12 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // check permissions
         if(!$this->permissions->checkPermission('virtual_servers', 'configure', array('item' => $virtualServer)))
             return $this->forwardTo401();
+            
+        // check if server is ovz enabled    
+        if($virtualServer->getOvz() == 0){
+            $this->flashSession->error("virtual server is not ovz enabled");
+            return $this->forwardToTableSlideDataAction();
+        }
             
         // validate FORM
         $form = new ConfigureVirtualServersForm();
