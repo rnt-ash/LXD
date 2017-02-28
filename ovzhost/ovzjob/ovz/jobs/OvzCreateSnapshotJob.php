@@ -29,7 +29,17 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 class OvzCreateSnapshotJob extends AbstractOvzJob {
 
     public static function usage(){
-        return null;
+        return [
+            "type" => "ovz_create_snapshot",
+            "description" => "create a new snapshot on a VS",
+            "params" => [
+                "UUID" => "Universally Unique Identifier (UUID) of the VS"
+            ],
+            "params_example" => '{"UUID":"47cb40ea-e0cf-440f-b098-94e1a5b06fad"}',
+            "retval" => "JSON object with a list of all snapshots to this VS",
+            "warning" => "nothing specified",
+            "error" => "different causes (making snapshot failed or failed while converting to JSON)",
+        ];
     }
     
     public function run() {
