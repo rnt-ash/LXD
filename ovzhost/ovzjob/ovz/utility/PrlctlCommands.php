@@ -210,6 +210,9 @@ class PrlctlCommands {
                 $cmd = "prlctl set ".escapeshellarg($UUID)." --nameserver ".escapeshellarg($value);
                 break;
             case 'description':
+                // workaround to set an empty description with prlcltl set because prlctl set seems to ignore to set an 
+                // empty string (prlctl bug?)
+                if(empty($value)) $value = ' ';
                 $cmd = "prlctl set ".escapeshellarg($UUID)." --description ".escapeshellarg($value);
                 break;
             case 'ipadd':
