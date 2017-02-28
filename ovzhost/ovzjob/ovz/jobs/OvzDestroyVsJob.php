@@ -22,7 +22,17 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 class OvzDestroyVsJob extends AbstractOvzJob {
 
     public static function usage(){
-        return null;
+        return [
+            "type" => "ovz_destroy_vs",
+            "description" => "delete a VirtualServer from a hostserver",
+            "params" => [
+                "UUID" => "Universally Unique Identifier (UUID)"
+            ],
+            "params_example" => '{"UUID":"47cb40ea-e0cf-440f-b098-94e1a5b06fad"}',
+            "retval" => "if VS does not exist and thus cannot be deleted because it already is then it is specified in retval",
+            "warning" => "nothing specified",
+            "error" => "different causes (getting status failed, killing/unmounting/deleting vs failed, or something while effectively setting root password to the VS fails)",
+        ];
     }
     
     public function run() {

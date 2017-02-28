@@ -19,17 +19,20 @@
 
 namespace RNTFOREST\OVZJOB\ovz\jobs;
 
-/**
-* @jobname ovz_list_info
-* 
-* @jobparam UUID
-* @jobreturn JSON Array with infos
-*/
-
 class OvzListInfoJob extends AbstractOvzJob {
 
     public static function usage(){
-        return null;
+        return [
+            "type" => "ovz_list_info",
+            "description" => "get a JSON with information about a specific VirtualServer",
+            "params" => [
+                "UUID" => "Universally Unique Identifier (UUID)"
+            ],
+            "params_example" => '{"UUID":"47cb40ea-e0cf-440f-b098-94e1a5b06fad"}',
+            "retval" => 'JSON object with output what \'prlctl list -aifj UUID\' command would give, e.g. {"ID":"081b2b8e-bc5b-4a76-bd46-84251a8091fd","EnvID":"081b2b8e-bc5b-4a76-bd46-84251a8091fd",.....} ',
+            "warning" => "nothing specified",
+            "error" => "different causes (VS does not exist, getting info failed)",
+        ];
     }
     
     public function run() {

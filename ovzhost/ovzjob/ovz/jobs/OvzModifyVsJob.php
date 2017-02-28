@@ -24,6 +24,7 @@ class OvzModifyVsJob extends AbstractOvzJob{
     public static function usage(){
         return [
             "type" => "ovz_modify_vs",
+            "description" => "modify the configuration of a VirtualServer",
             "params" => [
                 "UUID" => "Universally Unique Identifier (UUID)",
                 "CONFIG" => [

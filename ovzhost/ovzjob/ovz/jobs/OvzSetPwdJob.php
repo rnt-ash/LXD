@@ -22,7 +22,18 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 class OvzSetPwdJob extends AbstractOvzJob {
 
     public static function usage(){
-        return null;
+        return [
+            "type" => "ovz_restart_vs",
+            "description" => "set the root password of a VirtualServer",
+            "params" => [
+                "UUID" => "Universally Unique Identifier (UUID)",
+                "ROOTPWD" => "the root password to set"
+            ],
+            "params_example" => '{"UUID":"717a8925-f92b-48d3-81aa-a948cfe177af, "ROOTPWD":"v3rys4fep4s5w0rd!"}',
+            "retval" => "nothing specified, maybe some output from the CLI",
+            "warning" => "nothing specified",
+            "error" => "different causes (UUID does not exist, or something while effectively setting root password to the VS fails)",
+        ];
     }
     
     public function run() {

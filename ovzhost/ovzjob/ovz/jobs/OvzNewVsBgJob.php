@@ -19,10 +19,6 @@
 
 namespace RNTFOREST\OVZJOB\ovz\jobs;
 
-/**
-* ovz_new_vs    VSTYPE, UUID, NAME, OSTEMPLATE, DISTRIBUTION, HOSTNAME, CPUS, RAM, DISKSPACE, ROOTPWD
-*/
-
 class OvzNewVsBgJob extends AbstractOvzJob{
 
     public static function usage(){

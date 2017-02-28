@@ -22,7 +22,15 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 class OvzGetOstemplatesJob extends AbstractOvzJob {
 
     public static function usage(){
-        return null;
+        return [
+            "type" => "ovz_get_ostemplates",
+            "description" => "get a JSON of all ostemplates",
+            "params" => [],
+            "params_example" => '',
+            "retval" => 'JSON array of template objects with attributes name and lastupdate, e.g. [{"name":"ubuntu-14.04-x86_64","lastupdate":"0000-00-00 00:00:00"},{"name":"ubuntu-16.04-x86_64","lastupdate":"0000-00-00 00:00:00"}]',
+            "warning" => "nothing specified",
+            "error" => "different causes (getting templates failed)",
+        ];
     }
     
     public function run() {

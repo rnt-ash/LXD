@@ -19,15 +19,12 @@
 
 namespace RNTFOREST\OVZJOB\ovz\jobs;
 
-/**
-* ovz_new_vs    VSTYPE, UUID, NAME, OSTEMPLATE, DISTRIBUTION, HOSTNAME, CPUS, RAM, DISKSPACE, ROOTPWD
-*/
-
 class OvzNewVsJob extends AbstractOvzJob{
     
     public static function usage(){
         return [
             "type" => "ovz_new_vs",
+            "description" => "create a new VirtualServer",
             "params" => [
                 "VSTYPE" => "Type of the virtual system (CT or VM)",
                 "UUID" => "Universally Unique Identifier (UUID)",

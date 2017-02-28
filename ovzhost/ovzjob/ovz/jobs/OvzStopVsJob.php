@@ -19,16 +19,20 @@
 
 namespace RNTFOREST\OVZJOB\ovz\jobs;
 
-/**
-* @jobname ovz_stop_vs
-* 
-* @jobparam UUID
-*/
-
 class OvzStopVsJob extends AbstractOvzJob {
 
     public static function usage(){
-        return null;
+        return [
+            "type" => "ovz_stop_vs",
+            "description" => "stop a VirtualServer",
+            "params" => [
+                "UUID" => "Universally Unique Identifier (UUID)"
+            ],
+            "params_example" => '{"UUID":"717a8925-f92b-48d3-81aa-a948cfe177af"}',
+            "retval" => "nothing specified, maybe some output from the CLI",
+            "warning" => "nothing specified",
+            "error" => "different causes (UUID does not exist, couldn't get actual state, or something while effectively stopping the VS fails)",
+        ];
     }
     
     public function run() {

@@ -22,7 +22,15 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 class OvzHostInfoJob extends AbstractOvzJob {
 
     public static function usage(){
-        return null;
+        return [
+            "type" => "ovz_host_info",
+            "description" => "get a JSON of information about the hostserver",
+            "params" => [],
+            "params_example" => '',
+            "retval" => 'JSON object with output what \'prlsrvctl info -j\' command would give, e.g. { "ID": "4564732a-3f6b-4456-bc56-1080f6e42fa1", "Hostname": "127.0.0.1", "Version": "Server 7.0.533",......} ',
+            "warning" => "nothing specified",
+            "error" => "different causes (getting host info failed or failed while converting to JSON)",
+        ];
     }
     
     public function run() {

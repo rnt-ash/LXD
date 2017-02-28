@@ -30,7 +30,15 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 class OvzListVsJob extends AbstractOvzJob {
 
     public static function usage(){
-        return null;
+        return [
+            "type" => "ovz_list_vs",
+            "description" => "get a JSON of all VirtualServers on the hostserver",
+            "params" => [],
+            "params_example" => '',
+            "retval" => 'JSON array with objects what \'prlctl list -ajo uuid,name,type,status\' command would give, e.g. [ { "uuid": "05772175-19bb-4736-a178-9d0c9e821f7b", "name": "test", "type": "CT", "status": "running" }, ...] ',
+            "warning" => "nothing specified",
+            "error" => "different causes ( getting list failed)",
+        ];
     }
     
     public function run() {
