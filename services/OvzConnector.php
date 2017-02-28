@@ -421,7 +421,6 @@ class OvzConnector extends \Phalcon\DI\Injectable
             '/vz/mnt',
             '/etc/vz',
             '/etc/vz/conf',
-            '/srv/downloadingostemplates',
         );
         foreach($folders as $folder) {
             $this->createDirectoryIfNotExists($folder);
