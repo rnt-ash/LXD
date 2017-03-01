@@ -28,6 +28,7 @@ use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\models\Dcoipobjects;
 use RNTForest\ovz\forms\DcoipobjectsForm;
 use RNTForest\ovz\libraries\ByteConverter;
+use RNTForest\ovz\forms\SnapshotForm;
 
 class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -621,14 +622,17 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
     public function snapshotFormAction($item){
 
-        if(is_a($item,'SnapshotForm')){
-            // Get item from form
-            $this->view->form = $item;
-        } else {
+        if(!is_a($item,'SnapshotForm')){
             $snapshotFormFields = new SnapshotFormFields();
-            $snapshotFormFields->virtual_servers_id = $item;
-            $this->view->form = new SnapshotForm($snapshotFormFields);
+            $snapshotFormFields->virtual_servers_id = intval($item);
+            $item = new SnapshotForm($snapshotFormFields);
         }
+
+        // check permissions
+        if(!$this->permissions->checkPermission('virtual_servers', 'snapshot', array('item' => $virtualServer)))
+            return $this->forwardTo401();
+        
+        $this->view->form = $item;
     }
 
     
