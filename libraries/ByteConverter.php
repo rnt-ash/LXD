@@ -18,8 +18,6 @@
 */
 namespace RNTForest\ovz\libraries;
 
-use RNTForest\ovz\models\PhysicalServers;
-
 class ByteConverter
 {
     public static function convertByteStringToBytes($byteString) { 
@@ -70,5 +68,27 @@ class ByteConverter
     public static function convertBytesToGibiBytes($bytes) {
         return gmp_strval(gmp_div($bytes,gmp_pow('1024','3')));
     }
+    
+    /**
+    * Returns a human readable string with Byte, KB, MB, ... to a given bytes number.
+    * e.g. 123GB or 10MB
+    * 
+    * @param int $bytes
+    * @return string
+    */
+    public static function getHumanReadableStringFromBytes($bytes){
+        $result = $bytes.' Byte';
+             
+        if($bytes >= 1024 and $bytes < pow(1024, 2)) { 
+            $result = round($bytes/1024, 2).' KB'; 
+        }elseif($bytes >= pow(1024, 2) and $bytes < pow(1024, 3)) { 
+            $result = round($bytes/pow(1024, 2), 2).' MB'; 
+        }elseif($bytes >= pow(1024, 3) and $bytes < pow(1024, 4)) { 
+            $result = round($bytes/pow(1024, 3), 2).' GB'; 
+        }elseif($bytes >= pow(1024, 4) and $bytes < pow(1024, 5)) { 
+            $result = round($bytes/pow(1024, 4), 2).' TB'; 
+        }
+        
+        return $result;
+    }
 }
-?>
