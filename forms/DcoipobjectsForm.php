@@ -60,15 +60,18 @@ class DcoipobjectsForm extends \RNTForest\core\forms\FormBase
             
             // value1
             $element = new Text("value1");
-            $element->setLabel("IP Address");
+            $message = $this->translate("ipobjects_ip");
+            $element->setLabel($message);
             $element->setAttribute("placeholder","192.168.1.1");
             $element->setFilters(array('striptags', 'string', 'trim'));
             $this->add($element);
             
             // value2
             $element = new Text("value2");
-            $element->setLabel("Additional IP Value");
-            $element->setAttribute("placeholder","Empty or Subnetmask if IP Address, End IP Address if Range or Prefix if Subnet");
+            $message = $this->translate("ipobjects_ip_addition");
+            $element->setLabel($message);
+            $message = $this->translate("ipobjects_ip_additioninfo");
+            $element->setAttribute("placeholder", $message);
             $element->setFilters(array('striptags', 'string', 'trim'));
             $this->add($element);
 
@@ -82,16 +85,20 @@ class DcoipobjectsForm extends \RNTForest\core\forms\FormBase
             } else {
                 $element->setDefault(Dcoipobjects::ALLOC_ASSIGNED);
             }
-            $element->setLabel("Allocated");
+            $message = $this->translate("ipobjects_allocated");
+            $element->setLabel($message);
             $element->setFilters(array('int'));
             $this->add($element);
             
             // main
+            $messagemain = $this->translate("ipobjects_ismain");
+            $messagenotmain = $this->translate("ipobjects_isnotmain");
             $element = new Select("main",array(
-                0 => "Is not main",
-                1 => "Is main",
+                0 => $messagemain,
+                1 => $messagenotmain,
             ));
-            $element->setLabel("Main IP");
+            $message = $this->translate("ipobjects_ip_main");
+            $element->setLabel($message);
             $element->setFilters(array('int'));
             $this->add($element);
             
@@ -99,8 +106,10 @@ class DcoipobjectsForm extends \RNTForest\core\forms\FormBase
         
         // comment
         $element = new TextArea("comment");
-        $element->setLabel("Comment");
-        $element->setAttribute("placeholder","some additional information to IP Object");
+        $message = $this->translate("ipobjects_comment");
+        $element->setLabel($message);
+        $message = $this->translate("ipobjects_commentinfo");
+        $element->setAttribute("placeholder", $message);
         $element->setFilters(array('striptags', 'string', 'trim'));
         $this->add($element);
         

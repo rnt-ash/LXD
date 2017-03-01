@@ -505,45 +505,54 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
         * with white spaces must be enclosed in quotation marks.
         * 
         */
+        $message = $this->translate("physicalserver_name_required");
         $validator->add('name', new PresenceOfValidator([
-            'message' => 'name is required'
+            'message' => $message
         ]));        
-
+        
+        $messagemax = $this->translate("physicalserver_messagemax");
+        $messagemin = $this->translate("physicalserver_messagemin");
         $validator->add('name', new StringLengthValitator([
             'max' => 50,
             'min' => 3,
-            'messageMaximum' => 'name too long',
-            'messageMinimum' => 'name too small',
+            'messageMaximum' => $messagemax,
+            'messageMinimum' => $messagemin,
         ]));
-
+        
+        $message = $this->translate("physicalserver_name_valid");
         $validator->add('name', new RegexValidator([
             'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
-            'message' => 'Name must be alphanumeric and may contain the characters \, -, _ and space.'
+            'message' => $message
         ]));        
-
+        
+        $message = $this->translate("physicalserver_fqdn_required");
         // fqdn
         $validator->add('fqdn', new PresenceOfValidator([
-            'message' => 'fqdn is required'
+            'message' => $message
         ]));        
-
+        
+        $message = $this->translate("physicalserver_fqdn_valid");
         $validator->add('fqdn', new RegexValidator([
             'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-            'message' => 'must be a string separated by points'
+            'message' => $message
         ]));        
-
+        
+        $message = $this->translate("physicalserver_core_required");
         // core
         $validator->add('core', new PresenceOfValidator([
-            'message' => 'core is required'
+            'message' => $message
         ]));        
-
+        
+        $message = $this->translate("physicalserver_memory_required");
         // memory
         $validator->add('memory', new PresenceOfValidator([
-            'message' => 'memory is required'
+            'message' => $message
         ]));        
-
+        
+        $message = $this->translate("physicalserver_space_required");
         // space
         $validator->add('space', new PresenceOfValidator([
-            'message' => 'space is required'
+            'message' => $message
         ]));        
 
 

@@ -78,12 +78,13 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     }
     
     protected function renderSlideHeader($item,$level){
+        $message = $this->translate("colocations_invalid_level");
         switch($level){
             case 0:
                 return $item->name; 
                 break;
             default:
-                return "invalid level!";
+                return $message;
         }
     }
 

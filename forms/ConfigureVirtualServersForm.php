@@ -43,13 +43,15 @@ class ConfigureVirtualServersForm extends \RNTForest\core\forms\FormBase
 
         // fqdn
         $element = new Text("hostname");
-        $element->setLabel("Hostname");
+        $message = $this->translate("virtualserver_hostname");
+        $element->setLabel($message);
         $element->setAttribute("placeholder","host.domain.tld");
         $element->setFilters(array('striptags', 'string'));
+        $message = $this->translate("virtualserver_hostname_valid");
         $element->addValidators(array(
             new RegexValidator([
                 'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-                'message' => 'must be a string separated by points',
+                'message' => $messages,
                 'allowEmpty' => true,
             ])
         ));
@@ -57,27 +59,34 @@ class ConfigureVirtualServersForm extends \RNTForest\core\forms\FormBase
 
         // core
         $element = new Numeric("cores");
-        $element->setLabel("Cores");
-        $element->setAttribute("placeholder","available cores (e.g. 4)");
+        $message = $this->translate("virtualserver_cores");
+        $element->setLabel($message);
+        $message = $this->translate("virtualserver_cores_example");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('int'));
+        $message = $this->translate("virtualserver_core_required");
         $element->addValidators(array(
             new PresenceOfValidator([
-                'message' => 'Cores is required',
+                'message' => $message,
             ]),
         ));
         $this->add($element);
 
         // memory
         $element = new Text("memory");
-        $element->setLabel("Memory");
-        $element->setAttribute("placeholder","available memory in MB (e.g. 2048)");
+        $message = $this->translate("virtualserver_memory");
+        $element->setLabel($message);
+        $message = $this->translate("virtualserver_memory_example");
+        $element->setAttribute("placeholder",$message);
+        $message = $this->translate("virtualserver_memory_required");
+        $message1 = $this->translate("virtualserver_memory_specify");
         $element->addValidators(array(
             new PresenceOfValidator([
-                'message' => 'Memory is required',
+                'message' => $message,
             ]),
             new RegexValidator([
                 'pattern' => '/^[1-9][0-9]*.?\d*[mMgG][bB]$/',
-                'message' => 'please specify if it\'s either GB or MB',
+                'message' => $message1,
                 'allowEmpty' => true,
             ])
         ));
@@ -85,15 +94,19 @@ class ConfigureVirtualServersForm extends \RNTForest\core\forms\FormBase
 
         // space
         $element = new Text("diskspace");
-        $element->setLabel("Diskspace");
-        $element->setAttribute("placeholder","available space in GB  (e.g. 100)");
+        $message = $this->translate("virtualserver_discspace");
+        $element->setLabel($message);
+        $message = $this->translate("virtualserver_discspace_example");
+        $element->setAttribute("placeholder",$message);
+        $message = $this->translate("virtualserver_discspace_required");
+        $message1 = $this->translate("virtualserver_discspace_specify");
         $element->addValidators(array(
             new PresenceOfValidator([
-                'message' => 'Diskspace is required',
+                'message' => $message,
             ]),
             new RegexValidator([
                 'pattern' => '/^[1-9][0-9]*.?\d*[mMgGtT][bB]$/',
-                'message' => 'please specify if it\'s either TB,GB or MB',
+                'message' => $message1,
                 'allowEmpty' => true,
             ])
         ));
@@ -101,7 +114,8 @@ class ConfigureVirtualServersForm extends \RNTForest\core\forms\FormBase
         
         // dns
         $element = new Text("dns");
-        $element->setLabel("DNS-Server");
+        $message = $this->translate("virtualserver_dnsserver");
+        $element->setLabel($message);
         $element->setAttribute("placeholder","8.8.8.8");
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
@@ -110,20 +124,23 @@ class ConfigureVirtualServersForm extends \RNTForest\core\forms\FormBase
         $element = new Check("startOnBoot",array(
             'value' => 1,
         ));
-        $element->setLabel("Start on boot");
+        $message = $this->translate("virtualserver_startonboot");
+        $element->setLabel($message);
         $element->setFilters(array('int'));
+        $message = $this->translate("virtualserver_startonboot_info");
         $element->addValidators(array(
             new BetweenValidator([
                 'minimum' => 0,
                 'maximum' => 1,
-                'message' => 'Start on boot can either be 0 or 1',
+                'message' => $message,
             ]),
         ));
         $this->add($element);
         
         // description
         $element = new TextArea("description");
-        $element->setLabel("Description");
+        $message = $this->translate("virtualserver_description");
+        $element->setLabel($message);
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
     }

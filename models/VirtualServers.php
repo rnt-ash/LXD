@@ -806,72 +806,85 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
         * with white spaces must be enclosed in quotation marks.
         * 
         */
+        $message = $this->translate("virtualserver_name_required");
         $validator->add('name', new PresenceOfValidator([
-            'message' => 'name is required'
+            'message' => $message
         ]));        
 
+        $messagemax = $this->translate("virtualserver_namemax");
+        $messagemin = $this->translate("virtualserver_namemin");
         $validator->add('name', new StringLengthValitator([
             'max' => 40,
             'min' => 3,
-            'messageMaximum' => 'name too long',
-            'messageMinimum' => 'name too small',
+            'messageMaximum' => $messagemax,
+            'messageMinimum' => $messagemin,
         ]));
 
+        $message = $this->translate("virtualserver_name_valid");
         $validator->add('name', new RegexValidator([
             'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
-            'message' => 'Name must be alphanumeric and may contain the characters \, -, _ and space.'
+            'message' => $message
         ]));        
 
         // fqdn
+        $message = $this->translate("virtualserver_fqdn_valid");
         if($op == 'edit'){
             $validator->add('fqdn', new RegexValidator([
                 'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-                'message' => 'must be a string separated by points',
+                'message' => $message,
                 'allowEmpty' => true,
             ]));        
         }
 
         // customer
+        $message = $this->translate("virtualserver_customer_required");
         $validator->add('customers_id', new PresenceOfValidator([
-            'message' => 'customer is required'
+            'message' => $message
         ]));        
 
         // physical server
+        $message = $this->translate("virtualserver_physicalserver_required");
         $validator->add('physical_servers_id', new PresenceOfValidator([
-            'message' => 'physical server is required'
+            'message' => $message
         ]));        
 
         // core
+        $message = $this->translate("virtualserver_core_required");
         $validator->add('core', new PresenceOfValidator([
-            'message' => 'core is required'
+            'message' => $message
         ]));        
 
         // memory
+        $message = $this->translate("virtualserver_memory_required");
         $validator->add('memory', new PresenceOfValidator([
-            'message' => 'memory is required'
+            'message' => $message
         ]));        
 
         // space
+        $message = $this->translate("virtualserver_space_required");
         $validator->add('space', new PresenceOfValidator([
-            'message' => 'space is required'
+            'message' => $message
         ]));        
 
         if($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')){
             // password
+            $message = $this->translate("virtualserver_password_required"); 
             $validator->add('password', new PresenceOfValidator([
-                'message' => 'Password is required'
+                'message' => $message
             ]));        
 
+            $message = $this->translate("virtualserver_passwordmin");
             $validator->add('password', new StringLengthValitator([
                 'min' => 8,
-                'messageMinimum' => 'Password is too short. Minimum 8 characters'
+                'messageMinimum' => $message
             ]));        
         }
 
         if($op == 'new' && $vstype == 'CT'){
             // ostemplate
+            $message = $this->translate("virtualserver_ostemplate_required");
             $validator->add('ostemplate', new PresenceOfValidator([
-                'message' => 'OS template is required'
+                'message' => $message
             ]));        
         }        
         return $validator;

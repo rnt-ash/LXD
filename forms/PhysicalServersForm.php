@@ -50,81 +50,96 @@ class PhysicalServersForm extends \RNTForest\core\forms\FormBase
 
         // name
         $element = new Text("name");
-        $element->setLabel("Name");
-        $element->setAttribute("placeholder","My Server");
+        $message = $this->translate("physicalserver_name");
+        $element->setLabel($message);
+        $message = $this->translate("physicalserver_myserver");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
-
+        
         // fqdn
         $element = new Text("fqdn");
+        $message = $this->translate("physicalserver_fqdn");
         $element->setLabel("FQDN");
-        $element->setAttribute("placeholder","host.domain.tld");
+        $message = $this->translate("physicalserver_hostdomaintld");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
 
         // customer
+        $message = $this->translate("physicalserver_choose_customer");
         $element = new Select(
             "customers_id",
             Customers::find(array("columns"=>"id,CONCAT(company,' (',lastname,' ' ,firstname,')',' ',city) as name","order"=>"name")),
             array("using"=>array("id","name"),
                 "useEmpty"   => true,
-                "emptyText"  => "Please, choose a customer...",
+                "emptyText"  => $message,
                 "emptyValue" => "0",            
             )
         );
-        $element->setLabel("Customer");
+        $message = $this->translate("physicalserver_customer");
+        $element->setLabel($message);
         $element->setFilters(array('int'));
         $this->add($element);
 
         // colocation
+        $message = $this->translate("physicalserver_choose_colocation");
         $element = new Select(
             "colocations_id",
             Colocations::find(array("order"=>"name")),
             array("using"=>array("id","name"),
                 "useEmpty"   => true,
-                "emptyText"  => "Please, choose a colocation...",
+                "emptyText"  => $message,
                 "emptyValue" => "0",            
             )
         );
-        $element->setLabel("Colocation");
+        $message = $this->translate("physicalserver_colocation");
+        $element->setLabel($message);
         $element->setFilters(array('int'));
         $this->add($element);
 
         // core
         $element = new Numeric("core");
-        $element->setLabel("Cores");
-        $element->setDefault(2);
-        $element->setAttribute("placeholder","available cores  (e.g. 4)");
+        $message = $this->translate("physicalserver_cores");
+        $element->setLabel($message);
+        $message = $this->translate("physicalserver_cores_available");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('int'));
         $this->add($element);
 
         // memory
         $element = new Numeric("memory");
-        $element->setLabel("Memory");
-        $element->setDefault(1024);
-        $element->setAttribute("placeholder","available memory in MB (e.g. 2048)");
+        $message = $this->translate("physicalserver_memory");
+        $element->setLabel($message);
+        $message = $this->translate("physicalserver_memory_available");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('int'));
         $this->add($element);
 
         // space
         $element = new Numeric("space");
-        $element->setLabel("Space");
+        $message = $this->translate("physicalserver_space");
+        $element->setLabel($message);
         $element->setDefault(102400);
-        $element->setAttribute("placeholder","available space in MB (e.g. 102400)");
+        $message = $this->translate("physicalserver_space_available");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('int'));
         $this->add($element);
         
         // activation_date
         $element = new Date("activation_date");
-        $element->setLabel("Activation Date");
+        $message = $this->translate("physicalserver_activ_date");
+        $element->setLabel($message);
         $element->setDefault(date("Y-m-d"));
         $element->setFilters(array('string', 'trim'));
         $this->add($element);
         
         // comment
         $element = new TextArea("description");
-        $element->setLabel("Description");
-        $element->setAttribute("placeholder","some additional information to this server...");
+        $message = $this->translate("physicalserver_discription");
+        $element->setLabel($message);
+        $message = $this->translate("physicalserver_discription_info");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string', 'trim'));
         $this->add($element);
 

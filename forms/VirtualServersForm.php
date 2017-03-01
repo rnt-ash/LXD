@@ -55,8 +55,10 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
 
         // name
         $element = new Text("name");
-        $element->setLabel("Name");
-        $element->setAttribute("placeholder","My Server");
+        $message = $this->translate("virtualserver_name");
+        $element->setLabel($message);
+        $message = $this->translate("virtualserver_myserver");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
 
@@ -70,62 +72,73 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         }
 
         // customer
+        $message = $this->translate("virtualserver_choose_customer");
         $element = new Select(
             "customers_id",
             Customers::find(array("columns"=>"id,CONCAT(company,' (',lastname,' ' ,firstname,')',' ',city) as name","order"=>"name")),
             array("using"=>array("id","name"),
                 "useEmpty"   => true,
-                "emptyText"  => "Please, choose a customer...",
+                "emptyText"  => $message,
                 "emptyValue" => "",            
             )
         );
-        $element->setLabel("Customer");
+        $message = $this->translate("virtualserver_customer");
+        $element->setLabel($message);
         $element->setFilters(array('int'));
         $this->add($element);
 
         if($op == 'new' || $ovz == 0){
             // physical servers
+            $message = $this->translate("virtualserver_choose_physicalserver");
             $element = new Select(
                 "physical_servers_id",
                 PhysicalServers::find(),
                 array("using"=>array("id","name",),
                     "useEmpty"   => true,
-                    "emptyText"  => "Please, choose a physical Server...",
+                    "emptyText"  => $message,
                     "emptyValue" => "",            
                 )
             );
-            $element->setLabel("Physical Servers");
+            $message = $this->translate("virtualserver_physicalserver");
+            $element->setLabel($message);
             $element->setFilters(array('int'));
             $this->add($element);
 
             // core
             $element = new Numeric("core");
-            $element->setLabel("Cores");
+            $message = $this->translate("virtualserver_cores");
+            $element->setLabel($message);
             $element->setDefault(4);
-            $element->setAttribute("placeholder","available cores  (e.g. 4)");
+            $message = $this->translate("virtualserver_cores_example");
+            $element->setAttribute("placeholder",$message);
             $element->setFilters(array('int'));
             $this->add($element);
 
             // memory
             $element = new Numeric("memory");
-            $element->setLabel("Memory");
+            $message = $this->translate("virtualserver_memory");
+            $element->setLabel($message);
             $element->setDefault(1024);
-            $element->setAttribute("placeholder","available memory in MB (e.g. 2048)");
+            $message = $this->translate("virtualserver_memory_example");
+            $element->setAttribute("placeholder",$message);
             $element->setFilters(array('int'));
             $this->add($element);
 
             // space
             $element = new Numeric("space");
-            $element->setLabel("Space");
+            $message = $this->translate("virtualserver_space");
+            $element->setLabel($message);
             $element->setDefault(102400);
-            $element->setAttribute("placeholder","available space in MB (e.g. 102400)");
+            $message = $this->translate("virtualserver_space_example");
+            $element->setAttribute("placeholder",$message);
             $element->setFilters(array('int'));
             $this->add($element);
         }
 
         // activation_date
         $element = new Date("activation_date");
-        $element->setLabel("Activation Date");
+        $message = $this->translate("virtualserver_activdate");
+        $element->setLabel($message);
         $element->setDefault(date("Y-m-d"));
         $element->setFilters(array('string', 'trim'));
         $this->add($element);
@@ -133,8 +146,10 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         if($op == 'new' || $ovz == 0){
             // comment
             $element = new TextArea("description");
-            $element->setLabel("Description");
-            $element->setAttribute("placeholder","some additional information to this server...");
+            $message = $this->translate("virtualserver_description");
+            $element->setLabel($message);
+            $message = $this->translate("virtualserver_description_info");
+            $element->setAttribute("placeholder",$message);
             $element->setFilters(array('striptags', 'string', 'trim'));
             $this->add($element);
         }
@@ -142,21 +157,23 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         // root pwd
         if ($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')) {
             $element = new Password("password");
-            $element->setLabel("Root Password");
+            $message = $this->translate("virtualserver_rootpassword");
+            $element->setLabel($message);
             $element->setAttribute("placeholder","1234");
             $element->setFilters(array('striptags', 'string'));
             $this->add($element);
         }
-
+        $message = $this->translate("virtualserver_choose_ostemplate");
         if ($op == 'new' && $vstype == 'CT') {
             // OS templates
+            
             $ostemplates = $session['ostemplates'];
             $element = new Select(
                 "ostemplate",
                 $ostemplates,
                 array("using"=>array("id","name",),
                     "useEmpty"   => true,
-                    "emptyText"  => "Please, choose a OS template...",
+                    "emptyText"  => $message,
                     "emptyValue" => "",            
                 )
             );
