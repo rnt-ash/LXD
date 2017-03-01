@@ -483,6 +483,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // find virtual server
             $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new Exception("Virtual Server does not exist: " . $serverId);
+
+            // permissions
+            if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
             
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
@@ -586,6 +589,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // find virtual server
             $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
+
+            // permissions
+            if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
             
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
@@ -628,9 +634,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $item = new SnapshotForm($snapshotFormFields);
         }
 
-        // check permissions
-        if(!$this->permissions->checkPermission('virtual_servers', 'snapshot', array('item' => $virtualServer)))
-            return $this->forwardTo401();
+        // permissions
+        if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
         
         $this->view->form = $item;
     }
@@ -664,6 +669,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // find virtual server
             $virtualServer = VirtualServers::findFirst($item->virtual_servers_id);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $item->virtual_servers_id);
+
+            // permissions
+            if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
             
             // execute ovz_list_snapshots job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
@@ -711,6 +719,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // find virtual server
             $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
+
+            // permissions
+            if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
             
             // not ovz enabled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
