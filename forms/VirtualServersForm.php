@@ -83,21 +83,21 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $element->setFilters(array('int'));
         $this->add($element);
 
-        // physical servers
-        $element = new Select(
-            "physical_servers_id",
-            PhysicalServers::find(),
-            array("using"=>array("id","name",),
-                "useEmpty"   => true,
-                "emptyText"  => "Please, choose a physical Server...",
-                "emptyValue" => "",            
-            )
-        );
-        $element->setLabel("Physical Servers");
-        $element->setFilters(array('int'));
-        $this->add($element);
-
         if($op == 'new' || $ovz == 0){
+            // physical servers
+            $element = new Select(
+                "physical_servers_id",
+                PhysicalServers::find(),
+                array("using"=>array("id","name",),
+                    "useEmpty"   => true,
+                    "emptyText"  => "Please, choose a physical Server...",
+                    "emptyValue" => "",            
+                )
+            );
+            $element->setLabel("Physical Servers");
+            $element->setFilters(array('int'));
+            $this->add($element);
+
             // core
             $element = new Numeric("core");
             $element->setLabel("Cores");
