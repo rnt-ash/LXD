@@ -55,7 +55,7 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
 
         // name
         $element = new Text("name");
-        $message = $this->translate("virtualserver_name");
+        $message = self::translate("virtualserver_name");
         $element->setLabel($message);
         $message = $this->translate("virtualserver_myserver");
         $element->setAttribute("placeholder",$message);

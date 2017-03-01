@@ -8,20 +8,20 @@
 
 {% block slideheader %}
 <div class="well well-sm">
-    <form id="slidedatatoolbar" action="" method="get">
-    
+    <form id="slidedatatoolbar" action="" method="post">
+
         <div class="row">
             <div class="col-sm-5">
                 {% if permissions.checkPermission("virtual_servers", "create") %}
                 <div class="btn-group">
-                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                     <b>New</b> <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li><a href="/{{controller}}/newVS">Independent System</a></li>
-                    <li><a href="/{{controller}}/newCT">Container (CT)</a></li>
-                    <li><a href="/{{controller}}/newVM">Virtual Machine (VM)<br />(will not work in Beta!)</a></li>
-                  </ul>
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <b>New</b> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="/{{controller}}/newVS">Independent System</a></li>
+                        <li><a href="/{{controller}}/newCT">Container (CT)</a></li>
+                        <li><a href="/{{controller}}/newVM">Virtual Machine (VM)<br />(will not work in Beta!)</a></li>
+                    </ul>
                 </div>  
                 {% endif %}  
                 {{ link_to(contaction~"?orderdir="~orderdir,orderdirIcon,'class': 'btn btn-default') }}
@@ -33,9 +33,19 @@
             <div class="col-sm-5">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-search" onclick="$('form#slidedatatoolbar').submit();"></i></span>
-                    {{ text_field("filterAll",'class':'form-control','placeholder':'Filter') }}
+                    {{ text_field("filterAll",'class':'form-control','placeholder':'Filter Virtual Servers') }}
                     <span class="input-group-addon"><i class="fa fa-times" onclick="$('#filterAll').val('');$('form#slidedatatoolbar').submit();"></i></span>
                 </div>
+                {% if permissions.checkPermission("virtual_servers", "filter_customers") %}
+                <label class="select">
+                    {{ select_static('filterCustomers',customers,'size':'1','class':'form-control','onchange':'javascript: this.form.submit();') }}
+                </label>
+                {% endif %}
+                {% if permissions.checkPermission("virtual_servers", "filter_physical_servers") %}
+                <label class="select">
+                    {{ select_static('filterPhysicalServers',physicalServers,'size':'1','class':'form-control','onchange':'javascript: this.form.submit();') }}
+                </label>
+                {% endif %}
             </div>
         </div>
     </form>

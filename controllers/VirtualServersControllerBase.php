@@ -64,7 +64,64 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         );
     }
 
-    protected function filterSlideItems($items,$level) { 
+    public function getMyCustomers(){
+        $scope = $this->permissions->getScope("virtual_servers","filter_customers");
+        if($scope == "partners"){
+            $partners = \RNTForest\core\models\CustomersPartners::find("partners_id = ".$this->session->get('auth')['customers_id']);
+            $customer_ids[] = $this->session->get('auth')['customers_id'];
+            foreach($partners as $partner){
+                $customer_ids[] = $partner->getCustomersId();
+            }
+            $conditions = "id in (".implode(',',$customer_ids).")";
+        } elseif($scope == "*") {
+            $conditions = "";
+        }else{
+            // all other scopes
+            return array();
+        }
+
+        $resultset = \RNTForest\core\models\Customers::find(["conditions" => $conditions, "order" => "company,lastname,firstname"]);
+        $message = self::translate("virtualserver_filter_all_customers");
+        $customers = array(0 => $message);
+        foreach($resultset as $customer){
+            $customers[$customer->id] = $customer->printAddressText();
+        }
+        return $customers;
+        
+    }
+    
+    public function getMyPhysicalServers(){
+        $scope = $this->permissions->getScope("virtual_servers","filter_physical_servers");
+        if($scope == "partners"){
+            $partners = \RNTForest\core\models\CustomersPartners::find("partners_id = ".$this->session->get('auth')['customers_id']);
+            $customer_ids[] = $this->session->get('auth')['customers_id'];
+            foreach($partners as $partner){
+                $customer_ids[] = $partner->getCustomersId();
+            }
+            $conditions = "id in (".implode(',',$customer_ids).")";
+        } elseif($scope == "*") {
+            $conditions = "";
+        }else{
+            // all other scopes
+            return array();
+        }
+
+        $resultset = \RNTForest\ovz\models\PhysicalServers::find(["conditions" => $conditions, "order" => "name"]);
+        $message = self::translate("virtualserver_filter_all_physical_servers");
+        $physicalServers = array(0 => $message);
+        foreach($resultset as $physicalServer){
+            $physicalServers[$physicalServer->id] = $physicalServer->name;
+        }
+        return $physicalServers;
+        
+    }
+    
+    protected function filterSlideItems($virtualServers,$level) { 
+        
+        // put resultsets to the view
+        $this->view->customers = $this->getMyCustomers();
+        $this->view->physicalServers = $this->getMyPhysicalServers();
+        
         // receive all filters
         if($this->request->has('filterAll')){
             $oldfilter = $this->slideDataInfo['filters']['filterAll'];
@@ -72,16 +129,34 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if($oldfilter != $this->slideDataInfo['filters']['filterAll']) $this->slideDataInfo['page'] = 1;
         }
 
-        // apply filter
-        if(!empty($this->slideDataInfo['filters']['filterAll'])){ 
-            $items = $items->filter(
-                function($item){
-                    if(strpos(strtolower($item->name),strtolower($this->slideDataInfo['filters']['filterAll']))!==false)
-                        return $item;
-                }
-            );
+        if($this->request->has('filterCustomers')){
+            $oldfilter = $this->slideDataInfo['filters']['filterCustomers'];
+            $this->slideDataInfo['filters']['filterCustomers'] = $this->request->get("filterCustomers", "int");
+            if($oldfilter != $this->slideDataInfo['filters']['filterCustomers']) $this->slideDataInfo['page'] = 1;
         }
-        return $items; 
+
+        if($this->request->has('filterPhysicalServers')){
+            $oldfilter = $this->slideDataInfo['filters']['filterPhysicalServers'];
+            $this->slideDataInfo['filters']['filterPhysicalServers'] = $this->request->get("filterPhysicalServers", "int");
+            if($oldfilter != $this->slideDataInfo['filters']['filterPhysicalServers']) $this->slideDataInfo['page'] = 1;
+        }
+
+        // apply filters
+        foreach($virtualServers as $key=>$virtualServer){
+            if(!empty($this->slideDataInfo['filters']['filterAll'])){ 
+                if($virtualServer->customers_id != $this->slideDataInfo['filters']['filterCustomers'])
+                    unset($virtualServers[$key]);
+            }
+            if(!empty($this->slideDataInfo['filters']['filterCustomers'])){ 
+                if($virtualServer->customers_id != $this->slideDataInfo['filters']['filterCustomers'])
+                    unset($virtualServers[$key]);
+            }
+            if(!empty($this->slideDataInfo['filters']['filterPhysicalServers'])){ 
+                if($virtualServer->physical_servers_id != $this->slideDataInfo['filters']['filterPhysicalServers'])
+                    unset($virtualServers[$key]);
+            }
+        }
+        return $virtualServers; 
     }
 
     protected function renderSlideHeader($item,$level){
@@ -315,7 +390,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if($job->getDone()==2) throw new \Exception($message.$job->getError());
 
             // success
-            $message = $this->translate("virtualserver_job_restart");
+            $message = self::translate("virtualserver_job_restart");
             $this->flashSession->success($message);
 
         }catch(\Exception $e){

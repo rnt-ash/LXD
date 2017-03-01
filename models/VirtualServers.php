@@ -834,13 +834,13 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
         * with white spaces must be enclosed in quotation marks.
         * 
         */
-        $message = $this->translate("virtualserver_name_required");
+        $message = self::translate("virtualserver_name_required");
         $validator->add('name', new PresenceOfValidator([
             'message' => $message
         ]));        
 
-        $messagemax = $this->translate("virtualserver_namemax");
-        $messagemin = $this->translate("virtualserver_namemin");
+        $messagemax = self::translate("virtualserver_namemax");
+        $messagemin = self::translate("virtualserver_namemin");
         $validator->add('name', new StringLengthValitator([
             'max' => 40,
             'min' => 3,
@@ -848,14 +848,14 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
             'messageMinimum' => $messagemin,
         ]));
 
-        $message = $this->translate("virtualserver_name_valid");
+        $message = self::translate("virtualserver_name_valid");
         $validator->add('name', new RegexValidator([
             'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
             'message' => $message
         ]));        
 
         // fqdn
-        $message = $this->translate("virtualserver_fqdn_valid");
+        $message = self::translate("virtualserver_fqdn_valid");
         if($op == 'edit'){
             $validator->add('fqdn', new RegexValidator([
                 'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
@@ -865,43 +865,43 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
         }
 
         // customer
-        $message = $this->translate("virtualserver_customer_required");
+        $message = self::translate("virtualserver_customer_required");
         $validator->add('customers_id', new PresenceOfValidator([
             'message' => $message
         ]));        
 
         // physical server
-        $message = $this->translate("virtualserver_physicalserver_required");
+        $message = self::translate("virtualserver_physicalserver_required");
         $validator->add('physical_servers_id', new PresenceOfValidator([
             'message' => $message
         ]));        
 
         // core
-        $message = $this->translate("virtualserver_core_required");
+        $message = self::translate("virtualserver_core_required");
         $validator->add('core', new PresenceOfValidator([
             'message' => $message
         ]));        
 
         // memory
-        $message = $this->translate("virtualserver_memory_required");
+        $message = self::translate("virtualserver_memory_required");
         $validator->add('memory', new PresenceOfValidator([
             'message' => $message
         ]));        
 
         // space
-        $message = $this->translate("virtualserver_space_required");
+        $message = self::translate("virtualserver_space_required");
         $validator->add('space', new PresenceOfValidator([
             'message' => $message
         ]));        
 
         if($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')){
             // password
-            $message = $this->translate("virtualserver_password_required"); 
+            $message = self::translate("virtualserver_password_required"); 
             $validator->add('password', new PresenceOfValidator([
                 'message' => $message
             ]));        
 
-            $message = $this->translate("virtualserver_passwordmin");
+            $message = self::translate("virtualserver_passwordmin");
             $validator->add('password', new StringLengthValitator([
                 'min' => 8,
                 'messageMinimum' => $message
@@ -910,7 +910,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
 
         if($op == 'new' && $vstype == 'CT'){
             // ostemplate
-            $message = $this->translate("virtualserver_ostemplate_required");
+            $message = self::translate("virtualserver_ostemplate_required");
             $validator->add('ostemplate', new PresenceOfValidator([
                 'message' => $message
             ]));        
