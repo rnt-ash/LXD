@@ -26,6 +26,8 @@
                     {% if item.ovz == 1 %}
                         {{ link_to("virtual_servers/ovzListInfo/"~item.id,'<i class="fa fa-refresh"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Update OVZ settings') }}
+                        {{ link_to("virtual_servers/ovzStatisticsInfo/"~item.id,'<i class="fa fa-refresh"></i>',
+                            'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Update OVZ statistics') }}
                         {# not yet implementet
                         {{ link_to("virtual_servers/todo/"~item.id,'<i class="fa fa-key"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Set new password') }}

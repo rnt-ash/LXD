@@ -145,22 +145,53 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
     }
-    
+
     /**
-    * assign the ovz settings to its relevant value
+    * updates OVZ statistics
     * 
-    * @param VirtualServers $virtualServer
-    * @param mixed $settings
+    * @param int $serverId
     */
-    public static function assignSettings(\RNTForest\ovz\models\VirtualServers $virtualServer,$settings){
-        $virtualServer->setName($settings['Name']);
-        $virtualServer->setDescription($settings['Description']);
-        $virtualServer->setOvz(1);
-        $virtualServer->setOvzVstype($settings['Type']);
-        $virtualServer->setOvzState($settings['State']);
-        $virtualServer->setCore(intval($settings['Hardware']['cpu']['cpus']));
-        $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size'])/1024/1024));
-        $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size'])/1024/1024));
+    public function ovzStatisticsInfoAction($serverId){
+
+        // sanitize parameters
+        $serverId = $this->filter->sanitize($serverId, "int");
+
+        try{
+            // find virtual server
+            $virtualServer = VirtualServers::findFirst($serverId);
+            if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
+            
+            // not ovz enalbled
+            if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
+
+            // execute ovz_statistics_info job 
+            // no pending needed because job is readonly     
+            $push = $this->getPushService();
+            $params = array('UUID'=>$virtualServer->getOvzUuid());
+            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_statistics_info',$params);
+            if($job->getDone()==2) throw new \Exception("Job (ovz_statistics_info) executions failed: ".$job->getError());
+
+            // save statistics
+            $statistics = $job->getRetval(true);
+            $virtualServer->setOvzStatistics($job->getRetval());
+            
+            if ($virtualServer->save() === false) {
+                $messages = $virtualServer->getMessages();
+                foreach ($messages as $message) {
+                    $this->flashSession->warning($message);
+                }
+                throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
+            }
+            
+            // success
+            $this->flashSession->success("Statistics successfully updated");
+
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        // go back to slidedata view
+        $this->redirectTo("virtual_servers/slidedata");
     }
     
     /**
@@ -1159,6 +1190,23 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $message = $this->translate("virtualserver_update_failed");
             throw new \Exception($message.$virtualServer->getName());
         }
+    }
+        
+    /**
+    * assign the ovz settings to its relevant value
+    * 
+    * @param VirtualServers $virtualServer
+    * @param mixed $settings
+    */
+    public static function assignSettings(\RNTForest\ovz\models\VirtualServers $virtualServer,$settings){
+        $virtualServer->setName($settings['Name']);
+        $virtualServer->setDescription($settings['Description']);
+        $virtualServer->setOvz(1);
+        $virtualServer->setOvzVstype($settings['Type']);
+        $virtualServer->setOvzState($settings['State']);
+        $virtualServer->setCore(intval($settings['Hardware']['cpu']['cpus']));
+        $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size'])/1024/1024));
+        $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size'])/1024/1024));
     }
 }
 
