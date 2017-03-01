@@ -278,19 +278,19 @@ class Colocations extends \RNTForest\core\models\ModelBase
     * return \Phalcon\Validation $validator
     * 
     */
-    public function generateValidator(){
+    public static function generateValidator(){
 
         // validator
         $validator = new Validation();
 
         // name
-        $message = $this->translate("colocations_name_required");
+        $message = self::translate("colocations_name_required");
         $validator->add('name', new PresenceOfValidator([
             'message' => $message
         ]));        
 
-        $messagemax = $this->translate("colocations_namemax");
-        $messagemin = $this->translate("colocations_namemin");
+        $messagemax = self::translate("colocations_namemax");
+        $messagemin = self::translate("colocations_namemin");
         $validator->add('name', new StringLengthValitator([
             'max' => 50,
             'min' => 3,
@@ -298,21 +298,21 @@ class Colocations extends \RNTForest\core\models\ModelBase
             'messageMinimum' => $messagemin,
         ]));
 
-        $message = $this->translate("colocations_name_valid");
+        $message = self::translate("colocations_name_valid");
         $validator->add('name', new RegexValidator([
             'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
             'message' => $message
         ]));        
         
         // customer
-        $message = $this->translate("colocations_customer_required");
+        $message = self::translate("colocations_customer_required");
         $validator->add('customers_id', new PresenceOfValidator([
             'message' => $message
         ])); 
         
         // location
-        $messagemax = $this->translate("colocations_location_max");
-        $messagemin = $this->translate("colocations_locationm_in");
+        $messagemax = self::translate("colocations_location_max");
+        $messagemin = self::translate("colocations_locationm_in");
         $validator->add('location', new StringLengthValitator([
             'max' => 50,
             'min' => 3,
@@ -321,7 +321,7 @@ class Colocations extends \RNTForest\core\models\ModelBase
             'allowEmpty' => true,
         ]));
 
-        $message = $this->translate("colocations_locaton_valid");
+        $message = self::translate("colocations_locaton_valid");
         $validator->add('location', new RegexValidator([
             'pattern' => '/^[a-zA-ZäÄöÖüÜ0-9\-_\s]*$/',
             'message' => $message,

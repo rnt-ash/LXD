@@ -505,13 +505,13 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
         * with white spaces must be enclosed in quotation marks.
         * 
         */
-        $message = $this->translate("physicalserver_name_required");
+        $message = self::translate("physicalserver_name_required");
         $validator->add('name', new PresenceOfValidator([
             'message' => $message
         ]));        
         
-        $messagemax = $this->translate("physicalserver_messagemax");
-        $messagemin = $this->translate("physicalserver_messagemin");
+        $messagemax = self::translate("physicalserver_messagemax");
+        $messagemin = self::translate("physicalserver_messagemin");
         $validator->add('name', new StringLengthValitator([
             'max' => 50,
             'min' => 3,
@@ -519,37 +519,37 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
             'messageMinimum' => $messagemin,
         ]));
         
-        $message = $this->translate("physicalserver_name_valid");
+        $message = self::translate("physicalserver_name_valid");
         $validator->add('name', new RegexValidator([
             'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
             'message' => $message
         ]));        
         
-        $message = $this->translate("physicalserver_fqdn_required");
+        $message = self::translate("physicalserver_fqdn_required");
         // fqdn
         $validator->add('fqdn', new PresenceOfValidator([
             'message' => $message
         ]));        
         
-        $message = $this->translate("physicalserver_fqdn_valid");
+        $message = self::translate("physicalserver_fqdn_valid");
         $validator->add('fqdn', new RegexValidator([
             'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
             'message' => $message
         ]));        
         
-        $message = $this->translate("physicalserver_core_required");
+        $message = self::translate("physicalserver_core_required");
         // core
         $validator->add('core', new PresenceOfValidator([
             'message' => $message
         ]));        
         
-        $message = $this->translate("physicalserver_memory_required");
+        $message = self::translate("physicalserver_memory_required");
         // memory
         $validator->add('memory', new PresenceOfValidator([
             'message' => $message
         ]));        
         
-        $message = $this->translate("physicalserver_space_required");
+        $message = self::translate("physicalserver_space_required");
         // space
         $validator->add('space', new PresenceOfValidator([
             'message' => $message
