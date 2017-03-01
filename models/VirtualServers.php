@@ -97,6 +97,12 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     *
     * @var string
     */
+    protected $ovz_statistics;
+
+    /**
+    *
+    * @var string
+    */
     protected $ovz_state;
 
     /**
@@ -306,6 +312,18 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzSettings($ovz_settings)
     {
         $this->ovz_settings = $ovz_settings;
+        return $this;
+    }
+
+    /**
+    * OpenVZ statistics as JSON
+    *
+    * @param string $ovz_statistics
+    * @return $this
+    */
+    public function setOvzStatistics($ovz_statistics)
+    {
+        $this->ovz_statistics = $ovz_statistics;
         return $this;
     }
 
@@ -587,6 +605,16 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function getOvzSettings()
     {
         return $this->ovz_settings;
+    }
+
+    /**
+    * Returns the value of field ovz_statistics
+    *
+    * @return string
+    */
+    public function getOvzStatistics()
+    {
+        return $this->ovz_statistics;
     }
 
     /**

@@ -413,4 +413,47 @@ class PrlctlCommands {
         $exitstatus = $this->Cli->execute($cmd);
         return $exitstatus;
     }
+      
+    /**
+    * get statistics of a VS
+    * 
+    * @param string $UUID
+    */
+    public function statisticsInfo($UUID){
+        $cmd = ("prlctl statistics ".escapeshellarg($UUID));
+        $exitstatus = $this->Cli->execute($cmd);
+        if($exitstatus > 0) return $exitstatus;
+
+        $statistics = array();
+        $i=0;
+        $lines = $this->Cli->getOutput();
+        foreach($lines as $line){
+            $parts = explode(':',$line);
+            $parts = array_map(function($p){return trim($p);},$parts);
+            
+            $keys = $parts[0];
+            $val = $parts[1];
+            
+            $this->Logger->debug($keys);
+            
+            // ignore some statistics who start with net.classfull...
+            if(preg_match('`(net\.classful).*`',$keys)) continue;
+            
+            // build the multidimensional array from the point-separated string as keys 
+            $keys = explode('.', $keys);
+            $arr = &$statistics;
+            foreach ($keys as $key) {
+                if(!key_exists($key,$arr)){
+                    $arr[$key] = array();
+                }
+                $arr = &$arr[$key];
+            }
+            $arr = $val;
+            unset($arr);
+            
+        } 
+        
+        $this->Json = json_encode($statistics);
+        return 0;
+    }
 }

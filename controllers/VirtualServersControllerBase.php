@@ -140,6 +140,54 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
     }
+
+    /**
+    * updates OVZ statistics
+    * 
+    * @param int $serverId
+    */
+    public function ovzStatisticsInfoAction($serverId){
+
+        // sanitize parameters
+        $serverId = $this->filter->sanitize($serverId, "int");
+
+        try{
+            // find virtual server
+            $virtualServer = VirtualServers::findFirst($serverId);
+            if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
+            
+            // not ovz enalbled
+            if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
+
+            // execute ovz_statistics_info job 
+            // no pending needed because job is readonly     
+            $push = $this->getPushService();
+            $params = array('UUID'=>$virtualServer->getOvzUuid());
+            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_statistics_info',$params);
+            if($job->getDone()==2) throw new \Exception("Job (ovz_statistics_info) executions failed: ".$job->getError());
+
+            // save statistics
+            $statistics = $job->getRetval(true);
+            $virtualServer->setOvzStatistics($job->getRetval());
+            
+            if ($virtualServer->save() === false) {
+                $messages = $virtualServer->getMessages();
+                foreach ($messages as $message) {
+                    $this->flashSession->warning($message);
+                }
+                throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
+            }
+            
+            // success
+            $this->flashSession->success("Statistics successfully updated");
+
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        // go back to slidedata view
+        $this->redirectTo("virtual_servers/slidedata");
+    }
     
     /**
     * start VS
