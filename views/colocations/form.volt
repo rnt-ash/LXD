@@ -3,7 +3,7 @@
 {{ partial("partials/core/partials/renderFormElement") }}       
 
 <div class="page-header">
-    <h2><i class="fa fa-globe" aria-hidden="true"></i> Colocations</h2>
+    <h2><i class="fa fa-globe" aria-hidden="true"></i>{{ _("colocations_title") }}</h2>
 </div>
 
 <div class="well">
@@ -22,8 +22,8 @@
         {{ renderElement('activation_date',form,6) }}
         
         <div class="col-lg-12">
-            {{ submit_button("Save", "class": "btn btn-primary") }}
-            {{ link_to('/colocations/slidedata', 'Cancel', 'class': 'btn btn-default pull-right') }}
+            {{ submit_button(_("colocations_save"), "class": "btn btn-primary") }}
+            {{ link_to('/colocations/slidedata', _("colocations_cancel"), 'class': 'btn btn-default pull-right') }}
         </div>
                 
         </form>

@@ -2,7 +2,7 @@
     <thead>
         <tr>
             <th colspan="3">
-                <div class="pull-left"><h5 class="panel-title pull-left">Physical Servers</h5></div>
+                <div class="pull-left"><h5 class="panel-title pull-left">{{ _("colocations_view_physicalserver") }}</h5></div>
             </th>
         </tr>
     </thead>
@@ -10,7 +10,7 @@
     {% if item.dcoipobjects.count() == 0 %}
         <tr colspan="3">
             <td>
-                No Physical Servers found...
+                {{ _("colocations_view_nophysicalserver") }}
             </td>
         </tr>
     {% else %}

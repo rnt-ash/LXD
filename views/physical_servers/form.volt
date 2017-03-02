@@ -3,7 +3,7 @@
 {{ partial("partials/core/partials/renderFormElement") }}   
 
 <div class="page-header">
-    <h2><i class="fa fa-server" aria-hidden="true"></i> Physical Servers</h2>
+    <h2><i class="fa fa-server" aria-hidden="true"></i> {{ _("physicalserver_title") }}</h2>
 </div>
 
 <div class="well">
@@ -26,8 +26,8 @@
         {{ renderElement('description',form) }}
 
         <div class="col-lg-12">
-            {{ submit_button("Save", "class": "btn btn-primary") }}
-            {{ link_to('/physical_servers/slidedata', 'Cancel', 'class': 'btn btn-default pull-right') }}
+            {{ submit_button( _("physicalserver_save") , "class": "btn btn-primary") }}
+            {{ link_to('/physical_servers/slidedata', _("physicalserver_cancel"), 'class': 'btn btn-default pull-right') }}
         </div>            
         </form>
     </div>

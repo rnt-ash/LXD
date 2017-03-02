@@ -3,13 +3,13 @@
         <tr>
             <th colspan="2">
                 <div class="pull-left">
-                    <h5 class="panel-title pull-left">General informations</h5>
+                    <h5 class="panel-title pull-left">{{ _("colocations_generalinfo") }}</h5>
                 </div>
                 <div class="pull-right">
                     {{ link_to("colocations/edit/"~item.id,'<i class="fa fa-pencil"></i>',
-                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':'Edit OVZ settings') }}
-                    <a href="#" link="/colocations/delete/{{item.id}}" text="Are you sure to delete this item?"
-                        class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="Delete colocation"><i class="fa fa-trash-o"></i></a>
+                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("colocations_editovz")) }}
+                    <a href="#" link="/colocations/delete/{{item.id}}" text="{{ _("colocations_view_delmessage") }}"
+                        class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="Delete{{ _("colocations_delcolocation") }}"><i class="fa fa-trash-o"></i></a>
 
                 </div>
             </th>
@@ -18,7 +18,7 @@
     <tbody>
         <tr>
             <td>
-                Customer:
+                {{ _("colocations_view_customer") }}
             </td>
             <td>
                 {{item.customers.printAddressText('short')}}
@@ -26,7 +26,7 @@
         </tr>
         <tr>
             <td>
-                Activation date:
+                {{ _("colocations_view_activdate") }}
             </td>
             <td>
                 {{item.activation_date}}
@@ -34,7 +34,7 @@
         </tr>
         <tr>
             <td>
-                Description:
+                {{ _("colocations_view_description") }}
             </td>
             <td>
                 {{item.description}}

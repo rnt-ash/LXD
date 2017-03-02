@@ -3,7 +3,7 @@
 {{ partial("partials/core/partials/renderFormElement") }}
 
 <div class="page-header">
-    <h2><i class="fa fa-cube" aria-hidden="true"></i> Virtual Servers</h2>
+    <h2><i class="fa fa-cube" aria-hidden="true"></i>{{ _("virtualserver_title") }}</h2>
 </div>
 
 <div class="well">
@@ -28,8 +28,8 @@
         {{ renderElement('description',form) }}
 
         <div class="col-lg-12">
-            {{ submit_button("Save", "class": "btn btn-primary") }}
-            {{ link_to('/virtual_servers/slidedata', 'Cancel', 'class': 'btn btn-default pull-right') }}
+            {{ submit_button(_("virtualserver_save"), "class": "btn btn-primary") }}
+            {{ link_to('/virtual_servers/slidedata', _("virtualserver_cancel"), 'class': 'btn btn-default pull-right') }}
         </div>
         </form>
     </div>

@@ -2,7 +2,7 @@
 
 {% block header %}
 <div class="page-header">
-    <h2><i class="fa fa-cube" aria-hidden="true"></i> Virtual Servers</h2>
+    <h2><i class="fa fa-cube" aria-hidden="true"></i>{{ _("virtualserver_title") }}</h2>
 </div>
 {% endblock %}
 
@@ -15,12 +15,12 @@
                 {% if permissions.checkPermission("virtual_servers", "create") %}
                 <div class="btn-group">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <b>New</b> <span class="caret"></span>
+                        <b>{{ _("virtualserver_view_new") }}</b> <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a href="/{{controller}}/newVS">Independent System</a></li>
-                        <li><a href="/{{controller}}/newCT">Container (CT)</a></li>
-                        <li><a href="/{{controller}}/newVM">Virtual Machine (VM)<br />(will not work in Beta!)</a></li>
+                        <li><a href="/{{controller}}/newVS">{{ _("virtualserver_view_independentsys") }}</a></li>
+                        <li><a href="/{{controller}}/newCT">{{ _("virtualserver_view_container") }}</a></li>
+                        <li><a href="/{{controller}}/newVM">{{ _("virtualserver_view_vm") }}<br />{{ _("virtualserver_view_vm_beta") }}</a></li>
                     </ul>
                 </div>  
                 {% endif %}  

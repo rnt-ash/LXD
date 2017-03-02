@@ -6,7 +6,7 @@
             <div class="btn-group">
                 <a href="#" link="ovzSwitchSnapshot/{{snapshot['UUID']}}/{{serverId}}" 
                     class="btn btn-default btn-xs confirmDialog" data-toggle="tooltip" data-placement="top"
-                    text="Are you sure you want to switch to this snapshot?" title="Switch to this snapshot">
+                    text="{{ _("virtualserver_snapshot_switchinfo") }}" title="{{ _("virtualserver_snapshot_switch") }}">
                     <i class="fa fa-play-circle fa-lg"></i>
                 </a>
             </div>
@@ -15,7 +15,7 @@
             <div class="btn-group">
                 <a href="#" link="ovzDeleteSnapshot/{{snapshot['UUID']}}/{{serverId}}"
                     class="btn btn-default btn-xs confirmDialog" data-toggle="tooltip" data-placement="top"
-                    text="Are you sure to delete this snapshot?" title="Delete snapshot">
+                    text="{{ _("virtualserver_snapshot_deleteinfo") }}" title="{{ _("virtualserver_snapshot_delete") }}">
                     <i class="fa fa-trash fa-lg"></i>
                 </a>
             </div>
@@ -35,11 +35,11 @@
             <li class="list-group-item">
                 <div class="btn-group">
                     <a href="/virtual_servers/snapshotForm/{{serverId}}" class="btn btn-default btn-xs"
-                        data-toggle="tooltip" data-placement="top" title="Create a new snapshot">
+                        data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_snapshot_new") }}">
                         <i class="fa fa-plus fa-lg"></i>
                     </a>
                 </div>
-                Current run
+                {{ _("virtualserver_snapshot_run") }}
             </li>
         </ul>
         {% endif %}

@@ -2,7 +2,7 @@
     <thead>
         <tr>
             <th colspan="2">
-                <div class="pull-left"><h5 class="panel-title pull-left">HW Specs</h5></div>
+                <div class="pull-left"><h5 class="panel-title pull-left">{{ _("physicalserver_hw_title") }}</h5></div>
                 {#
                 <div class="pull-right">
                     <div class="btn-group">
@@ -17,7 +17,7 @@
     <tbody>
         <tr>
             <td>
-                CPU-Cores:
+                {{ _("physicalserver_hw_cores") }}
             </td>
             <td>
                 {{item.core}}
@@ -25,7 +25,7 @@
         </tr>
         <tr>
             <td>
-                Memory (RAM):
+                {{ _("physicalserver_hw_ram") }}
             </td>
             <td>
                 {{(item.memory*1024*1024)|formatBytesHelper}}
@@ -33,7 +33,7 @@
         </tr>
         <tr>
             <td>
-                Space:
+                {{ _("physicalserver_hw_space") }}
             </td>
             <td>
                 {{(item.space*1024*1024*1024)|formatBytesHelper}}

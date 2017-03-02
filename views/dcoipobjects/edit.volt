@@ -15,7 +15,7 @@
 {%- endmacro %}    
 
 <div class="page-header">
-    <h2><i class="fa fa-bolt" aria-hidden="true"></i> IP Objects</h2>
+    <h2><i class="fa fa-bolt" aria-hidden="true"></i>{{ _("ipobjects_edit_title") }}</h2>
 </div>
 
 <div class="well">
@@ -34,8 +34,8 @@
     {{ renderElement('allocated',form) }}
     {{ renderElement('comment',form) }}
 
-    {{ submit_button("Save", "class": "btn btn-primary") }}
-    {{ link_to('/dcoipobjects/cancel', 'Cancel', 'class': 'btn btn-default pull-right') }}
+    {{ submit_button(_("ipobjects_edit_save"), "class": "btn btn-primary") }}
+    {{ link_to('/dcoipobjects/cancel', _("ipobjects_edit_cancel"), 'class': 'btn btn-default pull-right') }}
             
     </form>
 </div>
