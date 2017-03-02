@@ -9,7 +9,6 @@
 {% block slideheader %}
 <div class="well well-sm">
     <form id="slidedatatoolbar" action="" method="post">
-
         <div class="row">
             <div class="col-sm-5">
                 {% if permissions.checkPermission("virtual_servers", "create") %}
@@ -41,7 +40,7 @@
                     {{ select_static('filterCustomers',customers,'size':'1','class':'form-control','onchange':'javascript: this.form.submit();') }}
                 </label>
                 {% endif %}
-                {% if permissions.checkPermission("virtual_servers", "filter_physical_servers") %}
+                {% if permissions.checkPermission("virtual_servers", "filter_physical_servers") and physicalServers is not empty %}
                 <label class="select">
                     {{ select_static('filterPhysicalServers',physicalServers,'size':'1','class':'form-control','onchange':'javascript: this.form.submit();') }}
                 </label>

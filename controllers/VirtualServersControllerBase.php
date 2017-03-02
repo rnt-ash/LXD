@@ -33,7 +33,7 @@ use RNTForest\ovz\forms\SnapshotForm;
 class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
     protected function getSlideDataInfo() {
-        $scope = $this->session->get('auth')['permissions']['virtual_servers']['general']['scope'];
+        $scope = $this->permissions->getScope('virtual_servers','general');
         $scopeQuery = "";
         $joinQuery = NULL;
         if ($scope == 'customers'){
@@ -98,7 +98,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             foreach($partners as $partner){
                 $customer_ids[] = $partner->getCustomersId();
             }
-            $conditions = "id in (".implode(',',$customer_ids).")";
+            $conditions = "customers_id in (".implode(',',$customer_ids).")";
         } elseif($scope == "*") {
             $conditions = "";
         }else{
@@ -116,7 +116,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         
     }
     
-    protected function filterSlideItems($virtualServers,$level) { 
+    protected function prepareSlideFilters($virtualServers,$level) { 
         
         // put resultsets to the view
         $this->view->customers = $this->getMyCustomers();
@@ -140,25 +140,24 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->slideDataInfo['filters']['filterPhysicalServers'] = $this->request->get("filterPhysicalServers", "int");
             if($oldfilter != $this->slideDataInfo['filters']['filterPhysicalServers']) $this->slideDataInfo['page'] = 1;
         }
-
-        // apply filters
-        foreach($virtualServers as $key=>$virtualServer){
-            if(!empty($this->slideDataInfo['filters']['filterAll'])){ 
-                if($virtualServer->customers_id != $this->slideDataInfo['filters']['filterCustomers'])
-                    unset($virtualServers[$key]);
-            }
-            if(!empty($this->slideDataInfo['filters']['filterCustomers'])){ 
-                if($virtualServer->customers_id != $this->slideDataInfo['filters']['filterCustomers'])
-                    unset($virtualServers[$key]);
-            }
-            if(!empty($this->slideDataInfo['filters']['filterPhysicalServers'])){ 
-                if($virtualServer->physical_servers_id != $this->slideDataInfo['filters']['filterPhysicalServers'])
-                    unset($virtualServers[$key]);
-            }
-        }
-        return $virtualServers; 
     }
 
+    protected function isValidSlideFilterItem($virtualServer,$level){
+        if(!empty($this->slideDataInfo['filters']['filterAll'])){ 
+            if(strpos(strtolower($virtualServer->name),strtolower($this->slideDataInfo['filters']['filterAll']))===false)            
+                return false;
+        }
+        if(!empty($this->slideDataInfo['filters']['filterCustomers'])){ 
+            if($virtualServer->customers_id != $this->slideDataInfo['filters']['filterCustomers'])
+                return false;
+        }
+        if(!empty($this->slideDataInfo['filters']['filterPhysicalServers'])){ 
+            if($virtualServer->physical_servers_id != $this->slideDataInfo['filters']['filterPhysicalServers'])
+                return false;
+        }
+        return true; 
+    }
+    
     protected function renderSlideHeader($item,$level){
         switch($level){
             case 0:

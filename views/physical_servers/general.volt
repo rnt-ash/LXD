@@ -15,8 +15,8 @@
                     {% endif %}
                     {{ link_to("physical_servers/connectForm/"~item.id,'<i class="fa fa-link"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_connectovz") ) }}
-                    <a href="#" link="/physical_servers/delete/{{item.id}}" text={{ _("physicalserver_general_deletconf") }}
-                        class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("physicalserver_general_removeserver") }}">
+                    <a href="#" link="/physical_servers/delete/{{item.id}}" text="{{ _("physicalserver_confirm_removeserver") }}"
+                        class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("physicalserver_tooltip_removeserver") }}">
                         <i class="fa fa-trash-o"></i>
                     </a>
                             
