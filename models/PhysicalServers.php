@@ -463,7 +463,6 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
         $this->belongsTo("colocations_id",'RNTForest\ovz\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>true));
         $this->hasMany("id",'RNTForest\ovz\models\VirtualServers',"physical_servers_id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
         $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"physical_servers_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id",'RNTForest\core\models\Jobs',"physical_servers_id",array("alias"=>"Jobs", "foreignKey"=>array("allowNulls"=>true)));
 
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(
