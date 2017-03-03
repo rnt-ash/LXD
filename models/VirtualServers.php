@@ -766,16 +766,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     {
         return $this->modified;
     }
-
-    /**
-    * helper method: returns the DCO Type
-    * 1:Colocation, 2:Physical Server, 3:Virtual Server
-    * 
-    */
-    public function getDcoType()
-    {
-        return 3;
-    }
     
     /**
     * Initialize method for model.
