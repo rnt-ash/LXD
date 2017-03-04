@@ -132,8 +132,21 @@ class OvzConnector extends \Phalcon\DI\Injectable
             unset($output);
             $output = $this->RemoteSshConnection->exec('php -v');
             if(!preg_match('`^(PHP 5.4).*`',$output)){
-                throw new \Exception("No accepted PHP version found. Accepted: PHP 5.4.x");
+                throw new \Exception("No accepted PHP version found. Accepted: PHP 5.4.x (yum install php-cli)");
             }
+            
+            unset($output);
+            $output = $this->RemoteSshConnection->exec('php -m');
+            if(!preg_match('`PDO`',$output)){
+                throw new \Exception("PHP PDO Extension not found. (yum install php-pdo)");
+            }
+            
+            unset($output);
+            $output = $this->RemoteSshConnection->exec('rpm -qa | grep mailx');
+            if(!preg_match('`mailx`',$output)){
+                throw new \Exception("Mailx not found. (yum install mailx)");
+            }
+            
         }catch(\Exception $e){
             $error = 'System is not supported: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
