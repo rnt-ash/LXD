@@ -12,6 +12,9 @@
     {% if item.ovz == 1 and permissions.checkPermission("virtual_servers", "snapshots") %}
         {{ partial("partials/ovz/virtual_servers/snapshots.volt") }}
     {% endif %}
+    {% if item.ovz == 1 and permissions.checkPermission("virtual_servers", "replica") %}
+    {{ partial("partials/ovz/virtual_servers/replica.volt") }}
+    {% endif %}
     </div>
 </div>
 

@@ -908,6 +908,22 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     }
     
     /**
+    * generate an array for an select element, considered the permission scope
+    * 
+    * @param string $scope
+    */
+    public static function generateArrayForSelectElement($scope){
+        $findParameters = array("columns"=>"id, name");
+        $resultset = self::findFromScope($scope,$findParameters);
+        $virtualServers = array(0 => self::translate("virtualserver_all_virtualservers"));
+        foreach($resultset as $virtualServer){
+            $virtualServers[$virtualServer->id] = $virtualServer->name;
+        }
+        return $virtualServers;
+    }
+
+    
+    /**
     * Add a PendingToken to the PendingEntity.
     * For conversion of a PendingString to a PendingToken use PendingHelpers::convert Method.
     * 

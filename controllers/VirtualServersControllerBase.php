@@ -22,13 +22,15 @@ namespace RNTForest\ovz\controllers;
 use Phalcon\Http\Client\Request;
 
 use RNTForest\ovz\models\VirtualServers;
-use RNTForest\ovz\forms\VirtualServersForm;
-use RNTForest\ovz\forms\ConfigureVirtualServersForm;
 use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\models\Dcoipobjects;
+use RNTForest\core\models\Customers;
+use RNTForest\ovz\forms\VirtualServersForm;
+use RNTForest\ovz\forms\ConfigureVirtualServersForm;
 use RNTForest\ovz\forms\DcoipobjectsForm;
 use RNTForest\ovz\libraries\ByteConverter;
 use RNTForest\ovz\forms\SnapshotForm;
+use RNTForest\ovz\forms\ReplicaActivateForm;
 
 class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -63,64 +65,15 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             "limit" => 10,
         );
     }
-
-    public function getMyCustomers(){
-        $scope = $this->permissions->getScope("virtual_servers","filter_customers");
-        if($scope == "partners"){
-            $partners = \RNTForest\core\models\CustomersPartners::find("partners_id = ".$this->session->get('auth')['customers_id']);
-            $customer_ids[] = $this->session->get('auth')['customers_id'];
-            foreach($partners as $partner){
-                $customer_ids[] = $partner->getCustomersId();
-            }
-            $conditions = "id in (".implode(',',$customer_ids).")";
-        } elseif($scope == "*") {
-            $conditions = "";
-        }else{
-            // all other scopes
-            return array();
-        }
-
-        $resultset = \RNTForest\core\models\Customers::find(["conditions" => $conditions, "order" => "company,lastname,firstname"]);
-        $message = self::translate("virtualserver_filter_all_customers");
-        $customers = array(0 => $message);
-        foreach($resultset as $customer){
-            $customers[$customer->id] = $customer->printAddressText();
-        }
-        return $customers;
-        
-    }
-    
-    public function getMyPhysicalServers(){
-        $scope = $this->permissions->getScope("virtual_servers","filter_physical_servers");
-        if($scope == "partners"){
-            $partners = \RNTForest\core\models\CustomersPartners::find("partners_id = ".$this->session->get('auth')['customers_id']);
-            $customer_ids[] = $this->session->get('auth')['customers_id'];
-            foreach($partners as $partner){
-                $customer_ids[] = $partner->getCustomersId();
-            }
-            $conditions = "customers_id in (".implode(',',$customer_ids).")";
-        } elseif($scope == "*") {
-            $conditions = "";
-        }else{
-            // all other scopes
-            return array();
-        }
-
-        $resultset = \RNTForest\ovz\models\PhysicalServers::find(["conditions" => $conditions, "order" => "name"]);
-        $message = self::translate("virtualserver_filter_all_physical_servers");
-        $physicalServers = array(0 => $message);
-        foreach($resultset as $physicalServer){
-            $physicalServers[$physicalServer->id] = $physicalServer->name;
-        }
-        return $physicalServers;
-        
-    }
     
     protected function prepareSlideFilters($virtualServers,$level) { 
         
         // put resultsets to the view
-        $this->view->customers = $this->getMyCustomers();
-        $this->view->physicalServers = $this->getMyPhysicalServers();
+        $scope = $this->permissions->getScope("virtual_servers","filter_customers");
+        $this->view->customers = Customers::generateArrayForSelectElement($scope);
+
+        $scope = $this->permissions->getScope("virtual_servers","filter_physical_servers");
+        $this->view->physicalServers = PhysicalServers::generateArrayForSelectElement($scope);
         
         // receive all filters
         if($this->request->has('filterAll')){
@@ -1282,6 +1235,69 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size'])/1024/1024));
         $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size'])/1024/1024));
     }
+    
+    public function ovzReplicaActivateAction($virtualServersId){
+
+        // sanitize Parameters
+        $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
+
+        // get virtual server object
+        $virtualServer = VirtualServers::findFirstByid($virtualServersId);
+        if (!$virtualServer) {
+            $message = $this->translate("virtualserver_does_not_exist");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
+        }
+        
+        // check permissions
+        if(!$this->permissions->checkPermission('virtual_servers', 'replica', array('item' => $virtualServer)))
+            return $this->forwardTo401();
+        
+        // check if server is ovz enabled    
+        if($virtualServer->getOvz() == 0){
+            $message = $this->translate("virtualserver_not_ovz_enabled");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
+        }
+
+        // prepare form fields
+        $replicaFormFields = new ReplicaActivateFormFields();
+        $replicaFormFields->virtual_servers_id = $virtualServersId;
+        
+        // call view
+        $this->view->form = new ReplicaActivateForm($replicaFormFields);
+        $this->view->pick("virtual_servers/replicaActivateForm");
+    }
+
+    public function ovzReplicaActivateExecuteAction(){
+        // POST request?
+        if (!$this->request->isPost()) 
+            return $this->redirectTo("virtual_servers/slidedata");
+
+        // validate FORM
+        $form = new ReplicaActivateForm();
+        $fields = new ReplicaActivateFormFields();
+        $data = $this->request->getPost();
+        if (!$form->isValid($data, $fields)) {
+            // call view
+            $this->view->form = $form;
+            $this->view->pick("virtual_servers/replicaActivateForm");
+            return;
+        }
+    }
+        
+    public function ovzReplicaRunAction() {
+        $this->flashSession->notice("Should run Replica");
+    }
+    
+    public function ovzReplicaFailoverAction() {
+        $this->flashSession->notice("Should failover Replica");
+    }
+    
+    public function ovzReplicaDeleteAction() {
+        $this->flashSession->notice("Should delete Replica");
+    }
+    
 }
 
 /**
@@ -1291,6 +1307,11 @@ class SnapshotFormFields{
     public $virtual_servers_id = 0;
     public $name = "";
     public $description = "";
+}
+
+class ReplicaActivateFormFields{
+    public $virtual_servers_id = 0;
+    public $physical_servers_id = 0;
 }
 
 class ConfigureVirtualServersFormFields{

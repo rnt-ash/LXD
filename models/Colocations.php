@@ -330,4 +330,21 @@ class Colocations extends \RNTForest\core\models\ModelBase
 
         return $validator;
     }
+
+    /**
+    * generate an array for an select element, considered the permission scope
+    * 
+    * @param string $scope
+    */
+    public static function generateArrayForSelectElement($scope){
+        $findParameters = array("columns"=>"id, name");
+        $resultset = self::findFromScope($scope,$findParameters);
+        $colocations = array(0 => self::translate("colocation_all_colocations"));
+        foreach($resultset as $colocation){
+            $colocations[$colocation->id] = $colocation->name;
+        }
+        return $colocations;
+    }
+
+
 }
