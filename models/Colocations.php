@@ -278,45 +278,53 @@ class Colocations extends \RNTForest\core\models\ModelBase
     * return \Phalcon\Validation $validator
     * 
     */
-    public function generateValidator(){
+    public static function generateValidator(){
 
         // validator
         $validator = new Validation();
 
         // name
+        $message = self::translate("colocations_name_required");
         $validator->add('name', new PresenceOfValidator([
-            'message' => 'name is required'
+            'message' => $message
         ]));        
 
+        $messagemax = self::translate("colocations_namemax");
+        $messagemin = self::translate("colocations_namemin");
         $validator->add('name', new StringLengthValitator([
             'max' => 50,
             'min' => 3,
-            'messageMaximum' => 'name too long',
-            'messageMinimum' => 'name too small',
+            'messageMaximum' => $messagemax,
+            'messageMinimum' => $messagemin,
         ]));
 
+        $message = self::translate("colocations_name_valid");
         $validator->add('name', new RegexValidator([
             'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
-            'message' => 'Name must be alphanumeric and may contain the characters \, -, _ and space.'
+            'message' => $message
         ]));        
         
         // customer
+        $message = self::translate("colocations_customer_required");
         $validator->add('customers_id', new PresenceOfValidator([
-            'message' => 'customer is required'
+            'message' => $message
         ])); 
         
         // location
+        $messagemax = self::translate("colocations_location_max");
+        $messagemin = self::translate("colocations_locationm_in");
         $validator->add('location', new StringLengthValitator([
             'max' => 50,
             'min' => 3,
-            'messageMaximum' => 'location too long',
-            'messageMinimum' => 'location too small',
+            'messageMaximum' => $messagemax,
+            'messageMinimum' => $messagemin,
             'allowEmpty' => true,
         ]));
 
+        $message = self::translate("colocations_locaton_valid");
         $validator->add('location', new RegexValidator([
             'pattern' => '/^[a-zA-ZäÄöÖüÜ0-9\-_\s]*$/',
-            'message' => 'Location must be alphanumeric and may contain the characters \, -, _ and space.',
+            'message' => $message,
             'allowEmpty' => true,
         ]));        
 

@@ -38,24 +38,29 @@ class OvzConnectorForm extends \RNTForest\core\forms\FormBase
 
         // name
         $element = new Text("username");
-        $element->setLabel("Username");
-        $element->setAttribute("placeholder","root");
+        $message = $this->translate("physicalserver_username");
+        $element->setLabel($message);
+        $message = $this->translate("physicalserver_root");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string'));
+        $message = $this->translate("physicalserver_username_required");
         $element->addValidators(array(
             new PresenceOfValidator(array(
-                'message' => 'username is required'
+                'message' => $message
             ))
         ));
         $this->add($element);
 
         // password
         $element = new Password("password");
-        $element->setLabel("Password");
+        $message = $this->translate("physicalserver_password");
+        $element->setLabel($message);
         $element->setAttribute("placeholder","1234");
         $element->setFilters(array('striptags', 'string'));
+        $message = $this->translate("physicalserver_password_required");
         $element->addValidators(array(
             new PresenceOfValidator(array(
-                'message' => 'password is required'
+                'message' => $message
             ))
         ));
         $this->add($element);

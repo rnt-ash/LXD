@@ -416,7 +416,8 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
             }elseif(isset($session['virtual_servers_id']) && !empty($session['virtual_servers_id'])){
                 $this->virtual_servers_id = $session['virtual_servers_id'];
             }else{
-                $message = new Message("No DCO submitted.","id");            
+                $message1 = self::translate("ipobjects_dco_submit");
+                $message = new Message($message1,"id");            
                 $this->appendMessage($message);
                 return false;        
             }
@@ -435,7 +436,8 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
 
         // valid IP format in value1
         if(!$this->isValidIP($this->value1)){
-            $message = new Message("Not a valid IP Address","value1");            
+            $message1 = self::translate("ipobjects_ip_not_valid");
+            $message = new Message($message1,"value1");            
             $this->appendMessage($message);
             return false;        
         }
@@ -456,8 +458,9 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
                 $this->type = self::TYPE_IPNET;
 
             } else {
+                $message1 = self::translate("ipobjects_secont_value_valid");
                 $message = new Message(
-                    "Not a valid second value",
+                    $message1,
                     "value2"
                 );            
                 $this->appendMessage($message);
@@ -468,8 +471,9 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
 
         // Reserved must be an IP
         if($this->allocated != self::ALLOC_RESERVED && $this->type != self::TYPE_IPADDRESS){
+            $message1 = self::translate("ipobjects_assigned_ip");
             $message = new Message(
-                "Assigned IPs can't be range or net",
+                $message1,
                 "id"
             );            
             $this->appendMessage($message);
@@ -480,7 +484,8 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
         if($this->allocated != self::ALLOC_RESERVED){
             $reservations = $this->getReservations();
             if($reservations === false){
-                $message = new Message("No reservations found.","id");            
+                $message1 = self::translate("ipobjects_no_reservation");
+                $message = new Message($message1,"id");            
                 $this->appendMessage($message);
                 return false;        
             }
@@ -490,7 +495,8 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
                 if($this->isPartOf($reservation)) $ok = true;
             }
             if(!$ok){
-                $message = new Message("IP is not part of an existing reservation.","id");            
+                $message1 = self::translate("ipobjects_ip_notpart_reservation");
+                $message = new Message($message1,"id");            
                 $this->appendMessage($message);
                 return false;        
             }
@@ -502,7 +508,8 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
                 ));
 
                 if($found){
-                    $message = new Message("IP already exists.","id");            
+                    $message1 = self::translate("ipobjects_ip_already_exists");
+                    $message = new Message($message1,"id");            
                     $this->appendMessage($message);
                     return false;        
                 }
@@ -588,41 +595,47 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
         // validator
         $validator = new Validation();
 
-        // value1
+        // value1 
+        $message = self::translate("ipobjects_ip_required");
         $validator->add('value1', new PresenceOfValidator([
-            'message' => 'IP Address is required'
+            'message' => $message
         ]));        
 
+        $message = self::translate("ipobjects_ip_valid");
         $validator->add('value1', new RegexValidator([
             'pattern' => '/^[0-9a-f:.]*$/',
-            'message' => 'Wrong signs in IP Address.'
+            'message' => $message
         ]));        
 
         // value2
+        $message = self::translate("ipobjects_second-value_check");
         $validator->add('value2', new RegexValidator([
             'pattern' => '/^[0-9a-f:.]*$/',
-            'message' => 'Wrong signs in second Value.',
+            'message' => $message,
             'allowEmpty' => true,
         ]));        
 
         // main
+        $message = self::translate("ipobjects_main");
         $validator->add('main', new BetweenValidator([
             'minimum' => 0,
             'maximum' => 1,
-            'message' => 'Main can only be 0 or 1.'
+            'message' => $message
         ]));        
 
         // allocated
+        $message = self::translate("ipobjects_allocated_value");
         $validator->add('allocated', new BetweenValidator([
             'minimum' => 1,
             'maximum' => 3,
-            'message' => 'Please choose a correct Allocated Value.'
+            'message' => $message
         ]));        
 
         // comment
+        $message = self::translate("ipobjects_comment_length");
         $validator->add('comment', new StringLengthValitator([
             'max' => 50,
-            'messageMaximum' => 'comment too long (max. 50 character)',
+            'messageMaximum' => $message,
         ]));
 
         return $validator;
@@ -837,7 +850,8 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
                 return gmp_strval($this->toGMP($this->value1));
                 break;
             default:
-                return "Unexpected type!";
+                $message = self::translate("ipobjects_unexpected_type");
+                return $message;
         }
 
     }
@@ -864,7 +878,8 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
                 return gmp_strval($this->toGMP($this->value2));
                 break;
             default:
-                return "Unexpected type!";
+            $message = self::translate("ipobjects_unexpected_type");
+                return $message;
         }
 
     }
@@ -886,7 +901,8 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
                 return $this->value1." - ".$this->value2;
                 break;
             default:
-                return "Unexpected type!";
+            $message = self::translate("ipobjects_unexpected_type");
+                return $message;
         }
     }
 }

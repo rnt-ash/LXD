@@ -13,7 +13,7 @@
 {%- endmacro %}    
 
 <div class="page-header">
-    <h2><i class="fa fa-cube" aria-hidden="true"></i> Snapshot</h2>
+    <h2><i class="fa fa-cube" aria-hidden="true"></i>{{ _("virtualserver_snapshot") }}</h2>
 </div>
 
 <div class="well">
@@ -27,8 +27,8 @@
     {{ renderElement('name',form) }}
     {{ renderElement('description',form) }}
 
-    {{ submit_button("Save", "class": "btn btn-primary") }}
-    {{ link_to('/virtual_servers/slidedata', 'Cancel', 'class': 'btn btn-default pull-right') }}
+    {{ submit_button(_("virtualserver_save"), "class": "btn btn-primary") }}
+    {{ link_to('/virtual_servers/slidedata', _("virtualserver_cancel"), 'class': 'btn btn-default pull-right') }}
             
     </form>
 </div>

@@ -79,7 +79,13 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     * @var string
     */
     protected $ovz_settings;
-
+    
+    /**
+    *
+    * @var string
+    */
+    protected $ovz_statistics;
+    
     /**
     *
     * @var string
@@ -223,6 +229,18 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     {
         $this->ovz_settings = $ovz_settings;
 
+        return $this;
+    }
+
+    /**
+    * OpenVZ statistics as JSON
+    *
+    * @param string $ovz_statistics
+    * @return $this
+    */
+    public function setOvzStatistics($ovz_statistics)
+    {
+        $this->ovz_statistics = $ovz_statistics;
         return $this;
     }
 
@@ -385,6 +403,16 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     }
 
     /**
+    * Returns the value of field ovz_statistics
+    *
+    * @return string
+    */
+    public function getOvzStatistics()
+    {
+        return $this->ovz_statistics;
+    }
+
+    /**
     * Returns the value of field fqdn
     *
     * @return string
@@ -463,7 +491,6 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
         $this->belongsTo("colocations_id",'RNTForest\ovz\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>true));
         $this->hasMany("id",'RNTForest\ovz\models\VirtualServers',"physical_servers_id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
         $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"physical_servers_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id",'RNTForest\core\models\Jobs',"physical_servers_id",array("alias"=>"Jobs", "foreignKey"=>array("allowNulls"=>true)));
 
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(
@@ -505,45 +532,54 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
         * with white spaces must be enclosed in quotation marks.
         * 
         */
+        $message = self::translate("physicalserver_name_required");
         $validator->add('name', new PresenceOfValidator([
-            'message' => 'name is required'
+            'message' => $message
         ]));        
-
+        
+        $messagemax = self::translate("physicalserver_messagemax");
+        $messagemin = self::translate("physicalserver_messagemin");
         $validator->add('name', new StringLengthValitator([
             'max' => 50,
             'min' => 3,
-            'messageMaximum' => 'name too long',
-            'messageMinimum' => 'name too small',
+            'messageMaximum' => $messagemax,
+            'messageMinimum' => $messagemin,
         ]));
-
+        
+        $message = self::translate("physicalserver_name_valid");
         $validator->add('name', new RegexValidator([
             'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
-            'message' => 'Name must be alphanumeric and may contain the characters \, -, _ and space.'
+            'message' => $message
         ]));        
-
+        
+        $message = self::translate("physicalserver_fqdn_required");
         // fqdn
         $validator->add('fqdn', new PresenceOfValidator([
-            'message' => 'fqdn is required'
+            'message' => $message
         ]));        
-
+        
+        $message = self::translate("physicalserver_fqdn_valid");
         $validator->add('fqdn', new RegexValidator([
             'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-            'message' => 'must be a string separated by points'
+            'message' => $message
         ]));        
-
+        
+        $message = self::translate("physicalserver_core_required");
         // core
         $validator->add('core', new PresenceOfValidator([
-            'message' => 'core is required'
+            'message' => $message
         ]));        
-
+        
+        $message = self::translate("physicalserver_memory_required");
         // memory
         $validator->add('memory', new PresenceOfValidator([
-            'message' => 'memory is required'
+            'message' => $message
         ]));        
-
+        
+        $message = self::translate("physicalserver_space_required");
         // space
         $validator->add('space', new PresenceOfValidator([
-            'message' => 'space is required'
+            'message' => $message
         ]));        
 
 

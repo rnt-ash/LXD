@@ -62,7 +62,8 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
             // Get item from Database
             $item = Dcoipobjects::findFirstByid($item);
             if (!$item) {
-                $this->flash->error("item was not found");
+                $message = $this->translate("ipobjects_item_not_found");
+                $this->flash->error($message);
                 return $this->forwardToOrigin();
             }
             $this->view->form = new DcoipobjectsForm($item);
@@ -91,7 +92,8 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         }else{
             $item = Dcoipobjects::findFirstById($id);
             if (!$item) {
-                $this->flashSession->error("Item does not exist");
+                $message = $this->translate("ipobjects_item_not_exist");
+                $this->flashSession->error($message);
                 return $this->forwardToOrigin();
             }
         }
@@ -122,12 +124,14 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         if(!is_null($item->getVirtualServersId()) && $item->getAllocated() >= Dcoipobjects::ALLOC_ASSIGNED){
             $error = $this->configureAllocatedIpOnVirtualServer($item, 'add');
             if(!empty($error))
-                $this->flashSession->warning("Configure IP on virtual server failed: ".$error);
+                $message = $this->translate("ipobjects_ip_conf_failed");
+                $this->flashSession->warning($message.$error);
         }
 
         // clean up
         $form->clear();
-        $this->flashSession->success("IP Address was updated successfully");
+        $message = $this->translate("ipobjects_ip_success");
+        $this->flashSession->success($message);
         $this->forwardToOrigin();
     }
 
@@ -142,7 +146,8 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         $id = $this->filter->sanitize($id, "int");
         $dcoipobject = Dcoipobjects::findFirstByid($id);
         if (!$dcoipobject) {
-            $this->flashSession->error("IP Object was not found");
+            $message = $this->translate("ipobjects_ip_not_found");
+            $this->flashSession->error($message);
             return $this->forwardToOrigin();
         }
 
@@ -150,7 +155,8 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         if(!is_null($dcoipobject->getVirtualServersId()) && $dcoipobject->getAllocated() >= Dcoipobjects::ALLOC_ASSIGNED){
             $error = $this->configureAllocatedIpOnVirtualServer($dcoipobject, 'del');
             if(!empty($error))
-                $this->flashSession->warning("Configure IP on virtual server failed: ".$error);
+                $message = $this->translate("ipobjects_ip_conf_failed");
+                $this->flashSession->warning($message.$error);
         }
         
         // try to delete
@@ -162,7 +168,8 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         }
 
         // sucess
-        $this->flashSession->success("IP Object was deleted successfully");
+        $message = $this->translate("ipobjects_ip_delete_success");
+        $this->flashSession->success($message);
         return $this->forwardToOrigin();
     }
 
@@ -175,22 +182,25 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         $id = $this->filter->sanitize($id, "int");
         $dcoipobject = Dcoipobjects::findFirst($id);
         if (!$dcoipobject) {
-            $this->flashSession->error("IP Object was not found");
+            $message = $this->translate("ipobjects_ip_not_found");
+            $this->flashSession->error($message);
             return $this->forwardToOrigin();
         }
         
         if ($dcoipobject->getType() != Dcoipobjects::TYPE_IPADDRESS){
-            $this->flashSession->error("IP Object must be an address");
+            $message = $this->translate("ipobjects_ip_adress");
+            $this->flashSession->error($message);
             return $this->forwardToOrigin();
         }
         
         if ($dcoipobject->getAllocated() == Dcoipobjects::ALLOC_RESERVED){
-            $this->flashSession->error("IP Object must be assigned");
+            $message = $this->translate("ipobjects_ip_assigned");
+            $this->flashSession->error($message);
             return $this->forwardToOrigin();
         }
         
         if ($this->setMainIP($dcoipobject))
-            $message = $this->translate("dcoipobjects_address_is_now_main",array("address"=>$dcoipobject->toString()));
+            $message = $this->translate("ipobjects_address_is_now_main",array("address"=>$dcoipobject->toString()));
             $this->flashSession->success($message);
             
         return $this->forwardToOrigin();
@@ -238,11 +248,13 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
 
         // find virtual server
         $virtualServer = VirtualServers::findFirst($ip->getVirtualServersId());
-        if (!$virtualServer) 
-            return "Virtual Server does not exist: " . $item->virtual_servers_id;
+        if (!$virtualServer)
+            $message = $this->translate("virtualserver_does_not_exist");
+            return $message . $item->virtual_servers_id;
         
         if($virtualServer->getOvz() != 1)
-            return "Virtual Server is not OVZ integrated";
+            $message = $this->translate("virtualserver_not_ovz_integrated");
+            return $message;
         
         // execute ovz_modify_vs job        
         $push = $this->getPushService();
@@ -253,8 +265,9 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         
         $params = array('UUID'=>$virtualServer->getOvzUuid(),'CONFIG'=>$config,);
         $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params);
-        if(!$job || $job->getDone()==2) 
-            return "Job (ovz_modify_vs) executions failed! Error: ".$job->getError();
+        if(!$job || $job->getDone()==2)
+            $message = $this->translate("virtualserver_job_failed"); 
+            return $message.$job->getError();
 
         // save new ovz settings
         $settings = $job->getRetval(true);
@@ -266,7 +279,8 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
             foreach ($messages as $message) {
                 $this->flashSession->warning($message);
             }
-            return "Update Virtual Server (".$virtualServer->getName().") failed.";
+            $message = $this->translate("virtualserver_update_failed");
+            return $message .$virtualServer->getName();
         }
         
         // change allocated
@@ -276,7 +290,8 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
             foreach ($messages as $message) {
                 $this->flashSession->error($message);
             }
-            return "Update IP Object failed!";
+           $message = $this->translate("ipobjects_ip_update_failed");
+            return $message;
         }
     }
     

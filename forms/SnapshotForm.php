@@ -37,12 +37,17 @@ class SnapshotForm extends \RNTForest\core\forms\FormBase
 
         // name
         $element = new Text("name");
-        $element->setLabel("Name");
-        $element->setAttribute("placeholder","Snapshotname");
+        $message = $this->translate("virtualserver_name");
+        $element->setLabel($message);
+        $message = $this->translate("virtualserver_snapshotname");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string'));
+        $message = $this->translate("virtualserver_name_required");
+        $message1 = $this->translate("virtualserver_snapshotname_replica");
+        $message2 = $this->translate("virtualserver_snapshotname_required");        
         $element->addValidators(array(
             new PresenceOfValidator(array(
-                'message' => 'Name is required'
+                'message' => $message
             )),
             new StringLengthValidator(array(
                 'max' => 64,
@@ -50,24 +55,26 @@ class SnapshotForm extends \RNTForest\core\forms\FormBase
             )),
             new RegexValidator(array(
                 'pattern' => '/^(?!.*replica).*$/',
-                'message' => 'Name must not contain replica.'
+                'message' => $message1
             )),
             new RegexValidator(array(
                 'pattern' => '/^[äöüÄÖÜ0-9a-zA-Z-_().!?\s]{3,64}$/',
-                'message' => 'Name must be alphanumeric and may contain the characters -_().!? and space.'
+                'message' => $message2
             )),
         ));
         $this->add($element);
 
         // description
         $element = new Text("description");
-        $element->setLabel("Description");
-        $element->setAttribute("placeholder","Description");
+        $message = $this->translate("virtualserver_description");
+        $element->setLabel($message);
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string'));
+        $message = $this->translate("virtualserver_description_valid");
         $element->addValidators(array(
             new StringLengthValidator(array(
                 'max' => 250,
-                'message' => 'Name must not be longer than 250 characters.'
+                'message' => $message
             ))
         ));
         $this->add($element);

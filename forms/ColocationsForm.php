@@ -41,43 +41,52 @@ class ColocationsForm extends \RNTForest\core\forms\FormBase
         $this->add(new Hidden("id"));
 
         // customer
+        $message = $this->translate("colocations_choose_customer");
         $element = new Select(
             "customers_id",
             Customers::find(array("columns"=>"id,CONCAT(company,' (',lastname,' ' ,firstname,')',' ',city) as name","order"=>"name")),
             array("using"=>array("id","name"),
                 "useEmpty"   => true,
-                "emptyText"  => "Please, choose a customer...",
+                "emptyText"  => $message,
                 "emptyValue" => "",            
             )
         );
-        $element->setLabel("Customer");
+        $message = $this->translate("colocations_customer");
+        $element->setLabel($message);
         $element->setFilters(array('int'));
         $this->add($element);
 
         // name
         $element = new Text("name");
-        $element->setLabel("Name");
-        $element->setAttribute("placeholder","My Colocation Name");
+        $message = $this->translate("colocations_name");
+        $element->setLabel($message);
+        $message = $this->translate("colocations_colocationname");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
 
         // description
         $element = new TextArea("description");
-        $element->setLabel("Description");
-        $element->setAttribute("placeholder","some additional information to this colocation...");
+        $message = $this->translate("colocations_description");
+        $element->setLabel($message);
+        $message = $this->translate("colocations_description_info");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string', 'trim'));
         $this->add($element);
         
         // location
         $element = new Text("location");
-        $element->setLabel("Location");
-        $element->setAttribute("placeholder","My Location");
+        $message = $this->translate("colocations_location");
+        $element->setLabel($message);
+        $message = $this->translate("colocations_location_info");
+        $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
 
         // activation_date
         $element = new Date("activation_date");
-        $element->setLabel("Activation Date");
+        $message = $this->translate("colocations_activ_date");
+        $element->setLabel($message);
         $element->setDefault(date("Y-m-d"));
         $element->setFilters(array('string', 'trim'));
         $this->add($element);

@@ -97,6 +97,12 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     *
     * @var string
     */
+    protected $ovz_statistics;
+
+    /**
+    *
+    * @var string
+    */
     protected $ovz_state;
 
     /**
@@ -306,6 +312,18 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzSettings($ovz_settings)
     {
         $this->ovz_settings = $ovz_settings;
+        return $this;
+    }
+
+    /**
+    * OpenVZ statistics as JSON
+    *
+    * @param string $ovz_statistics
+    * @return $this
+    */
+    public function setOvzStatistics($ovz_statistics)
+    {
+        $this->ovz_statistics = $ovz_statistics;
         return $this;
     }
 
@@ -590,6 +608,16 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     }
 
     /**
+    * Returns the value of field ovz_statistics
+    *
+    * @return string
+    */
+    public function getOvzStatistics()
+    {
+        return $this->ovz_statistics;
+    }
+
+    /**
     * Returns the value of field ovz_state
     *
     * @return string
@@ -738,16 +766,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     {
         return $this->modified;
     }
-
-    /**
-    * helper method: returns the DCO Type
-    * 1:Colocation, 2:Physical Server, 3:Virtual Server
-    * 
-    */
-    public function getDcoType()
-    {
-        return 3;
-    }
     
     /**
     * Initialize method for model.
@@ -757,7 +775,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
         $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
         $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"virtual_servers_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id",'RNTForest\core\models\Jobs',"virtual_servers_id",array("alias"=>"Jobs", "foreignKey"=>array("allowNulls"=>true)));
 
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(
@@ -806,72 +823,85 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
         * with white spaces must be enclosed in quotation marks.
         * 
         */
+        $message = self::translate("virtualserver_name_required");
         $validator->add('name', new PresenceOfValidator([
-            'message' => 'name is required'
+            'message' => $message
         ]));        
 
+        $messagemax = self::translate("virtualserver_namemax");
+        $messagemin = self::translate("virtualserver_namemin");
         $validator->add('name', new StringLengthValitator([
             'max' => 40,
             'min' => 3,
-            'messageMaximum' => 'name too long',
-            'messageMinimum' => 'name too small',
+            'messageMaximum' => $messagemax,
+            'messageMinimum' => $messagemin,
         ]));
 
+        $message = self::translate("virtualserver_name_valid");
         $validator->add('name', new RegexValidator([
             'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
-            'message' => 'Name must be alphanumeric and may contain the characters \, -, _ and space.'
+            'message' => $message
         ]));        
 
         // fqdn
+        $message = self::translate("virtualserver_fqdn_valid");
         if($op == 'edit'){
             $validator->add('fqdn', new RegexValidator([
                 'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-                'message' => 'must be a string separated by points',
+                'message' => $message,
                 'allowEmpty' => true,
             ]));        
         }
 
         // customer
+        $message = self::translate("virtualserver_customer_required");
         $validator->add('customers_id', new PresenceOfValidator([
-            'message' => 'customer is required'
+            'message' => $message
         ]));        
 
         // physical server
+        $message = self::translate("virtualserver_physicalserver_required");
         $validator->add('physical_servers_id', new PresenceOfValidator([
-            'message' => 'physical server is required'
+            'message' => $message
         ]));        
 
         // core
+        $message = self::translate("virtualserver_core_required");
         $validator->add('core', new PresenceOfValidator([
-            'message' => 'core is required'
+            'message' => $message
         ]));        
 
         // memory
+        $message = self::translate("virtualserver_memory_required");
         $validator->add('memory', new PresenceOfValidator([
-            'message' => 'memory is required'
+            'message' => $message
         ]));        
 
         // space
+        $message = self::translate("virtualserver_space_required");
         $validator->add('space', new PresenceOfValidator([
-            'message' => 'space is required'
+            'message' => $message
         ]));        
 
         if($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')){
             // password
+            $message = self::translate("virtualserver_password_required"); 
             $validator->add('password', new PresenceOfValidator([
-                'message' => 'Password is required'
+                'message' => $message
             ]));        
 
+            $message = self::translate("virtualserver_passwordmin");
             $validator->add('password', new StringLengthValitator([
                 'min' => 8,
-                'messageMinimum' => 'Password is too short. Minimum 8 characters'
+                'messageMinimum' => $message
             ]));        
         }
 
         if($op == 'new' && $vstype == 'CT'){
             // ostemplate
+            $message = self::translate("virtualserver_ostemplate_required");
             $validator->add('ostemplate', new PresenceOfValidator([
-                'message' => 'OS template is required'
+                'message' => $message
             ]));        
         }        
         return $validator;

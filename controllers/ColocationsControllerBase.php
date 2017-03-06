@@ -26,7 +26,7 @@ use RNTForest\ovz\forms\DcoipobjectsForm;
 class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
     protected function getSlideDataInfo() {
-        $scope = $this->session->get('auth')['calculated_permissions']['colocations']['general']['scope'];
+        $scope = $this->permissions->getScope('colocations','general');
         $scopeQuery = "";
         $joinQuery = NULL;
         if ($scope == 'customers'){
@@ -57,33 +57,32 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         );
     }
     
-    protected function filterSlideItems($items,$level) { 
+    protected function prepareSlideFilters($items,$level) { 
         // Alle Filter abholen
         if($this->request->has('filterAll')){
             $oldfilter = $this->slideDataInfo['filters']['filterAll'];
             $this->slideDataInfo['filters']['filterAll'] = $this->request->get("filterAll", "string");
             if($oldfilter != $this->slideDataInfo['filters']['filterAll']) $this->slideDataInfo['page'] = 1;
         }
-
+    }
+    
+    protected function isValidSlideFilterItem($colocation,$level){
         // Filter anwenden        
         if(!empty($this->slideDataInfo['filters']['filterAll'])){ 
-            $items = $items->filter(
-                function($colocations){
-                    if(strpos(strtolower($colocations->name),strtolower($this->slideDataInfo['filters']['filterAll']))!==false)
-                        return $colocations;
-                }
-            );
+                if(strpos(strtolower($colocation->name),strtolower($this->slideDataInfo['filters']['filterAll']))===false)
+                    return false;
         }
-        return $items; 
+        return true; 
     }
     
     protected function renderSlideHeader($item,$level){
+        $message = $this->translate("colocations_invalid_level");
         switch($level){
             case 0:
                 return $item->name; 
                 break;
             default:
-                return "invalid level!";
+                return $message;
         }
     }
 

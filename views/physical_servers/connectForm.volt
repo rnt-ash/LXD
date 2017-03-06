@@ -13,7 +13,19 @@
 {%- endmacro %}    
 
 <div class="page-header">
-    <h2><i class="fa fa-server" aria-hidden="true"></i> Physical Servers OVZ Connector</h2>
+    <h2><i class="fa fa-server" aria-hidden="true"></i> {{ _("physicalserver_connect_title") }}</h2>
+</div>
+
+<div class="well">
+    <h2>{{ _("physicalserver_connection_prepare_title") }}</h2>
+    {{ _("physicalserver_connection_prepare_instructions") }}
+    <br />
+        
+    <code>
+        <p>yum -y update<br />
+        yum -y install mc ntp wget mailx nano php-cli php-pdo<br />
+        ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N "" </p>
+    </code>
 </div>
 
 <div class="well">
@@ -28,8 +40,8 @@
     {{ renderElement('username',form) }}
     {{ renderElement('password',form) }}
 
-    {{ submit_button("Connect", "class": "btn btn-primary") }}
-    {{ link_to('/physical_servers/slidedata', 'Cancel', 'class': 'btn btn-default pull-right') }}
+    {{ submit_button( _("physicalserver_connect_connectbutton") , "class": "btn btn-primary") }}
+    {{ link_to('/physical_servers/slidedata', _("physicalserver_cancel"), 'class': 'btn btn-default pull-right') }}
             
     </form>
 </div>

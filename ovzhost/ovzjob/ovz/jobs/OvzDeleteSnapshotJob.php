@@ -29,7 +29,18 @@ namespace RNTFOREST\OVZJOB\ovz\jobs;
 class OvzDeleteSnapshotJob extends AbstractOvzJob {
 
     public static function usage(){
-        return null;
+        return [
+            "type" => "ovz_delete_snapshot",
+            "description" => "delete a specific snapshot",
+            "params" => [
+                "UUID" => "Universally Unique Identifier (UUID) of the VS",
+                "SNAPSHOTID" => "Identifier (ID) of the snapshot to delete"
+            ],
+            "params_example" => '{"UUID":"47cb40ea-e0cf-440f-b098-94e1a5b06fad","SNAPSHOTID":"6c842fc1-d7a7-4593-a0c1-5a99316fe7c2"}',
+            "retval" => "JSON object with a list of all snapshots to this VS",
+            "warning" => "nothing specified",
+            "error" => "different causes (deleting snapshot failed or failed while converting to JSON)",
+        ];
     }
     
     public function run() {

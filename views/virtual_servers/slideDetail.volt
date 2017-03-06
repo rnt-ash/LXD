@@ -9,7 +9,9 @@
 <div class="row">
     <div class="col-md-12">
     {{ partial("partials/ovz/virtual_servers/ipobjects.volt") }}
-    {{ partial("partials/ovz/virtual_servers/snapshots.volt") }}
+    {% if item.ovz == 1 and permissions.checkPermission("virtual_servers", "snapshots") %}
+        {{ partial("partials/ovz/virtual_servers/snapshots.volt") }}
+    {% endif %}
     </div>
 </div>
 

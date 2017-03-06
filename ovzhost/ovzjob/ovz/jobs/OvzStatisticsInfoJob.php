@@ -19,50 +19,40 @@
 
 namespace RNTFOREST\OVZJOB\ovz\jobs;
 
-/**
-* @jobname ovz_create_snapshot
-* 
-* @jobparam UUID
-* @jobreturn JSON Array with infos
-*/
-
-class OvzCreateSnapshotJob extends AbstractOvzJob {
+class OvzStatisticsInfoJob extends AbstractOvzJob {
 
     public static function usage(){
         return [
-            "type" => "ovz_create_snapshot",
-            "description" => "create a new snapshot on a VS",
+            "type" => "ovz_statistics_info",
+            "description" => "get a JSON with statistics information about a specific VirtualServer",
             "params" => [
-                "UUID" => "Universally Unique Identifier (UUID) of the VS"
+                "UUID" => "Universally Unique Identifier (UUID)"
             ],
             "params_example" => '{"UUID":"47cb40ea-e0cf-440f-b098-94e1a5b06fad"}',
-            "retval" => "JSON object with a list of all snapshots to this VS",
+            "retval" => 'JSON object with statistics infos of the VirtualServer, e.g.  {"guest":{"cpu":{"usage":"0","time":"0"},"ram":{"usage":"206","cached":"89","total":"512",...}}} ',
             "warning" => "nothing specified",
-            "error" => "different causes (making snapshot failed or failed while converting to JSON)",
+            "error" => "different causes (VS does not exist, getting statistics failed)",
         ];
     }
     
     public function run() {
-        $this->Context->getLogger()->debug("Create snapshot!");
+        $this->Context->getLogger()->debug("Get statisticss!");
 
         if(!$this->vsExists($this->Params['UUID'])){
              return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
         }
         
-        $exitstatus = $this->PrlctlCommands->createSnapshot($this->Params['UUID'],$this->Params['NAME'],$this->Params['DESCRIPTION']);
-        if($exitstatus > 0) return $this->commandFailed("creating snapshot failed",$exitstatus);
-
-        $exitstatus = $this->PrlctlCommands->listSnapshots($this->Params['UUID']);
-        if($exitstatus > 0) return $this->commandFailed("Getting snapshots failed",$exitstatus);
+        $exitstatus = $this->PrlctlCommands->statisticsInfo($this->Params['UUID']);
+        if($exitstatus > 0) return $this->commandFailed("Getting statistics failed",$exitstatus);
         
-        $json = $this->PrlctlCommands->getJson();
-        if(!empty($json)){
+        $array = json_decode($this->PrlctlCommands->getJson(),true);
+        if(is_array($array) && !empty($array)){
             $this->Done = 1;    
-            $this->Retval = $json;
-            $this->Context->getLogger()->debug("create snapshot success.");
+            $this->Retval = json_encode($array);
+            $this->Context->getLogger()->debug("Get statistics success.");
         }else{
             $this->Done = 2;
-            $this->Error = "Convert info to JSON failed!";
+            $this->Error = "Convert statistics to JSON failed!";
             $this->Context->getLogger()->debug($this->Error);
         }
     }
