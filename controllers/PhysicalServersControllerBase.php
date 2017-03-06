@@ -194,7 +194,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             // sanitize parameters
             $serverId = $this->filter->sanitize($serverId, "int");
 
-            // find virtual server
+            // find physical server
             $physicalServer = PhysicalServers::findFirst($serverId);
             $message = $this->translate("physicalserver_doesn_not_exist");
             if (!$physicalServer) throw new \Exception($message . $serverId);
@@ -233,6 +233,56 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         $this->redirectTo("physical_servers/slidedata");
     }
 
+    /**
+    * Update OVZ host statistics
+    * 
+    * @param int $serverId
+    */
+    public function ovzHostStatisticsInfoAction($serverId){
+        // get VirtualServer
+        try{
+            // sanitize parameters
+            $serverId = $this->filter->sanitize($serverId, "int");
+
+            // find physical server
+            $physicalServer = PhysicalServers::findFirst($serverId);
+            $message = $this->translate("physicalserver_doesn_not_exist");
+            if (!$physicalServer) throw new \Exception($message . $serverId);
+
+            // not ovz enabled
+            $message = $this->translate("physicalserver_not_ovz_enabled");
+            if(!$physicalServer->getOvz()) throw new \Exception($message);
+
+            // execute ovz_hoststatistics_info job        
+            $push = $this->getPushService();
+            $job = $push->executeJob($physicalServer,'ovz_hoststatistics_info',array());
+            $message =  $this->translate("physicalserver_job_failed");
+            if(!$job || $job->getDone()==2) throw new \Exception($message."(ovz_hoststatistics_info) !");
+
+            // save statistics
+            $settings = $job->getRetval(true);
+            $physicalServer->setOvzStatistics($job->getRetval());
+            if ($physicalServer->save() === false) {
+                $messages = $physicalServer->getMessages();
+                foreach ($messages as $message) {
+                    $this->flashSession->warning($message);
+                }
+                $message = $this->translate("physicalserver_update_failed");
+                throw new \Exception($message . $physicalServer->getName());
+            }
+
+            // success
+            $message = $this->translate("physicalserver_update_success");
+            $this->flashSession->success($message);
+
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        // go back to slidedata view
+        $this->redirectTo("physical_servers/slidedata");
+    }
+    
     /**
     * checks before delete
     * 

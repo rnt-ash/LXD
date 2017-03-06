@@ -79,7 +79,13 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     * @var string
     */
     protected $ovz_settings;
-
+    
+    /**
+    *
+    * @var string
+    */
+    protected $ovz_statistics;
+    
     /**
     *
     * @var string
@@ -223,6 +229,18 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     {
         $this->ovz_settings = $ovz_settings;
 
+        return $this;
+    }
+
+    /**
+    * OpenVZ statistics as JSON
+    *
+    * @param string $ovz_statistics
+    * @return $this
+    */
+    public function setOvzStatistics($ovz_statistics)
+    {
+        $this->ovz_statistics = $ovz_statistics;
         return $this;
     }
 
@@ -382,6 +400,16 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     public function getOvzSettings()
     {
         return $this->ovz_settings;
+    }
+
+    /**
+    * Returns the value of field ovz_statistics
+    *
+    * @return string
+    */
+    public function getOvzStatistics()
+    {
+        return $this->ovz_statistics;
     }
 
     /**

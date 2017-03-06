@@ -12,6 +12,8 @@
                     {% if item.ovz %}
                         {{ link_to("physical_servers/ovzHostInfo/"~item.id,'<i class="fa fa-refresh"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_updatesettings") ) }}
+                        {{ link_to("physical_servers/ovzHostStatisticsInfo/"~item.id,'<i class="fa fa-refresh"></i>',
+                            'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_updatestatistics") ) }}
                     {% endif %}
                     {{ link_to("physical_servers/connectForm/"~item.id,'<i class="fa fa-link"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_connectovz") ) }}
