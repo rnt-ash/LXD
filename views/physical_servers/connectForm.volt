@@ -16,14 +16,17 @@
     <h2><i class="fa fa-server" aria-hidden="true"></i> {{ _("physicalserver_connect_title") }}</h2>
 </div>
 
-<div>
-    {{ _("physicalserver_connection_stepsbefore") }}
-    <br /><br />
-<pre class="well"><code>yum -y update
-yum -y install mc ntp wget mailx nano php-cli php-pdo
-ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N ""</code></pre>
+<div class="well">
+    <h2>{{ _("physicalserver_connection_prepare_title") }}</h2>
+    {{ _("physicalserver_connection_prepare_instructions") }}
+    <br />
+        
+    <code>
+        <p>yum -y update<br />
+        yum -y install mc ntp wget mailx nano php-cli php-pdo<br />
+        ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N "" </p>
+    </code>
 </div>
-<hr />
 
 <div class="well">
     {{ form("physical_servers/connect", 'role': 'form') }}
