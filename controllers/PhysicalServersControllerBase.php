@@ -258,19 +258,42 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         return true;
     }
 
+    /**
+    * Show form for ovz connector    
+    * 
+    * @param integer $physicalServersId
+    */
+    public function ovzConnectorAction($physicalServersId){
+        // sanitize
+        $physicalServersId = $this->filter->sanitize($physicalServersId,"int");
 
-    public function connectFormAction($item){
-        if(is_a($item,'OvzConnectorForm')){
-            // Get item from form
-            $this->view->form = $item;
-        } else {
-            $connectorFormFields = new OvzConnectorFormFields();
-            $connectorFormFields->physical_servers_id = $item;
-            $this->view->form = new OvzConnectorForm($connectorFormFields); 
+        // get physical server object
+        $physicalServer = PhysicalServers::findFirstByid($physicalServersId);
+        if (!$physicalServer) {
+            $message = $this->translate("physicalserver_does_not_exist");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
         }
+        
+        // check permissions
+        if(!$this->permissions->checkPermission('physical_servers', 'general', array('item' => $physicalServer))){
+            return $this->forwardTo401();
+        }   
+        
+        // prepare form fields
+        $connectorFormFields = new OvzConnectorFormFields();
+        $connectorFormFields->physical_servers_id = $physicalServersId;
+        
+        // call view
+        $this->view->form = new OvzConnectorForm($connectorFormFields); 
+        $this->view->pick("physical_servers/ovzConnectorForm");
     }
 
-    public function connectAction(){
+    /**
+    * Connect OVZ Server
+    * 
+    */
+    public function ovzConnectorExecuteAction(){
         try{
             // POST request?
             if (!$this->request->isPost()) 
@@ -281,24 +304,43 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $item = new OvzConnectorFormFields();
             $data = $this->request->getPost();
             if (!$form->isValid($data, $item)) {
-                return $this->dispatcher->forward([
-                    'action' => 'connectForm',
-                    'params' => [$form],
-                ]);
+                $this->view->form = $form; 
+                $this->view->pick("physical_servers/ovzConnectorForm");
+                return; 
             }
-            $phys = PhysicalServers::findFirstById($data['physical_servers_id']);
-            $message = $this->translate("physicalserver_not_found");
-            if(!$phys) throw new \Exception($message);
-            $connector = new OvzConnector($phys,$data['username'],$data['password']);
+            
+            // sanitize
+            $physicalServersId = $this->filter->sanitize($data['physical_servers_id'],"int");
+            
+            // Business Logic
+            $physicalServer = PhysicalServers::findFirstByid($physicalServersId);
+            if (!$physicalServer){
+                $message = $this->translate("physicalserver_does_not_exist");
+                $this->flashSession->error($message);
+                $this->view->form = $form; 
+                $this->view->pick("physical_servers/ovzConnectorForm");
+                return;
+            }
+            
+            // check permissions
+            if(!$this->permissions->checkPermission('physical_servers', 'general', array('item' => $physicalServer))){
+                return $this->forwardTo401();
+            }
+            
+            // connect
+            $connector = new OvzConnector($physicalServer,$data['username'],$data['password']);
             $connector->go();
 
+            // success message
             $message = $this->translate("physicalserver_connection_success");
-            $this->flashSession->success($message . $phys->getFqdn());
+            $this->flashSession->success($message.$physicalServer->getFqdn());
+            
+            // warning message
             $message = $this->translate("physicalserver_connection_restart");
             $this->flashSession->warning($message);
         }catch(\Exception $e){
             $message = $this->translate("physicalserver_connection_failed");
-            $this->flashSession->error($message .$e->getMessage());
+            $this->flashSession->error($message.$e->getMessage());
             $this->logger->error($e->getMessage());
         }
         $this->redirecToTableSlideDataAction();
