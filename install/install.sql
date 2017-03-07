@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS `mon_services` (
 CREATE TABLE IF NOT EXISTS `mon_contacts` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(64) NOT NULL,
-  `type` varchar(16) NOT NULL COMMENT 'mail or sms',
+  `send_behavior_class` varchar(100) NOT NULL,
   `value` varchar(64) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

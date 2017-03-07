@@ -21,6 +21,7 @@ namespace RNTForest\ovz\models;
 
 class MonContacts extends \RNTForest\core\models\ModelBase
 {
+    
     /**
     * 
     * @var integer
@@ -39,7 +40,7 @@ class MonContacts extends \RNTForest\core\models\ModelBase
     * 
     * @var string
     */
-    protected $type;
+    protected $sendBehaviorClass;
     
     /**
     * 
@@ -72,14 +73,14 @@ class MonContacts extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Type: mail or sms
+    * Classname 
     *
-    * @param string $type
+    * @param string $class
     * @return $this
     */
-    public function setType($type)
+    public function setSendBehaviorClass($class)
     {
-        $this->type = $type;
+        $this->sendBehaviorClass = $class;
         return $this;
     }
     
@@ -117,9 +118,9 @@ class MonContacts extends \RNTForest\core\models\ModelBase
     *
     * @return string
     */
-    public function getType()
+    public function getSendBehaviorClass()
     {
-        return $this->type;
+        return $this->sendBehaviorClass;
     }
     
     /**
@@ -130,5 +131,22 @@ class MonContacts extends \RNTForest\core\models\ModelBase
     {
         return $this->value;
     }
+    
+    /**
+    * Notifys a contact with the given subject and content.
+    * 
+    * @param string $subject
+    * @param string $content
+    */
+    public function notify($subject,$content){
+        $this->makeSendBehaviorInstance()->send($this->Value,$subject,$content);
+    }
+    
+    /**
+    * 
+    * @return \RNTForest\ovz\interfaces\SendBehaviorInterface
+    */
+    private function makeSendBehaviorInstance(){
+       return new $this->sendBehaviorClass(); 
+    }
 }
-?>
