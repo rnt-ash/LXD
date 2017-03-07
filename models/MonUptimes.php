@@ -213,4 +213,3 @@ class MonUptimes extends \RNTForest\core\models\ModelBase
         return $this->modified;
     }
 }
-?>

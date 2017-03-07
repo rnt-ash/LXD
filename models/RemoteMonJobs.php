@@ -619,4 +619,3 @@ class RemoteMonJobs extends \RNTForest\core\models\ModelBase
         return $this->modified;
     }
 }
-?>

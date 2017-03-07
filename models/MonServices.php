@@ -212,4 +212,3 @@ class MonServices extends \RNTForest\core\models\ModelBase
         return $this->logValueFormat;
     }
 }
-?>
