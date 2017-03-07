@@ -30,9 +30,8 @@ CREATE TABLE IF NOT EXISTS `local_mon_jobs` (
 
 CREATE TABLE IF NOT EXISTS `remote_mon_jobs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `physical_servers_id` int(11) unsigned,
-  `virtual_servers_id` int(11) unsigned,
-  `colocations_id` int(11) unsigned,
+  `servers_id` int(11) unsigned,
+  `servers_class` varchar(100) NOT NULL,
   `main_ip` varchar(39),
   `mon_services_id` int(11) unsigned NOT NULL,
   `mon_services_case` varchar(32) NOT NULL,
