@@ -41,4 +41,10 @@ class MonitoringTask extends Task
         $alarmSystem = new \RNTForest\ovz\services\MonAlarm();
         $alarmSystem->alarmRemoteMonJob($monJob);
     }
+    
+    public function runJobsAction(){
+        echo "called runJobs in ovz...".PHP_EOL;
+        $system = new \RNTForest\ovz\services\MonSystem();
+        $system->runJobs();
+    }
 }
