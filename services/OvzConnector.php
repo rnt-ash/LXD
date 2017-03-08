@@ -107,6 +107,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
         $this->preInstallation();
         
         $this->createAsymmetricKeys();
+        $this->fetchPublicRootSshKey();
         $this->sendAdminPublicKeyToRemoteserver();
         $this->createLinuxUserAndGroup();
         $this->writeOvzcpLocalConfig();
@@ -217,10 +218,21 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->RemoteSshConnection->exec('echo "'.$privKey.'" > '.$this->ConfigMyPrivateKeyFilePath);
                     
             // and update the public key in the model 
-            $this->PhysicalServer->setPublicKey($pubKey);
+            $this->PhysicalServer->setJobPublicKey($pubKey);
             $this->PhysicalServer->save();
         }catch(\Exception $e){
             $error = 'Problem while creating asymmetric keypair: '.$this->MakePrettyException($e);
+            $this->Logger->error('OvzConnector: '.$error);
+            throw new \Exception($error);  
+        }
+    }
+    
+    private function fetchPublicRootSshKey(){
+        try{
+            $output = $this->RemoteSshConnection->exec("cat /root/.ssh/id_rsa.pub");
+            $this->PhysicalServer->setRootPublicKey($output);
+        }catch(\Exception $e){               
+            $error = 'Problem while receiving root public key: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
             throw new \Exception($error);  
         }

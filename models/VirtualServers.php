@@ -67,7 +67,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     *
     * @var string
     */
-    protected $public_key;
+    protected $job_public_key;
 
     /**
     *
@@ -258,12 +258,12 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     /**
     * Public key (OpenSSL)
     *
-    * @param string $public_key
+    * @param string $job_public_key
     * @return $this
     */
-    public function setPublicKey($public_key)
+    public function setJobPublicKey($job_public_key)
     {
-        $this->public_key = $public_key;
+        $this->job_public_key = $job_public_key;
         return $this;
     }
 
@@ -558,13 +558,13 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     }
 
     /**
-    * Returns the value of field public_key
+    * Returns the value of field job_public_key
     *
     * @return string
     */
-    public function getPublicKey()
+    public function getJobPublicKey()
     {
-        return $this->public_key;
+        return $this->job_public_key;
     }
 
     /**
