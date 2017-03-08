@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\libraries;
+namespace RNTForest\ovz\services;
 
 use RNTForest\ovz\interfaces\SendBehaviorInterface;
 

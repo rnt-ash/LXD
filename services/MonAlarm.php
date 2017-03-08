@@ -20,11 +20,11 @@
 namespace RNTForest\ovz\services;
 
 use RNTForest\ovz\models\RemoteMonJobs;
+use RNTForest\core\libraries\Helpers;
 
 class MonAlarm extends \Phalcon\DI\Injectable
 {
     /**
-    * put your comment there...
     * 
     * @var \Phalcon\Logger\AdapterInterface
     */
@@ -52,24 +52,58 @@ class MonAlarm extends \Phalcon\DI\Injectable
         }
     }
     
-    
-    
     private function checkAlarmPeriod($alarmPeriodInMinutes, $lastAlarm){
         $alarmPeriodInSeconds = 60 * $alarmPeriodInMinutes;
         // if period is 0 return true direct without further checking because it would be unnecessary
         if($alarmPeriodInSeconds == 0){
             return True;
         }
-        $lastAlarmTimestamp = DateConverter::createUnixTimestampFromDateTime($lastAlarm);
+        $lastAlarmTimestamp = Helpers::createUnixTimestampFromDateTime($lastAlarm);
         $currentTimestamp = time();
         
         return $currentTimestamp > ($lastAlarmTimestamp + $alarmPeriodInSeconds);
     }
     
-    private function genAlarmContentRemoteMonJob(RemoteMonJob $monJob){
+    private function genAlarmContentRemoteMonJob(RemoteMonJobs $monJob){
         $content = '';
-        $content .= $this->genContentGeneralSection($monJob);
+        $content .= $this->genContentRemoteMonJobsGeneralSection($monJob);
         $content .= $this->genContentUptimeSection($monJob);
         return $content;    
+    }
+    
+    private function genContentRemoteMonJobsGeneralSection(RemoteMonJobs $monJob){
+        $content = '';
+        $monServer = $monJob->getServer();
+        $name = $monServer->getName();  
+        $ip = $monJob->getMainIp();
+        if(is_null($ip)){
+            $mainIp = "nohost";      
+        }else{
+            $mainIp = $ip;
+        }
+        $status = $monJob->getStatus();
+        $lastStatuschange = $monJob->getLastStatuschange();
+        $monService = $monJob->getMonServicesCase();
+        $content .= 'OVZ AlarmingSystem Alarm for '.$name.' ('.$mainIp.')'."<br />";
+        $content .= '==>'.$monService.'<=='." (MonJob ID: ".$monJob->getId().")<br />";
+        $content .= 'Status now: '.$status.' (since '.$lastStatuschange.')'."<br />";
+        return $content;
+    }
+    
+    private function genContentUptimeSection(RemoteMonJobs $monJob){
+        $content = '';
+        $uptime = json_decode($monJob->getUptime(),true);
+        if(is_array($uptime)){
+            if(key_exists('actperioduppercentage',$uptime)){
+                $content .= 'Service Uptime current Period (this and last month): '.substr(($uptime['actperioduppercentage']*100),0,6).'%'."<br />";
+            }
+            if(key_exists('actyearuppercentage',$uptime)){
+                $content .= 'Service Uptime current Year: '.substr(($uptime['actyearuppercentage']*100),0,6).'%'."<br />";
+            }
+            if(key_exists('everuppercentage',$uptime)){
+                $content .= 'Service Uptime forever: '.substr(($uptime['everuppercentage']*100),0,6).'%'."<br />";
+            }
+        }
+        return $content;  
     }   
 }

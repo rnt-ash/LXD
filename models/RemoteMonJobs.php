@@ -633,7 +633,7 @@ class RemoteMonJobs extends \RNTForest\core\models\ModelBase
     */
     public function setServer(\RNTForest\ovz\interfaces\MonServerInterface $server){
         $this->servers_class = get_class($server);
-        $this->server_id = $server->getId();
+        $this->servers_id = $server->getId();
     }
     
     /**
@@ -642,7 +642,7 @@ class RemoteMonJobs extends \RNTForest\core\models\ModelBase
     * @return \RNTForest\ovz\interfaces\MonServerInterface
     */
     public function getServer(){
-        return $this->servers_class::findFirst($this->server_id);
+        return $this->servers_class::findFirst($this->servers_id);
     }
     
     /**

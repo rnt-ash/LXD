@@ -21,6 +21,7 @@ use Phalcon\Cli\Task;
 
 use RNTForest\core\services\Push;
 use RNTForest\ovz\models\VirtualServers;
+use RNTForest\ovz\models\RemoteMonJobs;
 
 class MonitoringTask extends Task
 {
@@ -35,6 +36,9 @@ class MonitoringTask extends Task
     }
     
     public function localAction(){
-        echo "calloed local in ovz...".PHP_EOL;        
+        echo "called local in ovz...".PHP_EOL; 
+        $monJob = RemoteMonJobs::findFirst(1);
+        $alarmSystem = new \RNTForest\ovz\services\MonAlarm();
+        $alarmSystem->alarmRemoteMonJob($monJob);
     }
 }
