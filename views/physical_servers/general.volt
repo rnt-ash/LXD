@@ -15,7 +15,7 @@
                         {{ link_to("physical_servers/ovzHostStatisticsInfo/"~item.id,'<i class="fa fa-refresh"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_updatestatistics") ) }}
                     {% endif %}
-                    {{ link_to("physical_servers/connectForm/"~item.id,'<i class="fa fa-link"></i>',
+                    {{ link_to("physical_servers/ovzConnector/"~item.id,'<i class="fa fa-link"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_connectovz") ) }}
                     <a href="#" link="/physical_servers/delete/{{item.id}}" text="{{ _("physicalserver_confirm_removeserver") }}"
                         class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("physicalserver_tooltip_removeserver") }}">
