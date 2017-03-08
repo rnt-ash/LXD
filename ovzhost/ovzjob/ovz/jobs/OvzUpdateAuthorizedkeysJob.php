@@ -27,10 +27,10 @@ class OvzUpdateAuthorizedkeysJob extends AbstractOvzJob {
             "description" => "updates the file /root/.ssh/authorized_keys with all the keys from managed PhysicalServers",
             "params" => [
                 "ROOTKEYS" => [
-                    ["ssh key of the 1st server"],
-                    ["ssh key of the 2nd server"],
-                    ["ssh key of the 3rd server"],
-                    ["ssh key of the 4th server"],
+                    "ssh key of the 1st server",
+                    "ssh key of the 2nd server",
+                    "ssh key of the 3rd server",
+                    "ssh key of the 4th server",
                 ],
             ],
             "params_example" => '{"SSHKEYS":["ssh-rsa s0m3k3y sometext","ssh-rsa s0m3key sometext"]}',
