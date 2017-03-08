@@ -28,9 +28,10 @@ use RNTForest\core\models\Customers;
 use RNTForest\ovz\forms\VirtualServersForm;
 use RNTForest\ovz\forms\ConfigureVirtualServersForm;
 use RNTForest\ovz\forms\DcoipobjectsForm;
-use RNTForest\ovz\libraries\ByteConverter;
 use RNTForest\ovz\forms\SnapshotForm;
 use RNTForest\ovz\forms\ReplicaActivateForm;
+
+use \RNTForest\core\libraries\Helpers;
 
 class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -1005,7 +1006,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $configureVirtualServersFormFields->dns = $ovzSettings['DNS Servers'];
         $configureVirtualServersFormFields->cores = $virtualServer->getCore();
         $configureVirtualServersFormFields->memory = $virtualServer->getMemory()." MB";
-        $configureVirtualServersFormFields->diskspace = \RNTForest\core\libraries\Helpers::formatBytesHelper(ByteConverter::convertByteStringToBytes($virtualServer->getSpace()."MB"));
+        $configureVirtualServersFormFields->diskspace = Helpers::formatBytesHelper(Helpers::convertToBytes($virtualServer->getSpace()."MB"));
         if($ovzSettings['Autostart'] == 'on'){
             $configureVirtualServersFormFields->startOnBoot = 1;
         }elseif($ovzSettings['Autostart'] == 'off') {
@@ -1104,7 +1105,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         
         try{
             // memory
-            $memory = ByteConverter::convertByteStringToBytes($form->memory);
+            $memory = Helpers::convertToBytes($form->memory);
             
             // check if memory is numeric
             if(!is_numeric($memory)){
@@ -1114,14 +1115,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
             
             // chech if memory is minmum 512 MB
-            if(gmp_cmp($memory,ByteConverter::convertByteStringToBytes('512MB'))<0){
+            if(gmp_cmp($memory,Helpers::convertToBytes('512MB'))<0){
                 $message1 = $this->translate("virtualserver_min_ram");
                 $message = $message1;
                 return $this->redirectErrorToConfigureVirtualServers($message,'memory',$form);
             } 
 
             // check if memory of host is exceeded
-            $hostRam = ByteConverter::convertByteStringToBytes($virtualServer->PhysicalServers->getMemory().'MB');
+            $hostRam = Helpers::convertToBytes($virtualServer->PhysicalServers->getMemory().'MB');
             if(gmp_cmp($memory,$hostRam)>0){
                 $message1 = $this->translate("virtualserver_max_ram");
                 $message = $message1.$virtualServer->PhysicalServers->getMemory().' MB)';
@@ -1129,10 +1130,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
             
             // final memory in MibiBytes
-            $memory = ByteConverter::convertBytesToMibiBytes($memory);
+            $memory = Helpers::convertBytesToMibiBytes($memory);
             
             // space
-            $diskspace = ByteConverter::convertByteStringToBytes($form->diskspace);
+            $diskspace = Helpers::convertToBytes($form->diskspace);
             
             // check if diskpace is numeric
             if(!is_numeric($diskspace)){
@@ -1142,13 +1143,13 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
             
             // check if diskspace is min
-            if(gmp_cmp($diskspace,ByteConverter::convertByteStringToBytes('20GB'))<0){
+            if(gmp_cmp($diskspace,Helpers::convertToBytes('20GB'))<0){
                 $message1 = $this->translate("virtualserver_min_space");
                 $message = $message1;
                 return $this->redirectErrorToConfigureVirtualServers($message,'diskspace',$form);
             }
             // check if diskspace of host is exceeded
-            $hostDiskspace = ByteConverter::convertByteStringToBytes($virtualServer->PhysicalServers->getSpace().'GB');
+            $hostDiskspace = Helpers::convertToBytes($virtualServer->PhysicalServers->getSpace().'GB');
             if(gmp_cmp($diskspace,$hostDiskspace)>0){
                 $message1 = $this->translate("virtualserver_max_space");
                 $message = $message1.$virtualServer->PhysicalServers->getSpace().' GB)';
@@ -1156,7 +1157,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
             
             // final diskspcae in MibiBytes
-            $diskspace = ByteConverter::convertBytesToMibiBytes($diskspace);
+            $diskspace = Helpers::convertBytesToMibiBytes($diskspace);
         
             // job
             $virtualServerConfig = array(

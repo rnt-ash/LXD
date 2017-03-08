@@ -37,7 +37,7 @@ class OvzNewVsJob extends AbstractOvzJob{
                 "DISKSPACE" => "Diskspace in GB",
                 "ROOTPWD" => "password to be set for user root"
             ],
-            "params_example" => '"VSTYPE":"CT","UUID":"717a8925-f92b-48d3-81aa-a948cfe177af","NAME":"test.domain.tld","OSTEMPLATE":"debian-8.0-x86_64-minimal","DISTRIBUTION":null,"HOSTNAME":null,"CPUS":"1","RAM":"1024","DISKSPACE":"100","ROOTPWD":"supersecurepassword"',
+            "params_example" => '{"VSTYPE":"CT","UUID":"717a8925-f92b-48d3-81aa-a948cfe177af","NAME":"test.domain.tld","OSTEMPLATE":"debian-8.0-x86_64-minimal","DISTRIBUTION":null,"HOSTNAME":null,"CPUS":"1","RAM":"1024","DISKSPACE":"100","ROOTPWD":"supersecurepassword"}',
             "retval" => "nothing specified",
             "warning" => "nothing specified",
             "error" => "different causes (couldn't get VS list, UUID already exists, no available OSTEMPLATE, or something while effectively creating the VS fails)",

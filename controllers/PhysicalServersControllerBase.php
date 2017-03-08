@@ -194,7 +194,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             // sanitize parameters
             $serverId = $this->filter->sanitize($serverId, "int");
 
-            // find virtual server
+            // find physical server
             $physicalServer = PhysicalServers::findFirst($serverId);
             $message = $this->translate("physicalserver_doesn_not_exist");
             if (!$physicalServer) throw new \Exception($message . $serverId);
@@ -234,6 +234,56 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     }
 
     /**
+    * Update OVZ host statistics
+    * 
+    * @param int $serverId
+    */
+    public function ovzHostStatisticsInfoAction($serverId){
+        // get VirtualServer
+        try{
+            // sanitize parameters
+            $serverId = $this->filter->sanitize($serverId, "int");
+
+            // find physical server
+            $physicalServer = PhysicalServers::findFirst($serverId);
+            $message = $this->translate("physicalserver_doesn_not_exist");
+            if (!$physicalServer) throw new \Exception($message . $serverId);
+
+            // not ovz enabled
+            $message = $this->translate("physicalserver_not_ovz_enabled");
+            if(!$physicalServer->getOvz()) throw new \Exception($message);
+
+            // execute ovz_hoststatistics_info job        
+            $push = $this->getPushService();
+            $job = $push->executeJob($physicalServer,'ovz_hoststatistics_info',array());
+            $message =  $this->translate("physicalserver_job_failed");
+            if(!$job || $job->getDone()==2) throw new \Exception($message."(ovz_hoststatistics_info) !");
+
+            // save statistics
+            $settings = $job->getRetval(true);
+            $physicalServer->setOvzStatistics($job->getRetval());
+            if ($physicalServer->save() === false) {
+                $messages = $physicalServer->getMessages();
+                foreach ($messages as $message) {
+                    $this->flashSession->warning($message);
+                }
+                $message = $this->translate("physicalserver_update_failed");
+                throw new \Exception($message . $physicalServer->getName());
+            }
+
+            // success
+            $message = $this->translate("physicalserver_update_success");
+            $this->flashSession->success($message);
+
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        // go back to slidedata view
+        $this->redirectTo("physical_servers/slidedata");
+    }
+    
+    /**
     * checks before delete
     * 
     * @param PhysicalServers $physicalServer
@@ -258,19 +308,42 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         return true;
     }
 
+    /**
+    * Show form for ovz connector    
+    * 
+    * @param integer $physicalServersId
+    */
+    public function ovzConnectorAction($physicalServersId){
+        // sanitize
+        $physicalServersId = $this->filter->sanitize($physicalServersId,"int");
 
-    public function connectFormAction($item){
-        if(is_a($item,'OvzConnectorForm')){
-            // Get item from form
-            $this->view->form = $item;
-        } else {
-            $connectorFormFields = new OvzConnectorFormFields();
-            $connectorFormFields->physical_servers_id = $item;
-            $this->view->form = new OvzConnectorForm($connectorFormFields); 
+        // get physical server object
+        $physicalServer = PhysicalServers::findFirstByid($physicalServersId);
+        if (!$physicalServer) {
+            $message = $this->translate("physicalserver_does_not_exist");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
         }
+        
+        // check permissions
+        if(!$this->permissions->checkPermission('physical_servers', 'general', array('item' => $physicalServer))){
+            return $this->forwardTo401();
+        }   
+        
+        // prepare form fields
+        $connectorFormFields = new OvzConnectorFormFields();
+        $connectorFormFields->physical_servers_id = $physicalServersId;
+        
+        // call view
+        $this->view->form = new OvzConnectorForm($connectorFormFields); 
+        $this->view->pick("physical_servers/ovzConnectorForm");
     }
 
-    public function connectAction(){
+    /**
+    * Connect OVZ Server
+    * 
+    */
+    public function ovzConnectorExecuteAction(){
         try{
             // POST request?
             if (!$this->request->isPost()) 
@@ -281,24 +354,43 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $item = new OvzConnectorFormFields();
             $data = $this->request->getPost();
             if (!$form->isValid($data, $item)) {
-                return $this->dispatcher->forward([
-                    'action' => 'connectForm',
-                    'params' => [$form],
-                ]);
+                $this->view->form = $form; 
+                $this->view->pick("physical_servers/ovzConnectorForm");
+                return; 
             }
-            $phys = PhysicalServers::findFirstById($data['physical_servers_id']);
-            $message = $this->translate("physicalserver_not_found");
-            if(!$phys) throw new \Exception($message);
-            $connector = new OvzConnector($phys,$data['username'],$data['password']);
+            
+            // sanitize
+            $physicalServersId = $this->filter->sanitize($data['physical_servers_id'],"int");
+            
+            // Business Logic
+            $physicalServer = PhysicalServers::findFirstByid($physicalServersId);
+            if (!$physicalServer){
+                $message = $this->translate("physicalserver_does_not_exist");
+                $this->flashSession->error($message);
+                $this->view->form = $form; 
+                $this->view->pick("physical_servers/ovzConnectorForm");
+                return;
+            }
+            
+            // check permissions
+            if(!$this->permissions->checkPermission('physical_servers', 'general', array('item' => $physicalServer))){
+                return $this->forwardTo401();
+            }
+            
+            // connect
+            $connector = new OvzConnector($physicalServer,$data['username'],$data['password']);
             $connector->go();
 
+            // success message
             $message = $this->translate("physicalserver_connection_success");
-            $this->flashSession->success($message . $phys->getFqdn());
+            $this->flashSession->success($message.$physicalServer->getFqdn());
+            
+            // warning message
             $message = $this->translate("physicalserver_connection_restart");
             $this->flashSession->warning($message);
         }catch(\Exception $e){
             $message = $this->translate("physicalserver_connection_failed");
-            $this->flashSession->error($message .$e->getMessage());
+            $this->flashSession->error($message.$e->getMessage());
             $this->logger->error($e->getMessage());
         }
         $this->redirecToTableSlideDataAction();

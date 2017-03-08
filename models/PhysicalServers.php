@@ -61,12 +61,18 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     * @var integer
     */
     protected $colocations_id;
+    
+    /**
+    *
+    * @var string
+    */
+    protected $root_public_key;
 
     /**
     *
     * @var string
     */
-    protected $public_key;
+    protected $job_public_key;
 
     /**
     *
@@ -79,7 +85,13 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     * @var string
     */
     protected $ovz_settings;
-
+    
+    /**
+    *
+    * @var string
+    */
+    protected $ovz_statistics;
+    
     /**
     *
     * @var string
@@ -188,14 +200,27 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     }
 
     /**
-    * Method to set the value of field public_key
+    * Method to set the value of field root_public_key
     *
-    * @param string $public_key
+    * @param string $root_public_key
     * @return $this
     */
-    public function setPublicKey($public_key)
+    public function setRootPublicKey($root_public_key)
     {
-        $this->public_key = $public_key;
+        $this->root_public_key = $root_public_key;
+
+        return $this;
+    }
+
+    /**
+    * Method to set the value of field job_public_key
+    *
+    * @param string $jobpublic_key
+    * @return $this
+    */
+    public function setJobPublicKey($job_public_key)
+    {
+        $this->job_public_key = $job_public_key;
 
         return $this;
     }
@@ -223,6 +248,18 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     {
         $this->ovz_settings = $ovz_settings;
 
+        return $this;
+    }
+
+    /**
+    * OpenVZ statistics as JSON
+    *
+    * @param string $ovz_statistics
+    * @return $this
+    */
+    public function setOvzStatistics($ovz_statistics)
+    {
+        $this->ovz_statistics = $ovz_statistics;
         return $this;
     }
 
@@ -355,13 +392,23 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     }
 
     /**
-    * Returns the value of field public_key
+    * Returns the value of field root_public_key
     *
     * @return string
     */
-    public function getPublicKey()
+    public function getRootPublicKey()
     {
-        return $this->public_key;
+        return $this->root_public_key;
+    }
+
+    /**
+    * Returns the value of field job_public_key
+    *
+    * @return string
+    */
+    public function getJobPublicKey()
+    {
+        return $this->job_public_key;
     }
 
     /**
@@ -382,6 +429,16 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     public function getOvzSettings()
     {
         return $this->ovz_settings;
+    }
+
+    /**
+    * Returns the value of field ovz_statistics
+    *
+    * @return string
+    */
+    public function getOvzStatistics()
+    {
+        return $this->ovz_statistics;
     }
 
     /**
