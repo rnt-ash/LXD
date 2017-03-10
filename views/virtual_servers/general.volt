@@ -13,9 +13,9 @@
                             <i class="fa fa-lightbulb-o text-default"></i>&nbsp;<span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li>{{ link_to("virtual_servers/startVS/"~item.id,'<i class="fa fa-play"></i> {{ _("virtualserver_general_start") }}') }}</li>
-                            <li>{{ link_to("virtual_servers/stopVS/"~item.id,'<i class="fa fa-ban"></i> {{ _("virtualserver_general_stop") }}') }}</li>
-                            <li>{{ link_to("virtual_servers/restartVS/"~item.id,'<i class="fa fa-retweet"></i> {{ _("virtualserver_general_restart") }}') }}</li>
+                            <li>{{ link_to("virtual_servers/startVS/"~item.id,'<i class="fa fa-play"></i> {{ _("virtualserver_general_start") }}', 'class': 'loadingScreen') }}</li>
+                            <li>{{ link_to("virtual_servers/stopVS/"~item.id,'<i class="fa fa-ban"></i> {{ _("virtualserver_general_stop") }}', 'class': 'loadingScreen') }}</li>
+                            <li>{{ link_to("virtual_servers/restartVS/"~item.id,'<i class="fa fa-retweet"></i> {{ _("virtualserver_general_restart") }}', 'class': 'loadingScreen') }}</li>
                         </ul>
                         {% endif %}
                     </div>
@@ -25,9 +25,9 @@
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
                     {% if item.ovz == 1 %}
                         {{ link_to("virtual_servers/ovzListInfo/"~item.id,'<i class="fa fa-refresh"></i>',
-                            'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_updateovz")) }}
+                            'class': 'btn btn-default btn-xs loadingScreen', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_updateovz")) }}
                         {{ link_to("virtual_servers/ovzStatisticsInfo/"~item.id,'<i class="fa fa-refresh"></i>',
-                            'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_updatestats")) }}
+                            'class': 'btn btn-default btn-xs loadingScreen', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_updatestats")) }}
                         {# not yet implementet
                         {{ link_to("virtual_servers/todo/"~item.id,'<i class="fa fa-key"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_setpwd")) }}

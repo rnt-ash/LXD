@@ -32,7 +32,7 @@
         {{ renderElement('password',form) }}
 
         <div class="col-lg-12">
-            {{ submit_button( _("physicalserver_connect_connectbutton") , "class": "btn btn-primary") }}
+            {{ submit_button( _("physicalserver_connect_connectbutton") , "class": "btn btn-primary loadingScreen") }}
             {{ link_to('/physical_servers/slidedata', _("physicalserver_cancel"), 'class': 'btn btn-default pull-right') }}
         </div>
                 
