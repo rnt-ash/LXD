@@ -845,13 +845,11 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
 
         // fqdn
         $message = self::translate("virtualserver_fqdn_valid");
-        if($op == 'edit'){
-            $validator->add('fqdn', new RegexValidator([
-                'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-                'message' => $message,
-                'allowEmpty' => true,
-            ]));        
-        }
+        $validator->add('fqdn', new RegexValidator([
+            'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
+            'message' => $message,
+            'allowEmpty' => true,
+        ]));        
 
         // customer
         $message = self::translate("virtualserver_customer_required");

@@ -41,22 +41,6 @@ class ConfigureVirtualServersForm extends \RNTForest\core\forms\FormBase
     {
         $this->add(new Hidden("virtual_servers_id"));
 
-        // fqdn
-        $element = new Text("hostname");
-        $message = $this->translate("virtualserver_hostname");
-        $element->setLabel($message);
-        $element->setAttribute("placeholder","host.domain.tld");
-        $element->setFilters(array('striptags', 'string'));
-        $message = $this->translate("virtualserver_hostname_valid");
-        $element->addValidators(array(
-            new RegexValidator([
-                'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-                'message' => $messages,
-                'allowEmpty' => true,
-            ])
-        ));
-        $this->add($element);
-
         // core
         $element = new Numeric("cores");
         $message = $this->translate("virtualserver_cores");
@@ -135,13 +119,6 @@ class ConfigureVirtualServersForm extends \RNTForest\core\forms\FormBase
                 'message' => $message,
             ]),
         ));
-        $this->add($element);
-        
-        // description
-        $element = new TextArea("description");
-        $message = $this->translate("virtualserver_description");
-        $element->setLabel($message);
-        $element->setFilters(array('striptags', 'string'));
         $this->add($element);
     }
 }

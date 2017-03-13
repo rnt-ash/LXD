@@ -21,9 +21,9 @@
                     </div>
                     {% endif %}
                     
-                    {{ link_to("virtual_servers/edit/"~item.id,'<i class="fa fa-pencil"></i>',
-                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
                     {% if item.ovz == 1 %}
+                        {{ link_to("virtual_servers/modifyVirtualServer/"~item.id,'<i class="fa fa-pencil"></i>',
+                            'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
                         {{ link_to("virtual_servers/ovzListInfo/"~item.id,'<i class="fa fa-refresh"></i>',
                             'class': 'btn btn-default btn-xs loadingScreen', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_updateovz")) }}
                         {{ link_to("virtual_servers/ovzStatisticsInfo/"~item.id,'<i class="fa fa-refresh"></i>',
@@ -32,6 +32,9 @@
                         {{ link_to("virtual_servers/todo/"~item.id,'<i class="fa fa-key"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_setpwd")) }}
                         #}
+                    {% else %}
+                        {{ link_to("virtual_servers/edit/"~item.id,'<i class="fa fa-pencil"></i>',
+                            'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
                     {% endif %}
                     <a href="#" link="/virtual_servers/delete/{{item.id}}" text="{{ _("virtualserver_general_deleteinfo") }}"
                         class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_general_delete") }}"><i class="fa fa-trash-o"></i></a>
