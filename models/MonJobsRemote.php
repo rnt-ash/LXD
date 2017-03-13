@@ -19,7 +19,7 @@
 
 namespace RNTForest\ovz\models;
 
-class LocalMonJobs extends \RNTForest\core\models\ModelBase
+class MonJobsRemote extends \RNTForest\core\models\ModelBase
 {
     /**
     * 
@@ -33,13 +33,25 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     * 
     * @var int
     */
-    protected $physical_servers_id;
+    protected $servers_id;
     
+    /**
+    *
+    * @var string
+    */
+    protected $servers_class;
+
     /**
     * 
     * @var int
     */
-    protected $virtual_servers_id;
+    protected $colocations_id;
+    
+    /**
+    * 
+    * @var string
+    */
+    protected $main_ip;
     
     /**
     * 
@@ -75,19 +87,19 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     * 
     * @var string
     */
-    protected $warning_value;
-    
-    /**
-    * 
-    * @var string
-    */
-    protected $maximal_value;
+    protected $uptime;
     
     /**
     * 
     * @var integer
     */
     protected $active;
+    
+    /**
+    * 
+    * @var integer
+    */
+    protected $healing;
     
     /**
     * 
@@ -141,12 +153,6 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     * 
     * @var string
     */
-    protected $last_rrd_run;
-    
-    /**
-    * 
-    * @var string
-    */
     protected $modified;
     
     /**
@@ -162,26 +168,49 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * ID of the Phsysical Server
+    * ID of the Server
     * 
-    * @param integer $physicalServersId
+    * @param integer $serversId
     * @return $this
     */
-    public function setPhysicalServerId($physicalServersId)
+    public function setServersId($serversId)
     {
-        $this->physical_servers_id = $physicalServersId;
+        $this->servers_id = $serversId;
         return $this;
     }
     
     /**
-    * ID of the Virtual Server
+    * Namespace and Classname of the Server Object
     * 
-    * @param integer $physicalServersId
+    * @param string $serverClass
+    */
+    public function setServersClass($serverClass)
+    {
+        $this->servers_class = $serverClass;
+        return $this;
+    }
+    
+    /**
+    * ID of the Colocation
+    * 
+    * @param integer $colocationsId
     * @return $this
     */
-    public function setVirtualServerId($virtualServersId)
+    public function setColocationsId($colocationsId)
     {
-        $this->virtual_servers_id = $virtualServersId;
+        $this->colocations_id = $colocationsId;
+        return $this;
+    }
+    
+    /**
+    * Main IP
+    * 
+    * @param integer $mainIp
+    * @return $this
+    */
+    public function setMainIp($mainIp)
+    {
+        $this->main_ip = $mainIp;
         return $this;
     }
     
@@ -246,26 +275,14 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Warning value
+    * Uptime
     * 
-    * @param string $warningValue
+    * @param string $uptime
     * @return $this
     */
-    public function setWarningValue($warningValue)
+    public function setUptime($uptime)
     {
-        $this->warning_value = $warningValue;
-        return $this;
-    }
-    
-    /**
-    * Maximal value
-    * 
-    * @param string $maximalValue
-    * @return $this
-    */
-    public function setMaximalValue($maximalValue)
-    {
-        $this->maximal_value = $maximalValue;
+        $this->uptime = $uptime;
         return $this;
     }
     
@@ -278,6 +295,18 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     public function setActive($active)
     {
         $this->active = $active;
+        return $this;
+    }
+    
+    /**
+    * Healing
+    *
+    * @param integer $healing
+    * @return $this
+    */
+    public function setHealing($healing)
+    {
+        $this->healing = $healing;
         return $this;
     }
     
@@ -315,7 +344,7 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->muted = $muted;
         return $this;
-    } 
+    }
     
     /**
     * Last alarm
@@ -378,18 +407,6 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Last rrd run
-    * 
-    * @param string $lastRrdRun
-    * @return $this
-    */
-    public function setLastRrdRun($lastRrdRun)
-    {
-        $this->last_rrd_run = $lastRrdRun;
-        return $this;
-    }
-    
-    /**
     * Modified
     * 
     * @param string $modified
@@ -414,18 +431,37 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     *
     * @return integer
     */
-    public function getPhysicalServersId()
+    public function getServersId()
     {
-        return $this->physical_servers_id;
+        return $this->servers_id;
+    }
+    
+    /**
+    * returns the Namespace and Classname of the Server Object
+    * 
+    * @return string
+    */
+    public function getServersClass()
+    {
+        return $this->servers_class;
     }
     
     /**
     *
     * @return integer
     */
-    public function getVirtualServersId()
+    public function getColocationsId()
     {
-        return $this->virtual_servers_id;
+        return $this->colocations_id;
+    }
+    
+    /**
+    *
+    * @return string
+    */
+    public function getMainIp()
+    {
+        return $this->main_ip;
     }
     
     /**
@@ -478,18 +514,9 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     *
     * @return string
     */
-    public function getWarningValue()
+    public function getUptime()
     {
-        return $this->warning_value;
-    }
-    
-    /**
-    *
-    * @return string
-    */
-    public function getMaximalValue()
-    {
-        return $this->maximal_value;
+        return $this->uptime;
     }
     
     /**
@@ -499,6 +526,15 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     public function getActive()
     {
         return $this->active;
+    }
+    
+    /**
+    *
+    * @return integer
+    */
+    public function getHealing()
+    {
+        return $this->healing;
     }
     
     /**
@@ -525,7 +561,7 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     */
     public function getMuted()
     {
-        return $this->muted;
+        return $this->alarmed;
     }
     
     /**
@@ -549,7 +585,7 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     
     /**
     *
-    * @return string
+    * @return string commaseparated
     */
     public function getMonContactsMessage()
     {
@@ -558,7 +594,7 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     
     /**
     *
-    * @return string
+    * @return string commaseparated
     */
     public function getMonContactsAlarm()
     {
@@ -578,17 +614,47 @@ class LocalMonJobs extends \RNTForest\core\models\ModelBase
     *
     * @return string
     */
-    public function getLastRrdRun()
-    {
-        return $this->last_rrd_run;
-    }
-    
-    /**
-    *
-    * @return string
-    */
     public function getModified()
     {
         return $this->modified;
+    }
+    
+    /**
+    * Initialize method for model.
+    */
+    public function initialize(){
+        $this->hasMany("id",'RNTForest\ovz\models\MonUptimes',"remote_mon_jobs_id",array("alias"=>"MonUptimes", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasMany("id",'RNTForest\ovz\models\RemoteMonLogs',"remote_mon_jobs_id",array("alias"=>"RemoteMonLogs", "foreignKey"=>array("allowNulls"=>true)));
+    }
+    
+    /**
+    * set linked server
+    * 
+    */
+    public function setServer(\RNTForest\ovz\interfaces\MonServerInterface $server){
+        $this->servers_class = get_class($server);
+        $this->servers_id = $server->getId();
+    }
+    
+    /**
+    * returns linked server
+    * 
+    * @return \RNTForest\ovz\interfaces\MonServerInterface
+    */
+    public function getServer(){
+        return $this->servers_class::findFirst($this->servers_id);
+    }
+    
+    /**
+    * 
+    * @return \RNTForest\ovz\models\MonContacts[]
+    */
+    public function getMonContactsAlarmInstances(){
+        $contactIds = explode(',',$this->mon_contacts_alarm);
+        $contactInstances = array();
+        foreach($contactIds as $contactId){
+            $contactInstances[] = \RNTForest\ovz\models\MonContacts::findFirst(intval($contactId));
+        }
+        return $contactInstances;
     }
 }

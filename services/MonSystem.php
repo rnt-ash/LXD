@@ -46,13 +46,14 @@ class MonSystem extends \Phalcon\DI\Injectable
     */
     public function runJobs(){
         try{
-            $monJobs = $this->modelManager->executeQuery("SELECT * FROM \\RNTForest\\ovz\\models\\RemoteMonJobs WHERE active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60");
+            $monJobs = $this->modelManager->executeQuery("SELECT * FROM \\RNTForest\\ovz\\models\\MonJobsRemote WHERE active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60");
             /*$monJobs = RemoteMonJobs::find(
                 [
                 "active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60",
                 ]
             );*/
-            echo("monjobs: ".json_encode($monJobs));
+            echo("runJobs ".count($monJobs)." RemoteMonJobs\n");
+            
             
         }catch(\Exception $e){
             echo $e->getMessage();

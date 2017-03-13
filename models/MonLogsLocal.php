@@ -19,7 +19,7 @@
 
 namespace RNTForest\ovz\models;
 
-class LocalMonLogs extends \RNTForest\core\models\ModelBase
+class MonLogsLocal extends \RNTForest\core\models\ModelBase
 {
     /**
     * 
@@ -33,7 +33,7 @@ class LocalMonLogs extends \RNTForest\core\models\ModelBase
     * 
     * @var integer
     */
-    protected $local_mon_jobs_id;
+    protected $mon_jobs_local_id;
     
     /**
     * 
@@ -62,12 +62,12 @@ class LocalMonLogs extends \RNTForest\core\models\ModelBase
     /**
     * ID of the monjob
     * 
-    * @param integer $localMonJobsId
+    * @param integer $monJobsLocalId
     * @return $this
     */
-    public function setLocalMonJobsId($localMonJobsId)
+    public function setMonJobsLocalId($monJobsLocalId)
     {
-        $this->local_mon_jobs_id = $localMonJobsId;
+        $this->mon_jobs_local_id = $monJobsLocalId;
         return $this;
     }
     
@@ -108,9 +108,9 @@ class LocalMonLogs extends \RNTForest\core\models\ModelBase
     * 
     * @return integer
     */
-    public function getLocalMonJobsId()
+    public function getMonJobsLocalId()
     {
-        return $this->local_mon_jobs_id;
+        return $this->mon_jobs_local_id;
     }
     
     /**

@@ -19,7 +19,7 @@
 
 namespace RNTForest\ovz\models;
 
-class RemoteMonLogs extends \RNTForest\core\models\ModelBase
+class MonLogsRemote extends \RNTForest\core\models\ModelBase
 {
     /**
     * 
@@ -33,7 +33,7 @@ class RemoteMonLogs extends \RNTForest\core\models\ModelBase
     * 
     * @var integer
     */
-    protected $remote_mon_jobs_id;
+    protected $mon_jobs_remote_id;
     
     /**
     * 
@@ -68,12 +68,12 @@ class RemoteMonLogs extends \RNTForest\core\models\ModelBase
     /**
     * ID of the monjob
     * 
-    * @param integer $remoteMonJobsId
+    * @param integer $monJobsRemoteId
     * @return $this
     */
-    public function setRemoteMonJobsId($remoteMonJobsId)
+    public function setMonJobsRemoteId($monJobsRemoteId)
     {
-        $this->remote_mon_jobs_id = $remoteMonJobsId;
+        $this->mon_jobs_remote_id = $monJobsRemoteId;
         return $this;
     }
     
@@ -126,9 +126,9 @@ class RemoteMonLogs extends \RNTForest\core\models\ModelBase
     * 
     * @return integer
     */
-    public function getRemoteMonJobsId()
+    public function getMonJobsRemoteId()
     {
-        return $this->remote_mon_jobs_id;
+        return $this->mon_jobs_remote_id;
     }
     
     /**

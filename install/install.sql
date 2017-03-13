@@ -4,7 +4,7 @@ Is at the moment separated from the normal install.sql because of the own featur
 Will be merged together as soon as the monitoring branch is released.
 */
 
-CREATE TABLE IF NOT EXISTS `local_mon_jobs` (
+CREATE TABLE IF NOT EXISTS `mon_jobs_local` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `physical_servers_id` int(11) unsigned,
   `virtual_servers_id` int(11) unsigned,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `local_mon_jobs` (
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `remote_mon_jobs` (
+CREATE TABLE IF NOT EXISTS `mon_jobs_remote` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `servers_id` int(11) unsigned,
   `servers_class` varchar(100) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `remote_mon_jobs` (
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `local_mon_logs` (
+CREATE TABLE IF NOT EXISTS `mon_logs_local` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `local_mon_jobs_id` int(11) NOT NULL COMMENT 'FK local_mon_jobs',
   `value` text NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `local_mon_logs` (
   KEY `modified` (`modified`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `remote_mon_logs` (
+CREATE TABLE IF NOT EXISTS `mon_logs_remote` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `remote_mon_jobs_id` int(11) NOT NULL COMMENT 'FK remote_mon_jobs',
   `value` text NOT NULL,
