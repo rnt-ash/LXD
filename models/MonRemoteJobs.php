@@ -22,7 +22,7 @@ namespace RNTForest\ovz\models;
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
 use RNTForest\ovz\models\MonLogsRemote;
 
-class MonJobsRemote extends \RNTForest\core\models\ModelBase
+class MonRemoteJobs extends \RNTForest\core\models\ModelBase
 {
     /**
     * 
@@ -644,8 +644,8 @@ class MonJobsRemote extends \RNTForest\core\models\ModelBase
         }    
         
         $statusAfter = $behavior->execute($this->getMainIp());
-        $monLog = new MonLogsRemote();
-        $monLog->create(["mon_jobs_remote_id" => $this->id, "value" => $statusAfter]);
+        $monLog = new MonRemoteLogs();
+        $monLog->create(["mon_remote_jobs_id" => $this->id, "value" => $statusAfter]);
         $monLog->save();
         
         if($statusAfter == "1"){

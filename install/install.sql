@@ -4,7 +4,7 @@ Is at the moment separated from the normal install.sql because of the own featur
 Will be merged together as soon as the monitoring branch is released.
 */
 
-CREATE TABLE IF NOT EXISTS `mon_jobs_local` (
+CREATE TABLE IF NOT EXISTS `mon_local_jobs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `physical_servers_id` int(11) unsigned,
   `virtual_servers_id` int(11) unsigned,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `mon_jobs_local` (
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `mon_jobs_remote` (
+CREATE TABLE IF NOT EXISTS `mon_remote_jobs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `servers_id` int(11) unsigned,
   `servers_class` varchar(100) NOT NULL,
@@ -51,18 +51,18 @@ CREATE TABLE IF NOT EXISTS `mon_jobs_remote` (
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `mon_logs_local` (
+CREATE TABLE IF NOT EXISTS `mon_local_logs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `local_mon_jobs_id` int(11) NOT NULL COMMENT 'FK local_mon_jobs',
+  `mon_local_jobs_id` int(11) NOT NULL COMMENT 'FK mon_local_jobs',
   `value` text NOT NULL,
   `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `local_mon_jobs_id` (`local_mon_jobs_id`),
   KEY `modified` (`modified`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `mon_logs_remote` (
+CREATE TABLE IF NOT EXISTS `mon_remote_logs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `remote_mon_jobs_id` int(11) NOT NULL COMMENT 'FK remote_mon_jobs',
+  `mon_remote_jobs_id` int(11) NOT NULL COMMENT 'FK mon_remote_jobs',
   `value` text NOT NULL,
   `heal_job` int(11) DEFAULT NULL COMMENT 'FK jobs',
   `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `mon_contacts` (
 
 CREATE TABLE IF NOT EXISTS `mon_uptimes` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `remote_mon_jobs_id` int(11) NOT NULL COMMENT 'FK remote_mon_jobs_id',
+  `mon_remote_jobs_id` int(11) NOT NULL COMMENT 'FK mon_remote_jobs_id',
   `year_month` char(6) NOT NULL COMMENT 'YYYYMM',
   `max_seconds` int(11) NOT NULL,
   `up_seconds` int(11) NOT NULL,

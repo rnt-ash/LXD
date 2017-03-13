@@ -19,7 +19,7 @@
 
 namespace RNTForest\ovz\models;
 
-class MonJobsLocal extends \RNTForest\core\models\ModelBase
+class MonLocalJobs extends \RNTForest\core\models\ModelBase
 {
     /**
     * 

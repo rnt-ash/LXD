@@ -19,7 +19,7 @@
 
 namespace RNTForest\ovz\models;
 
-class MonLogsRemote extends \RNTForest\core\models\ModelBase
+class MonLocalLogs extends \RNTForest\core\models\ModelBase
 {
     /**
     * 
@@ -33,19 +33,13 @@ class MonLogsRemote extends \RNTForest\core\models\ModelBase
     * 
     * @var integer
     */
-    protected $mon_jobs_remote_id;
+    protected $mon_jobs_local_id;
     
     /**
     * 
     * @var string
     */
     protected $value;
-    
-    /**
-    * 
-    * @var integer
-    */
-    protected $healJob;
     
     /**
     * 
@@ -68,12 +62,12 @@ class MonLogsRemote extends \RNTForest\core\models\ModelBase
     /**
     * ID of the monjob
     * 
-    * @param integer $monJobsRemoteId
+    * @param integer $monJobsLocalId
     * @return $this
     */
-    public function setMonJobsRemoteId($monJobsRemoteId)
+    public function setMonJobsLocalId($monJobsLocalId)
     {
-        $this->mon_jobs_remote_id = $monJobsRemoteId;
+        $this->mon_jobs_local_id = $monJobsLocalId;
         return $this;
     }
     
@@ -86,18 +80,6 @@ class MonLogsRemote extends \RNTForest\core\models\ModelBase
     public function setValue($value)
     {
         $this->value = $value;
-        return $this;
-    }
-    
-    /**
-    * ID of the healJob
-    * 
-    * @param integer $healJob
-    * @return $this
-    */
-    public function setHealJob($healJob)
-    {
-        $this->healJob = $healJob;
         return $this;
     }
     
@@ -126,9 +108,9 @@ class MonLogsRemote extends \RNTForest\core\models\ModelBase
     * 
     * @return integer
     */
-    public function getMonJobsRemoteId()
+    public function getMonJobsLocalId()
     {
-        return $this->mon_jobs_remote_id;
+        return $this->mon_jobs_local_id;
     }
     
     /**
@@ -138,14 +120,6 @@ class MonLogsRemote extends \RNTForest\core\models\ModelBase
     public function getValue()
     {
         return $this->value;
-    }
-    /**
-    * 
-    * @return integer
-    */
-    public function getHealJob()
-    {
-        return $this->healJob;
     }
     
     /**
