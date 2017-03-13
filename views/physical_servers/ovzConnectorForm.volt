@@ -13,8 +13,7 @@
         
     <code>
         <p>yum -y update<br />
-        yum -y install mc ntp wget mailx nano php-cli php-pdo<br />
-        ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N "" </p>
+        yum -y install mc ntp wget mailx nano php-cli php-pdo</p>
     </code>
 </div>
 
