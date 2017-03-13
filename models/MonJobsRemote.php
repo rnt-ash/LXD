@@ -19,6 +19,9 @@
 
 namespace RNTForest\ovz\models;
 
+use RNTForest\ovz\interfaces\MonBehaviorInterface;
+use RNTForest\ovz\models\MonLogsRemote;
+
 class MonJobsRemote extends \RNTForest\core\models\ModelBase
 {
     /**
@@ -55,15 +58,9 @@ class MonJobsRemote extends \RNTForest\core\models\ModelBase
     
     /**
     * 
-    * @var integer
+    * @var string
     */
-    protected $mon_services_id;
-    
-    /**
-    * 
-    * @var int
-    */
-    protected $mon_services_case;
+    protected $mon_behavior_class;    
     
     /**
     * 
@@ -215,26 +212,14 @@ class MonJobsRemote extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * ID of the mon service
+    * Namespace and classname of the behavior class
     * 
-    * @param integer $monServicesId
+    * @param string $monBehaviorClass
     * @return $this
     */
-    public function setMonServicesId($monServicesId)
+    public function setMonBehaviorClass($monBehaviorClass)
     {
-        $this->mon_services_id = $monServicesId;
-        return $this;
-    }
-    
-    /**
-    * Mon service case
-    * 
-    * @param integer $monServicesCase
-    * @return $this
-    */
-    public function setMonServicesCase($monServicesCase)
-    {
-        $this->mon_services_case = $monServicesCase;
+        $this->mon_behavior_class = $monBehaviorClass;
         return $this;
     }
     
@@ -465,21 +450,13 @@ class MonJobsRemote extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    *
-    * @return integer
+    * returns the Namespace and Classname of the mon behavior class
+    * 
+    * @return string
     */
-    public function getMonServicesId()
+    public function getMonBehaviorClass()
     {
-        return $this->mon_services_id;
-    }
-    
-    /**
-    *
-    * @return integer
-    */
-    public function getMonServicesCase()
-    {
-        return $this->mon_services_case;
+        return $this->mon_behavior_class;
     }
     
     /**
@@ -656,5 +633,31 @@ class MonJobsRemote extends \RNTForest\core\models\ModelBase
             $contactInstances[] = \RNTForest\ovz\models\MonContacts::findFirst(intval($contactId));
         }
         return $contactInstances;
+    }
+    
+    public function execute(){
+        $statusBefore = $this->getStatus();
+
+        $behavior = new $this->mon_behavior_class();
+        if(!($behavior instanceof MonBehaviorInterface)){
+            throw new \Exception("MonBehavior does not implement MonBehaviorInterface");    
+        }    
+        
+        $statusAfter = $behavior->execute($this->getMainIp());
+        $monLog = new MonLogsRemote();
+        $monLog->create(["mon_jobs_remote_id" => $this->id, "value" => $statusAfter]);
+        $monLog->save();
+        
+        if($statusAfter == "1"){
+            $this->status = "up";
+        }else{
+            $this->status = "down";
+        }
+        
+        if($statusBefore != $statusAfter){
+            $this->setLastStatusChange(date('Y-m-d H:i:s'));    
+        }
+        
+        $this->save();
     }
 }
