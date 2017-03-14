@@ -47,9 +47,6 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $op = $session['op'];
         $vstype = $session['vstype'];
         
-        // check if virtual server is ovz enabled
-        !empty($virtualServer)?$ovz = $virtualServer->getOvz():$ovz = '';
-
         // id
         $this->add(new Hidden("id"));
 
@@ -65,9 +62,18 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         // fqdn
         if ($op == 'edit') {
             $element = new Text("fqdn");
-            $element->setLabel("FQDN");
+            $message = $this->translate("virtualserver_hostname");
+            $element->setLabel($message);
             $element->setAttribute("placeholder","host.domain.tld");
             $element->setFilters(array('striptags', 'string'));
+            $message = $this->translate("virtualserver_hostname_valid");
+            $element->addValidators(array(
+                new RegexValidator([
+                    'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
+                    'message' => $messages,
+                    'allowEmpty' => true,
+                ])
+            ));
             $this->add($element);
         }
 
@@ -87,53 +93,51 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $element->setFilters(array('int'));
         $this->add($element);
 
-        if($op == 'new' || $ovz == 0){
-            // physical servers
-            $message = $this->translate("virtualserver_choose_physicalserver");
-            $element = new Select(
-                "physical_servers_id",
-                PhysicalServers::find(),
-                array("using"=>array("id","name",),
-                    "useEmpty"   => true,
-                    "emptyText"  => $message,
-                    "emptyValue" => "",            
-                )
-            );
-            $message = $this->translate("virtualserver_physicalserver");
-            $element->setLabel($message);
-            $element->setFilters(array('int'));
-            $this->add($element);
+        // physical servers
+        $message = $this->translate("virtualserver_choose_physicalserver");
+        $element = new Select(
+            "physical_servers_id",
+            PhysicalServers::find(),
+            array("using"=>array("id","name",),
+                "useEmpty"   => true,
+                "emptyText"  => $message,
+                "emptyValue" => "",            
+            )
+        );
+        $message = $this->translate("virtualserver_physicalserver");
+        $element->setLabel($message);
+        $element->setFilters(array('int'));
+        $this->add($element);
 
-            // core
-            $element = new Numeric("core");
-            $message = $this->translate("virtualserver_cores");
-            $element->setLabel($message);
-            $element->setDefault(4);
-            $message = $this->translate("virtualserver_cores_example");
-            $element->setAttribute("placeholder",$message);
-            $element->setFilters(array('int'));
-            $this->add($element);
+        // core
+        $element = new Numeric("core");
+        $message = $this->translate("virtualserver_cores");
+        $element->setLabel($message);
+        $element->setDefault(4);
+        $message = $this->translate("virtualserver_cores_example");
+        $element->setAttribute("placeholder",$message);
+        $element->setFilters(array('int'));
+        $this->add($element);
 
-            // memory
-            $element = new Numeric("memory");
-            $message = $this->translate("virtualserver_memory");
-            $element->setLabel($message);
-            $element->setDefault(1024);
-            $message = $this->translate("virtualserver_memory_example");
-            $element->setAttribute("placeholder",$message);
-            $element->setFilters(array('int'));
-            $this->add($element);
+        // memory
+        $element = new Numeric("memory");
+        $message = $this->translate("virtualserver_memory");
+        $element->setLabel($message);
+        $element->setDefault(1024);
+        $message = $this->translate("virtualserver_memory_example");
+        $element->setAttribute("placeholder",$message);
+        $element->setFilters(array('int'));
+        $this->add($element);
 
-            // space
-            $element = new Numeric("space");
-            $message = $this->translate("virtualserver_space");
-            $element->setLabel($message);
-            $element->setDefault(102400);
-            $message = $this->translate("virtualserver_space_example");
-            $element->setAttribute("placeholder",$message);
-            $element->setFilters(array('int'));
-            $this->add($element);
-        }
+        // space
+        $element = new Numeric("space");
+        $message = $this->translate("virtualserver_space");
+        $element->setLabel($message);
+        $element->setDefault(102400);
+        $message = $this->translate("virtualserver_space_example");
+        $element->setAttribute("placeholder",$message);
+        $element->setFilters(array('int'));
+        $this->add($element);
 
         // activation_date
         $element = new Date("activation_date");
@@ -142,17 +146,6 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $element->setDefault(date("Y-m-d"));
         $element->setFilters(array('string', 'trim'));
         $this->add($element);
-
-        if($op == 'new' || $ovz == 0){
-            // comment
-            $element = new TextArea("description");
-            $message = $this->translate("virtualserver_description");
-            $element->setLabel($message);
-            $message = $this->translate("virtualserver_description_info");
-            $element->setAttribute("placeholder",$message);
-            $element->setFilters(array('striptags', 'string', 'trim'));
-            $this->add($element);
-        }
 
         // root pwd
         if ($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')) {
@@ -181,6 +174,13 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
             $element->setFilters(array('striptags', 'string'));
             $this->add($element);
         }
+        
+        // description
+        $element = new TextArea("description");
+        $message = $this->translate("virtualserver_description");
+        $element->setLabel($message);
+        $element->setFilters(array('striptags', 'string'));
+        $this->add($element);
         
         // Validator
         $validator = VirtualServers::generateValidator($op,$vstype);

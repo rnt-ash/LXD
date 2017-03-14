@@ -191,6 +191,9 @@ class PrlctlCommands {
     */
     public function setValue($UUID,$key,$value){
         switch(strtolower($key)){
+            case 'name':
+                $cmd = "prlctl set ".escapeshellarg($UUID)." --name ".escapeshellarg($value);
+                break;
             case 'hostname':
                 $cmd = "prlctl set ".escapeshellarg($UUID)." --hostname ".escapeshellarg($value);
                 break;

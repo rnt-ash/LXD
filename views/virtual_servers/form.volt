@@ -16,6 +16,7 @@
         {% endif %}
 
         {{ renderElement('name',form,6) }}
+        {{ renderElement('fqdn',form,6) }}
         {{ renderElement('customers_id',form,6) }}
         {{ renderElement('physical_servers_id',form,6) }}
         {{ renderElement('ostemplate',form,6) }}
