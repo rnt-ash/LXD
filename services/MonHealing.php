@@ -63,7 +63,7 @@ class MonHealing extends \Phalcon\DI\Injectable
                 // recompute uptime first for actual data in notification
                 $monJob->updateUptime();
                 // alarm if nothing else is possible (termination condition)
-                $this->getMonAlarm()->alarmRemoteMonJob($monJob);  
+                $this->getMonAlarm()->alarmMonRemoteJobs($monJob);  
             }else{
                 // heal, only if not muted
                 if(!$monJob->getMuted()){
@@ -84,17 +84,14 @@ class MonHealing extends \Phalcon\DI\Injectable
                 }
             }
         }else{
-            if($monJob->getAlarmed() == True){
-                // Uptime vorgängig neu berechnen für aktuelle Daten in der Benachrichtigung
+            if($monJob->getAlarmed() == '1'){
+                // recompute uptime first for actual data in notification
                 $monJob->updateUptime();
-                $this->MonJobFactory->updateAfterUptimeUpdate($monJob);
-                // Alarm Entwarnen
-                $this->AlarmingSystem->disalarmRemoteMonJob($monJob);
+                $this->getMonAlarm()->disalarmMonRemoteJobs($monJob);
             }else{
-                // Wenn kein HealJob gesendet wurde und es wieder von selbst nach sehr kurzer Downtime OK ist
+                // if no healjob is sent and service is up again without any interaction
                 if(!$monJob->hadRecentHealJob()){
-                    // Meldung erzeugen dass MonJob nur kurz in Errorstate war   
-                    $this->AlarmingSystem->informAboutShortDowntime($monJob);    
+                     $this->getMonAlarm()->informAboutShortDowntime($monJob);    
                 }
             }
         }
@@ -196,7 +193,6 @@ class MonHealing extends \Phalcon\DI\Injectable
             );
             $monLog->setHealJob($job->getId());
             $monLog->save();
-            echo "Saved with healjob: ".json_encode($monLog)." \n";
             if($job->getDone() != '1'){
                 throw new \Exception($this->translate("monitoring_healjob_failed").$job->getError());    
             }

@@ -21,6 +21,8 @@ namespace RNTForest\ovz\models;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
 use RNTForest\ovz\models\MonLogsRemote;
+use RNTForest\core\libraries\Helpers;
+use RNTForest\ovz\utilities\DowntimePeriod;
 
 class MonRemoteJobs extends \RNTForest\core\models\ModelBase
 {
@@ -557,7 +559,7 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     */
     public function getMuted()
     {
-        return $this->alarmed;
+        return $this->muted;
     }
     
     /**
@@ -664,6 +666,19 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         return $contactInstances;
     }
     
+    /**
+    * 
+    * @return \RNTForest\ovz\models\MonContacts[]
+    */
+    public function getMonContactsMessageInstances(){
+        $contactIds = explode(',',$this->mon_contacts_message);
+        $contactInstances = array();
+        foreach($contactIds as $contactId){
+            $contactInstances[] = \RNTForest\ovz\models\MonContacts::findFirst(intval($contactId));
+        }
+        return $contactInstances;
+    }
+    
     public function execute(){
         $statusBefore = $this->getStatus();
 
@@ -722,5 +737,42 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     
     public function hadRecentHealJob(){
         return $this->recent_healjob_id > 0;
+    }
+    
+    public function getLastDowntimePeriod(){
+        $modelManager = $this->getDI()['modelsManager'];
+        $endLog = $modelManager->executeQuery(
+            "SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteLogs AS m1 ".
+                " WHERE m1.value = 1 ".
+                " AND m1.mon_remote_jobs_id = :monJobId: ".
+                " AND m1.modified > (".
+                "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonRemoteLogs AS m2 ".
+                "       WHERE m2.value = 0 ".
+                "       AND m2.mon_remote_jobs_id = :monJobId:".
+                " )".
+                " ORDER BY m1.modified ASC LIMIT 1",
+            ["monJobId" => $this->getId()]
+        );
+        
+        $endModified = $endLog->getFirst()->getModified();
+        
+        $startLog = $modelManager->executeQuery(
+            "SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteLogs AS m1 ".
+                " WHERE m1.value = 0 ".
+                " AND m1.mon_remote_jobs_id = :monJobId: ".
+                " AND m1.modified > (".
+                "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonRemoteLogs AS m2 ".
+                "       WHERE m2.value = 1 ".
+                "       AND m2.mon_remote_jobs_id = :monJobId:".
+                "       AND m2.modified < :endModified: ".
+                " )".
+                " ORDER BY m1.modified ASC LIMIT 1",
+            ["monJobId" => $this->getId(),"endModified" => $endModified]
+        );                                                             
+        $startModified = $startLog->getFirst()->getModified();
+        
+        $start = Helpers::createUnixTimestampFromDateTime($startModified);
+        $end = Helpers::createUnixTimestampFromDateTime($endModified);
+        return new DowntimePeriod($start,$end);   
     }
 }

@@ -23,7 +23,7 @@ use RNTForest\core\services\Push;
 use RNTForest\ovz\services\MonSystem;
 use RNTForest\ovz\services\MonHealing;
 use RNTForest\ovz\models\VirtualServers;
-use RNTForest\ovz\models\RemoteMonJobs;
+use RNTForest\ovz\models\MonRemoteJobs;
 
 class MonitoringTask extends Task
 {
@@ -39,9 +39,8 @@ class MonitoringTask extends Task
     
     public function localAction(){
         echo "called local in ovz...".PHP_EOL; 
-        $monJob = RemoteMonJobs::findFirst(1);
-        $alarmSystem = new \RNTForest\ovz\services\MonAlarm();
-        $alarmSystem->alarmRemoteMonJob($monJob);
+        $monJob = MonRemoteJobs::findFirst(3);
+        $downtime = $monJob->getLastDowntimePeriod();
     }
     
     public function runJobsAction(){
