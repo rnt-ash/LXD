@@ -45,7 +45,7 @@ class MonRemoteLogs extends \RNTForest\core\models\ModelBase
     * 
     * @var integer
     */
-    protected $healJob;
+    protected $heal_job;
     
     /**
     * 
@@ -97,7 +97,7 @@ class MonRemoteLogs extends \RNTForest\core\models\ModelBase
     */
     public function setHealJob($healJob)
     {
-        $this->healJob = $healJob;
+        $this->heal_job = $healJob;
         return $this;
     }
     
@@ -145,7 +145,7 @@ class MonRemoteLogs extends \RNTForest\core\models\ModelBase
     */
     public function getHealJob()
     {
-        return $this->healJob;
+        return $this->heal_job;
     }
     
     /**

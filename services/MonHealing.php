@@ -45,7 +45,6 @@ class MonHealing extends \Phalcon\DI\Injectable
             echo "healFailedMonRemoteJobs ".count($monJobs)." MonRemoteJobs\n";
             
             foreach($monJobs as $monJob){
-                echo(json_encode($monJob));
                 $this->healStepwise($monJob);
                 $monJob->save();
                 $this->logger->notice("MonJob id ".$monJob->getId()." ".$this->translate("monitoring_healing_executed"));
@@ -57,6 +56,7 @@ class MonHealing extends \Phalcon\DI\Injectable
     
     private function healStepwise(MonRemoteJobs $monJob){
         $monJob->execute();
+        echo "executed with value ".$monJob->getStatus()."\n";
             
         if($monJob->isInErrorState()){
             if($this->shouldAlarmImmediately($monJob)){
@@ -140,22 +140,25 @@ class MonHealing extends \Phalcon\DI\Injectable
     private function getLastRelevantHealJobType(MonRemoteJobs $monJob){
         $healJobType = '';
         try{
-            $monLog = MonRemoteLogs::findFirst(
+            // get the second to last (vorletzt auf deutsch...) monlog
+            $monLogResult = MonRemoteLogs::find(
                 [
                 "mon_remote_jobs_id" => $monJob->getId(),
                 "order" => "id DESC",
+                "limit" => "2",
                 ]
             );
+            $monLogResult->seek(1);
+            $monLog = $monLogResult->current();
             
             $healJobId = $monLog->getHealJob();
-            
             if(is_numeric($healJobId) && $healJobId > 0){
-                $healJob = \RNTForest\core\models\Jobs::findFirst(["id" => $healJobId]);
+                $healJob = \RNTForest\core\models\Jobs::findFirst($healJobId);
                 $healJobType = $healJob->getType();
             }
         }catch(\Exception $e){
             echo $e->getMessage()."\n";
-        }
+        } 
         return $healJobType;
     }
     
@@ -177,13 +180,14 @@ class MonHealing extends \Phalcon\DI\Injectable
         $job = null;
         $healJobId = 0;
         
-        $params['CTID'] = $this->getMonServerInstance($monJob)->getId();
+        $monServer = $this->getMonServerInstance($monJob);
+        if(!($monServer instanceof \RNTForest\ovz\models\VirtualServers)){
+            throw new \Exception($this->translate("monitoring_monserver_is_not_managable"));
+        }
+        $params['UUID'] = $monServer->getOvzUuid();
         try{
             $job = $push->executeJob($parent,$healJobType,$params,$pending);
             $healJobId = $job->getId();
-            if(!$job->getDone() != 1){
-                throw new \Exception($this->translate("monitoring_healjob_failed").$job->getError());    
-            }
             $monLog = MonRemoteLogs::findFirst(
                 [
                 "mon_remote_jobs_id" => $monJob->getId(),
@@ -192,13 +196,18 @@ class MonHealing extends \Phalcon\DI\Injectable
             );
             $monLog->setHealJob($job->getId());
             $monLog->save();
+            echo "Saved with healjob: ".json_encode($monLog)." \n";
+            if($job->getDone() != '1'){
+                throw new \Exception($this->translate("monitoring_healjob_failed").$job->getError());    
+            }
             
             // wait some seconds if healjob was successful, so that the server has time to be up again for the next monitoring
-            if($job->getDone == 1){
+            if($job->getDone() == '1'){
                 sleep(10);
             }
         }catch(\Exception $e){
-            if($job->getDone() == 0){
+            echo $e->getMessage();
+            if($job != null && $job->getDone() == 0){
                 // if job was not sent it should be marked as failed so that it wont be executed in future
                 $error = $this->translate("monitoring_healjob_not_executed_error");
                 $job->setDone(2);

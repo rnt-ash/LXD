@@ -113,6 +113,29 @@ class MonAlarm extends \Phalcon\DI\Injectable
     }
     
     /**
+    * Disalarms fo the given MonRemoteJobs object.
+    * 
+    * @param MonRemoteJobs $monJob
+    * @throws \Exception
+    */
+    public function disalarmRemoteMonJob(MonRemoteJobs $monJob){
+        if($monJob->getAlarm() && !$monJob->getMuted()){
+            $alarmMonContactsString = $monJob->getAlarmMonContacts();
+            $alarmMonContactIds = explode(',',$alarmMonContactsString);
+            foreach($alarmMonContactIds as $contactId){
+                $contact = \RNTForest\ovz\models\MonContacts::findFirst($contactId);
+                $subject = 'Disalarm: '.$monJob->getServiceCase().' on '.$monJob->getDco()->getName();
+                $contact->notify($subject,$this->genAlarmContentRemoteMonJob($monJob));
+            
+            }
+            $monJob->setAlarmed(False);
+            $this->Logger->notice("Für RemoteMonJob (ID: ".intval($monJob->getId()).", MonService: ".$monJob->getServiceCase().") wurde entwarnt.",
+                ['module'=>'monsystem','type'=>'disalarm','eventid'=>1475580561]
+            );
+        }
+    }
+    
+    /**
     * Informs about the current healjob of the given MonRemoteJobs.
     * 
     * @param MonRemoteJobs $monJob
@@ -150,6 +173,37 @@ class MonAlarm extends \Phalcon\DI\Injectable
             $content .= 'HealJob Executed: '.$healJob->getExecuted()."<br />";
               
             $this->inform($monJob,$subject,$content);
+        }
+    }
+    
+    /**
+    * Informs about a short downtime.
+    * 
+    * @param MonRemoteJobs $monJob
+    * @throws \Exception
+    */
+    public function informAboutShortDowntime(MonRemoteJobs $monJob){
+        if($monJob->getAlarm() && !$monJob->getMuted()){
+            $content = '';
+            $monServer = $monJob->getServersClass()::findFirst($monJob->getServersId());
+            $name = $monServer->getName();
+            $mainIp = $monJob->getMainIp();
+            $status = $monJob->getStatus();
+            $lastStatuschange = $monJob->getLastStatuschange();
+            $monBehavior = $monJob->getMonBehaviorClass();
+            // todo $downTimePeriod = $monJob->getLastDowntimePeriod();
+            
+            $subject = "Short Downtime: ".$monBehavior." on ".$name;
+            $content .= 'EAT AlarmingSystem Short Downtime for '.$name.' ('.$mainIp.')'."<br />";
+            $content .= 'Comment: todo'."<br />";
+            $content .= '==>'.$monBehavior.'<=='."<br />";
+            $content .= 'Status now: '.$status.' (since '.$lastStatuschange.')'."<br />";
+            $content .= 'MonJob ID: '.$monJob->getId()."<br />";
+            $content .= '-------------------------------'."<br />";
+            //$content .= 'Downtime of '.$downTimePeriod->getDurationString().' measured, from '.$downTimePeriod->getStartString().' to '.$downTimePeriod->getEndString()."<br />";
+            $content .= 'No interaction was taken by MonSystem to bring the service up again.'."<br />";
+            
+            $this->inform($monJob,$subject,$content); 
         }
     }
     

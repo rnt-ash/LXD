@@ -153,6 +153,13 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     protected $modified;
     
     /**
+    * Transient, will not be persisted.
+    * 
+    * @var integer
+    */
+    protected $recent_healjob_id = 0;
+    
+    /**
     * Unique ID
     *
     * @param integer $id
@@ -404,6 +411,18 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     }
     
     /**
+    * Set the transient recent healjob id
+    * 
+    * @param integer $healJobId
+    * @return MonRemoteJobs
+    */
+    public function setRecentHealJobId($healJobId)
+    {
+        $this->recent_healjob_id = $healJobId;
+        return $this;
+    }
+    
+    /**
     *
     * @return integer
     */
@@ -597,6 +616,16 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     }
     
     /**
+    * get the transient attribute recent heal job
+    * 
+    * @return integer
+    */
+    public function getRecentHealJobId()
+    {
+        return $this->recent_healjob_id;
+    }
+    
+    /**
     * Initialize method for model.
     */
     public function initialize(){
@@ -689,5 +718,9 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         $this->setUptime(json_encode($uptime));
         
         $this->save();
+    }
+    
+    public function hadRecentHealJob(){
+        return $this->recent_healjob_id > 0;
     }
 }
