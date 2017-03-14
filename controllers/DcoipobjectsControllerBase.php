@@ -248,26 +248,30 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
 
         // find virtual server
         $virtualServer = VirtualServers::findFirst($ip->getVirtualServersId());
-        if (!$virtualServer)
+        if (!$virtualServer){
             $message = $this->translate("virtualserver_does_not_exist");
             return $message . $item->virtual_servers_id;
+        }
         
-        if($virtualServer->getOvz() != 1)
+        if($virtualServer->getOvz() != 1){
             $message = $this->translate("virtualserver_not_ovz_integrated");
             return $message;
+        }
         
         // execute ovz_modify_vs job        
         $push = $this->getPushService();
-        if($op == 'add')
+        if($op == 'add'){
             $config = array("ipadd"=>$ip->getValue1());
-        else
+        }else{
             $config = array("ipdel"=>$ip->getValue1());
+        }
         
         $params = array('UUID'=>$virtualServer->getOvzUuid(),'CONFIG'=>$config,);
         $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params);
-        if(!$job || $job->getDone()==2)
+        if(!$job || $job->getDone()==2){
             $message = $this->translate("virtualserver_job_failed"); 
             return $message.$job->getError();
+        }
 
         // save new ovz settings
         $settings = $job->getRetval(true);
