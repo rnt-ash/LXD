@@ -19,7 +19,7 @@
   
 namespace RNTForest\ovz\services;
 
-use \RNTForest\ovz\models\RemoteMonJobs;
+use \RNTForest\ovz\models\MonRemoteJobs;
 
 class MonSystem extends \Phalcon\DI\Injectable
 {
@@ -39,7 +39,6 @@ class MonSystem extends \Phalcon\DI\Injectable
         $this->modelManager = $this->getDI()['modelsManager'];
     }
     
-    
     /**
     * Runs the current open MonRemoteJobs.
     * Can be executed every minute or more.
@@ -47,12 +46,12 @@ class MonSystem extends \Phalcon\DI\Injectable
     */
     public function runJobs(){
         try{
-            $monJobs = $this->modelManager->executeQuery("SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteJobs WHERE active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60");
-            /*$monJobs = MonRemoteJobs::find(
+            //$monJobs = $this->modelManager->executeQuery("SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteJobs WHERE active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60");
+            $monJobs = MonRemoteJobs::find(
                 [
                 "active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60",
                 ]
-            );*/
+            );
             echo("runJobs ".count($monJobs)." MonJobsRemote\n");
             foreach($monJobs as $monJob){
                 echo(json_encode($monJob));
@@ -60,7 +59,7 @@ class MonSystem extends \Phalcon\DI\Injectable
             }
             
         }catch(\Exception $e){
-            echo $e->getMessage();
+            echo $e->getMessage()."\n";
         }
         
     } 

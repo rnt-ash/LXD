@@ -25,9 +25,12 @@ use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 
+use RNTForest\core\interfaces\JobServerInterface;
+use RNTForest\core\interfaces\PendingInterface;
+use RNTForest\ovz\interfaces\MonServerInterface;
 use RNTForest\core\libraries\PendingHelpers;
 
-class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTForest\core\interfaces\JobServerInterface, \RNTForest\core\interfaces\PendingInterface
+class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface
 {
 
     /**
@@ -650,5 +653,23 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     public function isPending($pendingToken=''){
         $pendingArray = json_decode($this->pending,true);
         return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
+    }
+    
+    /**
+    * Getter for parent class.
+    * needed because of MonServer Interface so that monitoring can instantiate a parent object.
+    * 
+    */
+    public function getParentClass(){
+        return '\RNTForest\ovz\models\Colocations';
+    }
+    
+    /**
+    * Getter for parent id.
+    * needed because of MonServer Interface so that monitoring can instantiate a parent object.
+    * 
+    */
+    public function getParentId(){
+        return $this->colocations_id;
     }
 }

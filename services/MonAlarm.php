@@ -19,7 +19,7 @@
   
 namespace RNTForest\ovz\services;
 
-use RNTForest\ovz\models\RemoteMonJobs;
+use RNTForest\ovz\models\MonRemoteJobs;
 use RNTForest\core\libraries\Helpers;
 
 class MonAlarm extends \Phalcon\DI\Injectable
@@ -33,22 +33,27 @@ class MonAlarm extends \Phalcon\DI\Injectable
     public function __construct(){
         $this->logger = $this->getDI()['logger'];
     }
+    
+    public function translate($token,$params=array()){
+        return $this->getDI()->getShared('translate')->_($token,$params);
+    }
+    
     /**
     * Alarms to all MonContactsAlarm of the given RemoteMonJobs.
     * Checks AlarmPeriod and sends only if it's already time again.
     * 
     * @param RemoteMonJobs $monJob
     */
-    public function alarmRemoteMonJob(RemoteMonJobs $monJob){
+    public function alarmRemoteMonJob(MonRemoteJobs $monJob){
         if($monJob->getAlarm() && !$monJob->getMuted() && $this->checkAlarmPeriod($monJob->getAlarmPeriod(), $monJob->getLastAlarm())){
             $alarmMonContacts = $monJob->getMonContactsAlarmInstances();
             foreach($alarmMonContacts as $contact){
-                $subject = 'Alarm: '.$monJob->getMonServicesCase().' on '.$monJob->getServer()->getName();
+                $subject = 'Alarm: '.$monJob->getMonBehaviorClass().' on '.$monJob->getServer()->getName();
                 $contact->notify($subject,$this->genAlarmContentRemoteMonJob($monJob));
             }
             $monJob->setLastAlarm((new \DateTime())->format('Y-m-d H:i:s'));
             $monJob->setAlarmed(True);
-            $this->logger->notice("RemoteMonJobs (ID: ".intval($monJob->getId()).", MonService: ".$monJob->getMonServicesCase().") alarmed.");
+            $this->logger->notice("RemoteMonJobs (ID: ".intval($monJob->getId()).", MonService: ".$monJob->getMonBehaviorClass().") alarmed.");
         }
     }
     
@@ -64,14 +69,14 @@ class MonAlarm extends \Phalcon\DI\Injectable
         return $currentTimestamp > ($lastAlarmTimestamp + $alarmPeriodInSeconds);
     }
     
-    private function genAlarmContentRemoteMonJob(RemoteMonJobs $monJob){
+    private function genAlarmContentRemoteMonJob(MonRemoteJobs $monJob){
         $content = '';
         $content .= $this->genContentRemoteMonJobsGeneralSection($monJob);
         $content .= $this->genContentUptimeSection($monJob);
         return $content;    
     }
     
-    private function genContentRemoteMonJobsGeneralSection(RemoteMonJobs $monJob){
+    private function genContentRemoteMonJobsGeneralSection(MonRemoteJobs $monJob){
         $content = '';
         $monServer = $monJob->getServer();
         $name = $monServer->getName();  
@@ -83,14 +88,14 @@ class MonAlarm extends \Phalcon\DI\Injectable
         }
         $status = $monJob->getStatus();
         $lastStatuschange = $monJob->getLastStatuschange();
-        $monService = $monJob->getMonServicesCase();
+        $monService = $monJob->getMonBehaviorClass();
         $content .= 'OVZ AlarmingSystem Alarm for '.$name.' ('.$mainIp.')'."<br />";
         $content .= '==>'.$monService.'<=='." (MonJob ID: ".$monJob->getId().")<br />";
         $content .= 'Status now: '.$status.' (since '.$lastStatuschange.')'."<br />";
         return $content;
     }
     
-    private function genContentUptimeSection(RemoteMonJobs $monJob){
+    private function genContentUptimeSection(MonRemoteJobs $monJob){
         $content = '';
         $uptime = json_decode($monJob->getUptime(),true);
         if(is_array($uptime)){
@@ -105,5 +110,55 @@ class MonAlarm extends \Phalcon\DI\Injectable
             }
         }
         return $content;  
-    }   
+    }
+    
+    /**
+    * Informs about the current healjob of the given MonRemoteJobs.
+    * 
+    * @param MonRemoteJobs $monJob
+    * @throws \Exception
+    */
+    public function informAboutHealJob(MonRemoteJobs $monJob){
+        if($monJob->getAlarm() && !$monJob->getMuted()){
+            $content = '';
+            $monServer = $monJob->getServersClass()::findFirst($monJob->getServersId());
+            $name = $monServer->getName();
+            $mainIp = $monJob->getMainIp();
+            $status = $monJob->getStatus();
+            $lastStatuschange = $monJob->getLastStatuschange();
+            $monBehavior = $monJob->getMonBehaviorClass();
+            
+            $healJob = \RNTForest\core\models\Jobs::findFirst($monJob->getRecentHealJobId());
+                        
+            $subject = "HealJob: ".$monBehavior." on ".$name;
+            $content .= 'EAT AlarmingSystem HealJob for '.$name.' ('.$mainIp.')'."<br />";
+            $content .= 'Comment: todo'."<br />";
+            $content .= '==>'.$monBehavior.'<=='."<br />";
+            $content .= 'Status now (after HealJob): '.$status.' (since '.$lastStatuschange.')'."<br />";
+            $content .= 'MonJob ID: '.$monJob->getId()."<br />";
+            $content .= '-------------------------------'."<br />";
+            $content .= 'A HealJob of Type '.$healJob->getType().' was used to heal the system.'."<br />";
+            $content .= 'HealJob ID: '.$healJob->getId()."<br />";
+            $content .= 'HealJob Done: '.$healJob->getDone()."<br />";
+            if($healJob->getDone() != 1){
+                $content .= 'HealJob Error: '.$healJob->getError()."<br />";
+            }
+            $content .= 'HealJob Params: '.$healJob->getParams()."<br />";
+            $content .= 'HealJob Retval: '.$healJob->getRetval()."<br />";
+            $content .= 'HealJob Created: '.$healJob->getCreated()."<br />";
+            $content .= 'HealJob Sent: '.$healJob->getSent()."<br />";
+            $content .= 'HealJob Executed: '.$healJob->getExecuted()."<br />";
+              
+            $this->inform($monJob,$subject,$content);
+        }
+    }
+    
+    private function inform(MonRemoteJobs $monJob, $subject, $content){
+        $messageMonContactsString = $monJob->getMonContactsMessage();
+        $messageMonContactIds = explode(',',$messageMonContactsString);
+        foreach($messageMonContactIds as $contactId){
+            $contact = \RNTForest\ovz\models\MonContacts::findFirst($contactId);
+            $contact->notify($subject,$content);
+        }       
+    }
 }

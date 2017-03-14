@@ -20,6 +20,8 @@
 use Phalcon\Cli\Task;
 
 use RNTForest\core\services\Push;
+use RNTForest\ovz\services\MonSystem;
+use RNTForest\ovz\services\MonHealing;
 use RNTForest\ovz\models\VirtualServers;
 use RNTForest\ovz\models\RemoteMonJobs;
 
@@ -44,7 +46,13 @@ class MonitoringTask extends Task
     
     public function runJobsAction(){
         echo "called runJobs in ovz...".PHP_EOL;
-        $system = new \RNTForest\ovz\services\MonSystem();
+        $system = new MonSystem();
         $system->runJobs();
+    }
+    
+    public function runCriticalJobsAction(){
+        echo "called runCriticalJobs in ovz...".PHP_EOL;
+        $healing = new MonHealing();
+        $healing->healFailedMonRemoteJobs();
     }
 }

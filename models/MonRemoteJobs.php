@@ -640,7 +640,7 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
 
         $behavior = new $this->mon_behavior_class();
         if(!($behavior instanceof MonBehaviorInterface)){
-            throw new \Exception("MonBehavior does not implement MonBehaviorInterface");    
+            throw new \Exception($this->translate("monitoring_mon_behavior_not_implements_interface"));    
         }    
         
         $statusAfter = $behavior->execute($this->getMainIp());
@@ -657,6 +657,36 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         if($statusBefore != $statusAfter){
             $this->setLastStatusChange(date('Y-m-d H:i:s'));    
         }
+        
+        $this->setLastRun(date('Y-m-d H:i:s'));
+        
+        $this->save();
+    }
+    
+    /**
+    * Returns true if this MonJob is in error state.
+    * 
+    * @return boolean
+    */
+    public function isInErrorState(){
+        return $this->Status == 'down';
+    }
+    
+    public function updateUptime(){
+        // static values at the moment, todo implementation with dynamic recomputation
+        $uptime = [
+        'actperioduppercentage' => 0.99989400798279,
+        'actperiodmaxseconds' => 3085138,
+        'actperiodupseconds' => 3084811,
+        'actyearuppercentage' => 0.99994326401596,
+        'actyearmaxseconds' => 5763538,
+        'actyearupseconds' => 5763211,
+        'everuppercentage' => 0.99972519207778,
+        'evermaxseconds' => 26931538,
+        'everupseconds' => 26924137
+        ];
+        
+        $this->setUptime(json_encode($uptime));
         
         $this->save();
     }
