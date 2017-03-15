@@ -21,6 +21,8 @@ namespace RNTForest\ovz\services;
 
 use \RNTForest\ovz\models\MonRemoteJobs;
 use \RNTForest\ovz\models\MonLocalJobs;
+use \RNTForest\ovz\models\PhysicalServers;
+use \RNTForest\ovz\models\VirtualServers;
 
 class MonSystem extends \Phalcon\DI\Injectable
 {
@@ -67,6 +69,7 @@ class MonSystem extends \Phalcon\DI\Injectable
     
     public function runMonLocalJobs(){
         try{
+            $this->updateOvzStatisticsOnAllServers();
             $monJobs = MonLocalJobs::find(
                 [
                 "active = 1",
@@ -84,7 +87,29 @@ class MonSystem extends \Phalcon\DI\Injectable
         }catch(\Exception $e){
             echo $e->getMessage()."\n";
         }
-           
+    }
+    
+    private function updateOvzStatisticsOnAllServers(){
+        try{
+            $physicals = PhysicalServers::find(
+            [
+            "ovz = 1",
+            ]
+            );
+            foreach($physicals as $physical){
+                $physical->updateOvzStatistics();
+            }
+            
+            // could be better done with a join and PHQL, would be more performant
+            $virtuals = VirtualServers::find();
+            foreach($virtuals as $virtual){
+                if($virtual->PhysicalServers->getOvz() == '1'){
+                    $virtual->updateOvzStatistics();
+                }
+            }
+        }catch(\Exception $e){
+            echo $e->getMessage()."\n";
+        }     
     } 
     
     /**
