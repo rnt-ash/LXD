@@ -48,12 +48,6 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
 
     /**
     * 
-    * @var int
-    */
-    protected $colocations_id;
-    
-    /**
-    * 
     * @var string
     */
     protected $main_ip;
@@ -195,19 +189,7 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         $this->servers_class = $serverClass;
         return $this;
     }
-    
-    /**
-    * ID of the Colocation
-    * 
-    * @param integer $colocationsId
-    * @return $this
-    */
-    public function setColocationsId($colocationsId)
-    {
-        $this->colocations_id = $colocationsId;
-        return $this;
-    }
-    
+       
     /**
     * Main IP
     * 
@@ -450,15 +432,6 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     public function getServersClass()
     {
         return $this->servers_class;
-    }
-    
-    /**
-    *
-    * @return integer
-    */
-    public function getColocationsId()
-    {
-        return $this->colocations_id;
     }
     
     /**
