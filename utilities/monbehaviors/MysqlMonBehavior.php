@@ -17,18 +17,14 @@
 *
 */
   
-namespace RNTForest\ovz\libraries;
+namespace RNTForest\ovz\utilities\monbehaviors;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
+use RNTForest\ovz\libraries\PortChecker;
 
-class PingMonBehavior implements MonBehaviorInterface{
+class MysqlMonBehavior implements MonBehaviorInterface{
     
     public function execute($target){                
-        $status = "0";
-        exec(sprintf('ping -c 1 -W 5 %s', escapeshellarg($target)), $res, $rval); //-c Count, -W Timeout
-        if ($rval == 0) {
-            $status = "1";
-        }
-        return $status;
+        return PortChecker::isUp(3306,$target);    
     }
 }

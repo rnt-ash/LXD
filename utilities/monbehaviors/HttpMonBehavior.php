@@ -17,7 +17,7 @@
 *
 */
   
-namespace RNTForest\ovz\libraries;
+namespace RNTForest\ovz\utilities\monbehaviors;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
 

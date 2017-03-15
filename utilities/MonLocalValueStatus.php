@@ -16,14 +16,37 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>
 *
 */
-  
-namespace RNTForest\ovz\libraries;
 
-use RNTForest\ovz\interfaces\MonBehaviorInterface;
+namespace RNTForest\ovz\utilities;
 
-class FtpMonBehavior implements MonBehaviorInterface{
+class MonLocalValueStatus
+{    
+    private $value;
+    private $status;
     
-    public function execute($target){                
-        return PortChecker::isUp(21,$target);    
+    /**
+    * 
+    * @param integer $value
+    * @param string $status
+    */
+    public function __construct($value, $status){
+        $this->value = intval($value);
+        $this->status = $status;
+    }   
+    
+    /**
+    * 
+    * @return string
+    */
+    public function getStatus(){
+        return $this->status;
+    }
+    
+    /**
+    * 
+    * @return int
+    */
+    public function getValue(){
+        return $this->value;
     }
 }

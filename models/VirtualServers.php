@@ -962,4 +962,18 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function getParentId(){
         return $this->physical_servers_id;
     }
+    
+    public function updateOvzStatistics(){
+        if($this->PhysicalServers->getOvz() == '1'){
+            $push = $this->getDI()['push'];
+            $params = array('UUID'=>$this->getOvzUuid());
+            $job = $push->executeJob($this->PhysicalServers,'ovz_statistics_info',$params);
+            if($job->getDone()==2) throw new \Exception("Job (ovz_statistics_info) executions failed: ".$job->getError());
+
+            // save statistics
+            $statistics = $job->getRetval(true);
+            $this->setOvzStatistics($job->getRetval());
+            $this->save();
+        }
+    }
 }

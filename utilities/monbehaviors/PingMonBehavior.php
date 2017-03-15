@@ -17,13 +17,18 @@
 *
 */
   
-namespace RNTForest\ovz\libraries;
+namespace RNTForest\ovz\utilities\monbehaviors;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
 
-class SmtpMonBehavior implements MonBehaviorInterface{
+class PingMonBehavior implements MonBehaviorInterface{
     
     public function execute($target){                
-        return PortChecker::isUp(25,$target);    
+        $status = "0";
+        exec(sprintf('ping -c 1 -W 5 %s', escapeshellarg($target)), $res, $rval); //-c Count, -W Timeout
+        if ($rval == 0) {
+            $status = "1";
+        }
+        return $status;
     }
 }

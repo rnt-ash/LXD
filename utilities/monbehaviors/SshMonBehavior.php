@@ -17,13 +17,14 @@
 *
 */
   
-namespace RNTForest\ovz\libraries;
+namespace RNTForest\ovz\utilities\monbehaviors;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
+use RNTForest\ovz\libraries\PortChecker;
 
-class DnsMonBehavior implements MonBehaviorInterface{
+class SshMonBehavior implements MonBehaviorInterface{
     
     public function execute($target){                
-        return PortChecker::isUp(53,$target);    
+        return PortChecker::isUp(22,$target);    
     }
 }

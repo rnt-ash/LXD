@@ -6,10 +6,9 @@ Will be merged together as soon as the monitoring branch is released.
 
 CREATE TABLE IF NOT EXISTS `mon_local_jobs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `physical_servers_id` int(11) unsigned,
-  `virtual_servers_id` int(11) unsigned,
-  `mon_services_id` int(11) unsigned NOT NULL,
-  `mon_services_case` varchar(32) NOT NULL,
+  `servers_id` int(11) NOT NULL,
+  `servers_class` varchar(100) NOT NULL,
+  `mon_behavior_class` varchar(100) NOT NULL,
   `period` int(11) NOT NULL DEFAULT 5,
   `status` varchar(16) DEFAULT 'normal',
   `last_status_change` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -30,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `mon_local_jobs` (
 
 CREATE TABLE IF NOT EXISTS `mon_remote_jobs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `servers_id` int(11) unsigned,
+  `servers_id` int(11) NOT NULL,
   `servers_class` varchar(100) NOT NULL,
   `main_ip` varchar(39),
   `mon_behavior_class` varchar(100) NOT NULL,

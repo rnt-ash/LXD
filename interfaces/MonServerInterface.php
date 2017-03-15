@@ -26,4 +26,8 @@ interface MonServerInterface
     public function getName();
     public function getParentClass();
     public function getParentId();
+    public function getOvzStatistics();
+    public function getModified();
+    public function updateOvzStatistics();
+    public function refresh();
 }

@@ -19,6 +19,10 @@
 
 namespace RNTForest\ovz\models;
 
+use RNTForest\ovz\interfaces\MonLocalBehaviorInterface;
+use RNTForest\ovz\models\MonLogsLocal;
+use RNTForest\core\libraries\Helpers;
+
 class MonLocalJobs extends \RNTForest\core\models\ModelBase
 {
     /**
@@ -33,25 +37,19 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     * 
     * @var int
     */
-    protected $physical_servers_id;
+    protected $servers_id;
+    
+    /**
+    *
+    * @var string
+    */
+    protected $servers_class;
     
     /**
     * 
-    * @var int
+    * @var string
     */
-    protected $virtual_servers_id;
-    
-    /**
-    * 
-    * @var integer
-    */
-    protected $mon_services_id;
-    
-    /**
-    * 
-    * @var int
-    */
-    protected $mon_services_case;
+    protected $mon_behavior_class;    
     
     /**
     * 
@@ -160,52 +158,39 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
         $this->id = $id;
         return $this;
     }
-    
+
     /**
-    * ID of the Phsysical Server
+    * ID of the Server
     * 
-    * @param integer $physicalServersId
+    * @param integer $serversId
     * @return $this
     */
-    public function setPhysicalServerId($physicalServersId)
+    public function setServersId($serversId)
     {
-        $this->physical_servers_id = $physicalServersId;
+        $this->servers_id = $serversId;
         return $this;
     }
     
     /**
-    * ID of the Virtual Server
+    * Namespace and Classname of the Server Object
     * 
-    * @param integer $physicalServersId
-    * @return $this
+    * @param string $serverClass
     */
-    public function setVirtualServerId($virtualServersId)
+    public function setServersClass($serverClass)
     {
-        $this->virtual_servers_id = $virtualServersId;
+        $this->servers_class = $serverClass;
         return $this;
     }
-    
+        
     /**
-    * ID of the mon service
+    * Namespace and classname of the behavior class
     * 
-    * @param integer $monServicesId
+    * @param string $monBehaviorClass
     * @return $this
     */
-    public function setMonServicesId($monServicesId)
+    public function setMonBehaviorClass($monBehaviorClass)
     {
-        $this->mon_services_id = $monServicesId;
-        return $this;
-    }
-    
-    /**
-    * Mon service case
-    * 
-    * @param integer $monServicesCase
-    * @return $this
-    */
-    public function setMonServicesCase($monServicesCase)
-    {
-        $this->mon_services_case = $monServicesCase;
+        $this->mon_behavior_class = $monBehaviorClass;
         return $this;
     }
     
@@ -414,36 +399,29 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     *
     * @return integer
     */
-    public function getPhysicalServersId()
+    public function getServersId()
     {
-        return $this->physical_servers_id;
+        return $this->servers_id;
     }
     
     /**
-    *
-    * @return integer
+    * returns the Namespace and Classname of the Server Object
+    * 
+    * @return string
     */
-    public function getVirtualServersId()
+    public function getServersClass()
     {
-        return $this->virtual_servers_id;
+        return $this->servers_class;
     }
     
     /**
-    *
-    * @return integer
+    * returns the Namespace and Classname of the mon behavior class
+    * 
+    * @return string
     */
-    public function getMonServicesId()
+    public function getMonBehaviorClass()
     {
-        return $this->mon_services_id;
-    }
-    
-    /**
-    *
-    * @return integer
-    */
-    public function getMonServicesCase()
-    {
-        return $this->mon_services_case;
+        return $this->mon_behavior_class;
     }
     
     /**
@@ -590,5 +568,85 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     public function getModified()
     {
         return $this->modified;
+    }
+    
+    /**
+    * set linked server
+    * 
+    */
+    public function setServer(\RNTForest\ovz\interfaces\MonServerInterface $server){
+        $this->servers_class = get_class($server);
+        $this->servers_id = $server->getId();
+    }
+    
+    /**
+    * returns linked server
+    * 
+    * @return \RNTForest\ovz\interfaces\MonServerInterface
+    */
+    public function getServer(){
+        return $this->servers_class::findFirst($this->servers_id);
+    }
+    
+    /**
+    * 
+    * @return \RNTForest\ovz\models\MonContacts[]
+    */
+    public function getMonContactsAlarmInstances(){
+        $contactIds = explode(',',$this->mon_contacts_alarm);
+        $contactInstances = array();
+        foreach($contactIds as $contactId){
+            $contactInstances[] = \RNTForest\ovz\models\MonContacts::findFirst(intval($contactId));
+        }
+        return $contactInstances;
+    }
+    
+    /**
+    * 
+    * @return \RNTForest\ovz\models\MonContacts[]
+    */
+    public function getMonContactsMessageInstances(){
+        $contactIds = explode(',',$this->mon_contacts_message);
+        $contactInstances = array();
+        foreach($contactIds as $contactId){
+            $contactInstances[] = \RNTForest\ovz\models\MonContacts::findFirst(intval($contactId));
+        }
+        return $contactInstances;
+    }
+    
+    public function execute(){
+        $statusBefore = $this->getStatus();
+        
+        $server = $this->getServer();
+        $modified = $server->getModified();
+         
+        // if model is older than 1 minute update the ovz_statistics with a job
+        if(Helpers::createUnixTimestampFromDateTime($modified) < (time()-60)){
+            $server->updateOvzStatistics();
+            $server->refresh();  
+        }
+        $ovzStatistics = $server->getOvzStatistics();
+        
+        $value = '';        
+        $behavior = new $this->mon_behavior_class();
+        if(!($behavior instanceof MonLocalBehaviorInterface)){
+            throw new \Exception($this->translate("monitoring_mon_behavior_not_implements_interface"));    
+        }    
+        
+        $valuestatus = $behavior->execute($ovzStatistics,$warnvalue,$maxvalue);
+        $monLog = new MonLocalLogs();
+        $monLog->create(["mon_local_jobs_id" => $this->id, "value" => $valuestatus->getValue()]);
+        $monLog->save();
+        
+        
+        $this->status = $statusAfter = $valuestatus->getStatus();
+        
+        if($statusBefore != $statusAfter){
+            $this->setLastStatusChange(date('Y-m-d H:i:s'));    
+        }
+        
+        $this->setLastRun(date('Y-m-d H:i:s'));
+        
+        $this->save();
     }
 }

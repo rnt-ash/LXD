@@ -17,8 +17,14 @@
 *
 */
   
-namespace RNTForest\ovz\interfaces;
+namespace RNTForest\ovz\utilities\monbehaviors;
 
-interface MonBehaviorInterface {
-    public function execute($target);
+use RNTForest\ovz\interfaces\MonBehaviorInterface;
+use RNTForest\ovz\libraries\PortChecker;
+
+class FtpMonBehavior implements MonBehaviorInterface{
+    
+    public function execute($target){                
+        return PortChecker::isUp(21,$target);    
+    }
 }

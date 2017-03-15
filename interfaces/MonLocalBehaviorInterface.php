@@ -17,13 +17,16 @@
 *
 */
   
-namespace RNTForest\ovz\libraries;
+namespace RNTForest\ovz\interfaces;
 
-use RNTForest\ovz\interfaces\MonBehaviorInterface;
-
-class SshMonBehavior implements MonBehaviorInterface{
-    
-    public function execute($target){                
-        return PortChecker::isUp(22,$target);    
-    }
+interface MonLocalBehaviorInterface {
+    /**
+    * Returns the Status and Value of a MonLocalLogs in use of the given arguments.
+    * 
+    * @param array $ovzStatistics
+    * @param integer $warnvalue
+    * @param integer $maxvalue
+    * @return \RNTForest\ovz\utilities\MonLocalValueStatus
+    */
+    public function execute($ovzStatistics);
 }

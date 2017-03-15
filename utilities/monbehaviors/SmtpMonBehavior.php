@@ -17,13 +17,14 @@
 *
 */
   
-namespace RNTForest\ovz\libraries;
+namespace RNTForest\ovz\utilities\monbehaviors;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
+use RNTForest\ovz\libraries\PortChecker;
 
-class MysqlMonBehavior implements MonBehaviorInterface{
+class SmtpMonBehavior implements MonBehaviorInterface{
     
     public function execute($target){                
-        return PortChecker::isUp(3306,$target);    
+        return PortChecker::isUp(25,$target);    
     }
 }

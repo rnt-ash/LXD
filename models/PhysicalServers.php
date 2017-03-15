@@ -672,4 +672,19 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     public function getParentId(){
         return $this->colocations_id;
     }
+    
+        
+    public function updateOvzStatistics(){
+        if($this->ovz == '1'){
+            $push = $this->getDI()['push'];
+            $params = array();
+            $job = $push->executeJob($this,'ovz_hoststatistics_info',$params);
+            if($job->getDone()==2) throw new \Exception("Job (ovz_hoststatistics_info) executions failed: ".$job->getError());
+
+            // save statistics
+            $statistics = $job->getRetval(true);
+            $this->setOvzStatistics($job->getRetval());
+            $this->save();
+        }
+    }
 }
