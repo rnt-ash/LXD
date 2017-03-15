@@ -46,12 +46,18 @@ class MonitoringTask extends Task
     public function runJobsAction(){
         echo "called runJobs in ovz...".PHP_EOL;
         $system = new MonSystem();
-        $system->runJobs();
+        $system->runMonRemoteJobs();
     }
     
     public function runCriticalJobsAction(){
         echo "called runCriticalJobs in ovz...".PHP_EOL;
         $healing = new MonHealing();
         $healing->healFailedMonRemoteJobs();
+    }
+    
+    public function runLocalJobsAction(){
+        echo "called runLocalJobs in ovz...".PHP_EOL;
+        $system = new MonSystem();
+        $system->runMonLocalJobs();
     }
 }

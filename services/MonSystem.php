@@ -20,6 +20,7 @@
 namespace RNTForest\ovz\services;
 
 use \RNTForest\ovz\models\MonRemoteJobs;
+use \RNTForest\ovz\models\MonLocalJobs;
 
 class MonSystem extends \Phalcon\DI\Injectable
 {
@@ -44,7 +45,7 @@ class MonSystem extends \Phalcon\DI\Injectable
     * Can be executed every minute or more.
     * 
     */
-    public function runJobs(){
+    public function runMonRemoteJobs(){
         try{
             //$monJobs = $this->modelManager->executeQuery("SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteJobs WHERE active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60");
             $monJobs = MonRemoteJobs::find(
@@ -52,7 +53,7 @@ class MonSystem extends \Phalcon\DI\Injectable
                 "active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60",
                 ]
             );
-            echo("runJobs ".count($monJobs)." MonJobsRemote\n");
+            echo("runJobs ".count($monJobs)." MonRemoteJobs\n");
             foreach($monJobs as $monJob){
                 echo(json_encode($monJob));
                 $monJob->execute();
@@ -62,5 +63,35 @@ class MonSystem extends \Phalcon\DI\Injectable
             echo $e->getMessage()."\n";
         }
         
+    }
+    
+    public function runMonLocalJobs(){
+        try{
+            $monJobs = MonLocalJobs::find(
+                [
+                "active = 1",
+                ]
+            );
+            echo("runLocalJobs ".count($monJobs)." MonLocalJobs\n");
+            foreach($monJobs as $monJob){
+                echo(json_encode($monJob));
+                $monJob->execute();
+                if($monJob->getStatus() != 'normal'){
+                    $this->getMonAlarm()->notifyMonLocalJobs($monJob);                
+                }
+            }
+            
+        }catch(\Exception $e){
+            echo $e->getMessage()."\n";
+        }
+           
     } 
+    
+    /**
+    * 
+    * @return \RNTForest\ovz\services\MonAlarm
+    */
+    private function getMonAlarm(){
+        return $this->getDI()['monAlarm'];
+    }
 }

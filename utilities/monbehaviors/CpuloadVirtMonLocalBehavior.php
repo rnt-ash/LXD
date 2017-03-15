@@ -21,20 +21,22 @@ namespace RNTForest\ovz\utilities\monbehaviors;
 
 use RNTForest\ovz\interfaces\MonLocalBehaviorInterface;
 use RNTForest\ovz\utilities\MonLocalValueStatus;
+use RNTForest\ovz\models\MonLocalJobs;
 
 class CpuloadVirtMonLocalBehavior implements MonLocalBehaviorInterface{
     
     /**
     * Returns the Status and Value of a MonLocalLogs in use of the given arguments.
     * 
-    * @param array $ovzStatistics
-    * @param integer $warnvalue
-    * @param integer $maxvalue
+    * @param string $ovzStatistics JSON
+    * @param numeric $warnvalue
+    * @param numeric $maxvalue
     * @return \RNTForest\ovz\utilities\MonLocalValueStatus
     */
     public function execute($ovzStatistics,$warnvalue,$maxvalue){                
         $valuestatus = null;
-        if(is_array($ovz_Statistics) 
+        $ovzStatistics = json_decode($ovzStatistics,true);
+        if(is_array($ovzStatistics) 
         && key_exists('guest',$ovzStatistics)
         && is_array($ovzStatistics['guest'])
         && key_exists('cpu',$ovzStatistics['guest'])
@@ -42,14 +44,30 @@ class CpuloadVirtMonLocalBehavior implements MonLocalBehaviorInterface{
         && key_exists('usage',$ovzStatistics['guest']['cpu'])
         ){
             $value = $ovzStatistics['guest']['cpu']['usage'];
-            $status = 'normal';
+            $status = MonLocalJobs::$STATENORMAL;
             if($value > $maxvalue){
-                $status = 'max';
+                $status = MonLocalJobs::$STATEMAXIMAL;
             }elseif($value > $warnvalue){
-                $status = 'warn';
+                $status = MonLocalJobs::$STATEWARNING;
             }
             $valuestatus = new MonLocalValueStatus($value,$status);            
         }
         return $valuestatus;
+    }
+    
+    /**
+    * Returns a human readable string.
+    * 
+    * @param numeric $ovzStatistics JSON
+    * @param numeric $warnvalue
+    * @param numeric $maxvalue
+    * @return string
+    */
+    public function genThresholdString($actvalue,$warnvalue,$maxvalue){
+        $content = '';
+        $content .= 'Value is now: '.$actvalue.'%<br />';
+        $content .= 'Warnvalue is: '.$warnvalue.'%<br />';
+        $content .= 'Maxvalue is: '.$maxvalue.'%<br />';
+        return $content;
     }
 }

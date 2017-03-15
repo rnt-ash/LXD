@@ -20,6 +20,8 @@
 namespace RNTForest\ovz\services;
 
 use RNTForest\ovz\models\MonRemoteJobs;
+use RNTForest\ovz\models\MonLocalJobs;
+use RNTForest\ovz\models\MonLocalLogs;
 use RNTForest\core\libraries\Helpers;
 
 class MonAlarm extends \Phalcon\DI\Injectable
@@ -206,5 +208,47 @@ class MonAlarm extends \Phalcon\DI\Injectable
         foreach($messageMonContacts as $contact){
             $contact->notify($subject,$content);
         }       
+    }
+    
+    public function notifyMonLocalJobs(MonLocalJobs $monJob){
+        if($monJob->getAlarm() && $this->checkAlarmPeriod($monJob->getAlarmPeriod(), $monJob->getLastAlarm())){
+            $monContacts = array();
+            if($monJob->getStatus() == MonLocalJobs::$STATEMAXIMAL){
+                $monContacts = $monJob->getMonContactsAlarmInstances();
+            }elseif($monJob->getStatus() == MonLocalJobs::$STATEWARNING){
+                $monContacts = $monJob->getMonContactsMessageInstances();
+            }
+            foreach($monContacts as $contact){
+                $subject = 'Notification: '.$monJob->getMonBehaviorClass().' on '.$monJob->getServer()->getName();
+                $contact->notify($subject,$this->genAlarmContentMonLocalJob($monJob));
+            }
+            $monJob->setLastAlarm((new \DateTime())->format('Y-m-d H:i:s'));
+            $monJob->save();
+        }
+    }
+    
+    private function genAlarmContentMonLocalJob(MonLocalJobs $monJob){
+        $content = '';
+        $monServer = $monJob->getServer();
+        $name = $monServer->getName();  
+        $status = $monJob->getStatus();
+        $lastStatuschange = $monJob->getLastStatuschange();
+        $monService = $monJob->getMonBehaviorClass();
+        $content .= 'OVZ AlarmingSystem Alarm for '.$name."<br />";
+        $content .= '==>'.$monService.'<=='." (MonJob ID: ".$monJob->getId().")<br />";
+        $content .= 'Status now: '.$status.' (since '.$lastStatuschange.')'."<br />";
+        $newestMonLog = MonLocalLogs::findFirst(
+            [
+                "mon_local_jobs_id = :id:",
+                "order" => "id DESC",
+                "bind" => [
+                    "id" => $monJob->getId(),
+                ],
+            ]
+        );
+        $behaviorclass = $monJob->getMonBehaviorClass();
+        $behavior = new $behaviorclass();
+        $content .= $behavior->genThresholdString($newestMonLog->getValue(),$monJob->getWarningValue(),$monJob->getMaximalValue());
+        return $content;
     }
 }

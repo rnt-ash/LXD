@@ -23,10 +23,20 @@ interface MonLocalBehaviorInterface {
     /**
     * Returns the Status and Value of a MonLocalLogs in use of the given arguments.
     * 
-    * @param array $ovzStatistics
-    * @param integer $warnvalue
-    * @param integer $maxvalue
+    * @param string $ovzStatistics JSON
+    * @param numeric $warnvalue
+    * @param numeric $maxvalue
     * @return \RNTForest\ovz\utilities\MonLocalValueStatus
     */
-    public function execute($ovzStatistics);
+    public function execute($ovzStatistics,$warnvalue,$maxvalue);
+    
+    /**
+    * Returns a human readable string.
+    * 
+    * @param numeric $ovzStatistics JSON
+    * @param numeric $warnvalue
+    * @param numeric $maxvalue
+    * @return string
+    */
+    public function genThresholdString($actvalue,$warnvalue,$maxvalue);
 }

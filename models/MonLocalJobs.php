@@ -25,6 +25,10 @@ use RNTForest\core\libraries\Helpers;
 
 class MonLocalJobs extends \RNTForest\core\models\ModelBase
 {
+    public static $STATENORMAL = 'normal';
+    public static $STATEMAXIMAL = 'maximal';
+    public static $STATEWARNING = 'warning';
+    
     /**
     * 
     * @var integer
@@ -633,7 +637,7 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
             throw new \Exception($this->translate("monitoring_mon_behavior_not_implements_interface"));    
         }    
         
-        $valuestatus = $behavior->execute($ovzStatistics,$warnvalue,$maxvalue);
+        $valuestatus = $behavior->execute($ovzStatistics,$this->warning_value,$this->maximal_value);
         $monLog = new MonLocalLogs();
         $monLog->create(["mon_local_jobs_id" => $this->id, "value" => $valuestatus->getValue()]);
         $monLog->save();
