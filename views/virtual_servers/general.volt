@@ -46,7 +46,7 @@
     <tbody>
         <tr>
             <td>
-                {{ _("virtualserver_genera_customer") }}
+                {{ _("virtualserver_general_customer") }}
             </td>
             <td>
                 {{item.customers.printAddressText('short')}}
@@ -54,7 +54,7 @@
         </tr>
         <tr>
             <td>
-                {{ _("virtualserver_genera_fqdn") }}
+                {{ _("virtualserver_general_fqdn") }}
             </td>
             <td>
                 {{item.fqdn}}
@@ -62,7 +62,7 @@
         </tr>
         <tr>
             <td>
-                {{ _("virtualserver_genera_physicalserver") }}
+                {{ _("virtualserver_general_physicalserver") }}
             </td>
             <td>
                 {{item.physicalServers.name}}
@@ -70,7 +70,7 @@
         </tr>
         <tr>
             <td>
-                {{ _("virtualserver_genera_activdate") }}
+                {{ _("virtualserver_general_activdate") }}
             </td>
             <td>
                 {{item.activation_date}}
@@ -78,7 +78,7 @@
         </tr>
         <tr>
             <td>
-                {{ _("virtualserver_genera_state") }}
+                {{ _("virtualserver_general_state") }}
             </td>
             <td>
                 {{item.ovz_state}}
@@ -86,7 +86,7 @@
         </tr>
         <tr>
             <td>
-                {{ _("virtualserver_genera_description") }}
+                {{ _("virtualserver_general_description") }}
             </td>
             <td>
                 {{item.description}}
