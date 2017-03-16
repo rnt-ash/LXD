@@ -468,7 +468,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // get OS templates from server
         $push = $this->getPushService();
         $params = array();
-        $physicalServer = PhysicalServers::findFirst("ovz = 1");
+        if(!$physicalServer = PhysicalServers::findFirst("ovz = 1")){
+            $message = $this->translate("virtualserver_no_physicalserver_found");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
+        }
         // no pending needed because job is readonly
         $job = $push->executeJob($physicalServer,'ovz_get_ostemplates',$params);
         $message = $this->translate("virtualserver_job_ostemplates_failed");
