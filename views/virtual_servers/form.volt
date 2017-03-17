@@ -16,10 +16,11 @@
         {% endif %}
 
         {{ renderElement('name',form,6) }}
+        {{ renderElement('fqdn',form,6) }}
         {{ renderElement('customers_id',form,6) }}
         {{ renderElement('physical_servers_id',form,6) }}
         {{ renderElement('ostemplate',form,6) }}
-        {{ renderElement('password',form,6) }}
+        {{ renderElement('password',form,6,'genPW') }}
         {{ renderElement('distribution',form,6) }}
         {{ renderElement('core',form,6) }}
         {{ renderElement('memory',form,6) }}

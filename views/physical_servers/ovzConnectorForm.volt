@@ -13,8 +13,7 @@
         
     <code>
         <p>yum -y update<br />
-        yum -y install mc ntp wget mailx nano php-cli php-pdo<br />
-        ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N "" </p>
+        yum -y install mc ntp wget mailx nano php-cli php-pdo</p>
     </code>
 </div>
 
@@ -32,7 +31,7 @@
         {{ renderElement('password',form) }}
 
         <div class="col-lg-12">
-            {{ submit_button( _("physicalserver_connect_connectbutton") , "class": "btn btn-primary") }}
+            {{ submit_button( _("physicalserver_connect_connectbutton") , "class": "btn btn-primary loadingScreen") }}
             {{ link_to('/physical_servers/slidedata', _("physicalserver_cancel"), 'class': 'btn btn-default pull-right') }}
         </div>
                 

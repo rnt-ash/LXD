@@ -28,6 +28,7 @@ class OvzModifyVsJob extends AbstractOvzJob{
             "params" => [
                 "UUID" => "Universally Unique Identifier (UUID)",
                 "CONFIG" => [
+                    "name" => "name of the system (string)",
                     "hostname" => "hostname of the system (string)",
                     "cpus" => "number of cpu cores (int)",
                     "memsize" => "amount of ram in mb (int)",
