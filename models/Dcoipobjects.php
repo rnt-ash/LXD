@@ -390,6 +390,9 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
     */
     public function initialize()
     {
+        $this->setup(array('notNullValidations'=>false));
+        $this->setup(array('virtualForeignKeys'=>false));
+
         $this->belongsTo("colocations_id",'RNTForest\ovz\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>array("allowNulls"=>true)));
         $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>array("allowNulls"=>true)));
         $this->belongsTo("virtual_servers_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
