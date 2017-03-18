@@ -39,13 +39,6 @@ interface CliInterface {
     public function executeBackground($command);
 
     /**
-    * setter
-    * 
-    * @param string $host fqdn of remotehost or localhost
-    */
-    public function setHost($host);
-
-    /**
     * getter    
     */
     public function getOutput();

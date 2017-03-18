@@ -30,7 +30,7 @@ class OvzNewVsJob extends AbstractOvzJob{
                 "UUID" => "Universally Unique Identifier (UUID)",
                 "NAME" => "Name of the system, not functional",
                 "OSTEMPLATE" => "the wanted ostemplate, has to be available on server or official template repo",
-                "DISTRIBUTION" => "...",
+                "DISTRIBUTION" => "(VM only) The operating system distribution the virtual machine will be optimized for. For the full list of supported distributions, refer to the prlctl man pages.",
                 "HOSTNAME" => "FQDN",
                 "CPUS" => "Number of cores",
                 "RAM" => "Memory in MB",

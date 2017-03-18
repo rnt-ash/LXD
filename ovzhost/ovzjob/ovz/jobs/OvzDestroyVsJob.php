@@ -46,17 +46,17 @@ class OvzDestroyVsJob extends AbstractOvzJob {
                 // kill VS
                 $this->Context->getLogger()->debug("Kill VS");
                 $vsType = $this->PrlctlCommands->getStatus()['VSTYPE'];
-                $exitstatus = $this->PrlctlCommands->killVs($this->Params['UUID'],$vsType);
+                $exitstatus = $this->PrlctlCommands->kill($this->Params['UUID'],$vsType);
                 if($exitstatus > 0) return $this->commandFailed("Killing VS failed",$exitstatus);
             }elseif($this->PrlctlCommands->getStatus()['MOUNTED']){
                 // Unmount VS
                 $this->Context->getLogger()->debug("Unmount VS");
-                $exitstatus = $this->PrlctlCommands->umountVs($this->Params['UUID']);
+                $exitstatus = $this->PrlctlCommands->umount($this->Params['UUID']);
                 if($exitstatus > 0) return $this->commandFailed("Unmounting VS failed",$exitstatus);
             }
             // Delete VS
             $this->Context->getLogger()->debug("Delete VS");
-            $exitstatus = $this->PrlctlCommands->deleteVs($this->Params['UUID']);
+            $exitstatus = $this->PrlctlCommands->delete($this->Params['UUID']);
             if($exitstatus > 0) return $this->commandFailed("Deleting VS failed",$exitstatus);
             
             $this->Done = 1;

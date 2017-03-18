@@ -46,10 +46,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $scopeQuery = 'RNTForest\ovz\models\VirtualServers.customers_id = '.$this->session->get('auth')['customers_id'];
             $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'];
             $joinQuery = array('model'=>'RNTForest\core\models\CustomersPartners',
-                                'conditions'=>'RNTForest\ovz\models\VirtualServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
-                                'type'=>'LEFT');
+                'conditions'=>'RNTForest\ovz\models\VirtualServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
+                'type'=>'LEFT');
         }
-                
+
         return array(
             "type" => "slideData",
             "model" => '\RNTForest\ovz\models\VirtualServers',
@@ -67,16 +67,16 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             "limit" => 10,
         );
     }
-    
+
     protected function prepareSlideFilters($virtualServers,$level) { 
-        
+
         // put resultsets to the view
         $scope = $this->permissions->getScope("virtual_servers","filter_customers");
         $this->view->customers = Customers::generateArrayForSelectElement($scope);
 
         $scope = $this->permissions->getScope("virtual_servers","filter_physical_servers");
         $this->view->physicalServers = PhysicalServers::generateArrayForSelectElement($scope);
-        
+
         // receive all filters
         if($this->request->has('filterAll')){
             $oldfilter = $this->slideDataInfo['filters']['filterAll'];
@@ -112,14 +112,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
         return true; 
     }
-    
+
     protected function renderSlideHeader($item,$level){
         switch($level){
             case 0:
                 return $item->name; 
                 break;
             default:
-            $message = $this->translate("virtualserver_invalid_level");
+                $message = $this->translate("virtualserver_invalid_level");
                 return $message;
         }
     }
@@ -134,6 +134,20 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     }
 
     /**
+    * check if Virtual or Physical Server is OVZ enabled. Otherwise it throws an exception
+    * 
+    * @param server $server
+    * @throws Exceptions
+    */
+    protected function tryCheckOvzEnabled($server) {
+        // check if server is ovz enabled   
+        if($server->getOvz() == 0){
+            $message = $this->translate("virtualserver_server_not_ovz_enabled");
+            throw new \Exception($message);
+        }
+    }
+
+    /**
     * updates OVZ settings
     * 
     * @param int $serverId
@@ -144,25 +158,12 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $serverId = $this->filter->sanitize($serverId, "int");
 
         try{
-            // find virtual server
-            $virtualServer = VirtualServers::findFirst($serverId);
-            $message = $this->translate("virtualserver_does_not_exist");
-            if (!$virtualServer) throw new \Exception($message . $serverId);
-            
-            // not ovz enalbled
-            $message = $this->translate("virtualserver_not_ovz_enabled");
-            if(!$virtualServer->getOvz()) throw new ErrorException($message);
+            $virtualServer = VirtualServers::tryFindById($serverId);
+            $this->tryCheckOvzEnabled($virtualServer);
 
             // execute ovz_list_info job 
-            // no pending needed because job is readonly     
-            $push = $this->getPushService();
-            $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
-            $message = $this->translate("virtualserver_job_infolist_failed");
-            if($job->getDone()==2) throw new \Exception($message.$job->getError());
+            $this->tryOvzListInfo($virtualServer);
 
-            $this->saveVirutalServerSettings($job,$virtualServer);
-            
             // success
             $message = $this->translate("virtualserver_settings_success");
             $this->flashSession->success($message);
@@ -173,6 +174,27 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
+    }
+
+    /**
+    * execute ovz_list_info job
+    * 
+    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
+    * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
+    * @throws \Exceptions
+    */
+    protected function tryOvzListInfo($virtualServer){
+        // no pending needed because job is readonly     
+        $push = $this->getPushService();
+        $params = array('UUID'=>$virtualServer->getOvzUuid());
+        $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
+        $message = $this->translate("virtualserver_job_infolist_failed");
+        if($job->getDone()==2) throw new \Exception($message.$job->getError());
+
+        // save settings ti virtual server
+        $this->saveVirutalServerSettings($job,$virtualServer);
+
+        return $job;
     }
 
     /**
@@ -189,7 +211,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // find virtual server
             $virtualServer = VirtualServers::findFirst($serverId);
             if (!$virtualServer) throw new \Exception("Virtual Server does not exist: " . $serverId);
-            
+
             // not ovz enalbled
             if(!$virtualServer->getOvz()) throw new ErrorException("Server ist not OVZ enabled!");
 
@@ -203,7 +225,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // save statistics
             $statistics = $job->getRetval(true);
             $virtualServer->setOvzStatistics($job->getRetval());
-            
+
             if ($virtualServer->save() === false) {
                 $messages = $virtualServer->getMessages();
                 foreach ($messages as $message) {
@@ -211,7 +233,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 }
                 throw new \Exception("Update Virtual Server (".$virtualServer->getName().") failed.");
             }
-            
+
             // success
             $this->flashSession->success("Statistics successfully updated");
 
@@ -222,7 +244,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
     }
-    
+
     /**
     * start VS
     * 
@@ -241,7 +263,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // permissions for this virtual server
             if (!$this->isAllowedItem($virtualServer,"changestate")) return $this->forwardTo401();
-            
+
             // not ovz enalbled
             $message = $this->translate("virtualserver_not_ovz_enabled");
             if(!$virtualServer->getOvz()) throw new \Exception($message);
@@ -266,7 +288,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
     }
-    
+
     /**
     * stop VS
     * 
@@ -285,7 +307,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // permissions for this virtual server
             if (!$this->isAllowedItem($virtualServer,"changestate")) return $this->forwardTo401();
-            
+
             // not ovz enalbled
             $message = $this->translate("virtualserver_not_ovz_enabled");
             if(!$virtualServer->getOvz()) throw new \Exception($message);
@@ -310,7 +332,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
     }
-    
+
     /**
     * restart VS
     * 
@@ -329,7 +351,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // permissions for this virtual server
             if (!$this->isAllowedItem($virtualServer,"changestate")) return $this->forwardTo401();
-            
+
             // not ovz enalbled
             $message = $this->translate("virtualserver_not_ovz_enabled");
             if(!$virtualServer->getOvz()) throw new \Exception($message);
@@ -354,8 +376,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
     }
-    
-    
+
+
 
     /**
     * deletes a virtual server
@@ -387,7 +409,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $this->flashSession->warning($job->getRetval());
             }
         }
-        
+
         // delete IP Objects
         foreach($virtualServer->dcoipobjects as $dcoipobject){
             if(!$dcoipobject->delete()){
@@ -397,7 +419,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 return $this->redirecToTableSlideDataAction();
             }
         }
-        
+
         // delete DB entry
         if (!$virtualServer->delete()) {
             foreach ($virtualServer->getMessages() as $message) {
@@ -407,11 +429,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
         $message = $this->translate("virtualserver_job_destroy");
         $this->flashSession->success($message);
-        
+
         // redirect
         return $this->redirecToTableSlideDataAction();
     }
-    
+
     /**
     * creates a new Container
     * 
@@ -426,6 +448,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->flashSession->error($message);
             return $this->forwardToTableSlideDataAction();
         }
+
         // no pending needed because job is readonly
         $job = $push->executeJob($physicalServer,'ovz_get_ostemplates',$params);
         $message = $this->translate("virtualserver_job_ostemplates_failed");
@@ -435,7 +458,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         foreach($retval as $template){
             $ostemplates[$template['name']] = $template['name']." (".$template['lastupdate'].")";
         }
-        
+
         // store in session
         $this->session->set($this->getFormClassName(), array(
             "op" => "new",
@@ -445,7 +468,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         $virtualServerForm = new VirtualServersForm(new VirtualServers());
         $this->forwardToFormAction($virtualServerForm);
-        
+
     }
 
     /**
@@ -464,7 +487,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         $virtualServerForm = new VirtualServersForm(new VirtualServers());
         $this->forwardToFormAction($virtualServerForm);
-        
+
     }
 
     /**
@@ -481,10 +504,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         $virtualServerForm = new VirtualServersForm(new VirtualServers());
         $this->forwardToFormAction($virtualServerForm);
-        
+
     }
 
-    
+
     /**
     * generates a new CT or VM
     * 
@@ -492,7 +515,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * @param VirtualServersForm $form
     */
     protected function preSave($virtualServer,$form){
-        
+
         $session = $this->session->get($this->getFormClassName());
         if($session['vstype'] == 'CT' || $session['vstype'] == 'VM' ){
             $virtualServer->setOvz(true);
@@ -519,14 +542,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $this->flashSession->error($message . $serverId);
                 return false;
             }
-            
+
             // permissions for this PhysicalServer
             if (!$this->isAllowedItem($physicalServer)){
                 $message = $this->translate("physicalserver_permission");
                 $this->flashSession->error($message);
                 return false;
             }
-            
+
 
             if (!$physicalServer->getOvz()) {
                 $message = $this->translate("physicalserver_not_ovz_integrated");
@@ -546,7 +569,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
         return true; 
     }
-    
+
     /**
     * cleans up
     * 
@@ -557,7 +580,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $session = $this->session->remove($this->getFormClassName());
         return true;
     }
-    
+
     /*
     * List snapshots
     * 
@@ -573,10 +596,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $virtualServer = VirtualServers::findFirst($serverId);
             $message = $this->translate("virtualserver_does_not_exist");
             if (!$virtualServer) throw new Exception($message . $serverId);
-            
+
             // permissions
             if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
-            
+
             // not ovz enalbled
             $message = $this->translate("virtualserver_not_ovz_enabled");
             if(!$virtualServer->getOvz()) throw new ErrorException($message);
@@ -600,7 +623,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $message = $this->translate("virtualserver_update_failed");
                 throw new Exception($message.$virtualServer->getName());
             }
-            
+
             // success
             $message = $this->translate("virtualserver_snapshot_update");
             $this->flashSession->success($message);
@@ -612,7 +635,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
     }
-    
+
     /**
     * renders all snapshots to one server
     * 
@@ -622,13 +645,13 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // convert the json to an array
         $snapshots = json_decode($item->ovz_snapshots, true);
         if(!is_array($snapshots)) $snapshots=array();
-        
+
         // sort all the snapshots
         $snapshots = $this->getSnapshotsChilds("",$snapshots);
-        
+
         return $snapshots;
     }
-    
+
     /**
     * sorts the array depending of the parent
     * 
@@ -637,7 +660,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     */
     private function getSnapshotsChilds($parent,$snapshots){ 
         $sortedSnapshots = array();
-        
+
         // run through all snapshots
         foreach($snapshots as $key=>$snapshot){
             if(key_exists('Parent', $snapshot) && $snapshot['Parent']===$parent) {
@@ -648,25 +671,25 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 }else {
                     $snapshot['Removable'] = 0;
                 }
-                
+
                 // convert the date
                 $snapshot['Date'] = date("d.m.Y H:i:s",strtotime($snapshot['Date']));
-                
+
                 // get all child snapshots
                 $snapshot['Childs'] = $this->getSnapshotsChilds($snapshot['UUID'],$snapshots);
-                
+
                 // ist a childsnapshot mounted?
                 foreach($snapshot['Childs'] as $childSnapshot){
                     if ($childSnapshot['Removable']==0) $snapshot['Removable'] = 0;
                 }
-                
+
                 // convert all snapshots to one array
                 $sortedSnapshots[] = $snapshot;
             }
         }
         return $sortedSnapshots;
     }
-    
+
     /**
     * switch to an snapshot
     * 
@@ -684,14 +707,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $virtualServer = VirtualServers::findFirst($serverId);
             $message = $this->translate("virtualserver_does_not_exist");
             if (!$virtualServer) throw new \Exception($message . $serverId);
-            
+
             // permissions
             if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
-            
+
             // not ovz enalbled
             $message = $this->translate("virtualserver_not_ovz_enabled");
             if(!$virtualServer->getOvz()) throw new ErrorException($message);
-            
+
             // execute ovz_switch_snapshot job
             // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
             $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId();
@@ -712,11 +735,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $message = $this->translate("virtualserver_job_switchsnapshot_failed");
                 throw new \Exception($message.$virtualServer->getName());
             }
-                        
+
             // success
             $message = $this->translate("virtualserver_snapshot_update");
             $this->flashSession->success($message);
-            
+
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
@@ -735,11 +758,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         // permissions
         if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
-        
+
         $this->view->form = $item;
     }
 
-    
+
     /**
     * create a new snapshot
     * 
@@ -772,7 +795,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // permissions
             if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
-            
+
             // execute ovz_list_snapshots job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
             $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
@@ -793,11 +816,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $message = $this->translate("virtualserver_job_createsnapshot_failed");
                 throw new \Exception($message.$virtualServer->getName());
             }
-            
+
             // success
             $message = $this->translate("virtualserver_snapshot_update");
             $this->flashSession->success($message);
-            
+
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
@@ -805,7 +828,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
     }
-    
+
     /**
     * delete snapshot
     * 
@@ -823,21 +846,21 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $virtualServer = VirtualServers::findFirst($serverId);
             $message = $this->translate("virtualserver_does_not_exist");
             if (!$virtualServer) throw new \Exception($message . $serverId);
-            
+
             // permissions
             if (!$this->isAllowedItem($virtualServer,"snapshots")) return $this->forwardTo401();
 
             // not ovz enabled
             $message = $this->translate("virtualserver_not_ovz_enabled");
             if(!$virtualServer->getOvz()) throw new ErrorException($message);
-            
+
             // execute ovz_delete_snapshot job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
             $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'SNAPSHOTID'=>$snapshotId);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_delete_snapshot',$params);
-             $message = $this->translate("virtualserver_job_deletesnapshotexec_failed");
+            $message = $this->translate("virtualserver_job_deletesnapshotexec_failed");
             if(!$job || $job->getDone()==2) throw new \Exception($message);
 
             // save snapshots
@@ -851,11 +874,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $message = $this->translate("virtualserver_job_createsnapshot_failed");
                 throw new \Exception($message.$virtualServer->getName());
             }
-            
+
             // success
             $message = $this->translate("virtualserver_snapshot_update");
             $this->flashSession->success($message);
-            
+
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
@@ -863,7 +886,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // go back to slidedata view
         $this->redirectTo("virtual_servers/slidedata");
     }
-    
+
     /**
     * Adds an IP Object to the Server
     * 
@@ -883,7 +906,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         ));
 
         $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
-        
+
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
             'controller' => 'dcoipobjects',
@@ -891,7 +914,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             'params' => [$dcoipobjectsForm],
         ]);
     }
-    
+
     /**
     * Edits an IP Object to the Server
     * 
@@ -916,7 +939,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             'params' => [$ipobject],
         ]);
     }
-    
+
     /**
     * Deletes an IP Object
     * 
@@ -941,7 +964,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             'params' => [$ipobject],
         ]);
     }
-    
+
     /**
     * Make IP Object to main
     * 
@@ -964,7 +987,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             'params' => [$ipobject],
         ]);
     }
-    
+
     /**
     * show modify form
     * 
@@ -981,24 +1004,24 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->flashSession->error($message);
             return $this->forwardToTableSlideDataAction();
         }
-        
+
         // check if server is ovz enabled
         if($virtualServer->getOvz() != 1){
             $message = $this->translate("virtualserver_server_not_ovz_enabled");
             $this->flashSession->error($message);
             return $this->forwardToTableSlideDataAction();
         }
-        
+
         // check permissions
         if(!$this->permissions->checkPermission('virtual_servers', 'modify', array('item' => $virtualServer))){
             return $this->forwardTo401();
         }   
-        
+
         // call view
         $this->view->form = new ModifyVirtualServersForm($virtualServer); 
         $this->view->pick("virtual_servers/modifyVirtualServersForm");
     }
-    
+
     /**
     * modify server
     * 
@@ -1011,7 +1034,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // sanitize
             $virtualServersId = $this->filter->sanitize($this->request->getPost("id"),"int");
-                
+
             // get virtual server
             $virtualServer = VirtualServers::findFirstByid($virtualServersId);
             if (!$virtualServer){
@@ -1021,19 +1044,19 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $this->view->pick("virtual_servers/modifyVirtualServersForm");
                 return;
             }
-               
+
             // check if server is ovz enabled
             if($virtualServer->getOvz() != 1){
                 $message = $this->translate("virtualserver_server_not_ovz_enabled");
                 $this->flashSession->error($message);
                 return $this->forwardToTableSlideDataAction();
             }   
-                
+
             // check permissions
             if(!$this->permissions->checkPermission('virtual_servers', 'modify', array('item' => $virtualServer))){
                 return $this->forwardTo401();
             }
-            
+
             // validate FORM
             $form = new ModifyVirtualServersForm;
             $data = $this->request->getPost();
@@ -1042,7 +1065,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $this->view->pick("virtual_servers/modifyVirtualServersForm");
                 return; 
             }
-            
+
             // update virutal server
             if ($virtualServer->update() === false) {
                 // fetch all messages from model
@@ -1053,14 +1076,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $this->view->pick("virtual_servers/modifyVirtualServersForm");
                 return;
             }
-            
+
             // job
             $virtualServerConfig = array(
                 'name' => $virtualServer->getName(),
                 'hostname' => $virtualServer->getFqdn(),
                 'description' => $virtualServer->getDescription()
             );
-            
+
             // execute ovz_modify_vs job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
             $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
@@ -1073,7 +1096,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $message = $this->translate("virtualserver_modify_job_failed");
             if($job->getDone()==2) throw new \Exception($message.$job->getError());
             $this->saveVirutalServerSettings($job,$virtualServer);
-            
+
             // success message
             $message = $this->translate("virtualserver_job_modifyvs");
             $this->flashSession->success($message);
@@ -1081,10 +1104,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
         }
-        
+
         $this->redirecToTableSlideDataAction();
     }
-    
+
     /**
     * change the configuration of a virtual server
     * 
@@ -1099,18 +1122,18 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->flashSession->error($message);
             return $this->forwardToTableSlideDataAction();
         }
-        
+
         // check permissions
         if(!$this->permissions->checkPermission('virtual_servers', 'configure', array('item' => $virtualServer)))
             return $this->forwardTo401();
-        
+
         // check if server is ovz enabled    
         if($virtualServer->getOvz() == 0){
             $message = $this->translate("virtualserver_not_ovz_enabled");
             $this->flashSession->error($message);
             return $this->forwardToTableSlideDataAction();
         }
-        
+
         // execute ovz_list_info
         // no pending needed because job is readonly
         $push = $this->getPushService();
@@ -1120,10 +1143,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         if($job->getDone()==2) throw new \Exception($message.$job->getError());
 
         $this->saveVirutalServerSettings($job,$virtualServer);
-        
+
         // get OVZ Settings
         $ovzSettings = json_decode($virtualServer->getOvzSettings(),true);
-        
+
         // fill form fields
         $configureVirtualServersFormFields = new ConfigureVirtualServersFormFields();
         $configureVirtualServersFormFields->virtual_servers_id = $virtualServer->getId();
@@ -1136,12 +1159,12 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }elseif($ovzSettings['Autostart'] == 'off') {
             $configureVirtualServersFormFields->startOnBoot = 0;
         }
-        
+
         // call view
         $this->view->form = new ConfigureVirtualServersForm($configureVirtualServersFormFields); 
         $this->view->pick("virtual_servers/configureVirtualServersForm");
     }
-    
+
     /**
     * execute the job and safe the configuration
     * 
@@ -1158,18 +1181,18 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->flashSession->error("Virtual Server does not exist");
             return $this->redirectTo("virtual_servers/slidedata");
         }
-        
+
         // check permissions
         if(!$this->permissions->checkPermission('virtual_servers', 'configure', array('item' => $virtualServer)))
             return $this->forwardTo401();
-            
+
         // check if server is ovz enabled    
         if($virtualServer->getOvz() == 0){
             $message = $this->translate("virtualserver_not_ovz_enabled");
             $this->flashSession->error($message);
             return $this->forwardToTableSlideDataAction();
         }
-            
+
         // validate FORM
         $form = new ConfigureVirtualServersForm();
         $data = $this->request->getPost();
@@ -1178,7 +1201,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->view->pick("virtual_servers/configureVirtualServersForm");
             return; 
         }
-        
+
         // business logic
         // dns
         $dns = '';
@@ -1198,33 +1221,33 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 }
             }
         }
-        
+
         // cores
         $core = intval($form->cores);
-        
+
         if($core < 1){
             $message1 = $this->translate("virtualserver_min_core");
             $message = $message1;
             return $this->redirectErrorToConfigureVirtualServers($message,'cores',$form);
         }
-        
+
         if($core > $virtualServer->PhysicalServers->getCore()){
             $message1 = $this->translate("virtualserver_max_core");
             $message = $message1.$virtualServer->PhysicalServers->getCore().')';
             return $this->redirectErrorToConfigureVirtualServers($message,'cores',$form);
         }
-        
+
         try{
             // memory
             $memory = Helpers::convertToBytes($form->memory);
-            
+
             // check if memory is numeric
             if(!is_numeric($memory)){
                 $message1 = $this->translate("virtualserver_ram_numeric");
                 $message = $message1;
                 return $this->redirectErrorToConfigureVirtualServers($message,'memory',$form);
             }
-            
+
             // chech if memory is minmum 512 MB
             if(gmp_cmp($memory,Helpers::convertToBytes('512MB'))<0){
                 $message1 = $this->translate("virtualserver_min_ram");
@@ -1239,20 +1262,20 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $message = $message1.$virtualServer->PhysicalServers->getMemory().' MB)';
                 return $this->redirectErrorToConfigureVirtualServers($message,'memory',$form);
             }
-            
+
             // final memory in MibiBytes
             $memory = Helpers::convertBytesToMibiBytes($memory);
-            
+
             // space
             $diskspace = Helpers::convertToBytes($form->diskspace);
-            
+
             // check if diskpace is numeric
             if(!is_numeric($diskspace)){
                 $message1 = $this->translate("virtualserver_space_numeric");
                 $message = $message1;
                 return $this->redirectErrorToConfigureVirtualServers($message,'diskspace',$form);
             }
-            
+
             // check if diskspace is min
             if(gmp_cmp($diskspace,Helpers::convertToBytes('20GB'))<0){
                 $message1 = $this->translate("virtualserver_min_space");
@@ -1266,10 +1289,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $message = $message1.$virtualServer->PhysicalServers->getSpace().' GB)';
                 return $this->redirectErrorToConfigureVirtualServers($message,'diskspace',$form);
             }
-            
+
             // final diskspcae in MibiBytes
             $diskspace = Helpers::convertBytesToMibiBytes($diskspace);
-        
+
             // job
             $virtualServerConfig = array(
                 'nameserver' => $dns,
@@ -1278,7 +1301,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 'diskspace' => $diskspace,
                 'onboot' => ($form->startOnBoot)?'yes':'no',
             );
-            
+
             // execute ovz_restart_vs job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
             $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
@@ -1292,7 +1315,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if($job->getDone()==2) throw new \Exception($message.$job->getError());
 
             $this->saveVirutalServerSettings($job,$virtualServer);
-            
+
             // success
             $message = $this->translate("virtualserver_job_modifyvs");
             $this->flashSession->success($message);
@@ -1304,20 +1327,20 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->logger->error($e->getMessage());
         }
     }
-    
+
     private function redirectErrorToConfigureVirtualServers($message,$field,$form){
         $form->appendMessage(new \Phalcon\Validation\Message($message,$field));
         $this->view->form = $form; 
         $this->view->pick("virtual_servers/configureVirtualServersForm");
         return; 
     }
-    
+
     private function saveVirutalServerSettings($job,$virtualServer){
         // save settings
         $settings = $job->getRetval(true);
         $virtualServer->setOvzSettings($job->getRetval());
         self::assignSettings($virtualServer,$settings);
-        
+
         if ($virtualServer->save() === false) {
             $messages = $virtualServer->getMessages();
             foreach ($messages as $message) {
@@ -1327,7 +1350,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             throw new \Exception($message.$virtualServer->getName());
         }
     }
-        
+
     /**
     * assign the ovz settings to its relevant value
     * 
@@ -1344,38 +1367,35 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size'])/1024/1024));
         $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size'])/1024/1024));
     }
-    
+
     public function ovzReplicaActivateAction($virtualServersId){
 
         // sanitize Parameters
         $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
 
-        // get virtual server object
-        $virtualServer = VirtualServers::findFirstByid($virtualServersId);
-        if (!$virtualServer) {
-            $message = $this->translate("virtualserver_does_not_exist");
-            $this->flashSession->error($message);
-            return $this->forwardToTableSlideDataAction();
-        }
-        
-        // check permissions
-        if(!$this->permissions->checkPermission('virtual_servers', 'replica', array('item' => $virtualServer)))
-            return $this->forwardTo401();
-        
-        // check if server is ovz enabled    
-        if($virtualServer->getOvz() == 0){
-            $message = $this->translate("virtualserver_not_ovz_enabled");
-            $this->flashSession->error($message);
-            return $this->forwardToTableSlideDataAction();
+        try{
+            // validate (throws exceptions)
+            $virtualServer = VirtualServers::tryFindById($virtualServersId);
+            $this->tryCheckPermission('virtual_servers', 'replicas', array('item' => $virtualServer));
+            $this->tryCheckOvzEnabled($virtualServer);
+
+            // ToDo: check last info Update..
+
+            // prepare form fields
+            $replicaFormFields = new ReplicaActivateFormFields();
+            $replicaFormFields->virtual_servers_id = $virtualServersId;
+
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+            $this->forwardToTableSlideDataAction();
+            return;
         }
 
-        // prepare form fields
-        $replicaFormFields = new ReplicaActivateFormFields();
-        $replicaFormFields->virtual_servers_id = $virtualServersId;
-        
         // call view
         $this->view->form = new ReplicaActivateForm($replicaFormFields);
         $this->view->pick("virtual_servers/replicaActivateForm");
+
     }
 
     public function ovzReplicaActivateExecuteAction(){
@@ -1393,20 +1413,195 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->view->pick("virtual_servers/replicaActivateForm");
             return;
         }
+
+        try {        
+            // validate (throws exceptions)
+            $replicaMaster = VirtualServers::tryFindById($fields->virtual_servers_id);
+            $this->tryCheckPermission('virtual_servers', 'replicas', array('item' => $replicaMaster));
+            $this->tryCheckOvzEnabled($replicaMaster);
+
+            $replicaSlaveHost = PhysicalServers::tryFindById($fields->physical_servers_id);
+            $this->tryCheckPermission('virtual_servers', 'replicas', array('item' => $replicaSlaveHost));
+            $this->tryCheckOvzEnabled($replicaSlaveHost);
+
+        } catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+            $this->forwardToTableSlideDataAction();
+            return;
+        }
+
+        try {
+            $replicaMasterSettings = json_decode($replicaMaster->getOvzSettings(),true);
+            $replicaMasterHost = $replicaMaster->physicalServers;
+
+            $replicaSlave = new VirtualServers;
+            $replicaSlave->assign($replicaMaster->toArray());
+            $replicaSlave->setId(NULL);
+            $replicaSlave->setOvzUuid(\RNTForest\core\libraries\Helpers::genUuid());
+            $replicaSlave->setName(substr("replica of ".$replicaMaster->getName(),0,50));
+            $replicaSlave->setPhysicalServersId($replicaSlaveHost->getId());
+            $replicaSlave->setOvzReplica(2);
+            $replicaSlave->setOvzReplicaId($replicaMaster->getId());
+            $replicaSlave->setOvzReplicaHost($replicaSlaveHost->getId());
+            $replicaSlave->setOvzReplicaStatus(3);
+
+            if ($replicaSlave->create() === false){
+                $allMessages = $this->translate("virtualservers_save_replica_slave_failed");
+                foreach ($replicaSlave->getMessages() as $message) {
+                    $allMessages .= $message->getMessage();
+                }
+                throw new \Exception($allMessages);
+            }
+            $replicaSlave->refresh();
+
+            $params = array(
+                "VSTYPE"=>$replicaSlave->getOvzVstype(),
+                "UUID"=>$replicaSlave->getOvzUuid(),
+                "NAME"=>$replicaSlave->getName(),
+                "OSTEMPLATE"=>$this->config->replica->osTemplate,
+                "DISTRIBUTION"=>"",
+                "HOSTNAME"=>$replicaSlave->getFqdn(),
+                "CPUS"=>$replicaSlave->getCore(),
+                "RAM"=>$replicaSlave->getMemory(),
+                "DISKSPACE"=>$replicaSlave->getSpace(),
+                "ROOTPWD"=>"WillBeOverittenByInitalSync",
+            );
+
+            // execute ovz_new_vs job        
+            // pending for replicaSlave
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$replicaSlave->getId().':general:1';
+            $push = $this->getPushService();
+            $job = $push->executeJob($replicaSlaveHost,'ovz_new_vs',$params,$pending);
+            if($job->getDone() == 2){
+                $message = $this->translate("virtualservers_job_create_failed");
+                throw new \Exception($message.$job->getError());
+            }
+            $job1Id = $job->getId();
+
+            // slave should not automatic boot
+            $params = array(
+                "UUID"=>$replicaSlave->getOvzUuid(),
+                "CONFIG"=>array("onboot"=>"no"),
+            );
+            $job = $push->queueDependentJob($replicaSlaveHost,'ovz_modify_vs',$params,$job1Id);            
+            if($job->getDone() == 2){
+                $message = $this->translate("virtualservers_job_modify_failed");
+                throw new \Exception($message.$job->getError());
+            }
+            $job2Id = $job->getId();
+
+            // initial Sync
+            $params = array(
+                "UUID"=>$replicaMaster->getOvzUuid(),
+                "SLAVEHOSTFQDN"=>$replicaSlaveHost->getFqdn(),
+                "SLAVEUUID"=>$replicaSlave->getOvzUuid(),
+            );
+            $job = $push->queueDependentJob($replicaMasterHost,'ovz_sync_replica',$params,$job2Id);            
+            if($job->getDone() == 2){
+                $message = $this->translate("virtualservers_job_sync_replica_failed");
+                throw new \Exception($message.$job->getError());
+            }
+
+            // update replica master
+            $replicaMaster->setOvzReplica(1);
+            $replicaMaster->setOvzReplicaId($replicaSlave->getId());
+            $replicaMaster->setOvzReplicaHost($replicaSlaveHost->getId());
+            $replicaMaster->setOvzReplicaCron("");
+            $replicaMaster->setOvzReplicaLastrun("");
+            $replicaMaster->setOvzReplicaNextrun("");
+            $replicaMaster->setOvzReplicaStatus(3);
+            if ($replicaMaster->update() == false){
+                $allMessages = $this->translate("virtualservers_update_replica_master_failed");
+                foreach ($replicaSlave->getMessages() as $message) {
+                    $allMessages .= $message->getMessage();
+                }
+                throw new \Exception($allMessages);
+            }
+
+            $message = self::translate("virtualservers_replica_sync_run_in_background");
+            $this->flashSession->success($message);
+
+        } catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        $this->redirecToTableSlideDataAction();        
     }
-        
-    public function ovzReplicaRunAction() {
+
+    public function ovzReplicaRunAction($masterId) {
         $this->flashSession->notice("Should run Replica");
+        
+        // sanitize Parameters
+        $masterId = $this->filter->sanitize($masterId,"int");
+
+        // ToDo: everithing...
+        
     }
-    
+
     public function ovzReplicaFailoverAction() {
         $this->flashSession->notice("Should failover Replica");
     }
-    
-    public function ovzReplicaDeleteAction() {
-        $this->flashSession->notice("Should delete Replica");
+
+    public function ovzReplicaDeleteAction($masterId) {
+
+        // sanitize Parameters
+        $masterId = $this->filter->sanitize($masterId,"int");
+        
+        try{
+            // validate (throws exceptions)
+            $replicaMaster = VirtualServers::tryFindById($masterId);
+            $this->tryCheckPermission('virtual_servers', 'replicas', array('item' => $replicaMaster));
+            $this->tryCheckOvzEnabled($replicaMaster);
+
+            if($replicaMaster->getOvzReplica() != 1){
+                $message = $this->translate("virtualserver_server_not_replica_master");
+                throw new \Exception($message);
+            }
+
+            $replicaSlave = VirtualServers::tryFindById($replicaMaster->getOvzReplicaId());
+            if($replicaSlave->getOvzReplica() != 2){
+                $message = $this->translate("virtualserver_server_not_replica_slave");
+                throw new \Exception($message);
+            }
+
+            // switch off replica            
+            $replicaMaster->setOvzReplica(0);
+            $replicaMaster->setOvzReplicaId(0);
+            $replicaMaster->setOvzReplicaHost(0);
+            $replicaMaster->setOvzReplicaCron('');
+            $replicaMaster->setOvzReplicaLastrun("0000-00-00 00:00:00");
+            $replicaMaster->setOvzReplicaNextrun("0000-00-00 00:00:00");
+            $replicaMaster->setOvzReplicaStatus(0);
+            if(!$replicaMaster->update()){
+                $message = $this->translate("virtualserver_replica_master_update_failed");
+                throw new \Exception($message);
+            }
+
+            $replicaSlave->setOvzReplica(0);
+            $replicaSlave->setOvzReplicaId(0);
+            $replicaSlave->setOvzReplicaHost(0);
+            $replicaSlave->setOvzReplicaCron('');
+            $replicaSlave->setOvzReplicaLastrun("0000-00-00 00:00:00");
+            $replicaSlave->setOvzReplicaNextrun("0000-00-00 00:00:00");
+            $replicaSlave->setOvzReplicaStatus(0);
+            if(!$replicaSlave->update()){
+                $message = $this->translate("virtualserver_replica_slave_update_failed");
+                throw new \Exception($message);
+            }
+
+            $message = self::translate("virtualservers_replica_switched_off");
+            $this->flashSession->success($message);
+
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+            $this->forwardToTableSlideDataAction();
+            return;
+        }
+        $this->forwardToTableSlideDataAction();
     }
-    
+
 }
 
 /**
@@ -1430,4 +1625,5 @@ class ConfigureVirtualServersFormFields{
     public $memory = "";
     public $diskspace = "";
     public $startOnBoot = 0;
+    public $description = "";
 }

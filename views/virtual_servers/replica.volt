@@ -6,7 +6,7 @@
                     <h5 class="panel-title pull-left">{{ _("virtualserver_replica") }}</h5>
                 </div>
                 <div class="pull-right">
-                    {% if item.ovz_replica_status <= 0 %}
+                    {% if item.ovz_replica <= 0 %}
                         {{ link_to("virtual_servers/ovzReplicaActivate/"~item.id,'<i class="fa fa-plus"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_replica_tooltip_activate")) }}
                     {% else %}    
@@ -22,7 +22,7 @@
         </tr>
     </thead>
     <tbody>
-    {% if item.ovz_replica_status <= 0 %}
+    {% if item.ovz_replica <= 0 %}
         <tr colspan="2">
             <td>
                 {{ _("virtualserver_replica_not_activated") }}

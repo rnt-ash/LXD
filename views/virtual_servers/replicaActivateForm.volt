@@ -14,7 +14,7 @@
         <div class="alert alert-danger" role="alert">{{form.getMessagesFor('id')[0]}}</div>  
     {% endif %}
 
-    {{ renderElement('physical_server',form,12) }}
+    {{ renderElement('physical_servers_id',form,12) }}
 
     {{ submit_button(_("virtualserver_replica_"), "class": "btn btn-primary") }}
     {{ link_to('/virtual_servers/slidedata', _("virtualserver_cancel"), 'class': 'btn btn-default pull-right') }}

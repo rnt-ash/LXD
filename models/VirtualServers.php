@@ -204,7 +204,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setId($id)
     {
         $this->id = $id;
-        return $this;
     }
 
     /**
@@ -216,7 +215,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setName($name)
     {
         $this->name = $name;
-        return $this;
     }
 
     /**
@@ -228,7 +226,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setDescription($description)
     {
         $this->description = $description;
-        return $this;
     }
 
     /**
@@ -240,7 +237,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setCustomersId($customers_id)
     {
         $this->customers_id = $customers_id;
-        return $this;
     }
 
     /**
@@ -252,7 +248,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setPhysicalServersId($physical_servers_id)
     {
         $this->physical_servers_id = $physical_servers_id;
-        return $this;
     }
 
     /**
@@ -264,7 +259,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setJobPublicKey($job_public_key)
     {
         $this->job_public_key = $job_public_key;
-        return $this;
     }
 
     /**
@@ -276,7 +270,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvz($ovz)
     {
         $this->ovz = $ovz;
-        return $this;
     }
 
     /**
@@ -288,7 +281,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzUuid($ovz_uuid)
     {
         $this->ovz_uuid = $ovz_uuid;
-        return $this;
     }
     
     /**
@@ -300,7 +292,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzVstype($ovz_vstyp)
     {
         $this->ovz_vstype = $ovz_vstyp;
-        return $this;
     }
 
     /**
@@ -312,7 +303,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzSettings($ovz_settings)
     {
         $this->ovz_settings = $ovz_settings;
-        return $this;
     }
 
     /**
@@ -324,7 +314,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzStatistics($ovz_statistics)
     {
         $this->ovz_statistics = $ovz_statistics;
-        return $this;
     }
 
     /**
@@ -336,7 +325,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzState($ovz_state)
     {
         $this->ovz_state = $ovz_state;
-        return $this;
     }
 
     /**
@@ -348,7 +336,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzSnapshots($ovz_snapshots)
     {
         $this->ovz_snapshots = $ovz_snapshots;
-        return $this;
     }
 
     /**
@@ -360,7 +347,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzReplica($ovz_replica)
     {
         $this->ovz_replica = $ovz_replica;
-        return $this;
     }
 
     /**
@@ -372,7 +358,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzReplicaId($ovz_replica_id)
     {
         $this->ovz_replica_id = $ovz_replica_id;
-        return $this;
     }
 
     /**
@@ -384,7 +369,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzReplicaHost($ovz_replica_host)
     {
         $this->ovz_replica_host = $ovz_replica_host;
-        return $this;
     }
 
     /**
@@ -396,7 +380,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzReplicaCron($ovz_replica_cron)
     {
         $this->ovz_replica_cron = $ovz_replica_cron;
-        return $this;
     }
 
     /**
@@ -408,7 +391,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzReplicaLastrun($ovz_replica_lastrun)
     {
         $this->ovz_replica_lastrun = $ovz_replica_lastrun;
-        return $this;
     }
 
     /**
@@ -420,7 +402,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzReplicaNextrun($ovz_replica_nextrun)
     {
         $this->ovz_replica_nextrun = $ovz_replica_nextrun;
-        return $this;
     }
 
     /**
@@ -432,7 +413,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setOvzReplicaStatus($ovz_replica_status)
     {
         $this->ovz_replica_status = $ovz_replica_status;
-        return $this;
     }
 
     /**
@@ -444,7 +424,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setFqdn($fqdn)
     {
         $this->fqdn = $fqdn;
-        return $this;
     }
 
     /**
@@ -456,7 +435,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setCore($core)
     {
         $this->core = $core;
-        return $this;
     }
 
     /**
@@ -468,7 +446,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setMemory($memory)
     {
         $this->memory = $memory;
-        return $this;
     }
 
     /**
@@ -480,7 +457,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setSpace($space)
     {
         $this->space = $space;
-        return $this;
     }
 
     /**
@@ -492,7 +468,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setActivationDate($activation_date)
     {
         $this->activation_date = $activation_date;
-        return $this;
     }
 
     /**
@@ -504,7 +479,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function setModified($modified)
     {
         $this->modified = $modified;
-        return $this;
     }
 
     /**
@@ -605,6 +579,16 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     public function getOvzSettings()
     {
         return $this->ovz_settings;
+    }
+
+    /**
+    * Returns the value of field ovz_settings
+    *
+    * @return array
+    */
+    public function getOvzSettingsAsArray()
+    {
+        return json_decode($this->ovz_settings,true);
     }
 
     /**
@@ -922,7 +906,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
         }
         return $virtualServers;
     }
-
     
     /**
     * Add a PendingToken to the PendingEntity.
@@ -960,4 +943,5 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
         $pendingArray = json_decode($this->pending,true);
         return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
     }
+    
 }

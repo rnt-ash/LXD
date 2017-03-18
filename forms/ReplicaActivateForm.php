@@ -38,8 +38,8 @@ class ReplicaActivateForm extends \RNTForest\core\forms\FormBase
         $scope = $this->permissions->getScope("virtual_servers","filter_physical_servers");
         $customers_id = $this->session->get('auth')['customers_id'];
         $element = new Select(
-            "physical_server",
-            PhysicalServers::findFromScope($scope,"ovz = 1"),
+            "physical_servers_id",
+            PhysicalServers::findFromScope($scope,["conditions"=>"ovz = 1","order"=>"name ASC"]),
             array("using"=>array("id","name",),
                 "useEmpty"   => true,
                 "emptyText"  => $this->translate("virtualserver_choose_physicalserver"),

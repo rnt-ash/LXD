@@ -31,16 +31,6 @@ class LoggingCli implements CliInterface {
     public function __construct(LoggerInterface $logger){
         $this->Logger = $logger;
     }
-
-    /**
-    * setter
-    * 
-    * @param string $host fqdn of remotehost or localhost
-    */
-    public function setHost($host){
-        //do nothing
-    }
-    
     
     /**
     * getter
