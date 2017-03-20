@@ -1411,7 +1411,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
         
         // check permissions
-        if(!$this->permissions->checkPermission('virtual_servers', 'general', array('item' => $virtualServer))){
+        if(!$this->permissions->checkPermission('virtual_servers', 'change_root_password', array('item' => $virtualServer))){
             return $this->forwardTo401();
         }   
         
@@ -1465,7 +1465,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
             
             // check permissions
-            if(!$this->permissions->checkPermission('virtual_servers', 'general', array('item' => $virtualServer))){
+            if(!$this->permissions->checkPermission('virtual_servers', 'change_root_password', array('item' => $virtualServer))){
                 return $this->forwardTo401();
             }
             
