@@ -20,7 +20,7 @@
 namespace RNTForest\ovz\utilities\monbehaviors;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
-use RNTForest\ovz\libraries\PortChecker;
+use RNTForest\ovz\utilities\PortChecker;
 
 class DnsMonBehavior implements MonBehaviorInterface{
     

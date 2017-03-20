@@ -22,7 +22,7 @@ namespace RNTForest\ovz\models;
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
 use RNTForest\ovz\models\MonLogsRemote;
 use RNTForest\core\libraries\Helpers;
-use RNTForest\ovz\utilities\DowntimePeriod;
+use RNTForest\ovz\utilities\datastructures\DowntimePeriod;
 
 class MonRemoteJobs extends \RNTForest\core\models\ModelBase
 {
