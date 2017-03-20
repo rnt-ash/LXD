@@ -622,14 +622,19 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
         $statusBefore = $this->getStatus();
         
         $server = $this->getServer();
-        $modified = $server->getModified();
+        $ovzStatistics = $server->getOvzStatistics();
+        
+        $decodedOvzStatistics = json_decode($ovzStatistics);
+        $modified = '';
+        if(is_array($decodedOvzStatistics) && key_exists('modified',$decodedOvzStatistics)){
+            $modified = $decodedOvzStatistics['modified'];    
+        }
          
         // if model is older than 1 minute update the ovz_statistics with a job
-        if(Helpers::createUnixTimestampFromDateTime($modified) < (time()-60)){
+        if(empty($modified) || Helpers::createUnixTimestampFromDateTime($modified) < (time()-60)){
             $server->updateOvzStatistics();
             $server->refresh();  
         }
-        $ovzStatistics = $server->getOvzStatistics();
         
         $value = '';        
         $behavior = new $this->mon_behavior_class();
