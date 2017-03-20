@@ -28,7 +28,7 @@ class OvzHoststatisticsInfoJob extends AbstractOvzJob {
             "params" => [
             ],
             "params_example" => '',
-            "retval" => 'JSON object with statistics infos of the OpenVZ 7 host, e.g.  {"cpu_load":0.05,"memory_free":223916032,"diskspace_free":21774663680}',
+            "retval" => 'JSON object with statistics infos of the OpenVZ 7 host, e.g.  {"modified":"2017-03-20 11:25:37","cpu_load":51,"memory_free_mb":205.9921875,"diskspace_free_gb":20.294521331787}',
             "warning" => "nothing specified",
             "error" => "different causes (getting statistics failed)",
         ];
@@ -39,9 +39,10 @@ class OvzHoststatisticsInfoJob extends AbstractOvzJob {
 
         try{
             $retval = array();
+            $retval['modified'] = date("Y-m-d H:i:s");
             $retval['cpu_load'] = $this->checkCPULoad();
-            $retval['memory_free'] = $this->checkMemoryFree();
-            $retval['diskspace_free'] = $this->checkDiskspaceFree();
+            $retval['memory_free_mb'] = $this->checkMemoryFree();
+            $retval['diskspace_free_gb'] = $this->checkDiskspaceFree();
             
             $this->Done = 1;    
             $this->Retval = json_encode($retval);
@@ -59,7 +60,7 @@ class OvzHoststatisticsInfoJob extends AbstractOvzJob {
     */
     private function checkDiskspaceFree() {
         $output = disk_free_space("/");
-        $diskfreespace = $output;
+        $diskfreespace = $output / 1024 / 1024 / 1024;
         return $diskfreespace;
     }
 
@@ -101,8 +102,8 @@ class OvzHoststatisticsInfoJob extends AbstractOvzJob {
         $memory[] = $meminfo["MemFree"];
         $memory[] = explode (" ",$memory[0]);
 
-        // convert kilobytes to bytes
-        $freebytes = $memory[0] * 1024; 
+        // convert kb to mb
+        $freebytes = $memory[0] / 1024; 
         return $freebytes;
     }
 }

@@ -26,11 +26,11 @@ class MonLocalValueStatus
     
     /**
     * 
-    * @param integer $value
+    * @param string $value
     * @param string $status
     */
     public function __construct($value, $status){
-        $this->value = intval($value);
+        $this->value = $value;
         $this->status = $status;
     }   
     
@@ -44,7 +44,7 @@ class MonLocalValueStatus
     
     /**
     * 
-    * @return int
+    * @return string
     */
     public function getValue(){
         return $this->value;

@@ -77,7 +77,7 @@ class MonSystem extends \Phalcon\DI\Injectable
             );
             echo("runLocalJobs ".count($monJobs)." MonLocalJobs\n");
             foreach($monJobs as $monJob){
-                echo(json_encode($monJob));
+                //echo(json_encode($monJob));
                 $monJob->execute();
                 if($monJob->getStatus() != 'normal'){
                     $this->getMonAlarm()->notifyMonLocalJobs($monJob);                
@@ -97,7 +97,9 @@ class MonSystem extends \Phalcon\DI\Injectable
             ]
             );
             foreach($physicals as $physical){
-                $physical->updateOvzStatistics();
+                if($physical->getOvz() == '1'){
+                    $physical->updateOvzStatistics();
+                }
             }
             
             // could be better done with a join and PHQL, would be more performant
