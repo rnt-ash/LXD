@@ -69,13 +69,15 @@ class OvzHoststatisticsInfoJob extends AbstractOvzJob {
     */
     private function checkCPULoad() {
         $output = file_get_contents('/proc/loadavg');
-        $firstSpacePosition = strpos($output," "); 
-        $secondSpacePosition = strpos($output," ",$firstSpacePosition+1);
-        // we need the 2. value because this is the average of the last 5 minutes
-        $loadavgTotal = substr($output,$firstSpacePosition+1,$secondSpacePosition-($firstSpacePosition+1));
+        $splits = explode(' ',$output);
+
+        if(!is_array($splits) || !key_exists(1,$splits)){
+            throw new \Exception("Could not get cpu load");
+        }
+        $loadavgTotal = $splits[1];
 
         // divide the total load to the number of cores
-        $loadavg = round($loadavgTotal / intval(exec('nproc')),2);
+        $loadavg = round($loadavgTotal / intval(exec('nproc')),2)*100;
 
         $cpuload = $loadavg;
         return $cpuload;
