@@ -212,4 +212,13 @@ class MonUptimes extends \RNTForest\core\models\ModelBase
     {
         return $this->modified;
     }
+    
+        
+    public function getYear(){
+        return substr($this->YearMonth,0,4);
+    }
+    
+    public function getMonth(){
+        return substr($this->YearMonth,4,2);
+    }
 }

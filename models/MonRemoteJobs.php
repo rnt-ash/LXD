@@ -21,6 +21,7 @@ namespace RNTForest\ovz\models;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
 use RNTForest\ovz\models\MonLogsRemote;
+use RNTForest\ovz\models\MonUptimes;
 use RNTForest\core\libraries\Helpers;
 use RNTForest\ovz\utilities\datastructures\DowntimePeriod;
 use RNTForest\ovz\utilities\MonUptimesGenerator;
@@ -691,22 +692,150 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     }
     
     public function updateUptime(){
-        // static values at the moment, todo implementation with dynamic recomputation
+        $monUptimes = MonUptimes::find(
+            [
+                "mon_remote_jobs_id = :id:",
+                "bind" => [
+                    "id" => $this->getId(),
+                ],
+            ]
+        );
+        
+        $actYear = date('Y');
+        $firstDayOfActYear = strtotime('first day of January '.$actYear);
+        $everUpSeconds = $everMaxSeconds = $everUpPercentage = 0;
+        $actYearUpSeconds = $actYearMaxSeconds = $actYearUpPercentage = 0;
+        $logTimeUpSeconds = $logTimeMaxSeconds = $logTimeUpPercentage = 0;
+
+        foreach($monUptimes as $monUptime){
+            $everUpSeconds += $monUptime->getUpSeconds();
+            $everMaxSeconds += $monUptime->getMaxSeconds(); 
+            
+            if($monUptime->getYear() == $actYear){
+                $actYearUpSeconds += $monUptime->getUpSeconds();
+                $actYearMaxSeconds += $monUptime->getMaxSeconds();
+            }           
+        }
+        
+       
+        // MonLogs einberechnen
+        $oldestMonLog = MonRemoteLogs::findFirst(
+            [
+                "mon_remote_jobs_id = :id:",
+                "order" => "modified ASC",
+                "bind" => [
+                    "id" => $this->getId(),
+                ],
+            ]
+        );
+        $newestMonLog = MonRemoteLogs::findFirst(
+            [
+                "mon_remote_jobs_id = :id:",
+                "order" => "modified DESC",
+                "bind" => [
+                    "id" => $this->getId(),
+                ],
+            ]
+        );
+        
+        // add up downtime periods
+        $downTimePeriods = $this->createDownTimePeriods();
+        $logDownTimeInSeconds = 0;
+        foreach($downTimePeriods as $downTimePeriod){
+            $logDownTimeInSeconds += $downTimePeriod->getDurationInSeconds();         
+        }
+        
+        if($newestMonLog != null && $oldestMonLog != null){
+            $logTimeMaxSeconds = Helpers::createUnixTimestampFromDateTime($newestMonLog->getModified()) - Helpers::createUnixTimestampFromDateTime($oldestMonLog->getModified());    
+        }
+        $logTimeUpSeconds = $logTimeMaxSeconds - $logDownTimeInSeconds;        
+        if($logTimeMaxSeconds > 0){
+            $logTimeUpPercentage = $logTimeUpSeconds / $logTimeMaxSeconds;    
+        }
+        
+        // add log times to ever and actYear
+        $everMaxSeconds += $logTimeMaxSeconds;
+        $everUpSeconds += $logTimeUpSeconds;
+        $actYearMaxSeconds += $logTimeMaxSeconds;
+        $actYearUpSeconds += $logTimeUpSeconds;
+        
+        if($everMaxSeconds > 0){
+            $everUpPercentage = $everUpSeconds / $everMaxSeconds;    
+        }
+        if($actYearMaxSeconds > 0){
+            $actYearUpPercentage = $actYearUpSeconds / $actYearMaxSeconds;    
+        }
+        
         $uptime = [
-        'actperioduppercentage' => 0.99989400798279,
-        'actperiodmaxseconds' => 3085138,
-        'actperiodupseconds' => 3084811,
-        'actyearuppercentage' => 0.99994326401596,
-        'actyearmaxseconds' => 5763538,
-        'actyearupseconds' => 5763211,
-        'everuppercentage' => 0.99972519207778,
-        'evermaxseconds' => 26931538,
-        'everupseconds' => 26924137
+        'actperioduppercentage' => $logTimeUpPercentage,
+        'actperiodmaxseconds' => $logTimeMaxSeconds,
+        'actperiodupseconds' => $logTimeUpSeconds,
+        'actyearuppercentage' => $actYearUpPercentage,
+        'actyearmaxseconds' => $actYearMaxSeconds,
+        'actyearupseconds' => $actYearUpSeconds,
+        'everuppercentage' => $everUpPercentage,
+        'evermaxseconds' => $everMaxSeconds,
+        'everupseconds' => $everUpSeconds
         ];
         
         $this->setUptime(json_encode($uptime));
         
         $this->save();
+    }
+    
+    /**
+    * Creates an array of DownTimePeriods from MonRemoteLogs.
+    * 
+    * @return \EAT\monitoring\model\DownTimePeriod[]
+    */
+    private function createDownTimePeriods(){
+        $downTimes = array();
+        $monLogs = MonRemoteLogs::find(
+            [
+                "mon_remote_jobs_id = :id:",
+                "order" => "modified ASC",
+                "bind" => [
+                    "id" => $this->getId(),
+                ],
+            ]
+        );
+        
+        $lastState = $curState = -1;
+        $start = 0;
+        $end = 0;
+        $curMonLog = null;
+        
+        foreach($monLogs as $monLog){
+            $curState = $monLog->getValue();
+            
+            // if already down in first log
+            if($lastState == -1 && $curState == 0){
+                $start = Helpers::createUnixTimestampFromDateTime($monLog->getModified());
+            }
+            
+            // negative statuschange       
+            if($lastState == 1 && $curState == 0){
+                $start = Helpers::createUnixTimestampFromDateTime($monLog->getModified());
+            }
+            
+            // positive statuschange
+            if($lastState == 0 && $curState == 1){
+                $end = Helpers::createUnixTimestampFromDateTime($monLog->getModified());
+                $downTimes[] = new DownTimePeriod($start,$end);    
+            }
+            
+            $lastState = $curState;
+            $curMonLog = $monLog;
+        }
+        
+        // if downtime never ends in the logs, say end < start, the modified of the last MonRemoteLogs is taken
+        if($end < $start){
+            $lastMonLog = $curMonLog;
+            $end = Helpers::createUnixTimestampFromDateTime($lastMonLog->getModified());
+            $downTimes[] = new DownTimePeriod($start,$end);
+        }
+        
+        return $downTimes; 
     }
     
     public function genMonUptimes(){
