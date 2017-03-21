@@ -121,4 +121,25 @@ class MonSystem extends \Phalcon\DI\Injectable
     private function getMonAlarm(){
         return $this->getDI()['monAlarm'];
     }
+    
+    public function genMonUptimes(){
+        try{
+            $this->logger->debug("Start with genMonUptimes");
+            $monJobs = MonRemoteJobs::find();
+            
+            // Todo: delete MonRemoteLogs with nonexisting MonRemoteJobs
+            
+            foreach($monJobs as $monJob){
+                $this->logger->debug("handle monjob id ".$monJob->getId());
+                
+                // genMonUptime
+                $monJob->genMonUptimes();
+                
+                // better recompute uptime???
+                $monJob->updateUptime();
+            }
+        }catch(\Exception $e){
+            echo $e->getMessage()."\n";
+        }    
+    }
 }

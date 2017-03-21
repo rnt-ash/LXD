@@ -23,6 +23,7 @@ use RNTForest\ovz\interfaces\MonBehaviorInterface;
 use RNTForest\ovz\models\MonLogsRemote;
 use RNTForest\core\libraries\Helpers;
 use RNTForest\ovz\utilities\datastructures\DowntimePeriod;
+use RNTForest\ovz\utilities\MonUptimesGenerator;
 
 class MonRemoteJobs extends \RNTForest\core\models\ModelBase
 {
@@ -706,6 +707,10 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         $this->setUptime(json_encode($uptime));
         
         $this->save();
+    }
+    
+    public function genMonUptimes(){
+        MonUptimesGenerator::genMonUptime($this);
     }
     
     public function hadRecentHealJob(){
