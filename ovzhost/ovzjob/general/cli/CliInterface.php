@@ -27,7 +27,7 @@ interface CliInterface {
     * @param string $command Input Parameter
     * @return int ExitStatus
     */
-    public function execute($command);
+    public function execute($command,$host='');
     
     /**
     * Execute a Shell Command in background.
@@ -36,7 +36,7 @@ interface CliInterface {
     * @param string $command Input Parameter
     * @return int ExitStatus
     */
-    public function executeBackground($command);
+    public function executeBackground($command,$host='');
 
     /**
     * getter    

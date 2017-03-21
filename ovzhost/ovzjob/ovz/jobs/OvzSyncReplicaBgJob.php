@@ -35,7 +35,7 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
 
         try{
             // mount slave VS
-            $exitstatus = $this->PrlctlCommands->mount($this->Params['SLAVEUUID'],$this->Params['SLAVEHOSTFQDN']);        
+            $exitstatus = $this->PrlctlCommands->mount($this->Params['SLAVEUUID'],$this->Params['SLAVEHOSTFQDN']);
             if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Mount of replica slave failed",$exitstatus));
 
             // create replica master snapshot
@@ -57,13 +57,13 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
             if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Mount snapshot failed. VZCTL Returncode: $exitstatus",$exitstatus));
 
             // Run sync (save detail log in file)
-            if(!file_exists("/srv/log/replica/")){ 
-                $cmd = 'mkdir -p /srv/log/replica/';
+            if(!file_exists("/srv/ovzhost/log/replica/")){ 
+                $cmd = 'mkdir -p /srv/ovzhost/log/replica/';
                 $exitstatus = $this->Cli->execute($cmd);
-                if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Logfolder (/srv/log/replica/) could not created: MKDIR Returncode: $exitstatus",$exitstatus));
+                if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Logfolder (/srv/ovzhost/log/replica/) could not created: MKDIR Returncode: $exitstatus",$exitstatus));
             }
 
-            $cmd = 'rsync -axAHS -e "ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa" --log-file-format="%i %n%L %l %b" --log-file="/srv/log/replica/'.$this->Params['UUID'].'_'.date("Y-m-d").'.log" '.
+            $cmd = 'rsync -axAHS -e "ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa" --log-file-format="%i %n%L %l %b" --log-file="/srv/ovzhost/log/replica/'.$this->Params['UUID'].'_'.date("Y-m-d").'.log" '.
                 '--stats --numeric-ids --delete --exclude /srv/backups --exclude /mnt --exclude /proc --exclude /dev --exclude /sys '.
                 '/vz/mnt/'.$this->Params['UUID'].'/ root@'.$this->Params['SLAVEHOSTFQDN'].':/vz/root/'.$this->Params['SLAVEUUID'].'/';
             $exitstatus = $this->Cli->execute($cmd);
@@ -72,10 +72,6 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
             // save whole output                
             $retval['sync_stats'] = implode("\n",$this->Cli->getOutput())."\n";
 
-            // copy logfiles also to replicahost (no errorhandling, destination folder must exists)
-            $cmd = 'rsync -az /srv/log/replica/'.$this->Params['UUID'].'_'.date("Y-m-d").'.log  root@'.$this->Params['SLAVEHOSTFQDN'].':/srv/log/replica/';
-            $this->Cli->execute($cmd);
-            
             // Processing RSync stats
             foreach($this->Cli->getOutput() as $line){
                 if (strpos($line,"Number of files:")!==false) 
@@ -98,6 +94,10 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
                     $retval['stats_total_bytes_received'] = intval(preg_replace("/[,.]/", "",substr($line,strpos($line,":")+1)));
             }
 
+            // copy logfiles also to replicahost (no errorhandling, destination folder must exists)
+            $cmd = 'rsync -az /srv/ovzhost/log/replica/'.$this->Params['UUID'].'_'.date("Y-m-d").'.log  root@'.$this->Params['SLAVEHOSTFQDN'].':/srv/ovzhost/log/replica/';
+            $this->Cli->execute($cmd);
+            
 
             // umount snapshots
             $exitstatus = $this->VzctlCommands->umountSnapshot($this->Params['UUID'],$snapshotUUID);        
@@ -117,7 +117,7 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
 
             // unmount slave
             $this->PrlctlCommands->umount($this->Params['SLAVEUUID'],$this->Params['SLAVEHOSTFQDN']);
-            if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Umount snapshot failed. PRLCTL returncode: $exitstatus",$exitstatus));
+            if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Unmount snapshot failed. PRLCTL returncode: $exitstatus",$exitstatus));
 
 
         }catch(\Exception $e){
@@ -130,8 +130,8 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
 
         // set end flag
         $retval['end'] = date('Y-m-d H:i:s');
-        $this->Retval = $retval;
-        
+        $this->Retval = json_encode($retval);
+
         $this->Context->getLogger()->debug("Sync Replica background done");
     }
 }

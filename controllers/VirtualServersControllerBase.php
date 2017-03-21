@@ -38,13 +38,13 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 {
     protected function getSlideDataInfo() {
         $scope = $this->permissions->getScope('virtual_servers','general');
-        $scopeQuery = "";
+        $scopeQuery = 'RNTForest\ovz\models\VirtualServers.ovz_replica < 2';
         $joinQuery = NULL;
         if ($scope == 'customers'){
-            $scopeQuery = "customers_id = ".$this->session->get('auth')['customers_id'];
+            $scopeQuery .= " AND customers_id = ".$this->session->get('auth')['customers_id'];
         } else if($scope == 'partners'){
-            $scopeQuery = 'RNTForest\ovz\models\VirtualServers.customers_id = '.$this->session->get('auth')['customers_id'];
-            $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'];
+            $scopeQuery .= 'AND (RNTForest\ovz\models\VirtualServers.customers_id = '.$this->session->get('auth')['customers_id'];
+            $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'].")";
             $joinQuery = array('model'=>'RNTForest\core\models\CustomersPartners',
                 'conditions'=>'RNTForest\ovz\models\VirtualServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
                 'type'=>'LEFT');
@@ -184,6 +184,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * @throws \Exceptions
     */
     protected function tryOvzListInfo($virtualServer){
+        
+        // todo: check if update nis realy needed
+        
         // no pending needed because job is readonly     
         $push = $this->getPushService();
         $params = array('UUID'=>$virtualServer->getOvzUuid());
@@ -191,12 +194,73 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $message = $this->translate("virtualserver_job_infolist_failed");
         if($job->getDone()==2) throw new \Exception($message.$job->getError());
 
-        // save settings ti virtual server
+        // save settings to virtual server
         $this->saveVirutalServerSettings($job,$virtualServer);
 
         return $job;
     }
 
+    /**
+    * execute ovz_start_vs job
+    * 
+    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
+    * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
+    * @throws \Exceptions
+    */
+    protected function tryStartVS($virtualServer){
+
+        // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+        $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $push = $this->getPushService();
+        $params = array('UUID'=>$virtualServer->getOvzUuid());
+        $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_start_vs',$params,$pending);
+        $message = $this->translate("virtualserver_job_start_failed");
+        if($job->getDone()==2) throw new \Exception($message.$job->getError());
+        
+        return $job;
+    }
+        
+    /**
+    * execute ovz_stop_vs job
+    * 
+    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
+    * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
+    * @throws \Exceptions
+    */
+    protected function tryStopVS($virtualServer){
+
+        // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+        $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $push = $this->getPushService();
+        $params = array('UUID'=>$virtualServer->getOvzUuid());
+        $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_stop_vs',$params,$pending);
+        $message = $this->translate("virtualserver_job_stop_failed");
+        if($job->getDone()==2) throw new \Exception($message.$job->getError());
+        
+        return $job;
+    }
+
+    /**
+    * execute ovz_restart_vs job
+    * 
+    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
+    * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
+    * @throws \Exceptions
+    */
+    protected function tryRestartVS($virtualServer){
+
+        // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+        $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $push = $this->getPushService();
+        $params = array('UUID'=>$virtualServer->getOvzUuid());
+        $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params,$pending);
+        $message = $this->translate("virtualserver_job_restart_failed");
+        if($job->getDone()==2) throw new \Exception($message.$job->getError());
+        
+        return $job;
+    }
+        
+    
     /**
     * updates OVZ statistics
     * 
@@ -313,13 +377,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if(!$virtualServer->getOvz()) throw new \Exception($message);
 
             // execute ovz_stop_vs job        
-            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
-            $push = $this->getPushService();
-            $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_stop_vs',$params,$pending);
-            $message = $this->translate("virtualserver_job_stop_failed");
-            if($job->getDone()==2) throw new \Exception($message.$job->getError());
+            $this->tryStopVS($virtualServer);
 
             // success
             $message = $this->translate("virtualserver_job_stop");
@@ -1362,7 +1420,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $virtualServer->setDescription($settings['Description']);
         $virtualServer->setOvz(1);
         $virtualServer->setOvzVstype($settings['Type']);
-        $virtualServer->setOvzState($settings['State']);
         $virtualServer->setCore(intval($settings['Hardware']['cpu']['cpus']));
         $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size'])/1024/1024));
         $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size'])/1024/1024));
@@ -1469,10 +1526,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             );
 
             // execute ovz_new_vs job        
-            // pending for replicaSlave
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$replicaSlave->getId().':general:1';
+            // no pending needed, replica slave should be invisible
             $push = $this->getPushService();
-            $job = $push->executeJob($replicaSlaveHost,'ovz_new_vs',$params,$pending);
+            $job = $push->executeJob($replicaSlaveHost,'ovz_new_vs',$params);
             if($job->getDone() == 2){
                 $message = $this->translate("virtualservers_job_create_failed");
                 throw new \Exception($message.$job->getError());
@@ -1529,18 +1585,107 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $this->redirecToTableSlideDataAction();        
     }
 
-    public function ovzReplicaRunAction($masterId) {
-        $this->flashSession->notice("Should run Replica");
-        
-        // sanitize Parameters
-        $masterId = $this->filter->sanitize($masterId,"int");
+    /**
+    * dummy method only for auto completion purpose
+    * 
+    * @return \RNTForest\ovz\services\Replica
+    */
+    protected function getReplicaService(){
+        return $this->di['replica'];
+    }
+    
+    public function ovzReplicaRunAction($replicaMasterId) {
 
-        // ToDo: everithing...
+        // sanitize Parameters
+        $replicaMasterId = $this->filter->sanitize($replicaMasterId,"int");
+
+        try{
+            // validate (throws exceptions)
+            $replicaMaster = VirtualServers::tryFindById($replicaMasterId);
+            $this->tryCheckPermission('virtual_servers', 'replicas', array('item' => $replicaMaster));
+            $this->tryCheckOvzEnabled($replicaMaster);
+
+            // run replica
+            $replica = $this->getReplicaService();
+            $replica->run($replicaMaster);
+            $this->flashSession->success("replica_running_in_background");
+
+        } catch (\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
         
+        $this->redirecToTableSlideDataAction();        
     }
 
-    public function ovzReplicaFailoverAction() {
-        $this->flashSession->notice("Should failover Replica");
+    public function ovzReplicaFailoverAction($replicaMasterId) {
+
+        // sanitize Parameters
+        $replicaMasterId = $this->filter->sanitize($replicaMasterId,"int");
+
+        try{
+            // validate (throws exceptions)
+            $replicaMaster = VirtualServers::tryFindById($replicaMasterId);
+            $this->tryCheckPermission('virtual_servers', 'replicas', array('item' => $replicaMaster));
+            $this->tryCheckOvzEnabled($replicaMaster);
+            
+            if($replicaMaster->getOvzReplica() != 1) throw new \Exception("Virtual Server is not replica master!");
+            
+            // shutdown master
+            $this->tryOvzListInfo($replicaMaster);
+            if($replicaMaster->getOvzState() == 'running') $this->tryStopVS($replicaMaster);
+    
+            // check if master and slave is stopped            
+            $this->tryOvzListInfo($replicaMaster);
+            $replicaMasterState = $replicaMaster->getOvzState();
+            if($replicaMasterState != 'stopped'){
+                throw new \Exception("virtualservers_replica_master_not_stopped");
+            }
+    
+            $replicaSlave = new VirtualServers;
+            $replicaSlave = $replicaMaster->ovzReplicaId;
+            $this->tryOvzListInfo($replicaSlave);
+            if($replicaSlave->getOvzState() != 'stopped'){
+                throw new \Exception("virtualservers_replica_slave_not_stopped");
+            }
+
+            // run replica, don't go on until job ist fineshed
+            $replica = $this->getReplicaService();
+            if($job = $replica->run($replicaMaster)){
+                $push = $this->getPushService();
+                while($job->getDone()>0){
+                    sleep(5);
+                    $push->pushJobs();
+                }
+            }
+            
+            // Todo: update actual config (incl dcoip)
+
+            // turn around master and slave
+            $replicaMaster->setOvzReplica(2);
+            $masterName = $replicaMaster->getName();
+            $replicaMaster->setName($replicaSlave->getName());
+            $replicaMaster->update();
+
+            $replicaSlave->setOvzReplica(1);
+            $replicaSlave->setName($masterName);
+            $replicaSlave->update();
+            
+            if($replicaMasterState == 'running'){
+                $this->tryStartVS($replicaSlave);
+            }
+
+            // update settings
+            $this->tryOvzListInfo($replicaSlave);
+    
+            $this->flashSession->success('virtualservers_replica_failover_success');
+    
+        } catch (\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        
+        $this->redirecToTableSlideDataAction();        
     }
 
     public function ovzReplicaDeleteAction($masterId) {
@@ -1602,10 +1747,17 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $this->forwardToTableSlideDataAction();
     }
 
+    private function getCurrentOVZSettings($id){
+        $currentData = $this->getAllData($id);
+        $this->updateOVZSettingsInDB($id,$currentData);
+        return $currentData;
+    }
+
+
 }
 
 /**
-* helper class
+* helper classes
 */
 class SnapshotFormFields{
     public $virtual_servers_id = 0;

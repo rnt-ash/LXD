@@ -103,12 +103,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     *
     * @var string
     */
-    protected $ovz_state;
-
-    /**
-    *
-    * @var string
-    */
     protected $ovz_snapshots;
 
     /**
@@ -317,17 +311,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     }
 
     /**
-    * saves OVT State
-    *
-    * @param string $ovz_state
-    * @return $this
-    */
-    public function setOvzState($ovz_state)
-    {
-        $this->ovz_state = $ovz_state;
-    }
-
-    /**
     * OpenVZ snapshots as JSON
     *
     * @param string $ovz_snapshots
@@ -383,7 +366,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     }
 
     /**
-    * date of the replcas last run
+    * date of the replica last run
     *
     * @param string $ovz_replica_lastrun
     * @return $this
@@ -602,16 +585,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     }
 
     /**
-    * Returns the value of field ovz_state
-    *
-    * @return string
-    */
-    public function getOvzState()
-    {
-        return $this->ovz_state;
-    }
-
-    /**
     * Returns the value of field ovz_snapshots
     *
     * @return string
@@ -761,6 +734,8 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
 
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
         $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
+        $this->hasOne("ovz_replica_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"OvzReplicaId", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasOne("ovz_replica_host",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"OvzReplicaHost", "foreignKey"=>array("allowNulls"=>true)));
         $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"virtual_servers_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
 
         // Timestampable behavior
@@ -893,21 +868,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     }
     
     /**
-    * generate an array for an select element, considered the permission scope
-    * 
-    * @param string $scope
-    */
-    public static function generateArrayForSelectElement($scope){
-        $findParameters = array("columns"=>"id, name");
-        $resultset = self::findFromScope($scope,$findParameters);
-        $virtualServers = array(0 => self::translate("virtualserver_all_virtualservers"));
-        foreach($resultset as $virtualServer){
-            $virtualServers[$virtualServer->id] = $virtualServer->name;
-        }
-        return $virtualServers;
-    }
-    
-    /**
     * Add a PendingToken to the PendingEntity.
     * For conversion of a PendingString to a PendingToken use PendingHelpers::convert Method.
     * 
@@ -944,4 +904,22 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
         return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
     }
     
+    /**
+    * generate an array for an select element, considered the permission scope
+    * 
+    * @param string $scope
+    */
+    public static function generateArrayForSelectElement($scope){
+        $findParameters = array("columns"=>"id, name");
+        $resultset = self::findFromScope($scope,$findParameters);
+        $virtualServers = array(0 => self::translate("virtualserver_all_virtualservers"));
+        foreach($resultset as $virtualServer){
+            $virtualServers[$virtualServer->id] = $virtualServer->name;
+        }
+        return $virtualServers;
+    }
+
+    public function getOvzState(){
+        return json_decode($this->ovz_settings,true)['State'];
+    }
 }

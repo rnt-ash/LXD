@@ -41,7 +41,7 @@ class RestServiceStarter{
     
     public function startRest(){
         $restRouter = new RestRouter($this->Context);
-        $this->Context->getLogger()->notice("RestService started...");
+        $this->Context->getLogger()->debug("RestService started...");
         $restRouter->handleRequest();
     }
 }
