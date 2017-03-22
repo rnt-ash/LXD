@@ -219,36 +219,6 @@ class MonUptimesGenerator{
         return $downTimeInSeconds;                
     }
     
-    /**
-    * Trys to give an existing MonUptime to a given YearMonth. 
-    * If none exists, false is given.
-    * 
-    * @param string $yearMonth
-    * @param Uptime $uptime
-    * @param \RNTForest\ovz\models\MonUptimes[] $monUptimes
-    * @return \RNTForest\ovz\models\MonUptimes or false
-    */
-    private static function getExistingMonUptime($yearMonth,Uptime $uptime,$monUptimes){
-        $found = false;
-        foreach($monUptimes as $monUptime){
-            if($monUptime instanceof MonUptime){
-                // does it already exists?
-                if($monUptime->getYearMonth() == $yearMonth){
-                    // has it changed? currently only needed for logging reasons
-                    if($monUptime->getMaxSeconds() == $uptime->getMaxSeconds()
-                    && $monUptime->getUpSeconds() == $uptime->getUpSeconds()
-                    && $monUptime->getUpPercentage() == $uptime->getUpPercentage()){
-                        MonUptimesGenerator::getLogger()->notice(MonUptimesGenerator::translate("monitoring_monuptimesgenerator_uptimealreadyexists").$yearMonth);
-                    }else{
-                        MonUptimesGenerator::getLogger()->notice(MonUptimesGenerator::translate("monitoring_monuptimesgenerator_uptimealreadyexistsdifferent").$yearMonth);
-                    }
-                    $found = $monUptime;    
-                }   
-            }
-        }
-        return $found;
-    }
-    
     private static function genMonthStartByYearMonth($yearMonth){
         $year = substr($yearMonth,0,4);
         $month = substr($yearMonth,4,2);
