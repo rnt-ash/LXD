@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `mon_local_logs` (
   `mon_local_jobs_id` int(11) NOT NULL COMMENT 'FK mon_local_jobs',
   `value` text NOT NULL,
   `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  KEY `local_mon_jobs_id` (`local_mon_jobs_id`),
+  KEY `mon_local_jobs_id` (`mon_local_jobs_id`),
   KEY `modified` (`modified`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `mon_remote_logs` (
   `value` text NOT NULL,
   `heal_job` int(11) DEFAULT NULL COMMENT 'FK jobs',
   `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  KEY `remote_mon_jobs_id` (`remote_mon_jobs_id`),
+  KEY `mon_remote_jobs_id` (`mon_remote_jobs_id`),
   KEY `modified` (`modified`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -94,5 +94,14 @@ CREATE TABLE IF NOT EXISTS `mon_uptimes` (
   `up_seconds` int(11) NOT NULL,
   `up_percentage` decimal(9,8) NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY `remote_mon_jobs_id` (`remote_mon_jobs_id`)
+  KEY `mon_remote_jobs_id` (`mon_remote_jobs_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `mon_local_daily_logs` (
+  `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `mon_local_jobs_id` int(11) NOT NULL COMMENT 'FK mon_remote_jobs_id',
+  `day` date NOT NULL,
+  `value` text NOT NULL,
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY `mon_local_jobs_id` (`mon_local_jobs_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

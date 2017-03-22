@@ -142,4 +142,22 @@ class MonSystem extends \Phalcon\DI\Injectable
             echo $e->getMessage()."\n";
         }    
     }
+    
+    public function genMonLocalDailyLogs(){
+        try{
+            $this->logger->debug("Start with genMonLocalDailyLogs");
+            $monJobs = MonLocalJobs::find();
+            
+            // Todo: delete MonLocalLogs with nonexisting MonLocalJobs
+            
+            foreach($monJobs as $monJob){
+                $this->logger->debug("handle monjob id ".$monJob->getId());
+                
+                // genMonUptime
+                $monJob->genMonLocalDailyLogs();
+            }
+        }catch(\Exception $e){
+            echo $e->getMessage()."\n";
+        }    
+    }
 }

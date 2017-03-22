@@ -66,4 +66,10 @@ class MonitoringTask extends Task
         $system = new MonSystem();
         $system->genMonUptimes();
     }
+    
+    public function genMonLocalDailyLogsAction(){
+        echo "called genMonLocalDailyLogs in ovz...".PHP_EOL;
+        $system = new MonSystem();
+        $system->genMonLocalDailyLogs();
+    }
 }

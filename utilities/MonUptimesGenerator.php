@@ -35,14 +35,6 @@ class MonUptimesGenerator{
     */
     public static function genMonUptime(MonRemoteJobs $monJob){
         MonUptimesGenerator::getLogger()->debug("start genMonUptime");
-        $persistedMonUptimes = MonUptimes::find(
-            [
-                "mon_remote_jobs_id = :id:",
-                "bind" => [
-                    "id" => $monJob->getId(),
-                ],
-            ]
-        );
         
         // get all relevant MonRemoteLogs and sort them
         $preMonthStart = date("Y-m-d H:i:s", strtotime("first day of last month midnight"));

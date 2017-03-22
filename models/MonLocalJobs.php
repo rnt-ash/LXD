@@ -20,6 +20,7 @@
 namespace RNTForest\ovz\models;
 
 use RNTForest\ovz\interfaces\MonLocalBehaviorInterface;
+use RNTForest\ovz\utilities\MonLocalDailyLogsGenerator;
 use RNTForest\ovz\models\MonLogsLocal;
 use RNTForest\core\libraries\Helpers;
 
@@ -657,5 +658,9 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
         $this->setLastRun(date('Y-m-d H:i:s'));
         
         $this->save();
+    }
+    
+    public function genMonLocalDailyLogs(){
+        MonLocalDailyLogsGenerator::genLocalDailyLogs($this);    
     }
 }
