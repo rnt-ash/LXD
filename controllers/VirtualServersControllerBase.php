@@ -1882,13 +1882,9 @@ class ConfigureVirtualServersFormFields{
     public $memory = "";
     public $diskspace = "";
     public $startOnBoot = 0;
-<<<<<<< HEAD
     public $description = "";
-}
-=======
 }
 
 class ChangeRootPasswordFormFields{
     public $password = "";
 }
->>>>>>> develop
