@@ -46,7 +46,7 @@ class LoggingCli implements CliInterface {
     * @param string $command Input Parameter
     * @return int ExitStatus
     */
-    public function execute($command){
+    public function execute($command,$host=''){
         $this->Logger->notice("LoggingCli: ".$command. " 2>&1");
         return 0;
     }
@@ -58,7 +58,7 @@ class LoggingCli implements CliInterface {
     * @param string $command Input Parameter
     * @return int ExitStatus
     */
-    public function executeBackground($command){
+    public function executeBackground($command,$host=''){
         $this->Logger->notice("LoggingCli: nohup ".$command. " 2>&1 &");
         return 0;    
     }

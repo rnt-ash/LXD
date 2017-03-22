@@ -501,12 +501,12 @@ class OvzConnector extends \Phalcon\DI\Injectable
     }
     
     private function testJobSystem(){
-        try{
-            $params = array("TO"=>$this->di['config']->mail['rootalias'],"MESSAGE"=>'This is a test message generated from the Connector while connecting to '.$this->PhysicalServer->getFqdn());
-            $push = $this->getPushService();
-            $push->executeJob($this->PhysicalServer,'general_test_sendmail',$params);
-        }catch(\Exception $e){
-            $error = 'Problem in testing job system: '.$this->MakePrettyException($e);
+        $params = array("TO"=>$this->di['config']->mail['rootalias'],"MESSAGE"=>'This is a test message generated from the Connector while connecting to '.$this->PhysicalServer->getFqdn());
+        $push = $this->getPushService();
+        $job = $push->executeJob($this->PhysicalServer,'general_test_sendmail',$params);
+
+        if($job->getDone() != 1){
+            $error = 'Problem in testing job system: '.$job->getError();
             $this->Logger->error('OvzConnector: '.$error);
             throw new \Exception($error); 
         }
@@ -515,7 +515,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
     /**
     * dummy method only for auto completion purpose
     * 
-    * @return Push
+    * @return \RNTForest\core\services\Push
     */
     private function getPushService(){
         return $this->di['push'];
