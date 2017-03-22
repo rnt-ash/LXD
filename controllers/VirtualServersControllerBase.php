@@ -31,6 +31,7 @@ use RNTForest\ovz\forms\ModifyVirtualServersForm;
 use RNTForest\ovz\forms\DcoipobjectsForm;
 use RNTForest\ovz\forms\SnapshotForm;
 use RNTForest\ovz\forms\ReplicaActivateForm;
+use RNTForest\ovz\forms\ChangeRootPasswordForm;
 
 use \RNTForest\core\libraries\Helpers;
 
@@ -1500,7 +1501,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $replicaSlave->setPhysicalServersId($replicaSlaveHost->getId());
             $replicaSlave->setOvzReplica(2);
             $replicaSlave->setOvzReplicaId($replicaMaster->getId());
-            $replicaSlave->setOvzReplicaHost($replicaSlaveHost->getId());
+            $replicaSlave->setOvzReplicaHost($replicaMasterHost->getId());
             $replicaSlave->setOvzReplicaStatus(3);
 
             if ($replicaSlave->create() === false){
@@ -1753,7 +1754,111 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         return $currentData;
     }
 
+    /**
+    * Show changeRootPassword form
+    * 
+    * @param mixed $virtualServersId
+    */
+    public function changeRootPasswordAction($virtualServersId) {
+        // sanitize
+        $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
 
+        // get virtual server object
+        $virtualServer = VirtualServers::findFirstByid($virtualServersId);
+        if (!$virtualServer) {
+            $message = $this->translate("virtualserver_does_not_exist");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
+        }
+        
+        // check permissions
+        if(!$this->permissions->checkPermission('virtual_servers', 'change_root_password', array('item' => $virtualServer))){
+            return $this->forwardTo401();
+        }   
+        
+        // check if server is ovz integrated
+        if($virtualServer->getOvz() != 1){
+            $message = $this->translate("virtualserver_not_ovz_integrated");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
+        }
+        
+        // prepare form fields
+        $changeRootPasswordFormFields = new ChangeRootPasswordFormFields();
+        $changeRootPasswordFormFields->virtual_servers_id = $virtualServersId;
+        
+        // call view
+        $this->view->form = new ChangeRootPasswordForm($changeRootPasswordFormFields); 
+        $this->view->pick("virtual_servers/changeRootPasswordForm");
+    }
+    
+    /**
+    * Change root password
+    * 
+    */
+    public function changeRootPasswordExecuteAction() {
+        try{
+            // POST request?
+            if (!$this->request->isPost()) 
+                return $this->redirectTo("virtual_servers/slidedata");
+
+            // validate FORM
+            $form = new ChangeRootPasswordForm;
+            $item = new ChangeRootPasswordFormFields();
+            $data = $this->request->getPost();
+            if (!$form->isValid($data, $item)) {
+                $this->view->form = $form; 
+                $this->view->pick("virtual_servers/changeRootPasswordForm");
+                return; 
+            }
+            
+            // sanitize
+            $virtualServersId = $this->filter->sanitize($data['virtual_servers_id'],"int");
+            
+            // check if virutal server exists
+            $virtualServer = VirtualServers::findFirstByid($virtualServersId);
+            if (!$virtualServer){
+                $message = $this->translate("virtualserver_does_not_exist");
+                $this->flashSession->error($message);
+                $this->view->form = $form; 
+                $this->view->pick("virtual_servers/changeRootPasswordForm");
+                return;
+            }
+            
+            // check permissions
+            if(!$this->permissions->checkPermission('virtual_servers', 'change_root_password', array('item' => $virtualServer))){
+                return $this->forwardTo401();
+            }
+            
+            // check if server is ovz integrated
+            if($virtualServer->getOvz() != 1){
+                $message = $this->translate("virtualserver_not_ovz_integrated");
+                $this->flashSession->error($message);
+                return $this->forwardToTableSlideDataAction();
+            }
+            
+            // execute ovz_set_pwd job        
+            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage
+            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $push = $this->getPushService();
+            $params = array(
+                'UUID'=>$virtualServer->getOvzUuid(),
+                'ROOTPWD'=>$data['password']
+            );
+            $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_set_pwd',$params,$pending);
+            $message = $this->translate("virtualserver_change_root_password_failed");
+            if($job->getDone()==2) throw new \Exception($message.$job->getError());
+            
+            // success message
+            $message = $this->translate("virtualserver_change_root_password_successful");
+            $this->flashSession->success($message);
+            
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        $this->redirecToTableSlideDataAction();
+    }
 }
 
 /**
@@ -1777,5 +1882,13 @@ class ConfigureVirtualServersFormFields{
     public $memory = "";
     public $diskspace = "";
     public $startOnBoot = 0;
+<<<<<<< HEAD
     public $description = "";
 }
+=======
+}
+
+class ChangeRootPasswordFormFields{
+    public $password = "";
+}
+>>>>>>> develop

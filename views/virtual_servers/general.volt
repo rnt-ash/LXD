@@ -28,10 +28,8 @@
                             'class': 'btn btn-default btn-xs loadingScreen', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_updateovz")) }}
                         {{ link_to("virtual_servers/ovzStatisticsInfo/"~item.id,'<i class="fa fa-refresh"></i>',
                             'class': 'btn btn-default btn-xs loadingScreen', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_updatestats")) }}
-                        {# not yet implementet
-                        {{ link_to("virtual_servers/todo/"~item.id,'<i class="fa fa-key"></i>',
+                        {{ link_to("virtual_servers/changeRootPassword/"~item.id,'<i class="fa fa-key"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_setpwd")) }}
-                        #}
                     {% else %}
                         {{ link_to("virtual_servers/edit/"~item.id,'<i class="fa fa-pencil"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
