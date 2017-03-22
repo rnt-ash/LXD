@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\utilities\datastructures;
+namespace RNTForest\ovz\datastructures;
 
 class MonLocalValueStatus
 {    

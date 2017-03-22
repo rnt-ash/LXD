@@ -22,7 +22,7 @@ namespace RNTForest\ovz\utilities;
 use RNTForest\ovz\models\MonRemoteJobs;
 use RNTForest\ovz\models\MonRemoteLogs;
 use RNTForest\ovz\models\MonUptimes;
-use RNTForest\ovz\utilities\datastructures\Uptime;
+use RNTForest\ovz\datastructures\Uptime;
 use RNTForest\core\libraries\Helpers;
 
 class MonUptimesGenerator{

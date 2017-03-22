@@ -20,7 +20,7 @@
 namespace RNTForest\ovz\utilities\monbehaviors;
 
 use RNTForest\ovz\interfaces\MonLocalBehaviorInterface;
-use RNTForest\ovz\utilities\datastructures\MonLocalValueStatus;
+use RNTForest\ovz\datastructures\MonLocalValueStatus;
 use RNTForest\ovz\models\MonLocalJobs;
 
 class CpuloadPhysMonLocalBehavior implements MonLocalBehaviorInterface{

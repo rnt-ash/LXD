@@ -23,7 +23,7 @@ use RNTForest\ovz\interfaces\MonBehaviorInterface;
 use RNTForest\ovz\models\MonLogsRemote;
 use RNTForest\ovz\models\MonUptimes;
 use RNTForest\core\libraries\Helpers;
-use RNTForest\ovz\utilities\datastructures\DowntimePeriod;
+use RNTForest\ovz\datastructures\DowntimePeriod;
 use RNTForest\ovz\utilities\MonUptimesGenerator;
 
 class MonRemoteJobs extends \RNTForest\core\models\ModelBase
