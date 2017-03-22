@@ -13,9 +13,9 @@
                             <i class="fa fa-lightbulb-o text-default"></i>&nbsp;<span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li>{{ link_to("virtual_servers/startVS/"~item.id,'<i class="fa fa-play"></i> {{ _("virtualserver_general_start") }}', 'class': 'loadingScreen') }}</li>
-                            <li>{{ link_to("virtual_servers/stopVS/"~item.id,'<i class="fa fa-ban"></i> {{ _("virtualserver_general_stop") }}', 'class': 'loadingScreen') }}</li>
-                            <li>{{ link_to("virtual_servers/restartVS/"~item.id,'<i class="fa fa-retweet"></i> {{ _("virtualserver_general_restart") }}', 'class': 'loadingScreen') }}</li>
+                            <li>{{ link_to("virtual_servers/startVS/"~item.id,'<i class="fa fa-play"></i> '~_("virtualserver_general_start"), 'class': 'loadingScreen') }}</li>
+                            <li>{{ link_to("virtual_servers/stopVS/"~item.id,'<i class="fa fa-ban"></i> '~_("virtualserver_general_stop"), 'class': 'loadingScreen') }}</li>
+                            <li>{{ link_to("virtual_servers/restartVS/"~item.id,'<i class="fa fa-retweet"></i> '~_("virtualserver_general_restart"), 'class': 'loadingScreen') }}</li>
                         </ul>
                         {% endif %}
                     </div>

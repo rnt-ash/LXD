@@ -1549,12 +1549,22 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $job2Id = $job->getId();
 
             // initial Sync
+            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+            // callback to update virtualserver
+            $pending = array(
+                'model' => '\RNTForest\ovz\models\VirtualServers',
+                'id' => $replicaMaster->getId(),
+                'element' => 'replica',
+                'severity' => 1,
+                'params' => array(),
+                'callback' => '\RNTForest\ovz\functions\Pending::updateAfterReplicaRun'
+            );
             $params = array(
                 "UUID"=>$replicaMaster->getOvzUuid(),
                 "SLAVEHOSTFQDN"=>$replicaSlaveHost->getFqdn(),
                 "SLAVEUUID"=>$replicaSlave->getOvzUuid(),
             );
-            $job = $push->queueDependentJob($replicaMasterHost,'ovz_sync_replica',$params,$job2Id);            
+            $job = $push->queueDependentJob($replicaMasterHost,'ovz_sync_replica',$params,$job2Id,$pending);            
             if($job->getDone() == 2){
                 $message = $this->translate("virtualservers_job_sync_replica_failed");
                 throw new \Exception($message.$job->getError());
@@ -1654,20 +1664,23 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $replica = $this->getReplicaService();
             if($job = $replica->run($replicaMaster)){
                 $push = $this->getPushService();
-                while($job->getDone()>0){
+                while($job->getDone()<1){
                     sleep(5);
                     $push->pushJobs();
+                    $job->refresh();
                 }
             }
             
             // Todo: update actual config (incl dcoip)
 
             // turn around master and slave
+            $replicaMaster->refresh();
             $replicaMaster->setOvzReplica(2);
             $masterName = $replicaMaster->getName();
             $replicaMaster->setName($replicaSlave->getName());
             $replicaMaster->update();
 
+            $replicaSlave->refresh();
             $replicaSlave->setOvzReplica(1);
             $replicaSlave->setName($masterName);
             $replicaSlave->update();

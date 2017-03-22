@@ -118,13 +118,12 @@ class Replica extends \Phalcon\DI\Injectable
             "SLAVEHOSTFQDN"=>$replicaMaster->ovzReplicaHost->getFqdn(),
             "SLAVEUUID"=>$replicaMaster->ovzReplicaId->getOvzUuid(),
         );
-
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        // callback to update virtualserver_replica_lastrun
+        // callback to update virtualserver
         $pending = array(
             'model' => '\RNTForest\ovz\models\VirtualServers',
             'id' => $replicaMaster->getId(),
-            'element' => replica,
+            'element' => 'replica',
             'severity' => 1,
             'params' => array(),
             'callback' => '\RNTForest\ovz\functions\Pending::updateAfterReplicaRun'
