@@ -9,14 +9,21 @@ class Pending{
     * update the ovz_replica_lastrun field
     * 
     * @param array $pendingArray
+    * @param \RNTForest\core\models\Jobs $job
     * @throws \Exceptions
     */
-    public static function updateReplicaLastrun($pendingArray){
+    public static function updateAfterReplicaRun($pendingArray,$job){
         $replicaMaster = VirtualServers::tryFindById($pendingArray['id']);
-        $replicaMaster->setOvzReplicaLastrun(date("Y-m-d H:i:s")); //format: 0000-00-00 00:00:00
+
+        if($job->getDone() == 1){
+            $replicaMaster->setOvzReplicaLastrun(date("Y-m-d H:i:s")); //format: 0000-00-00 00:00:00
+            $replicaMaster->setOvzReplicaStatus(1);
+        }else{
+            $replicaMaster->setOvzReplicaStatus(9);
+        }
+
         if(!$replicaMaster->update()) throw new \Exception("Replica Master update failed");
     }
-
 
 }
 ?>

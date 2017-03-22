@@ -127,7 +127,7 @@ class Replica extends \Phalcon\DI\Injectable
             'element' => replica,
             'severity' => 1,
             'params' => array(),
-            'callback' => '\RNTForest\ovz\functions\Pending::updateReplicaLastrun'
+            'callback' => '\RNTForest\ovz\functions\Pending::updateAfterReplicaRun'
         );
         $job = $push->executeJob($replicaMaster->physicalServers,'ovz_sync_replica',$params,$pending);
         if($job->getDone() == 2){
