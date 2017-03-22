@@ -209,11 +209,11 @@ class MonUptimesGenerator{
         }
         // if the last log is not up, then the downtime reaches until the end of the month
         if($lastValue == 0){
-            $downTimeInSeconds += (strtotime('+1 month', strtotime('first day of '.$year.'-'.($month).' midnight'))-1)-DateConverter::createUnixTimestampFromDateTime($startDowntime);
+            $downTimeInSeconds += (strtotime('+1 month', strtotime('first day of '.$year.'-'.($month).' midnight'))-1)-Helpers::createUnixTimestampFromDateTime($startDowntime);
         }
         // if the whole month was 0, then the whole month is one downtime...
         if($endDowntime = ''){
-            $downTimeInSeconds += (strtotime('+1 month', strtotime('first day of '.$year.'-'.($month).' midnight'))-1)-DateConverter::createUnixTimestampFromDateTime($startDowntime);
+            $downTimeInSeconds += (strtotime('+1 month', strtotime('first day of '.$year.'-'.($month).' midnight'))-1)-Helpers::createUnixTimestampFromDateTime($startDowntime);
         }
         
         return $downTimeInSeconds;                
