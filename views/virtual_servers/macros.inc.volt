@@ -4,7 +4,7 @@
     <li>
         <div class="list-group-item" title="{{ snapshot['Description'] }}">
             <div class="btn-group">
-                <a href="#" link="ovzSwitchSnapshot/{{snapshot['UUID']}}/{{serverId}}" 
+                <a href="#" link="ovzSnapshotSwitch/{{snapshot['UUID']}}/{{serverId}}" 
                     class="btn btn-default btn-xs confirmDialog" data-toggle="tooltip" data-placement="top"
                     text="{{ _("virtualserver_snapshot_switchinfo") }}" title="{{ _("virtualserver_snapshot_switch") }}">
                     <i class="fa fa-play-circle fa-lg"></i>
@@ -13,7 +13,7 @@
 
             {% if snapshot['Removable'] == 1 %}
             <div class="btn-group">
-                <a href="#" link="ovzDeleteSnapshot/{{snapshot['UUID']}}/{{serverId}}"
+                <a href="#" link="ovzSnapshotDelete/{{snapshot['UUID']}}/{{serverId}}"
                     class="btn btn-default btn-xs confirmDialog" data-toggle="tooltip" data-placement="top"
                     text="{{ _("virtualserver_snapshot_deleteinfo") }}" title="{{ _("virtualserver_snapshot_delete") }}">
                     <i class="fa fa-trash fa-lg"></i>
@@ -22,9 +22,9 @@
             {% endif %}
 
             {% if snapshot['Name'] is empty %} 
-            no name available
+                no name available
             {% else %}
-            {{ snapshot['Name'] }}
+                {{ snapshot['Name'] }}
             {% endif %}
 
             <span class="pull-right hidden-xs">{{ snapshot['Date'] }}</span>
@@ -34,7 +34,7 @@
         <ul>
             <li class="list-group-item">
                 <div class="btn-group">
-                    <a href="/virtual_servers/snapshotForm/{{serverId}}" class="btn btn-default btn-xs"
+                    <a href="/virtual_servers/ovzSnapshotCreate/{{serverId}}" class="btn btn-default btn-xs"
                         data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_snapshot_new") }}">
                         <i class="fa fa-plus fa-lg"></i>
                     </a>
