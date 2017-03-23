@@ -173,6 +173,31 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         ]);
     }
 
-    
+    /**
+    * kghdjfg
+    * 
+    * @param integer $colocationsId
+    */
+    public function generateIpPdfAction($colocationsId){
+        // sanitize Parameters
+        $colocationsId = $this->filter->sanitize($colocationsId,"int");
+
+        try{
+            // validate (throws exceptions)
+            $colocation = Colocations::tryFindById($colocationsId);
+            $this->tryCheckPermission('colocation', 'general', array('item' => $colocation));
+
+            // Todo: PDF
+            // generate PDF
+            
+
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+            $this->forwardToTableSlideDataAction();
+            return;
+        }
+        die();
+    }    
     
 }
