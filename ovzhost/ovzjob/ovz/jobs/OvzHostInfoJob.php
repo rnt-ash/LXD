@@ -39,7 +39,7 @@ class OvzHostInfoJob extends AbstractOvzJob {
         $exitstatus = $this->PrlsrvctlCommands->hostInfo();
         if($exitstatus > 0) return $this->commandFailed("Getting host info failed",$exitstatus);
 
-        $array = json_decode($this->PrlctlCommands->getJson(),true);
+        $array = json_decode($this->PrlsrvctlCommands->getJson(),true);
         if(is_array($array) && !empty($array)){
             $array['Timestamp'] = date('Y-m-d h:m:s');
             $this->Done = 1;    
