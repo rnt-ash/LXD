@@ -826,7 +826,7 @@ class Dcoipobjects extends \RNTForest\core\models\ModelBase
     * @param Dcoipobjects $ipo2
     * @return integer 0:even, -1:ipo1<ipo2, 1:ipo1>ipo2
     */
-    public function cmp(self $ipo1,self $ipo2){
+    public static function cmp(self $ipo1,self $ipo2){
         if ($ipo1->getStart() == $ipo2->getStart()) {
             return 0;
         }
