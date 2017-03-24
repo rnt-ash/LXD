@@ -47,6 +47,7 @@ class OvzStatisticsInfoJob extends AbstractOvzJob {
         
         $array = json_decode($this->PrlctlCommands->getJson(),true);
         if(is_array($array) && !empty($array)){
+            $array['Timestamp'] = date('Y-m-d h:m:s');
             $this->Done = 1;    
             $this->Retval = json_encode($array);
             $this->Context->getLogger()->debug("Get statistics success.");
