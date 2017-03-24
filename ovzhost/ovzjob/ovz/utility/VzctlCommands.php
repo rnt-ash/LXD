@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\utility;
+namespace RNTForest\OVZJOB\ovz\utility;
 
-use RNTFOREST\OVZJOB\general\utility\Context;
+use RNTForest\OVZJOB\general\utility\Context;
 
 /**
 * VS: Virtual System eg. CT or VM
@@ -35,12 +35,12 @@ class VzctlCommands {
     private $Context;
 
     /**
-    * @var {\RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface|LoggerInterface}
+    * @var {\RNTForest\OVZJOB\general\psrlogger\LoggerInterface|LoggerInterface}
     */
     private $Logger;
 
     /**
-    * @var {\RNTFOREST\OVZJOB\general\cli\CliInterface|CliInterface}
+    * @var {\RNTForest\OVZJOB\general\cli\CliInterface|CliInterface}
     */
     private $Cli;
     

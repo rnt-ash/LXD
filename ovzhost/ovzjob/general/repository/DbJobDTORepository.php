@@ -17,10 +17,10 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\repository;
+namespace RNTForest\OVZJOB\general\repository;
 
-use RNTFOREST\OVZJOB\general\utility\JobDTO;
-use RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface;
+use RNTForest\OVZJOB\general\utility\JobDTO;
+use RNTForest\OVZJOB\general\psrlogger\LoggerInterface;
 
 class DbJobDTORepository implements JobDTORepository{
     
@@ -43,7 +43,7 @@ class DbJobDTORepository implements JobDTORepository{
     * Returns the JobDTO element with the given id.
     * 
     * @param int $id
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function get($id){
         $stmt = $this->Pdo->prepare("SELECT id, type, params, executed, done, error, warning, retval FROM jobs WHERE id=:id");
@@ -68,7 +68,7 @@ class DbJobDTORepository implements JobDTORepository{
     * Creates a new JobDTO element in db and returns this created element.
     * 
     * @param JobDTO $jobDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function create(JobDTO $jobDTO){
         $stmt = $this->Pdo->prepare("INSERT INTO jobs (id, type, params, executed, done, error, warning, retval) VALUES(:id, :type, :params, :executed, :done, :error, :warning, :retval)");
@@ -91,7 +91,7 @@ class DbJobDTORepository implements JobDTORepository{
     * Updates a given JobDTO element in db and returns the updated element.
     * 
     * @param JobDTO $jobDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function update(JobDTO $jobDTO){
         $stmt = $this->Pdo->prepare("UPDATE jobs SET type=:type, params=:params, executed=:executed, done=:done, error=:error, warning=:warning, retval=:retval WHERE id=:id");
@@ -114,7 +114,7 @@ class DbJobDTORepository implements JobDTORepository{
     * Deletes the JobDTO element and returns the last state in db of this element.
     * 
     * @param JobDTO $jobDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function delete(JobDTO $jobDTO){
         return $this->deleteById($jobDTO->getId());
@@ -124,7 +124,7 @@ class DbJobDTORepository implements JobDTORepository{
     * Deletes the JobDTO element with specified id and returns the last state in db of this element.
     * 
     * @param int $id
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function deleteById($id){
         $jobDTO = $this->get($id);

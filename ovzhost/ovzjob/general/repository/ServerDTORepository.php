@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\repository;
+namespace RNTForest\OVZJOB\general\repository;
 
-use RNTFOREST\OVZJOB\general\utility\ServerDTO;
+use RNTForest\OVZJOB\general\utility\ServerDTO;
 
 /**
 * AKTUELL NICHT VERWENDET
@@ -30,7 +30,7 @@ interface ServerDTORepository{
     * Returns the ServerDTO element with the given id.
     * 
     * @param string $uuid
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function get($uuid);
     
@@ -38,7 +38,7 @@ interface ServerDTORepository{
     * Creates a new ServerDTO element in db and returns this created element.
     * 
     * @param ServerDTO $serverDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function create(ServerDTO $serverDTO);
     
@@ -46,7 +46,7 @@ interface ServerDTORepository{
     * Updates a given ServerDTO element in db and returns the updated element.
     * 
     * @param ServerDTO $jobDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function update(ServerDTO $serverDTO);
     
@@ -54,7 +54,7 @@ interface ServerDTORepository{
     * Deletes the ServerDTO element and returns the last state in db of this element.
     * 
     * @param ServerDTO $jserverDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function delete(ServerDTO $serverDTO);
     
@@ -62,7 +62,7 @@ interface ServerDTORepository{
     * Deletes the ServerDTO element with specified id and returns the last state in db of this element.
     * 
     * @param string $uuid
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function deleteByUuid($id);    
 }

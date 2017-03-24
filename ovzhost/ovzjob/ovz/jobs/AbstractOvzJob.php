@@ -17,14 +17,14 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\jobs;
+namespace RNTForest\OVZJOB\ovz\jobs;
 
-use RNTFOREST\OVZJOB\general\jobs\AbstractJob;
-use RNTFOREST\OVZJOB\general\utility\Context;
+use RNTForest\OVZJOB\general\jobs\AbstractJob;
+use RNTForest\OVZJOB\general\utility\Context;
 
-use RNTFOREST\OVZJOB\ovz\utility\PrlctlCommands;
-use RNTFOREST\OVZJOB\ovz\utility\VzctlCommands;
-use RNTFOREST\OVZJOB\ovz\utility\PrlsrvctlCommands;
+use RNTForest\OVZJOB\ovz\utility\PrlctlCommands;
+use RNTForest\OVZJOB\ovz\utility\VzctlCommands;
+use RNTForest\OVZJOB\ovz\utility\PrlsrvctlCommands;
 
 abstract class AbstractOvzJob extends AbstractJob{
 

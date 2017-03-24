@@ -211,7 +211,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     protected function tryStartVS($virtualServer){
 
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
         $push = $this->getPushService();
         $params = array('UUID'=>$virtualServer->getOvzUuid());
         $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_start_vs',$params,$pending);
@@ -231,7 +231,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     protected function tryStopVS($virtualServer){
 
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
         $push = $this->getPushService();
         $params = array('UUID'=>$virtualServer->getOvzUuid());
         $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_stop_vs',$params,$pending);
@@ -251,7 +251,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     protected function tryRestartVS($virtualServer){
 
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
         $push = $this->getPushService();
         $params = array('UUID'=>$virtualServer->getOvzUuid());
         $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params,$pending);
@@ -335,7 +335,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // execute ovz_start_vs job 
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_start_vs',$params,$pending);
@@ -417,7 +417,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // execute ovz_restart_vs job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params,$pending);
@@ -456,7 +456,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // execute ovz_destroy_vs job   
         if($virtualServer->getOvz()){     
             // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId();
+            $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId();
             $push = $this->getPushService();
             $params = array("UUID"=>$virtualServer->getOvzUuid());
             $job = $push->executeJob($virtualServer->physicalServers,'ovz_destroy_vs',$params,$pending);
@@ -699,7 +699,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // execute ovz_switch_snapshot job
             // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId();
+            $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId();
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'SNAPSHOTID'=>$snapshotId);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_switch_snapshot',$params);
@@ -788,7 +788,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // execute ovz_list_snapshots job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'NAME'=>$item->name,'DESCRIPTION'=>$item->description);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_create_snapshot',$params);
@@ -831,7 +831,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // execute ovz_delete_snapshot job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array('UUID'=>$virtualServer->getOvzUuid(),'SNAPSHOTID'=>$snapshotId);
             $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_delete_snapshot',$params);
@@ -1130,7 +1130,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // execute ovz_modify_vs job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array(
                 'UUID'=>$virtualServer->getOvzUuid(),
@@ -1348,7 +1348,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // execute ovz_restart_vs job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array(
                 'UUID'=>$virtualServer->getOvzUuid(),
@@ -1837,7 +1837,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             
             // execute ovz_set_pwd job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage
-            $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $pending = 'RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $push = $this->getPushService();
             $params = array(
                 'UUID'=>$virtualServer->getOvzUuid(),

@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\utility;
+namespace RNTForest\OVZJOB\general\utility;
 
-use RNTFOREST\OVZJOB\general\jobs\AbstractJob;
+use RNTForest\OVZJOB\general\jobs\AbstractJob;
 
 class JobHandler implements JobExecutor{
 
@@ -39,11 +39,11 @@ class JobHandler implements JobExecutor{
     private $Context;
     
     /**
-    * @var {\RNTFOREST\OVZJOB\general\repository\JobDTORepository|JobDTORepository}
+    * @var {\RNTForest\OVZJOB\general\repository\JobDTORepository|JobDTORepository}
     */
     private $JobDTORepository;    
     /**
-    * @var {\RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface|LoggerInterface}
+    * @var {\RNTForest\OVZJOB\general\psrlogger\LoggerInterface|LoggerInterface}
     */
     private $Logger;
     

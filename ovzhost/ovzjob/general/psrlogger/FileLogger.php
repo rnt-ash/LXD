@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\psrlogger;
+namespace RNTForest\OVZJOB\general\psrlogger;
 
 class FileLogger extends AbstractLogger{
     private $LogFile;

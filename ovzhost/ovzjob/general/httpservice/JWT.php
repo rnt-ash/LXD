@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\httpservice;
+namespace RNTForest\OVZJOB\general\httpservice;
 
 class JWT {
     

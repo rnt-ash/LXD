@@ -17,11 +17,11 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\httpservice;
+namespace RNTForest\OVZJOB\general\httpservice;
 
-use RNTFOREST\OVZJOB\general\utility\JobDTO;
-use RNTFOREST\OVZJOB\general\utility\Context;
-use RNTFOREST\OVZJOB\general\utility\ServerDTO;
+use RNTForest\OVZJOB\general\utility\JobDTO;
+use RNTForest\OVZJOB\general\utility\Context;
+use RNTForest\OVZJOB\general\utility\ServerDTO;
 
 class RestRouter{
 

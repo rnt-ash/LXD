@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\cli;
+namespace RNTForest\OVZJOB\general\cli;
 
 interface CliInterface {
     /**

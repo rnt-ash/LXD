@@ -17,10 +17,10 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\psrlogger;
+namespace RNTForest\OVZJOB\general\psrlogger;
 
-use RNTFOREST\OVZJOB\general\psrlogger\LogLevel;
-use RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface;
+use RNTForest\OVZJOB\general\psrlogger\LogLevel;
+use RNTForest\OVZJOB\general\psrlogger\LoggerInterface;
 
 /**
  * This is a simple Logger implementation that other Loggers can inherit from.

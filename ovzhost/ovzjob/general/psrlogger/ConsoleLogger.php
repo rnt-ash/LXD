@@ -17,10 +17,10 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\psrlogger;
+namespace RNTForest\OVZJOB\psrlogger;
 
-use RNTFOREST\OVZJOB\psrlogger\AbstractLogger;
-use RNTFOREST\OVZJOB\psrlogger\LogLevel;
+use RNTForest\OVZJOB\psrlogger\AbstractLogger;
+use RNTForest\OVZJOB\psrlogger\LogLevel;
 
 class ConsoleLogger extends AbstractLogger{
     

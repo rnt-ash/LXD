@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\jobs;
+namespace RNTForest\OVZJOB\general\jobs;
 
-use RNTFOREST\OVZJOB\general\utility\Context;
+use RNTForest\OVZJOB\general\utility\Context;
 
 abstract class AbstractJob {
     protected $Id;

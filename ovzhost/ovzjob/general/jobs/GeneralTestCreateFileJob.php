@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\jobs;
+namespace RNTForest\OVZJOB\general\jobs;
 
-use RNTFOREST\OVZJOB\general\jobs\AbstractJob;
+use RNTForest\OVZJOB\general\jobs\AbstractJob;
 
 class GeneralTestCreatefileJob extends AbstractJob {
     

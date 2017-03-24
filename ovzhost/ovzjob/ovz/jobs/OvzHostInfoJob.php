@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\jobs;
+namespace RNTForest\OVZJOB\ovz\jobs;
 
 class OvzHostInfoJob extends AbstractOvzJob {
 

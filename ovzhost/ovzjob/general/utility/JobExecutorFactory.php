@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\utility;
+namespace RNTForest\OVZJOB\general\utility;
 
 class JobExecutorFactory{
 
@@ -69,7 +69,7 @@ class JobExecutorFactory{
     * All classes for jobs are located in those subfolders and follow a strict namingconvention:
     * From prefix_identifier1_identifier2 (lowercase) will be made to uppercamelcase and added the suffix Job.
     * i.e. for jobType ovz_new_vs will be made the classname OvzNewVsJob 
-    * and returned the absolute classepath with namespace RNTFOREST\OVZJOB\ovz\jobs\OvzNewVsJob
+    * and returned the absolute classepath with namespace RNTForest\OVZJOB\ovz\jobs\OvzNewVsJob
     * 
     * If the background-Flag is set, the suffix will be BackgroundJob
     * 
@@ -86,7 +86,7 @@ class JobExecutorFactory{
             $classSuffix = "BgJob";
         }
         
-        return "RNTFOREST\\OVZJOB\\".$identifier."\\jobs\\".$ucJobType.$classSuffix;
+        return "RNTForest\\OVZJOB\\".$identifier."\\jobs\\".$ucJobType.$classSuffix;
     }
     
     /**

@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\cli;
+namespace RNTForest\OVZJOB\general\cli;
 
-use RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface;
+use RNTForest\OVZJOB\general\psrlogger\LoggerInterface;
 
 class LoggingCli implements CliInterface {
     

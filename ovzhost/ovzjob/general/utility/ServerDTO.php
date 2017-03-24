@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\utility;
+namespace RNTForest\OVZJOB\general\utility;
 
 /**
 * Not used at the moment...
