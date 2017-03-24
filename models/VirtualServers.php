@@ -761,6 +761,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
 
         $validator = $this->generateValidator($op,$vstype);
         if(!$this->validate($validator)) return false;
+        
+        // should not be NULL
+        if(empty($this->ovz_replica)) $this->ovz_replica = 0;
 
         return true;
     }
@@ -864,6 +867,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
                 'message' => $message
             ]));        
         }        
+        
         return $validator;
     }
     
