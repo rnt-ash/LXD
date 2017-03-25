@@ -276,7 +276,7 @@ class DcoipobjectsControllerBase extends \RNTForest\core\controllers\ControllerB
         // save new ovz settings
         $settings = $job->getRetval(true);
         $virtualServer->setOvzSettings($job->getRetval());
-        VirtualServersControllerBase::assignSettings($virtualServer,$settings);
+        VirtualServersControllerBase::virtualServerSettingsAssign($virtualServer,$settings);
 
         if ($virtualServer->save() === false) {
             $messages = $virtualServer->getMessages();

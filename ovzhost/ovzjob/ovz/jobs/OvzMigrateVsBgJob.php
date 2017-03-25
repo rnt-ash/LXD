@@ -42,8 +42,10 @@ class OvzMigrateVsBgJob extends AbstractOvzJob{
         // get Info of migrated VS on the destination host
         $exitstatus = $this->PrlctlCommands->listInfo($this->Params['NAME'],$this->Params['DESTINATION']);
         if($exitstatus > 0) return $this->commandFailed("Getting info failed",$exitstatus);
+
         $array = json_decode($this->PrlctlCommands->getJson(),true);
         if(is_array($array) && !empty($array)){
+            $array[0]['Timestamp'] = date('Y-m-d H:i:s');
             $this->Done = 1;    
             $this->Retval = json_encode($array[0]);
             $this->Context->getLogger()->debug("Migrate background VS done");

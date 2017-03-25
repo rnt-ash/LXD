@@ -27,7 +27,7 @@ use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Validation\Validator\StringLength as StringLengthValidator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 
-class ChangeRootPasswordForm extends \RNTForest\core\forms\FormBase
+class RootPasswordChangeForm extends \RNTForest\core\forms\FormBase
 {
     
     public function initialize($entity = null, $userOptions = null)

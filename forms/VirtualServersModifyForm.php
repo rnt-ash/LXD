@@ -29,7 +29,7 @@ use Phalcon\Forms\Element\Hidden;
 use RNTForest\core\models\Customers;
 use RNTForest\ovz\models\VirtualServers;
 
-class ModifyVirtualServersForm extends \RNTForest\core\forms\FormBase
+class VirtualServersModifyForm extends \RNTForest\core\forms\FormBase
 {
 
     public function initialize($virtualServer = null, $options = array())

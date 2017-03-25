@@ -569,7 +569,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     *
     * @return array
     */
-    public function getOvzSettingsAsArray()
+    public function getOvzSettingsArray()
     {
         return json_decode($this->ovz_settings,true);
     }
@@ -583,6 +583,18 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     {
         return $this->ovz_statistics;
     }
+
+    /**
+    * Returns the value of field ovz_statistics
+    *
+    * @return array
+    */
+    public function getOvzStatisticsArray()
+    {
+        return json_decode($this->ovz_statistics,true);
+    }
+
+
 
     /**
     * Returns the value of field ovz_snapshots
@@ -905,7 +917,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
     */
     public function isPending($pendingToken=''){
         $pendingArray = json_decode($this->pending,true);
-        return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
+        return PendingHelpers::checkForPendingTokenInPendingArray($pendingToken,$pendingArray);
     }
     
     /**

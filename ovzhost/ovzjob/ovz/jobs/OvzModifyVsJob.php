@@ -39,7 +39,7 @@ class OvzModifyVsJob extends AbstractOvzJob{
                 ]
             ],
             "params_example" => '{"UUID":"717a8925-f92b-48d3-81aa-a948cfe177af","CONFIG":{"hostname":"server.domain.tld","cpus":"4","memsize":"1024","diskspace":"10240","onboot":"yes","nameserver":"8.8.8.8 123.123.123.123","description":""}}',
-            "retval" => "nothing specified",
+            "retval" => "JSON string with settings of the new VS",
             "warning" => "nothing specified",
             "error" => "different causes (UUID does not exist, ...)",
         ];
@@ -73,6 +73,7 @@ class OvzModifyVsJob extends AbstractOvzJob{
 
         $array = json_decode($this->PrlctlCommands->getJson(),true);
         if(is_array($array) && !empty($array)){
+            $array[0]['Timestamp'] = date('Y-m-d H:i:s');
             $this->Done = 1;    
             $this->Retval = json_encode($array[0]);
             $this->Context->getLogger()->debug("modify VS success.");

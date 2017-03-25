@@ -5,7 +5,7 @@
                 <div class="pull-left"><h5 class="panel-title pull-left">{{ _("colocations_view_ipobjects") }}</h5></div>
                 <div class="pull-right">
                     <div class="btn-group">
-                    {{ link_to("colocations/addIpObject/"~item.id,'<i class="fa fa-plus"></i>',
+                    {{ link_to("colocations/ipObjectAdd/"~item.id,'<i class="fa fa-plus"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("colocations_view_newipobject")) }}
                     </div>
                 </div>
@@ -23,9 +23,9 @@
         {% for index, ip in item.dcoipobjects %}
             <tr>
                 <td>
-                    {{ link_to("colocations/editIpObject/"~ip.id,'<i class="fa fa-pencil"></i>',
+                    {{ link_to("colocations/ipObjectEdit/"~ip.id,'<i class="fa fa-pencil"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("colocations_view_editipobject")) }}
-                    <a href="#" link="/colocations/deleteIpObject/{{ip.id}}" text="{{ _("colocations_view_delmessage") }}"
+                    <a href="#" link="/colocations/ipObjectDelete/{{ip.id}}" text="{{ _("colocations_view_delmessage") }}"
                         class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("colocations_view_delete") }}"><i class="fa fa-trash-o"></i></a>
                 </td>
                 <td>

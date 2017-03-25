@@ -38,28 +38,28 @@ class OvzNewVsBgJob extends AbstractOvzJob{
             $exitstatus = $this->PrlctlCommands->createVm($this->Params);
         if($exitstatus > 0) return $this->commandFailed("Creating VS failed",$exitstatus);
 
-        $errors = array();
+        $warnings = array();
 
         // try to set cpus
         $exitstatus = $this->PrlctlCommands->setCpu($this->Params['UUID'],$this->Params['CPUS']);
         if($exitstatus > 0) {
-            $errors['CPUS'] = "Setting CPUs failed (Exit Code: ".$exitstatus."), Output:\n".implode("\n",$this->Context->getCli()->getOutput());
-            $this->Context->getLogger()->debug($errors['CPUS']);
+            $warnings['CPUS'] = "Setting CPUs failed (Exit Code: ".$exitstatus."), Output:\n".implode("\n",$this->Context->getCli()->getOutput());
+            $this->Context->getLogger()->debug($warnings['CPUS']);
             // go on with work...
         }
 
         // try to set RAM
         $exitstatus = $this->PrlctlCommands->setRam($this->Params['UUID'],$this->Params['RAM']);
         if($exitstatus > 0) {
-            $errors['RAM'] = "Setting RAM failed (Exit Code: ".$exitstatus."), Output:\n".implode("\n",$this->Context->getCli()->getOutput());
-            $this->Context->getLogger()->debug($errors['RAM']);
+            $warnings['RAM'] = "Setting RAM failed (Exit Code: ".$exitstatus."), Output:\n".implode("\n",$this->Context->getCli()->getOutput());
+            $this->Context->getLogger()->debug($warnings['RAM']);
             // go on with work...
         }
         
         // try to set DISKSPACE
         $exitstatus = $this->PrlctlCommands->setValue($this->Params['UUID'],'diskspace',$this->Params['DISKSPACE']);
         if($exitstatus > 0){
-            $errors[] = "Setting diskspace failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput());
+            $warnings[] = "Setting diskspace failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput());
             $this->Context->getLogger()->debug($this->Error);
             // go on with work...
         }
@@ -67,13 +67,28 @@ class OvzNewVsBgJob extends AbstractOvzJob{
         // try to set Root password
         $exitstatus = $this->PrlctlCommands->setRootPwd($this->Params['UUID'],$this->Params['ROOTPWD']);
         if($exitstatus > 0) {
-            $errors['ROOTPWD']= "Setting Root password failed (Exit Code: ".$exitstatus."), Output:\n".implode("\n",$this->Context->getCli()->getOutput());
-            $this->Context->getLogger()->debug($errors['ROOTPWD']);
+            $warnings['ROOTPWD']= "Setting Root password failed (Exit Code: ".$exitstatus."), Output:\n".implode("\n",$this->Context->getCli()->getOutput());
+            $this->Context->getLogger()->debug($warnings['ROOTPWD']);
             // go on with work...
         }
 
-        $this->Error = implode("\n",$errors);
-        $this->Done = 1;    
-        $this->Context->getLogger()->debug("Creating background VS done");
+        $this->Warning = implode("\n",$warnings);
+        
+        $exitstatus = $this->PrlctlCommands->listInfo($this->Params['UUID']);
+        if($exitstatus > 0) return $this->commandFailed("Getting info failed",$exitstatus);
+
+        $array = json_decode($this->PrlctlCommands->getJson(),true);
+        if(is_array($array) && !empty($array)){
+            $array[0]['Timestamp'] = date('Y-m-d H:i:s');
+            $this->Done = 1;    
+            $this->Retval = json_encode($array[0]);
+            $this->Context->getLogger()->debug("Creating background VS done");
+            return 0;
+        }else{
+            $this->Done = 2;
+            $this->Error = "Convert info to JSON failed!";
+            $this->Context->getLogger()->debug($this->Error);
+            return 1;
+        }
     }
 }

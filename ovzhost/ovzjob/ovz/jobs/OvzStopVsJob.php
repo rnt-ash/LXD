@@ -34,25 +34,38 @@ class OvzStopVsJob extends AbstractOvzJob {
             "error" => "different causes (UUID does not exist, couldn't get actual state, or something while effectively stopping the VS fails)",
         ];
     }
-    
+
     public function run() {
         $this->Context->getLogger()->debug("VS stop!");
-        
+
         if(!$this->vsExists($this->Params['UUID'])){
-             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+            return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
         }
 
         $exitstatus = $this->PrlctlCommands->status($this->Params['UUID']);
         if($exitstatus > 0) return $this->commandFailed("Getting status failed",$exitstatus);
-        
+
         if($this->PrlctlCommands->getStatus()['EXIST'] && $this->PrlctlCommands->getStatus()['RUNNING']){
             $exitstatus = $this->PrlctlCommands->stop($this->Params['UUID']);
-            if($exitstatus == 0){
-                $this->commandSuccess("VS stop done.");
-            }else{
-                $this->commandFailed("Stopping VS failed",$exitstatus);            }
+            if($exitstatus > 0) $this->commandFailed("Stopping VS failed",$exitstatus);            
         } else {
             $this->Context->getLogger()->debug("Wrong VS status. Nothing to do...".str_replace("\n","; ",json_encode($this->PrlctlCommands->getStatus())));
+        }
+
+        // get Info of stopped VS
+        $exitstatus = $this->PrlctlCommands->listInfo($this->Params['UUID']);
+        if($exitstatus > 0) return $this->commandFailed("Getting info failed",$exitstatus);
+        
+        $array = json_decode($this->PrlctlCommands->getJson(),true);
+        if(is_array($array) && !empty($array)){
+            $array[0]['Timestamp'] = date('Y-m-d H:i:s');
+            $this->Done = 1;    
+            $this->Retval = json_encode($array[0]);
+            $this->Context->getLogger()->debug("VS stop done");
+        }else{
+            $this->Done = 2;
+            $this->Error = "Convert info to JSON failed!";
+            $this->Context->getLogger()->debug($this->Error);
         }
     }
 }

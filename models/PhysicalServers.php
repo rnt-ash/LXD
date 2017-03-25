@@ -667,7 +667,7 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     */
     public function isPending($pendingToken=''){
         $pendingArray = json_decode($this->pending,true);
-        return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
+        return PendingHelpers::checkForPendingTokenInPendingArray($pendingToken,$pendingArray);
     }
 
 }

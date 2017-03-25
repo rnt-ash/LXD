@@ -47,13 +47,26 @@ class OvzStartVsJob extends AbstractOvzJob {
         
         if($this->PrlctlCommands->getStatus()['EXIST'] && !$this->PrlctlCommands->getStatus()['RUNNING']){
             $exitstatus = $this->PrlctlCommands->start($this->Params['UUID']);
-            if($exitstatus == 0){
-                $this->commandSuccess("VS start done.");
-            }else{
-                if($exitstatus > 0) return $this->commandFailed("Starting VS failed",$exitstatus);
-            }
+            if($exitstatus > 0) return $this->commandFailed("Starting VS failed",$exitstatus);
         } else {
             $this->Context->getLogger()->debug("Wrong VS status. Nothing to do...".str_replace("\n","; ",json_encode($this->PrlctlCommands->getStatus())));
         }
+        
+        // get Info of started VS
+        $exitstatus = $this->PrlctlCommands->listInfo($this->Params['UUID']);
+        if($exitstatus > 0) return $this->commandFailed("Getting info failed",$exitstatus);
+
+        $array = json_decode($this->PrlctlCommands->getJson(),true);
+        if(is_array($array) && !empty($array)){
+            $array[0]['Timestamp'] = date('Y-m-d H:i:s');
+            $this->Done = 1;    
+            $this->Retval = json_encode($array[0]);
+            $this->Context->getLogger()->debug("VS start done");
+        }else{
+            $this->Done = 2;
+            $this->Error = "Convert info to JSON failed!";
+            $this->Context->getLogger()->debug($this->Error);
+        }
+        
     }
 }

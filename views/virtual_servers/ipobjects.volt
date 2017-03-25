@@ -5,7 +5,7 @@
                 <div class="pull-left"><h5 class="panel-title pull-left">{{ _("virtualserver_ipobject") }}</h5></div>
                 <div class="pull-right">
                     <div class="btn-group">
-                    {{ link_to("virtual_servers/addIpObject/"~item.id,'<i class="fa fa-plus"></i>',
+                    {{ link_to("virtual_servers/ipObjectAdd/"~item.id,'<i class="fa fa-plus"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_ip_newobject")) }}
                     </div>
                 </div>
@@ -23,12 +23,12 @@
         {% for index, ip in item.dcoipobjects %}
             <tr>
                 <td>
-                    {{ link_to("virtual_servers/editIpObject/"~ip.id,'<i class="fa fa-pencil"></i>',
+                    {{ link_to("virtual_servers/ipObjectEdit/"~ip.id,'<i class="fa fa-pencil"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_ip_edit")) }}
-                    <a href="#" link="/virtual_servers/deleteIpObject/{{ip.id}}" text="{{ _("virtualserver_ip_deleteinfo") }}"
+                    <a href="#" link="/virtual_servers/ipObjectDelete/{{ip.id}}" text="{{ _("virtualserver_ip_deleteinfo") }}"
                         class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_ip_delete") }}"><i class="fa fa-trash-o"></i></a>
                     {% if ip.main == 0 AND ip.allocated != constant('\RNTForest\ovz\models\Dcoipobjects::ALLOC_RESERVED') %}
-                        {{ link_to("virtual_servers/makeMainIpObject/"~ip.id,'<i class="fa fa-bolt"></i>',
+                        {{ link_to("virtual_servers/ipObjectMakeMain/"~ip.id,'<i class="fa fa-bolt"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_ip_primary")) }}
                     {% endif %}
                 </td>

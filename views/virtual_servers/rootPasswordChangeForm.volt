@@ -8,7 +8,7 @@
 
 <div class="well">
     <div class="row">
-        {{ form("virtual_servers/changeRootPasswordExecute", 'role': 'form') }}
+        {{ form("virtual_servers/rootPasswordChangeExecute", 'role': 'form') }}
 
         {{ form.get('virtual_servers_id').render() }}
         
