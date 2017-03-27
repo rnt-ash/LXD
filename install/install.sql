@@ -69,16 +69,6 @@ CREATE TABLE IF NOT EXISTS `mon_remote_logs` (
   KEY `modified` (`modified`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `mon_services` (
-  `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `name` varchar(32) NOT NULL,
-  `description` text NOT NULL,
-  `graph` tinyint(1) NOT NULL,
-  `status_type` text NOT NULL,
-  `check_type` varchar(32) NOT NULL,
-  `log_value_format` text NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `mon_contacts` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(64) NOT NULL,
