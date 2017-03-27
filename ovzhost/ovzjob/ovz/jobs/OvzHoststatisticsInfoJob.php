@@ -39,7 +39,7 @@ class OvzHoststatisticsInfoJob extends AbstractOvzJob {
 
         try{
             $retval = array();
-            $retval['modified'] = date("Y-m-d H:i:s");
+            $retval['Timestamp'] = date("Y-m-d H:i:s");
             $retval['cpu_load'] = $this->checkCPULoad();
             $retval['memory_free_mb'] = $this->checkMemoryFree();
             $retval['diskspace_free_gb'] = $this->checkDiskspaceFree();

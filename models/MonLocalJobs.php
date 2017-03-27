@@ -626,13 +626,13 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
         $ovzStatistics = $server->getOvzStatistics();
         
         $decodedOvzStatistics = json_decode($ovzStatistics);
-        $modified = '';
-        if(is_array($decodedOvzStatistics) && key_exists('modified',$decodedOvzStatistics)){
-            $modified = $decodedOvzStatistics['modified'];    
+        $timestamp = '';
+        if(is_array($decodedOvzStatistics) && key_exists('Timestamp',$decodedOvzStatistics)){
+            $timestamp = $decodedOvzStatistics['Timestamp'];    
         }
          
         // if model is older than 1 minute update the ovz_statistics with a job
-        if(empty($modified) || Helpers::createUnixTimestampFromDateTime($modified) < (time()-60)){
+        if(empty($timestamp) || Helpers::createUnixTimestampFromDateTime($timestamp) < (time()-60)){
             $server->updateOvzStatistics();
             $server->refresh();  
         }
@@ -645,7 +645,7 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
         
         $valuestatus = $behavior->execute($ovzStatistics,$this->warning_value,$this->maximal_value);
         $monLog = new MonLocalLogs();
-        $monLog->create(["mon_local_jobs_id" => $this->id, "value" => $valuestatus->getValue()]);
+        $monLog->create(["mon_local_jobs_id" => $this->id, "value" => $valuestatus->getValue(), "modified" => date('Y-m-d H:i:s')]);
         $monLog->save();
         
         
