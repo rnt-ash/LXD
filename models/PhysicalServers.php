@@ -691,7 +691,6 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         return $this->colocations_id;
     }
     
-        
     public function updateOvzStatistics(){
         if($this->ovz == '1'){
             $push = $this->getDI()['push'];
@@ -704,5 +703,16 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             $this->setOvzStatistics($job->getRetval());
             $this->save();
         }
+    }
+    
+    public function getMainIp(){
+        return Dcoipobjects::findFirst(
+            [
+                "physical_servers_id = :id: AND main = 1",
+                "bind" => [
+                    "id" => $this->id,                   
+                ],
+            ]
+        );
     }
 }

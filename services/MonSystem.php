@@ -57,7 +57,7 @@ class MonSystem extends \Phalcon\DI\Injectable
             );
             echo("runJobs ".count($monJobs)." MonRemoteJobs\n");
             foreach($monJobs as $monJob){
-                echo(json_encode($monJob));
+                //echo(json_encode($monJob));
                 $monJob->execute();
             }
             

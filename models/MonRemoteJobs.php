@@ -195,7 +195,7 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     /**
     * Main IP
     * 
-    * @param integer $mainIp
+    * @param string $mainIp
     * @return $this
     */
     public function setMainIp($mainIp)
@@ -660,7 +660,11 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         $behavior = new $this->mon_behavior_class();
         if(!($behavior instanceof MonBehaviorInterface)){
             throw new \Exception($this->translate("monitoring_mon_behavior_not_implements_interface"));    
-        }    
+        }
+        
+        // update MainIp from Server Object in case it has changed since last execute
+        $server = $this->getServer();
+        $this->setMainIp($server->getMainIp()->toString());
         
         $statusAfter = $behavior->execute($this->getMainIp());
         $monLog = new MonRemoteLogs();
