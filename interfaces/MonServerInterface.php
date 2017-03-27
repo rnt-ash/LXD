@@ -21,13 +21,48 @@ namespace RNTForest\ovz\interfaces;
 
 interface MonServerInterface
 {
+    /**
+    * @return integer
+    */
     public function getId();
+    
+    /**
+    * @return string
+    */
     public function getFqdn();
+    
+    /**
+    * @return string
+    */
     public function getName();
+    
+    /**
+    * @return \RNTForest\ovz\models\Dcoipobjects
+    */
+    public function getMainIp();
+    
+    /**
+    * @return string
+    */
     public function getParentClass();
+    
+    /**
+    * @return integer
+    */
     public function getParentId();
+    
+    /**
+    * @return string
+    */
     public function getOvzStatistics();
-    public function getModified();
+    
+    /**
+    * Update the OvzStatistics from the real actual state.
+    */
     public function updateOvzStatistics();
+    
+    /**
+    * Refresh the entity object.
+    */
     public function refresh();
 }

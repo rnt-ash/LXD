@@ -973,4 +973,20 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
             $this->save();
         }
     }
+    
+    /**
+    * Get the main Dcoipobjects of this Server.
+    * 
+    * @return \RNTForest\ovz\models\Dcoipobjects
+    */
+    public function getMainIp(){
+        return Dcoipobjects::findFirst(
+            [
+                "virtual_servers_id = :id: AND main = 1",
+                "bind" => [
+                    "id" => $this->id,                   
+                ],
+            ]
+        );
+    }
 }
