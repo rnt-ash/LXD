@@ -50,7 +50,8 @@ class MonAlarm extends \Phalcon\DI\Injectable
         if($monJob->getAlarm() && !$monJob->getMuted() && $this->checkAlarmPeriod($monJob->getAlarmPeriod(), $monJob->getLastAlarm())){
             $alarmMonContacts = $monJob->getMonContactsAlarmInstances();
             foreach($alarmMonContacts as $contact){
-                $subject = 'Alarm: '.$monJob->getMonBehaviorClass().' on '.$monJob->getServer()->getName();
+                $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
+                $subject = 'Alarm: '.$behavior.' on '.$monJob->getServer()->getName();
                 $contact->notify($subject,$this->genAlarmContentMonRemoteJobs($monJob));
             }
             $monJob->setLastAlarm((new \DateTime())->format('Y-m-d H:i:s'));
@@ -90,9 +91,9 @@ class MonAlarm extends \Phalcon\DI\Injectable
         }
         $status = $monJob->getStatus();
         $lastStatuschange = $monJob->getLastStatuschange();
-        $monService = $monJob->getMonBehaviorClass();
+        $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
         $content .= 'OVZ AlarmingSystem Alarm for '.$name.' ('.$mainIp.')'."<br />";
-        $content .= '==>'.$monService.'<=='." (MonJob ID: ".$monJob->getId().")<br />";
+        $content .= '==>'.$behavior.'<=='." (MonJob ID: ".$monJob->getId().")<br />";
         $content .= 'Status now: '.$status.' (since '.$lastStatuschange.')'."<br />";
         return $content;
     }
@@ -124,7 +125,8 @@ class MonAlarm extends \Phalcon\DI\Injectable
         if($monJob->getAlarm() == '1' && $monJob->getMuted() == '0'){
             $alarmMonContacts = $monJob->getMonContactsAlarmInstances();
             foreach($alarmMonContacts as $contact){
-                $subject = 'Disalarm: '.$monJob->getMonBehaviorClass().' on '.$monJob->getServer()->getName();
+                $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
+                $subject = 'Disalarm: '.$behavior.' on '.$monJob->getServer()->getName();
                 $contact->notify($subject,$this->genAlarmContentMonRemoteJobs($monJob));
             }
             $monJob->setAlarmed(0)->save();
@@ -145,14 +147,14 @@ class MonAlarm extends \Phalcon\DI\Injectable
             $mainIp = $monJob->getMainIp();
             $status = $monJob->getStatus();
             $lastStatuschange = $monJob->getLastStatuschange();
-            $monBehavior = $monJob->getMonBehaviorClass();
             
             $healJob = \RNTForest\core\models\Jobs::findFirst($monJob->getRecentHealJobId());
                         
-            $subject = "HealJob: ".$monBehavior." on ".$name;
+            $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
+            $subject = "HealJob: ".$behavior." on ".$name;
             $content .= 'OVZ MonAlarm HealJob for '.$name.' ('.$mainIp.')'."<br />";
             $content .= 'Comment: todo'."<br />";
-            $content .= '==>'.$monBehavior.'<=='."<br />";
+            $content .= '==>'.$behavior.'<=='."<br />";
             $content .= 'Status now (after HealJob): '.$status.' (since '.$lastStatuschange.')'."<br />";
             $content .= 'MonJob ID: '.$monJob->getId()."<br />";
             $content .= '-------------------------------'."<br />";
@@ -186,13 +188,13 @@ class MonAlarm extends \Phalcon\DI\Injectable
             $mainIp = $monJob->getMainIp();
             $status = $monJob->getStatus();
             $lastStatuschange = $monJob->getLastStatuschange();
-            $monBehavior = $monJob->getMonBehaviorClass();
             $downTimePeriod = $monJob->getLastDowntimePeriod();
             
-            $subject = "Short Downtime: ".$monBehavior." on ".$name;
+            $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
+            $subject = "Short Downtime: ".$behavior." on ".$name;
             $content .= 'OVZ MonAlarm Short Downtime for '.$name.' ('.$mainIp.')'."<br />";
             $content .= 'Comment: todo'."<br />";
-            $content .= '==>'.$monBehavior.'<=='."<br />";
+            $content .= '==>'.$behavior.'<=='."<br />";
             $content .= 'Status now: '.$status.' (since '.$lastStatuschange.')'."<br />";
             $content .= 'MonJob ID: '.$monJob->getId()."<br />";
             $content .= '-------------------------------'."<br />";
@@ -219,7 +221,8 @@ class MonAlarm extends \Phalcon\DI\Injectable
                 $monContacts = $monJob->getMonContactsMessageInstances();
             }
             foreach($monContacts as $contact){
-                $subject = 'Notification: '.$monJob->getMonBehaviorClass().' on '.$monJob->getServer()->getName();
+                $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
+                $subject = 'Notification: '.$behavior.' on '.$monJob->getServer()->getName();
                 $contact->notify($subject,$this->genAlarmContentMonLocalJob($monJob));
             }
             $monJob->setLastAlarm((new \DateTime())->format('Y-m-d H:i:s'));
@@ -233,9 +236,9 @@ class MonAlarm extends \Phalcon\DI\Injectable
         $name = $monServer->getName();  
         $status = $monJob->getStatus();
         $lastStatuschange = $monJob->getLastStatuschange();
-        $monService = $monJob->getMonBehaviorClass();
+        $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
         $content .= 'OVZ AlarmingSystem Alarm for '.$name."<br />";
-        $content .= '==>'.$monService.'<=='." (MonJob ID: ".$monJob->getId().")<br />";
+        $content .= '==>'.$behavior.'<=='." (MonJob ID: ".$monJob->getId().")<br />";
         $content .= 'Status now: '.$status.' (since '.$lastStatuschange.')'."<br />";
         $newestMonLog = MonLocalLogs::findFirst(
             [
@@ -247,8 +250,28 @@ class MonAlarm extends \Phalcon\DI\Injectable
             ]
         );
         $behaviorclass = $monJob->getMonBehaviorClass();
-        $behavior = new $behaviorclass();
-        $content .= $behavior->genThresholdString($newestMonLog->getValue(),$monJob->getWarningValue(),$monJob->getMaximalValue());
+        $monBehavior = new $behaviorclass();
+        $content .= $monBehavior->genThresholdString($newestMonLog->getValue(),$monJob->getWarningValue(),$monJob->getMaximalValue());
         return $content;
+    }
+    
+    /**
+    * Extracts the short name of a MonBehaviorClass with can have namespaces.
+    * \RNTForest\ovz\utilities\monbehaviors\PingMonBehavior -> Ping
+    * 
+    * @param string $monBehaviorClass
+    * @return string
+    */
+    private function extractNameFromMonBehaviorClass($monBehaviorClass){
+        // to guarantee that something useful is available
+        $extractedName = "sory".$monBehaviorClass; 
+        $splits = explode('\\',$monBehaviorClass);
+        if(is_array($splits) && !empty($splits)){
+            $name = end($splits);
+            if(preg_match('`^(.+)Mon.*Behavior$`',$name,$matches)){
+                $extractedName = $matches[1];
+            }
+        }
+        return $extractedName;
     }
 }
