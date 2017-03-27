@@ -127,10 +127,11 @@ class MonSystem extends \Phalcon\DI\Injectable
             $this->logger->debug("Start with genMonUptimes");
             $monJobs = MonRemoteJobs::find();
             
-            // Todo: delete MonRemoteLogs with nonexisting MonRemoteJobs
-            
+            // collect all ids for cleanup logs with no monjob afterwards
+            $monJobIds = array();
             foreach($monJobs as $monJob){
                 $this->logger->debug("handle monjob id ".$monJob->getId());
+                $monJobIds[] = $monJob->getId();
                 
                 // genMonUptime
                 $monJob->genMonUptimes();
@@ -138,6 +139,13 @@ class MonSystem extends \Phalcon\DI\Injectable
                 // better recompute uptime???
                 $monJob->updateUptime();
             }
+            
+            if(!empty($monJobIds)){
+                $ids = implode(',',$monJobIds);
+                // delete MonRemoteLogs with nonexisting MonRemoteJobs
+                $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonRemoteLogs WHERE mon_remote_jobs_id NOT IN (?0)",[$ids]);
+            }
+
         }catch(\Exception $e){
             echo $e->getMessage()."\n";
         }    
@@ -148,14 +156,22 @@ class MonSystem extends \Phalcon\DI\Injectable
             $this->logger->debug("Start with genMonLocalDailyLogs");
             $monJobs = MonLocalJobs::find();
             
-            // Todo: delete MonLocalLogs with nonexisting MonLocalJobs
-            
+            // collect all ids for cleanup logs with no monjob afterwards
+            $monJobIds = array();
             foreach($monJobs as $monJob){
                 $this->logger->debug("handle monjob id ".$monJob->getId());
-                
+                $monJobIds[] = $monJob->getId();
+            
                 // genMonUptime
                 $monJob->genMonLocalDailyLogs();
             }
+            
+            if(!empty($monJobIds)){
+                $ids = implode(',',$monJobIds);
+                // delete MonLocalLogs with nonexisting MonLocalJobs
+                $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonLocalLogs WHERE mon_local_jobs_id NOT IN (?0)",[$ids]);
+            }
+
         }catch(\Exception $e){
             echo $e->getMessage()."\n";
         }    
