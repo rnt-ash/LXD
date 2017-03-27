@@ -37,7 +37,6 @@ class MonLocalDailyLogsGenerator{
         
         // get all relevant MonLocalLogs and sort them
         $preMonthStart = date("Y-m-d H:i:s", strtotime("first day of last month midnight"));
-        $preMonthStart = date("Y-m-d H:i:s", strtotime("first day of this month midnight"));
         $monLogs = MonLocalLogs::find(
         [
              "mon_local_jobs_id = :id: AND modified < :premonthstart:",
