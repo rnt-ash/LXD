@@ -44,7 +44,7 @@ class MonSystem extends \Phalcon\DI\Injectable
     
     /**
     * Runs the current open MonRemoteJobs.
-    * Can be executed every minute or more.
+    * Recommendation: every minute
     * 
     */
     public function runMonRemoteJobs(){
@@ -67,6 +67,11 @@ class MonSystem extends \Phalcon\DI\Injectable
         
     }
     
+    /**
+    * Runs all MonLocalJobs.
+    * Recommendation: every minute
+    * 
+    */
     public function runMonLocalJobs(){
         try{
             $this->updateOvzStatisticsOnAllServers();
@@ -122,6 +127,31 @@ class MonSystem extends \Phalcon\DI\Injectable
         return $this->getDI()['monAlarm'];
     }
     
+    /**
+    * Recomputes the Field uptime of a MonRemoteJobs from the available MonRemoteLogs and MonUptimes.
+    * Recommendation: every hour
+    * 
+    */
+    public function recomputeUptimes(){
+       try{
+            $this->logger->debug("Start with recomputeUptimes");
+            $monJobs = MonRemoteJobs::find();
+            
+            foreach($monJobs as $monJob){
+                $this->logger->debug("handle monjob id ".$monJob->getId());
+                
+                $monJob->recomputeUptime();
+            }
+        }catch(\Exception $e){
+            echo $e->getMessage()."\n";
+        }  
+    }
+    
+    /**
+    * Generates the MonUptimes from old MonRemoteLogs.
+    * Recommendation: every month
+    * 
+    */
     public function genMonUptimes(){
         try{
             $this->logger->debug("Start with genMonUptimes");
@@ -150,25 +180,10 @@ class MonSystem extends \Phalcon\DI\Injectable
     }
     
     /**
-    * Recomputes the Field uptime of a MonRemoteJobs from the available MonRemoteLogs and MonUptimes.
-    * Recommendation: every hour
+    * Generates the LocalDailyLogs from old MonLocalLogs.
+    * Recommendatoin: every month
     * 
     */
-    public function recomputeUptimes(){
-       try{
-            $this->logger->debug("Start with recomputeUptimes");
-            $monJobs = MonRemoteJobs::find();
-            
-            foreach($monJobs as $monJob){
-                $this->logger->debug("handle monjob id ".$monJob->getId());
-                
-                $monJob->recomputeUptime();
-            }
-        }catch(\Exception $e){
-            echo $e->getMessage()."\n";
-        }  
-    }
-    
     public function genMonLocalDailyLogs(){
         try{
             $this->logger->debug("Start with genMonLocalDailyLogs");
