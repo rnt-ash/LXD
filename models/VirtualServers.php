@@ -960,6 +960,10 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         return $this->physical_servers_id;
     }
     
+    /**
+    * Updates the OvzStatistics with a job and saves it to the model.
+    * 
+    */
     public function updateOvzStatistics(){
         if($this->PhysicalServers->getOvz() == '1'){
             $push = $this->getDI()['push'];
