@@ -695,7 +695,7 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         return $this->Status == 'down';
     }
     
-    public function updateUptime(){
+    public function recomputeUptime(){
         $monUptimes = MonUptimes::find(
             [
                 "mon_remote_jobs_id = :id:",
@@ -722,7 +722,7 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         }
         
        
-        // MonLogs einberechnen
+        // add information from MonRemoteLogs
         $oldestMonLog = MonRemoteLogs::findFirst(
             [
                 "mon_remote_jobs_id = :id:",

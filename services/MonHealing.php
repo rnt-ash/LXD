@@ -61,7 +61,7 @@ class MonHealing extends \Phalcon\DI\Injectable
         if($monJob->isInErrorState()){
             if($this->shouldAlarmImmediately($monJob)){
                 // recompute uptime first for actual data in notification
-                $monJob->updateUptime();
+                $monJob->recomputeUptime();
                 // alarm if nothing else is possible (termination condition)
                 $this->getMonAlarm()->alarmMonRemoteJobs($monJob);  
             }else{
@@ -86,7 +86,7 @@ class MonHealing extends \Phalcon\DI\Injectable
         }else{
             if($monJob->getAlarmed() == '1'){
                 // recompute uptime first for actual data in notification
-                $monJob->updateUptime();
+                $monJob->recomputeUptime();
                 $this->getMonAlarm()->disalarmMonRemoteJobs($monJob);
             }else{
                 // if no healjob is sent and service is up again without any interaction

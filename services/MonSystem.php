@@ -133,11 +133,9 @@ class MonSystem extends \Phalcon\DI\Injectable
                 $this->logger->debug("handle monjob id ".$monJob->getId());
                 $monJobIds[] = $monJob->getId();
                 
-                // genMonUptime
                 $monJob->genMonUptimes();
                 
-                // better recompute uptime???
-                $monJob->updateUptime();
+                $monJob->recomputeUptime();
             }
             
             if(!empty($monJobIds)){
@@ -149,6 +147,26 @@ class MonSystem extends \Phalcon\DI\Injectable
         }catch(\Exception $e){
             echo $e->getMessage()."\n";
         }    
+    }
+    
+    /**
+    * Recomputes the Field uptime of a MonRemoteJobs from the available MonRemoteLogs and MonUptimes.
+    * Recommendation: every hour
+    * 
+    */
+    public function recomputeUptimes(){
+       try{
+            $this->logger->debug("Start with recomputeUptimes");
+            $monJobs = MonRemoteJobs::find();
+            
+            foreach($monJobs as $monJob){
+                $this->logger->debug("handle monjob id ".$monJob->getId());
+                
+                $monJob->recomputeUptime();
+            }
+        }catch(\Exception $e){
+            echo $e->getMessage()."\n";
+        }  
     }
     
     public function genMonLocalDailyLogs(){
