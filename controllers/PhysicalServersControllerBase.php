@@ -402,7 +402,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     * @param integer $id primary key of the virtual Server
     * 
     */
-    public function addIpObjectAction($id){
+    public function ipObjectAddAction($id){
 
         // store in session
         $this->session->set("DcoipobjectsForm", array(
@@ -430,7 +430,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     * @param integer $ipobject primary key of the IP Object
     * 
     */
-    public function editIpObjectAction($ipobject){
+    public function ipObjectEditAction($ipobject){
 
         // store in session
         $this->session->set("DcoipobjectsForm", array(
@@ -455,7 +455,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     * @param integer $ipobject primary key of the IP Object
     * 
     */
-    public function deleteIpObjectAction($ipobject){
+    public function ipObjectDeleteAction($ipobject){
 
         // store in session
         $this->session->set("DcoipobjectsForm", array(
@@ -480,7 +480,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     * @param integer $ipobject primary key of the IP Object
     * 
     */
-    public function makeMainIpObjectAction($ipobject){
+    public function ipObjectMakeMainAction($ipobject){
         // store in session
         $this->session->set("DcoipobjectsForm", array(
             "origin" => array(

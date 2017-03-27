@@ -17,10 +17,10 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\repository;
+namespace RNTForest\OVZJOB\general\repository;
 
-use RNTFOREST\OVZJOB\general\utility\ServerDTO;
-use RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface;
+use RNTForest\OVZJOB\general\utility\ServerDTO;
+use RNTForest\OVZJOB\general\psrlogger\LoggerInterface;
 
 /**
 * AKTUELL NICHT VERWENDET
@@ -46,7 +46,7 @@ class DbServerDTORepository implements ServerDTORepository{
     * Returns the ServerDTO element with the given id.
     * 
     * @param string $uuid
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function get($uuid){
         $stmt = $this->Pdo->prepare("SELECT uuid, name, ovz_settings, fqdn, os, modified FROM servers WHERE uuid=:uuid");
@@ -63,7 +63,7 @@ class DbServerDTORepository implements ServerDTORepository{
     * Creates a new ServerDTO element in db and returns this created element.
     * 
     * @param ServerDTO $serverDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function create(ServerDTO $serverDTO){
         $stmt = $this->Pdo->prepare("INSERT INTO servers (uuid, name, ovz_settings, fqdn, os, modified) VALUES(:uuid, :name, :ovz_settings, :fqdn, :os, :modified)");
@@ -84,7 +84,7 @@ class DbServerDTORepository implements ServerDTORepository{
     * Updates a given ServerDTO element in db and returns the updated element.
     * 
     * @param ServerDTO $jobDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function update(ServerDTO $serverDTO){
         $stmt = $this->Pdo->prepare("UPDATE servers SET name=:name, ovz_settings=:ovz_settings, fqdn=:fqdn, os=:os, modified=:modified WHERE uuid=:uuid");
@@ -105,7 +105,7 @@ class DbServerDTORepository implements ServerDTORepository{
     * Deletes the ServerDTO element and returns the last state in db of this element.
     * 
     * @param ServerDTO $jserverDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function delete(ServerDTO $serverDTO){
         return $this->deleteByUuid($serverDTO->Uuid);
@@ -115,7 +115,7 @@ class DbServerDTORepository implements ServerDTORepository{
     * Deletes the ServerDTO element with specified id and returns the last state in db of this element.
     * 
     * @param string $uuid
-    * @return \RNTFOREST\OVZJOB\general\utility\ServerDTO
+    * @return \RNTForest\OVZJOB\general\utility\ServerDTO
     */
     public function deleteByUuid($uuid){
         $serverDTO = $this->get($uuid);

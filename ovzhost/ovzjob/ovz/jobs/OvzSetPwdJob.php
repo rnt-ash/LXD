@@ -17,13 +17,13 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\jobs;
+namespace RNTForest\OVZJOB\ovz\jobs;
 
 class OvzSetPwdJob extends AbstractOvzJob {
 
     public static function usage(){
         return [
-            "type" => "ovz_restart_vs",
+            "type" => "ovz_set_pwd",
             "description" => "set the root password of a VirtualServer",
             "params" => [
                 "UUID" => "Universally Unique Identifier (UUID)",

@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\repository;
+namespace RNTForest\OVZJOB\general\repository;
 
-use RNTFOREST\OVZJOB\general\utility\JobDTO;
+use RNTForest\OVZJOB\general\utility\JobDTO;
 
 interface JobDTORepository{
     
@@ -27,7 +27,7 @@ interface JobDTORepository{
     * Returns the JobDTO element with the given id.
     * 
     * @param int $id
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function get($id);
     
@@ -35,7 +35,7 @@ interface JobDTORepository{
     * Creates a new JobDTO element in db and returns this created element.
     * 
     * @param JobDTO $jobDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function create(JobDTO $jobDTO);
     
@@ -43,7 +43,7 @@ interface JobDTORepository{
     * Updates a given JobDTO element in db and returns the updated element.
     * 
     * @param JobDTO $jobDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function update(JobDTO $jobDTO);
     
@@ -51,7 +51,7 @@ interface JobDTORepository{
     * Deletes the JobDTO element and returns the last state in db of this element.
     * 
     * @param JobDTO $jobDTO
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function delete(JobDTO $jobDTO);
     
@@ -59,7 +59,7 @@ interface JobDTORepository{
     * Deletes the JobDTO element with specified id and returns the last state in db of this element.
     * 
     * @param int $id
-    * @return \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @return \RNTForest\OVZJOB\general\utility\JobDTO
     */
     public function deleteById($id);    
 }

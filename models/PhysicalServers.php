@@ -620,6 +620,21 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
 
         return $validator;
     }
+
+    /**
+    * generate an array for an select element, considered the permission scope
+    * 
+    * @param string $scope
+    */
+    public static function generateArrayForSelectElement($scope){
+        $findParameters = array("columns"=>"id, name");
+        $resultset = self::findFromScope($scope,$findParameters);
+        $physicalServers = array(0 => self::translate("physicalserver_all_physicalservers"));
+        foreach($resultset as $physicalServer){
+            $physicalServers[$physicalServer->id] = $physicalServer->name;
+        }
+        return $physicalServers;
+    }
     
     /**
     * Add a PendingToken to the PendingEntity.
@@ -655,9 +670,9 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     */
     public function isPending($pendingToken=''){
         $pendingArray = json_decode($this->pending,true);
-        return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
+        return PendingHelpers::checkForPendingTokenInPendingArray($pendingToken,$pendingArray);
     }
-    
+
     /**
     * Getter for parent class.
     * needed because of MonServer Interface so that monitoring can instantiate a parent object.

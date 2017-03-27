@@ -17,12 +17,12 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\utility;
+namespace RNTForest\OVZJOB\general\utility;
 
-use RNTFOREST\OVZJOB\general\data\DbInterface;
-use RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface;
-use RNTFOREST\OVZJOB\general\cli\CliInterface;
-use RNTFOREST\OVZJOB\general\repository\JobDTORepository;
+use RNTForest\OVZJOB\general\data\DbInterface;
+use RNTForest\OVZJOB\general\psrlogger\LoggerInterface;
+use RNTForest\OVZJOB\general\cli\CliInterface;
+use RNTForest\OVZJOB\general\repository\JobDTORepository;
 
 class Context{
     

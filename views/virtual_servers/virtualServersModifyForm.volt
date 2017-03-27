@@ -8,7 +8,7 @@
 
 <div class="well">
     <div class="row">
-        {{ form("virtual_servers/modifyVirtualServerExecute", 'role': 'form') }}
+        {{ form("virtual_servers/virtualServerModifyExecute", 'role': 'form') }}
         {{ form.get('id').render() }}
 
         {% if form.hasMessagesFor('id') %}

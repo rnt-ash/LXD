@@ -34,7 +34,7 @@ use Phalcon\Validation\Validator\Between as BetweenValidator;
 
 use RNTForest\ovz\models\VirtualServers;
 
-class ConfigureVirtualServersForm extends \RNTForest\core\forms\FormBase
+class VirtualServersConfigureForm extends \RNTForest\core\forms\FormBase
 {
 
     public function initialize($virtualServer = null, $options = array())

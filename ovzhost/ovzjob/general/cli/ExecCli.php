@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\cli;
+namespace RNTForest\OVZJOB\general\cli;
 
-use RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface;
+use RNTForest\OVZJOB\general\psrlogger\LoggerInterface;
 
 class ExecCli implements CliInterface {
     
@@ -48,14 +48,11 @@ class ExecCli implements CliInterface {
         return $this->Output;
     }
 
-    /**
-    * setter
-    * 
-    * @param string $host fqdn of remotehost or localhost
-    */
-    public function setHost($host){
-        $this->Host = $host;
-    }
+    
+/*
+            $fullCommand = "ssh ".$host." 'vzctl exec ".intval($ctid)." ".escapeshellarg($command)." '";
+            exec($fullCommand,$returnvalue,$exitstatus);
+*/  
     
     
     /**
@@ -67,12 +64,17 @@ class ExecCli implements CliInterface {
     * @param int $exitstatus Output Parameter
     * @return int ExitStatus
     */
-    public function execute($command){
+    public function execute($command,$host=''){
         try{
             if(empty($command)){
                 throw new \Exception("Command cannot be empty.");
             }
-            $command = $command." 2>&1";
+
+            if(!empty($host)){
+                $command = "ssh -o StrictHostKeyChecking=no ".$host." ".escapeshellarg($command)." 2>&1";
+            }else{
+                $command = $command." 2>&1";
+            }
             $this->Logger->debug("ExecCli: ".$command);
             
             // clear output
@@ -97,12 +99,17 @@ class ExecCli implements CliInterface {
     * @param string $command Input Parameter
     * @return int ExitStatus
     */
-    public function executeBackground($command){
+    public function executeBackground($command,$host=''){
         try{
             if(empty($command)){
                 throw new \Exception("Command cannot be empty.");
             }
-            $command = "nohup ".$command." 2>&1 &";
+
+            if(!empty($host)){
+                $command = "nohup ssh -o StrictHostKeyChecking=no ".$host." ".escapeshellarg($command)." 2>&1";
+            }else{
+                $command = "nohup ".$command." 2>&1 &";
+            }
             $this->Logger->debug("ExecCli: ".$command);
             
             // clear output

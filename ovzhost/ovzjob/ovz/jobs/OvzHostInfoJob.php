@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\jobs;
+namespace RNTForest\OVZJOB\ovz\jobs;
 
 class OvzHostInfoJob extends AbstractOvzJob {
 
@@ -38,11 +38,12 @@ class OvzHostInfoJob extends AbstractOvzJob {
         
         $exitstatus = $this->PrlsrvctlCommands->hostInfo();
         if($exitstatus > 0) return $this->commandFailed("Getting host info failed",$exitstatus);
-        
-        $json = $this->PrlsrvctlCommands->getJson();
-        if(!empty($json)){
+
+        $array = json_decode($this->PrlsrvctlCommands->getJson(),true);
+        if(is_array($array) && !empty($array)){
+            $array['Timestamp'] = date('Y-m-d H:i:s');
             $this->Done = 1;    
-            $this->Retval = $json;
+            $this->Retval = json_encode($array);
             $this->Context->getLogger()->debug("Get host info Success.");
         }else{
             $this->Done = 2;

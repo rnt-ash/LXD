@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\data;
+namespace RNTForest\OVZJOB\general\data;
 
 class PdoFactory{
     

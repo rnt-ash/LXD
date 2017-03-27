@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\cli;
+namespace RNTForest\OVZJOB\general\cli;
 
-use RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface;
+use RNTForest\OVZJOB\general\psrlogger\LoggerInterface;
 
 class LoggingCli implements CliInterface {
     
@@ -31,16 +31,6 @@ class LoggingCli implements CliInterface {
     public function __construct(LoggerInterface $logger){
         $this->Logger = $logger;
     }
-
-    /**
-    * setter
-    * 
-    * @param string $host fqdn of remotehost or localhost
-    */
-    public function setHost($host){
-        //do nothing
-    }
-    
     
     /**
     * getter
@@ -56,7 +46,7 @@ class LoggingCli implements CliInterface {
     * @param string $command Input Parameter
     * @return int ExitStatus
     */
-    public function execute($command){
+    public function execute($command,$host=''){
         $this->Logger->notice("LoggingCli: ".$command. " 2>&1");
         return 0;
     }
@@ -68,7 +58,7 @@ class LoggingCli implements CliInterface {
     * @param string $command Input Parameter
     * @return int ExitStatus
     */
-    public function executeBackground($command){
+    public function executeBackground($command,$host=''){
         $this->Logger->notice("LoggingCli: nohup ".$command. " 2>&1 &");
         return 0;    
     }

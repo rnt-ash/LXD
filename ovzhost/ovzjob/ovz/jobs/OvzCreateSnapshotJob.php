@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\jobs;
+namespace RNTForest\OVZJOB\ovz\jobs;
 
 /**
 * @jobname ovz_create_snapshot
@@ -54,7 +54,7 @@ class OvzCreateSnapshotJob extends AbstractOvzJob {
 
         $exitstatus = $this->PrlctlCommands->listSnapshots($this->Params['UUID']);
         if($exitstatus > 0) return $this->commandFailed("Getting snapshots failed",$exitstatus);
-        
+
         $json = $this->PrlctlCommands->getJson();
         if(!empty($json)){
             $this->Done = 1;    

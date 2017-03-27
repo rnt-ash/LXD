@@ -21,14 +21,14 @@
 chdir(dirname(__FILE__));
 require_once(__DIR__.'/vendor/autoload.php');
 
-use RNTFOREST\OVZJOB\general\data\PdoFactory;
-use RNTFOREST\OVZJOB\general\psrlogger\FileLogger;
-use RNTFOREST\OVZJOB\general\cli\ExecCli;
-use RNTFOREST\OVZJOB\general\utility\Context;
-use RNTFOREST\OVZJOB\general\repository\DbJobDTORepository;
-use RNTFOREST\OVZJOB\general\utility\JobExecutorFactory;
+use RNTForest\OVZJOB\general\data\PdoFactory;
+use RNTForest\OVZJOB\general\psrlogger\FileLogger;
+use RNTForest\OVZJOB\general\cli\ExecCli;
+use RNTForest\OVZJOB\general\utility\Context;
+use RNTForest\OVZJOB\general\repository\DbJobDTORepository;
+use RNTForest\OVZJOB\general\utility\JobExecutorFactory;
 
-use RNTFOREST\OVZJOB\general\utility\JobDTO;
+use RNTForest\OVZJOB\general\utility\JobDTO;
 
 class JobSystemDebugStarter{
     private $JobExecutorFactory;
@@ -43,7 +43,7 @@ class JobSystemDebugStarter{
     //private $JsonJob = '{"method":"runJob","id":2,"type":"ovz_modify_vs","params":"{\"UUID\":\"081b2b8e-bc5b-4a76-bd46-84251a8091fd\",\"CONFIG\":{\"hostname\":\"server.domain.tld\",\"cpus\":\"2\",\"memsize\":\"1024\",\"diskspace\":\"10240\",\"onboot\":\"yes\",\"nameserver\":\"8.8.8.8 123.123.123.123\",\"description\":\"\"}}"}';
     
     /**
-    * @var \RNTFOREST\OVZJOB\general\utility\JobDTO
+    * @var \RNTForest\OVZJOB\general\utility\JobDTO
     */
     private $JobDTO;
     

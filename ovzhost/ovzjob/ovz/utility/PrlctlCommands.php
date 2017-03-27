@@ -17,9 +17,9 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\utility;
+namespace RNTForest\OVZJOB\ovz\utility;
 
-use RNTFOREST\OVZJOB\general\utility\Context;
+use RNTForest\OVZJOB\general\utility\Context;
 
 /**
 * VS: Virtual System eg. CT or VM
@@ -35,12 +35,12 @@ class PrlctlCommands {
     private $Context;
 
     /**
-    * @var {\RNTFOREST\OVZJOB\general\psrlogger\LoggerInterface|LoggerInterface}
+    * @var {\RNTForest\OVZJOB\general\psrlogger\LoggerInterface|LoggerInterface}
     */
     private $Logger;
 
     /**
-    * @var {\RNTFOREST\OVZJOB\general\cli\CliInterface|CliInterface}
+    * @var {\RNTForest\OVZJOB\general\cli\CliInterface|CliInterface}
     */
     private $Cli;
     
@@ -82,9 +82,9 @@ class PrlctlCommands {
     * @param string $UUID
     * @return int return value
     */
-    public function start($UUID){
+    public function start($UUID,$host=""){
         $cmd = "prlctl start ".escapeshellarg($UUID);
-        return $this->Cli->execute($cmd);
+        return $this->Cli->execute($cmd,$host);
     }
 
     /**
@@ -93,9 +93,9 @@ class PrlctlCommands {
     * @param string $UUID
     * @return int return value
     */
-    public function restart($UUID){
+    public function restart($UUID,$host=""){
         $cmd = "prlctl restart ".escapeshellarg($UUID);
-        return $this->Cli->execute($cmd);
+        return $this->Cli->execute($cmd,$host);
     }
 
     /**
@@ -104,9 +104,9 @@ class PrlctlCommands {
     * @param string $UUID
     * @return int return value
     */
-    public function stop($UUID){
+    public function stop($UUID,$host=""){
         $cmd = "prlctl stop ".escapeshellarg($UUID);
-        return $this->Cli->execute($cmd);
+        return $this->Cli->execute($cmd,$host);
     }
 
     /**
@@ -117,9 +117,9 @@ class PrlctlCommands {
     * 
     * @return int $exitstatus
     */
-    public function status($UUID){
+    public function status($UUID,$host=""){
         $cmd = "prlctl status ".escapeshellarg($UUID);
-        $exitstatus = $this->Cli->execute($cmd);
+        $exitstatus = $this->Cli->execute($cmd,$host);
         if ($exitstatus == 0) {
             $aRetValTemp = explode(' ',$this->Cli->getOutput()[0]);
             $this->Status = array(
@@ -139,9 +139,9 @@ class PrlctlCommands {
     * 
     * @param string $UUID
     */
-    public function listInfo($UUID){
+    public function listInfo($UUID,$host=""){
         $cmd = "prlctl list -aifj ".escapeshellarg($UUID);
-        $exitstatus = $this->Cli->execute($cmd);
+        $exitstatus = $this->Cli->execute($cmd,$host);
         if ($exitstatus == 0) {
             $this->Json = implode("\n",$this->Cli->getOutput());
         }
@@ -151,9 +151,9 @@ class PrlctlCommands {
     /**
     * write JSON list of all VS into a public property
     */
-    public function listVs(){
+    public function listVs($host=""){
         $cmd = "prlctl list -ajo uuid,name,type,status";
-        $exitstatus = $this->Cli->execute($cmd);
+        $exitstatus = $this->Cli->execute($cmd,$host);
         if ($exitstatus == 0) {
             $this->Json = implode("\n",$this->Cli->getOutput());
         }
@@ -234,7 +234,7 @@ class PrlctlCommands {
     * 
     * @param int $UUID
     */
-    public function killVs($UUID,$vsType="CT"){
+    public function kill($UUID,$vsType="CT"){
         if($vsType=="CT")
             $cmd = "prlctl stop ".escapeshellarg($UUID)." --fast";
         else
@@ -247,9 +247,9 @@ class PrlctlCommands {
     *         
     * @param int $uuid
     */
-    public function mountVs($UUID){
+    public function mount($UUID,$host=""){
         $cmd = "prlctl mount ".escapeshellarg($UUID);
-        return $this->Cli->execute($cmd);
+        return $this->Cli->execute($cmd,$host);
     }
     
     /**
@@ -257,9 +257,9 @@ class PrlctlCommands {
     *         
     * @param int $uuid
     */
-    public function umountVs($UUID){
+    public function umount($UUID,$host=""){
         $cmd = "prlctl umount ".escapeshellarg($UUID);
-        return $this->Cli->execute($cmd);
+        return $this->Cli->execute($cmd,$host);
     }
     
     /**
@@ -267,7 +267,7 @@ class PrlctlCommands {
     * 
     * @param int $uuid
     */
-    public function deleteVs($UUID){
+    public function delete($UUID){
         $cmd = "prlctl delete ".escapeshellarg($UUID);
         return $this->Cli->execute($cmd);
     }
@@ -339,6 +339,36 @@ class PrlctlCommands {
         $exitstatus = $this->Cli->execute($cmd);
         return $exitstatus;
     }
+    
+    /**
+    * tries to clone a VM 
+    * 
+    * @param array $params
+    */
+    public function cloneVS($params){
+        $cmd = "prlctl clone ".escapeshellarg($params['UUID']).
+                " --name ".escapeshellarg($params['NAME']).
+                (isset($params['TEMPLATE'])?" --template ":"").
+                (isset($params['DST'])?" --dst=".escapeshellarg($params['DST']):"");
+        $exitstatus = $this->Cli->execute($cmd);
+        return $exitstatus;
+    }
+
+    /**
+    * tries to migrate a VM 
+    * 
+    * @param array $params
+    */
+    public function migrateVS($params){
+        $cmd = "prlctl migrate ".escapeshellarg($params['UUID']).
+                " ".escapeshellarg($params['DESTINATION'])."/".escapeshellarg($params['NAME']).
+                (isset($params['DST'])?" --dst=".escapeshellarg($params['DST']):"").
+                ((isset($params['CLONE']) && $params['CLONE'])?" --clone ":" --remove-src ").
+                ((isset($params['NOCOMPRESSION']) && $params['NOCOMPRESSION'])?" --no-compression ":"");
+        $exitstatus = $this->Cli->execute($cmd);
+        return $exitstatus;
+    }
+
  
     /**
     * get all snapshots of a VS
@@ -385,11 +415,11 @@ class PrlctlCommands {
     * 
     * @param string $UUID
     */
-    public function createSnapshot($UUID,$name,$description){
+    public function createSnapshot($UUID,$name,$description,$host=""){
         $cmd = ("prlctl snapshot ".escapeshellarg($UUID).
                 " --name ".escapeshellarg($name).
                 " --description ".escapeshellarg($description));
-        $exitstatus = $this->Cli->execute($cmd);
+        $exitstatus = $this->Cli->execute($cmd,$host);
         return $exitstatus;
     }
 
@@ -459,4 +489,6 @@ class PrlctlCommands {
         $this->Json = json_encode($statistics);
         return 0;
     }
+    
+    
 }

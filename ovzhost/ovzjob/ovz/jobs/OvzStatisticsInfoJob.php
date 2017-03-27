@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\jobs;
+namespace RNTForest\OVZJOB\ovz\jobs;
 
 class OvzStatisticsInfoJob extends AbstractOvzJob {
 
@@ -48,7 +48,7 @@ class OvzStatisticsInfoJob extends AbstractOvzJob {
         $ovzStatistics = json_decode($this->PrlctlCommands->getJson(),true);
         
         // add modified at first position of the array
-        $this->array_unshift_assoc($ovzStatistics,'modified',date("Y-m-d H:i:s"));
+        $this->array_unshift_assoc($ovzStatistics,'Timestamp',date("Y-m-d H:i:s"));
         
         // convert ram to mb and add to array at new key
         if(is_array($ovzStatistics) 

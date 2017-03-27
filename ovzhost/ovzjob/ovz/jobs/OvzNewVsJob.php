@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\jobs;
+namespace RNTForest\OVZJOB\ovz\jobs;
 
 class OvzNewVsJob extends AbstractOvzJob{
     
@@ -30,7 +30,7 @@ class OvzNewVsJob extends AbstractOvzJob{
                 "UUID" => "Universally Unique Identifier (UUID)",
                 "NAME" => "Name of the system, not functional",
                 "OSTEMPLATE" => "the wanted ostemplate, has to be available on server or official template repo",
-                "DISTRIBUTION" => "...",
+                "DISTRIBUTION" => "(VM only) The operating system distribution the virtual machine will be optimized for. For the full list of supported distributions, refer to the prlctl man pages.",
                 "HOSTNAME" => "FQDN",
                 "CPUS" => "Number of cores",
                 "RAM" => "Memory in MB",
@@ -38,7 +38,7 @@ class OvzNewVsJob extends AbstractOvzJob{
                 "ROOTPWD" => "password to be set for user root"
             ],
             "params_example" => '{"VSTYPE":"CT","UUID":"717a8925-f92b-48d3-81aa-a948cfe177af","NAME":"test.domain.tld","OSTEMPLATE":"debian-8.0-x86_64-minimal","DISTRIBUTION":null,"HOSTNAME":null,"CPUS":"1","RAM":"1024","DISKSPACE":"100","ROOTPWD":"supersecurepassword"}',
-            "retval" => "nothing specified",
+            "retval" => "JSON string with settings of the new VS",
             "warning" => "nothing specified",
             "error" => "different causes (couldn't get VS list, UUID already exists, no available OSTEMPLATE, or something while effectively creating the VS fails)",
         ];

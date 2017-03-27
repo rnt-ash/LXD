@@ -17,13 +17,14 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\jobs;
+namespace RNTForest\OVZJOB\ovz\jobs;
 
-use RNTFOREST\OVZJOB\general\jobs\AbstractJob;
-use RNTFOREST\OVZJOB\general\utility\Context;
+use RNTForest\OVZJOB\general\jobs\AbstractJob;
+use RNTForest\OVZJOB\general\utility\Context;
 
-use RNTFOREST\OVZJOB\ovz\utility\PrlctlCommands;
-use RNTFOREST\OVZJOB\ovz\utility\PrlsrvctlCommands;
+use RNTForest\OVZJOB\ovz\utility\PrlctlCommands;
+use RNTForest\OVZJOB\ovz\utility\VzctlCommands;
+use RNTForest\OVZJOB\ovz\utility\PrlsrvctlCommands;
 
 abstract class AbstractOvzJob extends AbstractJob{
 
@@ -33,6 +34,11 @@ abstract class AbstractOvzJob extends AbstractJob{
     protected $PrlctlCommands;
 
     /**
+    * @var VzctlCommands
+    */
+    protected $VzctlCommands;
+
+    /**
     * @var PrlsrvctlCommands
     */
     protected $PrlsrvctlCommands;
@@ -40,6 +46,7 @@ abstract class AbstractOvzJob extends AbstractJob{
     public function __construct(Context $context) {
         parent::__construct($context);
         $this->PrlctlCommands = new PrlctlCommands($context);
+        $this->VzctlCommands = new VzctlCommands($context);
         $this->PrlsrvctlCommands = new PrlsrvctlCommands($context);
     }
 
@@ -71,9 +78,9 @@ abstract class AbstractOvzJob extends AbstractJob{
     * 
     * @param string $uuid
     */
-    protected function vsExists($uuid){
+    protected function vsExists($uuid,$host=''){
         $found = false;
-        $exitstatus = $this->PrlctlCommands->listVs();
+        $exitstatus = $this->PrlctlCommands->listVs($host);
         if($exitstatus == 0){
             $allVS = json_decode($this->PrlctlCommands->getJson(),true);
             foreach($allVS as $vs){

@@ -106,12 +106,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     *
     * @var string
     */
-    protected $ovz_state;
-
-    /**
-    *
-    * @var string
-    */
     protected $ovz_snapshots;
 
     /**
@@ -207,7 +201,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setId($id)
     {
         $this->id = $id;
-        return $this;
     }
 
     /**
@@ -219,7 +212,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setName($name)
     {
         $this->name = $name;
-        return $this;
     }
 
     /**
@@ -231,7 +223,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setDescription($description)
     {
         $this->description = $description;
-        return $this;
     }
 
     /**
@@ -243,7 +234,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setCustomersId($customers_id)
     {
         $this->customers_id = $customers_id;
-        return $this;
     }
 
     /**
@@ -255,7 +245,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setPhysicalServersId($physical_servers_id)
     {
         $this->physical_servers_id = $physical_servers_id;
-        return $this;
     }
 
     /**
@@ -267,7 +256,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setJobPublicKey($job_public_key)
     {
         $this->job_public_key = $job_public_key;
-        return $this;
     }
 
     /**
@@ -279,7 +267,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvz($ovz)
     {
         $this->ovz = $ovz;
-        return $this;
     }
 
     /**
@@ -291,7 +278,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzUuid($ovz_uuid)
     {
         $this->ovz_uuid = $ovz_uuid;
-        return $this;
     }
     
     /**
@@ -303,7 +289,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzVstype($ovz_vstyp)
     {
         $this->ovz_vstype = $ovz_vstyp;
-        return $this;
     }
 
     /**
@@ -315,7 +300,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzSettings($ovz_settings)
     {
         $this->ovz_settings = $ovz_settings;
-        return $this;
     }
 
     /**
@@ -327,19 +311,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzStatistics($ovz_statistics)
     {
         $this->ovz_statistics = $ovz_statistics;
-        return $this;
-    }
-
-    /**
-    * saves OVT State
-    *
-    * @param string $ovz_state
-    * @return $this
-    */
-    public function setOvzState($ovz_state)
-    {
-        $this->ovz_state = $ovz_state;
-        return $this;
     }
 
     /**
@@ -351,7 +322,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzSnapshots($ovz_snapshots)
     {
         $this->ovz_snapshots = $ovz_snapshots;
-        return $this;
     }
 
     /**
@@ -363,7 +333,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzReplica($ovz_replica)
     {
         $this->ovz_replica = $ovz_replica;
-        return $this;
     }
 
     /**
@@ -375,7 +344,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzReplicaId($ovz_replica_id)
     {
         $this->ovz_replica_id = $ovz_replica_id;
-        return $this;
     }
 
     /**
@@ -387,7 +355,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzReplicaHost($ovz_replica_host)
     {
         $this->ovz_replica_host = $ovz_replica_host;
-        return $this;
     }
 
     /**
@@ -399,11 +366,10 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzReplicaCron($ovz_replica_cron)
     {
         $this->ovz_replica_cron = $ovz_replica_cron;
-        return $this;
     }
 
     /**
-    * date of the replcas last run
+    * date of the replica last run
     *
     * @param string $ovz_replica_lastrun
     * @return $this
@@ -411,7 +377,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzReplicaLastrun($ovz_replica_lastrun)
     {
         $this->ovz_replica_lastrun = $ovz_replica_lastrun;
-        return $this;
     }
 
     /**
@@ -423,7 +388,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzReplicaNextrun($ovz_replica_nextrun)
     {
         $this->ovz_replica_nextrun = $ovz_replica_nextrun;
-        return $this;
     }
 
     /**
@@ -435,7 +399,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setOvzReplicaStatus($ovz_replica_status)
     {
         $this->ovz_replica_status = $ovz_replica_status;
-        return $this;
     }
 
     /**
@@ -447,7 +410,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setFqdn($fqdn)
     {
         $this->fqdn = $fqdn;
-        return $this;
     }
 
     /**
@@ -459,7 +421,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setCore($core)
     {
         $this->core = $core;
-        return $this;
     }
 
     /**
@@ -471,7 +432,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setMemory($memory)
     {
         $this->memory = $memory;
-        return $this;
     }
 
     /**
@@ -483,7 +443,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setSpace($space)
     {
         $this->space = $space;
-        return $this;
     }
 
     /**
@@ -495,7 +454,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setActivationDate($activation_date)
     {
         $this->activation_date = $activation_date;
-        return $this;
     }
 
     /**
@@ -507,7 +465,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function setModified($modified)
     {
         $this->modified = $modified;
-        return $this;
     }
 
     /**
@@ -611,6 +568,16 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
+    * Returns the value of field ovz_settings
+    *
+    * @return array
+    */
+    public function getOvzSettingsArray()
+    {
+        return json_decode($this->ovz_settings,true);
+    }
+
+    /**
     * Returns the value of field ovz_statistics
     *
     * @return string
@@ -621,14 +588,16 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Returns the value of field ovz_state
+    * Returns the value of field ovz_statistics
     *
-    * @return string
+    * @return array
     */
-    public function getOvzState()
+    public function getOvzStatisticsArray()
     {
-        return $this->ovz_state;
+        return json_decode($this->ovz_statistics,true);
     }
+
+
 
     /**
     * Returns the value of field ovz_snapshots
@@ -780,6 +749,8 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
 
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
         $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
+        $this->hasOne("ovz_replica_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"OvzReplicaId", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasOne("ovz_replica_host",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"OvzReplicaHost", "foreignKey"=>array("allowNulls"=>true)));
         $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"virtual_servers_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
 
         // Timestampable behavior
@@ -805,6 +776,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
 
         $validator = $this->generateValidator($op,$vstype);
         if(!$this->validate($validator)) return false;
+        
+        // should not be NULL
+        if(empty($this->ovz_replica)) $this->ovz_replica = 0;
 
         return true;
     }
@@ -908,6 +882,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
                 'message' => $message
             ]));        
         }        
+        
         return $validator;
     }
     
@@ -945,7 +920,26 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     */
     public function isPending($pendingToken=''){
         $pendingArray = json_decode($this->pending,true);
-        return PendingHelpers::searchForPendingTokenInPendingArray($pendingToken,$pendingArray);
+        return PendingHelpers::checkForPendingTokenInPendingArray($pendingToken,$pendingArray);
+    }
+    
+    /**
+    * generate an array for an select element, considered the permission scope
+    * 
+    * @param string $scope
+    */
+    public static function generateArrayForSelectElement($scope){
+        $findParameters = array("columns"=>"id, name");
+        $resultset = self::findFromScope($scope,$findParameters);
+        $virtualServers = array(0 => self::translate("virtualserver_all_virtualservers"));
+        foreach($resultset as $virtualServer){
+            $virtualServers[$virtualServer->id] = $virtualServer->name;
+        }
+        return $virtualServers;
+    }
+
+    public function getOvzState(){
+        return json_decode($this->ovz_settings,true)['State'];
     }
     
     /**

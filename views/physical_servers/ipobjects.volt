@@ -5,7 +5,7 @@
                 <div class="pull-left"><h5 class="panel-title pull-left">{{ _("physicalserver_ip_title") }}</h5></div>
                 <div class="pull-right">
                     <div class="btn-group">
-                    {{ link_to("physical_servers/addIpObject/"~item.id,'<i class="fa fa-plus"></i>',
+                    {{ link_to("physical_servers/ipObjectAdd/"~item.id,'<i class="fa fa-plus"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("physicalserver_ip_addobject")) }}
                     </div>
                 </div>
@@ -23,12 +23,12 @@
         {% for index, ip in item.dcoipobjects %}
             <tr>
                 <td>
-                    {{ link_to("physical_servers/editIpObject/"~ip.id,'<i class="fa fa-pencil"></i>',
+                    {{ link_to("physical_servers/ipObjectEdit/"~ip.id,'<i class="fa fa-pencil"></i>',
                         'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("physicalserver_ip_editobject")) }}
-                    <a href="#" link="/physical_servers/deleteIpObject/{{ip.id}}" text="{{ _("physicalserver_ip_deleteconf") }}"
+                    <a href="#" link="/physical_servers/ipObjectDelete/{{ip.id}}" text="{{ _("physicalserver_ip_deleteconf") }}"
                         class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("physicalserver_ip_delete") }}"><i class="fa fa-trash-o"></i></a>
                     {% if ip.main == 0 AND ip.allocated != constant('\RNTForest\ovz\models\Dcoipobjects::ALLOC_RESERVED') %}
-                        {{ link_to("physical_servers/makeMainIpObject/"~ip.id,'<i class="fa fa-bolt"></i>',
+                        {{ link_to("physical_servers/ipObjectMakeMain/"~ip.id,'<i class="fa fa-bolt"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("physicalserver_ip_primary")) }}
                     {% endif %}
                 </td>

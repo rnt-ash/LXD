@@ -101,7 +101,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     * @param integer $id primary key of the colocation
     * 
     */
-    public function addIpObjectAction($id){
+    public function ipObjectAddAction($id){
 
         // store in session
         $this->session->set("DcoipobjectsForm", array(
@@ -129,7 +129,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     * @param integer $ipobject primary key of the IP Object
     * 
     */
-    public function editIpObjectAction($ipobject){
+    public function ipObjectEditAction($ipobject){
 
         // store in session
         $this->session->set("DcoipobjectsForm", array(
@@ -154,7 +154,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     * @param integer $ipobject primary key of the IP Object
     * 
     */
-    public function deleteIpObjectAction($ipobject){
+    public function ipObjectDeleteAction($ipobject){
 
         // store in session
         $this->session->set("DcoipobjectsForm", array(
@@ -173,6 +173,31 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         ]);
     }
 
-    
+    /**
+    * kghdjfg
+    * 
+    * @param integer $colocationsId
+    */
+    public function generateIpPdfAction($colocationsId){
+        // sanitize Parameters
+        $colocationsId = $this->filter->sanitize($colocationsId,"int");
+
+        try{
+            // validate (throws exceptions)
+            $colocation = Colocations::tryFindById($colocationsId);
+            $this->tryCheckPermission('colocation', 'general', array('item' => $colocation));
+
+            // Todo: PDF
+            // generate PDF
+            
+
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+            $this->forwardToTableSlideDataAction();
+            return;
+        }
+        die();
+    }    
     
 }

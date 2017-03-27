@@ -17,10 +17,10 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\psrlogger;
+namespace RNTForest\OVZJOB\general\psrlogger;
 
-use RNTFOREST\OVZJOB\general\psrlogger\AbstractLogger;
-use RNTFOREST\OVZJOB\general\psrlogger\LogLevel;
+use RNTForest\OVZJOB\general\psrlogger\AbstractLogger;
+use RNTForest\OVZJOB\general\psrlogger\LogLevel;
 
 class DummyLogger extends AbstractLogger{
     

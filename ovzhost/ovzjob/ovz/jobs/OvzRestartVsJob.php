@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\ovz\jobs;
+namespace RNTForest\OVZJOB\ovz\jobs;
 
 class OvzRestartVsJob extends AbstractOvzJob {
 
@@ -34,27 +34,38 @@ class OvzRestartVsJob extends AbstractOvzJob {
             "error" => "different causes (UUID does not exist, couldn't get actual state, or something while effectively restarting the VS fails)",
         ];
     }
-    
+
     public function run() {
         $this->Context->getLogger()->debug("VS restart!");
-
-        if(!$this->vsExists($this->Params['UUID'])){
-             return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
-        }  
         
+        if(!$this->vsExists($this->Params['UUID'])){
+            return $this->commandFailed("VS with UUID ".$this->Params['UUID']." does not exist!",9);
+        }  
+
         $exitstatus = $this->PrlctlCommands->status($this->Params['UUID']);
         if($exitstatus > 0) return $this->commandFailed("Getting status failed",$exitstatus);
-        
+
         if($this->PrlctlCommands->getStatus()['EXIST']){
             $exitstatus = $this->PrlctlCommands->restart($this->Params['UUID']);
-            if($exitstatus == 0){
-                $this->commandSuccess("VS restart done.");
-            }else{
-                $this->commandFailed("Restarting VS failed",$exitstatus);
-            }
+            if($exitstatus > 0) $this->commandFailed("Restarting VS failed",$exitstatus);
         } else {
             $this->Context->getLogger()->debug("VS not Exist. Nothing to do...");
         }
+
+        // get Info of restarted VS
+        $exitstatus = $this->PrlctlCommands->listInfo($this->Params['UUID']);
+        if($exitstatus > 0) return $this->commandFailed("Getting info failed",$exitstatus);
+
+        $array = json_decode($this->PrlctlCommands->getJson(),true);
+        if(is_array($array) && !empty($array)){
+            $array[0]['Timestamp'] = date('Y-m-d H:i:s');
+            $this->Done = 1;    
+            $this->Retval = json_encode($array[0]);
+            $this->Context->getLogger()->debug("VS restart done");
+        }else{
+            $this->Done = 2;
+            $this->Error = "Convert info to JSON failed!";
+            $this->Context->getLogger()->debug($this->Error);
+        }
     }
 }
-

@@ -21,12 +21,12 @@
 require_once(__DIR__.'/vendor/autoload.php');
 require_once(__DIR__.'/../ovzcp.local.config.php');
 
-use RNTFOREST\OVZJOB\general\data\PdoFactory;
-use RNTFOREST\OVZJOB\general\psrlogger\FileLogger;
-use RNTFOREST\OVZJOB\general\cli\ExecCli;
-use RNTFOREST\OVZJOB\general\utility\Context;
-use RNTFOREST\OVZJOB\general\repository\DbJobDTORepository;
-use RNTFOREST\OVZJOB\general\utility\JobExecutorFactory;
+use RNTForest\OVZJOB\general\data\PdoFactory;
+use RNTForest\OVZJOB\general\psrlogger\FileLogger;
+use RNTForest\OVZJOB\general\cli\ExecCli;
+use RNTForest\OVZJOB\general\utility\Context;
+use RNTForest\OVZJOB\general\repository\DbJobDTORepository;
+use RNTForest\OVZJOB\general\utility\JobExecutorFactory;
 
 class JobSystemStarter{
     private $JobExecutorFactory;

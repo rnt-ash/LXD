@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\cli;
+namespace RNTForest\OVZJOB\general\cli;
 
 interface CliInterface {
     /**
@@ -27,7 +27,7 @@ interface CliInterface {
     * @param string $command Input Parameter
     * @return int ExitStatus
     */
-    public function execute($command);
+    public function execute($command,$host='');
     
     /**
     * Execute a Shell Command in background.
@@ -36,14 +36,7 @@ interface CliInterface {
     * @param string $command Input Parameter
     * @return int ExitStatus
     */
-    public function executeBackground($command);
-
-    /**
-    * setter
-    * 
-    * @param string $host fqdn of remotehost or localhost
-    */
-    public function setHost($host);
+    public function executeBackground($command,$host='');
 
     /**
     * getter    

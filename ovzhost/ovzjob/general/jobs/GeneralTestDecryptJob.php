@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTFOREST\OVZJOB\general\jobs;
+namespace RNTForest\OVZJOB\general\jobs;
 
 class GeneralTestDecryptJob extends AbstractJob {
     
