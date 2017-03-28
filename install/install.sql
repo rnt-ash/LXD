@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `mon_uptimes` (
 
 CREATE TABLE IF NOT EXISTS `mon_local_daily_logs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `mon_local_jobs_id` int(11) NOT NULL COMMENT 'FK mon_remote_jobs_id',
+  `mon_local_jobs_id` int(11) NOT NULL COMMENT 'FK mon_local_jobs_id',
   `day` date NOT NULL,
   `value` text NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
