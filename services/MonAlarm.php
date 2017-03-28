@@ -48,11 +48,11 @@ class MonAlarm extends \Phalcon\DI\Injectable
     */
     public function alarmMonRemoteJobs(MonRemoteJobs $monJob){
         if($monJob->getAlarm() && !$monJob->getMuted() && $this->checkAlarmPeriod($monJob->getAlarmPeriod(), $monJob->getLastAlarm())){
-            $alarmMonContacts = $monJob->getMonContactsAlarmInstances();
-            foreach($alarmMonContacts as $contact){
+            $alarmMailaddresses = $monJob->getMonContactsAlarmMailaddresses();
+            foreach($alarmMailaddresses as $mailaddress){
                 $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
                 $subject = 'Alarm: '.$behavior.' on '.$monJob->getServer()->getName();
-                $contact->notify($subject,$this->genAlarmContentMonRemoteJobs($monJob));
+                $this->sendMail($mailaddress,$subject,$this->genAlarmContentMonRemoteJobs($monJob));
             }
             $monJob->setLastAlarm((new \DateTime())->format('Y-m-d H:i:s'));
             $monJob->setAlarmed(1)->save();
@@ -123,11 +123,11 @@ class MonAlarm extends \Phalcon\DI\Injectable
     */
     public function disalarmMonRemoteJobs(MonRemoteJobs $monJob){
         if($monJob->getAlarm() == '1' && $monJob->getMuted() == '0'){
-            $alarmMonContacts = $monJob->getMonContactsAlarmInstances();
-            foreach($alarmMonContacts as $contact){
+            $alarmMailaddresses = $monJob->getMonContactsAlarmMailaddresses();
+            foreach($alarmMailaddresses as $mailaddress){
                 $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
                 $subject = 'Disalarm: '.$behavior.' on '.$monJob->getServer()->getName();
-                $contact->notify($subject,$this->genAlarmContentMonRemoteJobs($monJob));
+                $this->sendMail($mailaddress,$subject,$this->genAlarmContentMonRemoteJobs($monJob));
             }
             $monJob->setAlarmed(0)->save();
         }
@@ -206,24 +206,24 @@ class MonAlarm extends \Phalcon\DI\Injectable
     }
     
     private function inform(MonRemoteJobs $monJob, $subject, $content){
-        $messageMonContacts = $monJob->getMonContactsMessageInstances();
-        foreach($messageMonContacts as $contact){
-            $contact->notify($subject,$content);
+        $messageMailaddresses = $monJob->getMonContactsMessageMailaddresses();
+        foreach($messageMailaddresses as $mailaddress){
+            $this->sendMail($mailaddress,$subject,$content);
         }       
     }
     
     public function notifyMonLocalJobs(MonLocalJobs $monJob){
         if($monJob->getAlarm() && $this->checkAlarmPeriod($monJob->getAlarmPeriod(), $monJob->getLastAlarm())){
-            $monContacts = array();
+            $mailaddresses = array();
             if($monJob->getStatus() == MonLocalJobs::$STATEMAXIMAL){
-                $monContacts = $monJob->getMonContactsAlarmInstances();
+                $mailaddresses = $monJob->getMonContactsAlarmMailaddresses();
             }elseif($monJob->getStatus() == MonLocalJobs::$STATEWARNING){
-                $monContacts = $monJob->getMonContactsMessageInstances();
+                $mailaddresses = $monJob->getMonContactsMessageMailaddresses();
             }
-            foreach($monContacts as $contact){
+            foreach($mailaddresses as $mailaddress){
                 $behavior = $this->extractNameFromMonBehaviorClass($monJob->getMonBehaviorClass());
                 $subject = 'Notification: '.$behavior.' on '.$monJob->getServer()->getName();
-                $contact->notify($subject,$this->genAlarmContentMonLocalJob($monJob));
+                $this->sendMail($mailaddress,$subject,$this->genAlarmContentMonLocalJob($monJob));
             }
             $monJob->setLastAlarm((new \DateTime())->format('Y-m-d H:i:s'));
             $monJob->save();
@@ -273,5 +273,13 @@ class MonAlarm extends \Phalcon\DI\Injectable
             }
         }
         return $extractedName;
+    }
+    
+    private function sendMail($recipient,$subject,$message){
+        $header  = 'MIME-Version: 1.0' . "\r\n";
+        $header .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+        $header .= 'From: OVZ MonAlarm <alarm@ovzalarm.tld>' . "\r\n";
+        
+        return mail($recipient,$subject,$message,$header);
     }
 }

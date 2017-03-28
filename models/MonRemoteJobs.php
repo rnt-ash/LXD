@@ -630,28 +630,30 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     
     /**
     * 
-    * @return \RNTForest\ovz\models\MonContacts[]
+    * @return string[]
     */
-    public function getMonContactsAlarmInstances(){
+    public function getMonContactsAlarmMailaddresses(){
         $contactIds = explode(',',$this->mon_contacts_alarm);
-        $contactInstances = array();
+        $contactMailaddresses = array();
         foreach($contactIds as $contactId){
-            $contactInstances[] = \RNTForest\ovz\models\MonContacts::findFirst(intval($contactId));
+            $login = \RNTForest\core\models\Logins::findFirst(intval($contactId));
+            $contactMailaddresses[] = $login->getEmail();
         }
-        return $contactInstances;
+        return $contactMailaddresses;
     }
     
     /**
     * 
-    * @return \RNTForest\ovz\models\MonContacts[]
+    * @return string[]
     */
-    public function getMonContactsMessageInstances(){
+    public function getMonContactsMessageMailaddresses(){
         $contactIds = explode(',',$this->mon_contacts_message);
-        $contactInstances = array();
+        $contactMailaddresses = array();
         foreach($contactIds as $contactId){
-            $contactInstances[] = \RNTForest\ovz\models\MonContacts::findFirst(intval($contactId));
+            $login = \RNTForest\core\models\Logins::findFirst(intval($contactId));
+            $contactMailaddresses[] = $login->getEmail();
         }
-        return $contactInstances;
+        return $contactMailaddresses;
     }
     
     public function execute(){
