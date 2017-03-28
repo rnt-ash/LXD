@@ -663,4 +663,220 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     public function genMonLocalDailyLogs(){
         MonLocalDailyLogsGenerator::genLocalDailyLogs($this);    
     }
+    
+    /**
+    * Get the MonLocalLogs of this week in hour interval.
+    * Convenience method which wraps getMonLogs.
+    * 
+    * @return array 
+    */
+    public function getMonLogsThisWeekHourly(){
+        $start = new \DateTime();
+        $start->setTimestamp(strtotime("this week"));
+        $end = new \DateTime();
+        $end->setTimestamp(strtotime("now"));
+        return $this->getMonLogs($start,$end,"hourly");
+    }
+    
+    /**
+    * Get the MonLocalLogs of this month in hour interval.
+    * Convenience method which wraps getMonLogs.
+    * 
+    * @return array 
+    */
+    public function getMonLogsThisMonthHourly(){
+        $start = new \DateTime();
+        $start->setTimestamp(strtotime("first day of this month"));
+        $end = new \DateTime();
+        $end->setTimestamp(strtotime("now"));
+        return $this->getMonLogs($start,$end,"hourly");
+    }
+    
+    /**
+    * Get the MonLocalLogs of this month in day interval.
+    * Convenience method which wraps getMonLogs.
+    * 
+    * @return array 
+    */
+    public function getMonLogsThisMonthDaily(){
+        $start = new \DateTime();
+        $start->setTimestamp(strtotime("first day of this month"));
+        $end = new \DateTime();
+        $end->setTimestamp(strtotime("now"));
+        return $this->getMonLogs($start,$end,"daily");
+    }
+    
+    /**
+    * Get the MonLocalLogs of this year in day interval.
+    * Convenience method which wraps getMonLogs.
+    * 
+    * @return array 
+    */
+    public function getMonLogsThisYearDaily(){
+        $start = new \DateTime();
+        $start->setTimestamp(strtotime("first day of this year"));
+        $end = new \DateTime();
+        $end->setTimestamp(strtotime("now"));
+        return $this->getMonLogs($start,$end,"daily");
+    }
+    
+    /**
+    * Get MonLocalLogs between start and end datetime in a specific interval/unit.
+    * Especially for unit all and hourly it is only possible to get Logs wich are in MonLocalLogs (not older than last month).
+    * For unti daily and weekly it can be further gotten from the older MonLocalDailyLogs.
+    * 
+    * @param \DateTime $start
+    * @param \DateTime $end
+    * @param mixed $unit all, hourly, daily, weekly
+    * @return MonLocalLogs[]
+    */
+    public function getMonLogs(\DateTime $start, \DateTime $end, $unit){
+        if(!($unit == 'all' || $unit == 'hourly' || $unit == 'daily')){
+            throw new \Exception($this->translate("monitoring_monlocaljobs_no_valid_unit"));
+        }
+        if($start->getTimestamp() > $end->getTimestamp()){
+            throw new \Exception($this->translate("monitoring_monlocaljobs_end_before_start"));
+        }
+        
+        $neededMonLogs = array();
+        
+        // search only in MonLocalLogs if all or hourly 
+        if($unit == 'all' || $unit == 'hourly'){
+            // BETWEEN is equivalent to the expression (min <= expr AND expr <= max) (see mysql doc)
+            $monLogs = MonLocalLogs::find(
+                [
+                    "mon_local_jobs_id = :id: AND modified BETWEEN :start: AND :end:",
+                    "order" => "modified ASC",
+                    "bind" => [
+                        "id" => $this->getId(),
+                        "start" => $start->format('Y-m-d H:i:s'),
+                        "end" => $end->format('Y-m-d H:i:s'),
+                    ],
+                ]
+            );
+
+            if($unit == 'hourly'){
+                $hourlyLogs = array();
+                $sum = $count = 0;
+                $lastDay = $thisDay = '0000-00-00 00';
+
+                $hourStart = new \DateTime($start->format('Y-m-d H').':00:00');
+                $hourEnd = new \DateTime($end->format('Y-m-d H').':00:00');
+
+                // initialize array with all needed keys
+                while($hourStart->getTimestamp() <= $hourEnd->getTimestamp()){
+                    $hourlyLogs[$hourStart->format('Y-m-d H')] = null;
+                    // DateInterval explained: Period Time Interval 1 Hour
+                    $hourStart->add(new \DateInterval('PT1H'));
+                }
+
+                foreach($monLogs as $monLog){
+                    $modified = new \DateTime($monLog->getModified());
+                    $thisDay = $modified->format('Y-m-d H');    
+
+                    if($lastDay != $thisDay){
+                        if($count > 0){
+                            $average = $sum/$count;
+                            $hourlyLogs[$lastDay] = "$average";
+                            $sum = $count = 0;
+                        }
+                        $lastDay = $thisDay;
+                    }
+
+                    $sum += $monLog->getValue();
+                    $count ++;
+
+                }
+                // don't forget the last...
+                if($count > 0){
+                    $average = $sum/$count;
+                    $hourlyLogs[$lastDay] = "$average";    
+                }
+
+                $neededMonLogs = $hourlyLogs;
+            }elseif("all"){
+                foreach($monLogs as $monLog){
+                    $neededMonLogs[$monLog->getModified()] = $monLog->getValue();
+                }                
+            }
+        }
+        // search in MonLocalDailyLogs and MonLocalLogs if daily
+        else{
+            if($unit == 'daily'){
+                $dailyLogs = array();
+                
+                $dayStart = new \DateTime($start->format('Y-m-d'));
+                $dayEnd = new \DateTime($end->format('Y-m-d'));
+
+                // initialize array with all needed keys
+                while($dayStart->getTimestamp() <= $dayEnd->getTimestamp()){
+                    $dailyLogs[$dayStart->format('Y-m-d')] = null;
+                    // DateInterval explained: Period Interval 1 Day
+                    $dayStart->add(new \DateInterval('P1D'));
+                }
+               
+                // BETWEEN is equivalent to the expression (min <= expr AND expr <= max) (see mysql doc)
+                $monDailyLogs = MonLocalDailyLogs::find(
+                    [
+                        "mon_local_jobs_id = :id: AND day BETWEEN :start: AND :end:",
+                        "order" => "modified ASC",
+                        "bind" => [
+                            "id" => $this->getId(),
+                            "start" => $start->format('Y-m-d'),
+                            "end" => $end->format('Y-m-d'),
+                        ],
+                    ]
+                );
+                
+                // MonLocalDailyLogs can be directly inserted to the representative keys
+                foreach($monDailyLogs as $monDailyLog){
+                    $dailyLogs[$monDailyLog->getDay()] = $monDailyLog->getValue();       
+                }
+                
+                // BETWEEN is equivalent to the expression (min <= expr AND expr <= max) (see mysql doc)
+                $monLogs = MonLocalLogs::find(
+                    [
+                        "mon_local_jobs_id = :id: AND modified BETWEEN :start: AND :end:",
+                        "order" => "modified ASC",
+                        "bind" => [
+                            "id" => $this->getId(),
+                            "start" => $start->format('Y-m-d'),
+                            "end" => $end->format('Y-m-d'),
+                        ],
+                    ]
+                );
+                
+                // for the rest the average of this day is calculated
+                $sum = $count = 0;
+                $lastDay = $thisDay = '0000-00-00';
+
+                foreach($monLogs as $monLog){
+                    $modified = new \DateTime($monLog->getModified());
+                    $thisDay = $modified->format('Y-m-d');    
+
+                    if($lastDay != $thisDay){
+                        if($count > 0){
+                            $average = $sum/$count;
+                            $dailyLogs[$lastDay] = "$average";
+                            $sum = $count = 0;
+                        }
+                        $lastDay = $thisDay;
+                    }
+
+                    $sum += $monLog->getValue();
+                    $count ++;
+
+                }
+                // don't forget the last...
+                if($count > 0){
+                    $average = $sum/$count;
+                    $dailyLogs[$lastDay] = "$average";    
+                }
+
+                $neededMonLogs = $dailyLogs;
+            }    
+        }        
+        
+        return $neededMonLogs;
+    }
 }
