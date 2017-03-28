@@ -724,4 +724,42 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             ]
         );
     }
+    
+    /**
+    * Get all MonRemoteJobs instances of this server.
+    *
+    * @return \Phalcon\Mvc\Model\ResultsetInterface 
+    */
+    public function getMonRemoteJobs(){
+        $reflection = new \ReflectionClass($this);
+        
+        return MonRemoteJobs::find(
+            [
+                "servers_class = :class: AND servers_id = :id:",
+                "bind" => [
+                    "class" => "\\".$reflection->getName(),
+                    "id" => $this->getId(),
+                ],
+            ]
+        );
+    }
+    
+    /**
+    * Get all MonLocalJobs instances of this server.
+    *
+    * @return \Phalcon\Mvc\Model\ResultsetInterface 
+    */
+    public function getMonLocalJobs(){
+        $reflection = new \ReflectionClass($this);
+        
+        return MonLocalJobs::find(
+            [
+                "servers_class = :class: AND servers_id = :id:",
+                "bind" => [
+                    "class" => "\\".$reflection->getName(),
+                    "id" => $this->getId(),
+                ],
+            ]
+        );
+    }
 }
