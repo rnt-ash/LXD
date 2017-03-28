@@ -28,8 +28,6 @@ use RNTForest\ovz\models\MonRemoteJobs;
 class MonitoringTask extends Task
 {
     public function mainAction(){
-        echo "called main in ovz..." . PHP_EOL;
-
         try{
 
         }catch(\Exception $e){
@@ -38,43 +36,36 @@ class MonitoringTask extends Task
     }
     
     public function localAction(){
-        echo "called local in ovz...".PHP_EOL; 
         $monJob = MonRemoteJobs::findFirst(3);
         $downtime = $monJob->getLastDowntimePeriod();
     }
     
     public function runJobsAction(){
-        echo "called runJobs in ovz...".PHP_EOL;
         $system = new MonSystem();
         $system->runMonRemoteJobs();
     }
     
     public function runCriticalJobsAction(){
-        echo "called runCriticalJobs in ovz...".PHP_EOL;
         $healing = new MonHealing();
         $healing->healFailedMonRemoteJobs();
     }
     
     public function runLocalJobsAction(){
-        echo "called runLocalJobs in ovz...".PHP_EOL;
         $system = new MonSystem();
         $system->runMonLocalJobs();
     }
     
     public function genMonUptimesAction(){
-        echo "called genMonUptimes in ovz...".PHP_EOL;
         $system = new MonSystem();
         $system->genMonUptimes();
     }
     
     public function recomputeUptimesAction(){
-        echo "called recomptueUptimes in ovz...".PHP_EOL;
         $system = new MonSystem();
         $system->recomputeUptimes();
     }
     
     public function genMonLocalDailyLogsAction(){
-        echo "called genMonLocalDailyLogs in ovz...".PHP_EOL;
         $system = new MonSystem();
         $system->genMonLocalDailyLogs();
     }

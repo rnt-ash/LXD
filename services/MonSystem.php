@@ -55,14 +55,13 @@ class MonSystem extends \Phalcon\DI\Injectable
                 "active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60",
                 ]
             );
-            echo("runJobs ".count($monJobs)." MonRemoteJobs\n");
+            $this->logger->debug("runJobs ".count($monJobs)." MonRemoteJobs");
             foreach($monJobs as $monJob){
-                //echo(json_encode($monJob));
                 $monJob->execute();
             }
             
         }catch(\Exception $e){
-            echo $e->getMessage()."\n";
+            $this->logger->debug("runMonRemoteJobs: ".$e->getMessage());
         }
         
     }
@@ -80,7 +79,7 @@ class MonSystem extends \Phalcon\DI\Injectable
                 "active = 1",
                 ]
             );
-            echo("runLocalJobs ".count($monJobs)." MonLocalJobs\n");
+            $this->logger->debug("runLocalJobs ".count($monJobs)." MonLocalJobs");
             foreach($monJobs as $monJob){
                 //echo(json_encode($monJob));
                 $monJob->execute();
@@ -90,16 +89,16 @@ class MonSystem extends \Phalcon\DI\Injectable
             }
             
         }catch(\Exception $e){
-            echo $e->getMessage()."\n";
+            $this->logger->debug("runMonLocalJobs: ".$e->getMessage());
         }
     }
     
     private function updateOvzStatisticsOnAllServers(){
         try{
             $physicals = PhysicalServers::find(
-            [
-            "ovz = 1",
-            ]
+                [
+                    "ovz = 1",
+                ]
             );
             foreach($physicals as $physical){
                 if($physical->getOvz() == '1'){
@@ -115,7 +114,7 @@ class MonSystem extends \Phalcon\DI\Injectable
                 }
             }
         }catch(\Exception $e){
-            echo $e->getMessage()."\n";
+            $this->logger->debug("updateOvzStatisticsOnAllServers: ".$e->getMessage());
         }     
     } 
     
@@ -143,7 +142,7 @@ class MonSystem extends \Phalcon\DI\Injectable
                 $monJob->recomputeUptime();
             }
         }catch(\Exception $e){
-            echo $e->getMessage()."\n";
+            $this->logger->debug("recomputeUptimes: ".$e->getMessage());
         }  
     }
     
@@ -175,7 +174,7 @@ class MonSystem extends \Phalcon\DI\Injectable
             }
 
         }catch(\Exception $e){
-            echo $e->getMessage()."\n";
+            $this->logger->debug("genMonUptimes: ".$e->getMessage());
         }    
     }
     
@@ -206,7 +205,7 @@ class MonSystem extends \Phalcon\DI\Injectable
             }
 
         }catch(\Exception $e){
-            echo $e->getMessage()."\n";
+            $this->logger->debug("genMonLocalDailyLogs: ".$e->getMessage());
         }    
     }
 }

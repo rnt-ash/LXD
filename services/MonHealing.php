@@ -42,12 +42,12 @@ class MonHealing extends \Phalcon\DI\Injectable
     public function healFailedMonRemoteJobs(){
         try{
             $monJobs = MonRemoteJobs::find(["active = 1 AND status = 'down'"]);
-            echo "healFailedMonRemoteJobs ".count($monJobs)." MonRemoteJobs\n";
+            $this->logger->debug("healFailedMonRemoteJobs ".count($monJobs)." MonRemoteJobs");
             
             foreach($monJobs as $monJob){
                 $this->healStepwise($monJob);
                 $monJob->save();
-                $this->logger->notice("MonJob id ".$monJob->getId()." ".$this->translate("monitoring_healing_executed"));
+                $this->logger->debug("MonJob id ".$monJob->getId()." ".$this->translate("monitoring_healing_executed"));
             }
         }catch(\Exception $e){
             echo $e->getMessage()."\n";   
@@ -56,7 +56,7 @@ class MonHealing extends \Phalcon\DI\Injectable
     
     private function healStepwise(MonRemoteJobs $monJob){
         $monJob->execute();
-        echo "executed with value ".$monJob->getStatus()."\n";
+        $this->logger->debug("executed with value ".$monJob->getStatus());
             
         if($monJob->isInErrorState()){
             if($this->shouldAlarmImmediately($monJob)){
