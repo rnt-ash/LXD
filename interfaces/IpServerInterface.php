@@ -21,6 +21,6 @@ namespace RNTForest\ovz\interfaces;
 
 interface IpServerInterface
 {
-    // nothing until now
+    public function getIpObjects();
 }
 ?>

@@ -13,14 +13,14 @@
         </tr>
     </thead>
     <tbody>
-    {% if item.ipobjects.count() == 0 %}
+    {% if item.getIpObjects().count() == 0 %}
         <tr colspan="4">
             <td>
                 {{ _("physicalserver_ip_notfound") }}
             </td>
         </tr>
     {% else %}
-        {% for index, ip in item.ipobjects %}
+        {% for index, ip in item.getIpObjects() %}
             <tr>
                 <td>
                     {{ link_to("physical_servers/ipObjectEdit/"~ip.id,'<i class="fa fa-pencil"></i>',

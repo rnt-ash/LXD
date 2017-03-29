@@ -25,6 +25,7 @@ use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 
+use RNTForest\ovz\models\IpObjects;
 
 class Colocations extends \RNTForest\core\models\ModelBase implements \RNTForest\ovz\interfaces\IpServerInterface
 {
@@ -258,7 +259,9 @@ class Colocations extends \RNTForest\core\models\ModelBase implements \RNTForest
     *     
     */
     public function getIpObjects(){
-        return IpObjects::find(["server_class"=>'\RNTForest\ovz\models\colocations','server_id'=>$this->id]);
+        $server_class = addslashes('\RNTForest\ovz\models\Colocations');
+        $resultset = IpObjects::find(["conditions"=>"server_class = '".$server_class."' AND server_id = '".$this->id."'"]);
+        return $resultset;
     }
 
     /**

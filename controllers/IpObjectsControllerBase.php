@@ -88,42 +88,42 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
         // Edit or new Record
         $id = $this->request->getPost("id", "int");
         if(empty($id)){
-            $item = new \RNTForest\ovz\models\IpObjects();
+            $ipobject = new \RNTForest\ovz\models\IpObjects();
         }else{
-            $item = IpObjects::findFirstById($id);
-            if (!$item) {
+            $ipobject = IpObjects::findFirstById($id);
+            if (!$ipobject) {
                 $message = $this->translate("ipobjects_item_not_exist");
                 $this->flashSession->error($message);
                 return $this->forwardToOrigin();
             }
         }
-
+        
         // validate FORM
         $form = new \RNTForest\ovz\forms\IpObjectsForm();
 
         $data = $this->request->getPost();
-        if (!$form->isValid($data, $item)) {
+        if (!$form->isValid($data, $ipobject)) {
             return $this->forwardToEditAction($form);
         }
 
         // save data
-        if ($item->save() === false) {
+        if ($ipobject->save() === false) {
             // fetch all messages from model
             $messages = array();
-            foreach ($item->getMessages() as $message) {
+            foreach ($ipobject->getMessages() as $message) {
                 $form->appendMessage(new \Phalcon\Validation\Message($message->getMessage(),$message->getField()));
             }            
             return $this->forwardToEditAction($form);
         }
         
         // set main IP
-        if ($item->getMain())
-            $this->setMainIP($item);
+        if ($ipobject->getMain())
+            $this->setMainIP($ipobject);
             
         // configure ip on virtual servers
         
-        if($item->getServerClass() == '\RNTForest\ovz\models\VirtualServers' && $item->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
-            $error = $this->configureAllocatedIpOnVirtualServer($item, 'add');
+        if($ipobject->getServerClass() == '\RNTForest\ovz\models\VirtualServers' && $ipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
+            $error = $this->configureAllocatedIpOnVirtualServer($ipobject, 'add');
             if(!empty($error))
                 $message = $this->translate("ipobjects_ip_conf_failed");
                 $this->flashSession->warning($message.$error);
@@ -145,24 +145,24 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
     {
         // find item
         $id = $this->filter->sanitize($id, "int");
-        $dcoipobject = IpObjects::findFirstByid($id);
-        if (!$dcoipobject) {
+        $ipobject = IpObjects::findFirstByid($id);
+        if (!$ipobject) {
             $message = $this->translate("ipobjects_ip_not_found");
             $this->flashSession->error($message);
             return $this->forwardToOrigin();
         }
 
         // configure ip on virtual servers
-        if($item->getServerClass() == '\RNTForest\ovz\models\VirtualServers' && $dcoipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
-            $error = $this->configureAllocatedIpOnVirtualServer($dcoipobject, 'del');
+        if($ipobject->getServerClass() == '\RNTForest\ovz\models\VirtualServers' && $ipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
+            $error = $this->configureAllocatedIpOnVirtualServer($ipobject, 'del');
             if(!empty($error))
                 $message = $this->translate("ipobjects_ip_conf_failed");
                 $this->flashSession->warning($message.$error);
         }
         
         // try to delete
-        if (!$dcoipobject->delete()) {
-            foreach ($dcoipobject->getMessages() as $message) {
+        if (!$ipobject->delete()) {
+            foreach ($ipobject->getMessages() as $message) {
                 $this->flashSession->error($message);
             }
             return $this->forwardToOrigin();

@@ -15,7 +15,7 @@
 {%- endmacro %}    
 
 <div class="page-header">
-    <h2><i class="fa fa-bolt" aria-hidden="true"></i>{{ _("ipobjects_edit_title") }}</h2>
+    <h2><i class="fa fa-bolt" aria-hidden="true"></i> {{ _("ipobjects_edit_title") }}</h2>
 </div>
 
 <div class="well">

@@ -761,6 +761,18 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
             )
         )));   
     }
+
+    /**
+    * get all IpObjects of this virtual server
+    * 
+    * @return \RNTForest\ovz\models\IpObjects
+    *     
+    */
+    public function getIpObjects(){
+        $server_class = addslashes('\RNTForest\ovz\models\VirtualServers');
+        $resultset = IpObjects::find(["conditions"=>"server_class = '".$server_class."' AND server_id = '".$this->id."'"]);
+        return $resultset;
+    }
     
     /**
     * Validations and business logic

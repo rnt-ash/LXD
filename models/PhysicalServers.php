@@ -527,6 +527,18 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     }
 
     /**
+    * get all IpObjects of this physical Server
+    * 
+    * @return \RNTForest\ovz\models\IpObjects
+    *     
+    */
+    public function getIpObjects(){
+        $server_class = addslashes('\RNTForest\ovz\models\PhysicalServers');
+        $resultset = IpObjects::find(["conditions"=>"server_class = '".$server_class."' AND server_id = '".$this->id."'"]);
+        return $resultset;
+    }
+    
+    /**
     * Validations and business logic
     *
     * @return boolean

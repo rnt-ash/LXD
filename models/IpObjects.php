@@ -128,9 +128,9 @@ class IpObjects extends \RNTForest\core\models\ModelBase
     * 
     * @param integer $serverId
     */
-    public function setServerID($serverID)
+    public function setServerId($serverId)
     {
-        $this->server_id = $serverID;
+        $this->server_id = $serverId;
     }
     
     /**
@@ -231,7 +231,7 @@ class IpObjects extends \RNTForest\core\models\ModelBase
     * 
     * @return integer
     */
-    public function getServerID()
+    public function getServerId()
     {
         return $this->server_id;
     }
@@ -461,44 +461,35 @@ class IpObjects extends \RNTForest\core\models\ModelBase
     protected function getReservations() {
         $searching = false;
         $reservations = NULL;
-
-        if(!empty($this->virtual_servers_id)){
+        
+        if($this->server_class == '\RNTForest\ovz\models\VirtualServers'){
             $searching = true;
             $reservations = self::find(array(
-                "conditions" => "virtual_servers_id = ".$this->virtual_servers_id.
-                " AND allocated = ".self::ALLOC_RESERVED,
+                "conditions" => 
+                    " server_class = '".addslashes($this->server_class)."'".
+                    " AND servers_id = ".$this->servers_id.
+                    " AND allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations->count() > 0) return $reservations;
         }
 
-        if($searching || !empty($this->physical_servers_id)){
+        if($searching || $this->server_class = '\RNTForest\ovz\models\PhysicalServers'){
             $searching = true;
-            if(!empty($this->virtual_servers_id)){
-                $condition = "physical_servers_id = ".$this->virtualServers->physical_servers_id;
-            }
-            if(!empty($this->physical_servers_id)){
-                $condition = "physical_servers_id = ".$this->physical_servers_id;
-            }
             $reservations = self::find(array(
-                "conditions" => $condition .
-                " AND allocated = ".self::ALLOC_RESERVED,
+                "conditions" => 
+                    " server_class = '".addslashes($this->server_class)."'".
+                    " AND servers_id = ".$this->servers_id.
+                    " AND allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations->count() > 0) return $reservations;
         }            
 
-        if($searching || !empty($this->colocations_id)){
-            if(!empty($this->virtual_servers_id)){
-                $condition = "colocations_id = ".$this->virtualServers->physicalServers->colocations_id;
-            }
-            if(!empty($this->physical_servers_id)){
-                $condition = "colocations_id = ".$this->physicalServers->colocations_id;
-            }
-            if(!empty($this->colocations_id)){
-                $condition = "colocations_id = ".$this->colocations_id;
-            }
+        if($searching || $this->server_class = '\RNTForest\ovz\models\Colocations'){
             $reservations = self::find(array(
-                "conditions" => $condition. 
-                " AND allocated = ".self::ALLOC_RESERVED,
+                "conditions" => 
+                    " server_class = '".addslashes($this->server_class)."'".
+                    " AND servers_id = ".$this->servers_id.
+                    " AND allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations->count() > 0) return $reservations;
         }            
