@@ -142,7 +142,7 @@ class MonAlarm extends \Phalcon\DI\Injectable
     public function informAboutHealJob(MonRemoteJobs $monJob){
         if($monJob->getAlarm() && !$monJob->getMuted()){
             $content = '';
-            $monServer = $monJob->getServersClass()::findFirst($monJob->getServersId());
+            $monServer = $monJob->getServerClass()::findFirst($monJob->getServerId());
             $name = $monServer->getName();
             $mainIp = $monJob->getMainIp();
             $status = $monJob->getStatus();
@@ -183,7 +183,7 @@ class MonAlarm extends \Phalcon\DI\Injectable
     public function informAboutShortDowntime(MonRemoteJobs $monJob){
         if($monJob->getAlarm() && !$monJob->getMuted()){
             $content = '';
-            $monServer = $monJob->getServersClass()::findFirst($monJob->getServersId());
+            $monServer = $monJob->getServerClass()::findFirst($monJob->getServerId());
             $name = $monServer->getName();
             $mainIp = $monJob->getMainIp();
             $status = $monJob->getStatus();

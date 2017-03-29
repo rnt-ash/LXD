@@ -222,7 +222,7 @@ class MonHealing extends \Phalcon\DI\Injectable
     * @return MonServerInterface
     */
     private function getMonServerInstance(MonRemoteJobs $monJob){
-        $server = $monJob->getServersClass()::findFirst($monJob->getServersId());
+        $server = $monJob->getServerClass()::findFirst($monJob->getServerId());
         if(!($server instanceof MonServerInterface)){
             throw new \Exception($this->translate("monitoring_mon_server_not_implements_interface"));    
         }
