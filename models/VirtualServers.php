@@ -29,10 +29,11 @@ use Phalcon\Mvc\Model\Behavior\Timestampable;
 use RNTForest\core\interfaces\JobServerInterface;
 use RNTForest\core\interfaces\PendingInterface;
 use RNTForest\ovz\interfaces\MonServerInterface;
+use RNTForest\ovz\interfaces\IpServerInterface;
 use RNTForest\core\libraries\PendingHelpers;
 use RNTForest\ovz\functions\Monitoring;
 
-class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface
+class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface, IpServerInterface
 {
 
     /**

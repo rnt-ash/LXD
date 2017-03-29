@@ -307,14 +307,24 @@ class IpObjects extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * helper method: set linked server
+    * helper method: set linked DC Object
     * 
     */
-    public function setServer(\RNTForest\core\interfaces\JobServerInterface $server){
-        $this->server_class = get_class($server);
-        $this->server_id = $server->getId();
+    public function setDCObject(\RNTForest\ovz\interfaces\IpServerInterface $dco){
+        $this->server_class = get_class($dco);
+        $this->server_id = $dco->getId();
     }
 
+    /**
+    * helper method: returns linked DC Object
+    * 
+    * return \RNTForest\core\interfaces\IpServerInterface $dcobject
+    */
+    public function getDCObject(){
+        return $this->server_class::findFirst($this->server_id);
+    }
+    
+    
     /**
     * Initialize method for model.
     */
@@ -341,8 +351,7 @@ class IpObjects extends \RNTForest\core\models\ModelBase
                 $this->server_class = $session['server_class'];
                 $this->server_id = $session['server_id'];
             }else{
-                $message1 = self::translate("ipobjects_dco_submit");
-                $message = new Message($message1,"id");            
+                $message = new Message(self::translate("ipobjects_dco_submit"),"id");            
                 $this->appendMessage($message);
                 return false;        
             }
@@ -394,7 +403,7 @@ class IpObjects extends \RNTForest\core\models\ModelBase
             }
         }
 
-        // Reserved must be an IP
+        // Assigned must be an IP
         if($this->allocated != self::ALLOC_RESERVED && $this->type != self::TYPE_IPADDRESS){
             $message1 = self::translate("ipobjects_assigned_ip");
             $message = new Message(
@@ -442,10 +451,9 @@ class IpObjects extends \RNTForest\core\models\ModelBase
 
             // Check if there is already a main IP
             $found = self::findFirst(array(
-                "colocations_id ".(is_null($this->colocations_id)?"IS NULL":"=".$this->colocations_id)." ".
-                "AND physical_servers_id ".(is_null($this->physical_servers_id)?"IS NULL":"=".$this->physical_servers_id)." ".
-                "AND virtual_servers_id ".(is_null($this->virtual_servers_id)?"IS NULL":"=".$this->virtual_servers_id)." ".
-                "AND main = 1",
+                "server_class = '".addslashes($this->server_class)."'".
+                " AND server_id = ".$this->server_id.
+                " AND main = 1",
             ));
 
             if(!$found){
@@ -457,8 +465,9 @@ class IpObjects extends \RNTForest\core\models\ModelBase
     /**
     * searching vor existing reservations of a DCO
     * 
+    * @return Phalcon\Mvc\Model\ResultsetInterface $reservations
     */
-    protected function getReservations() {
+    public function getReservations() {
         $searching = false;
         $reservations = NULL;
         
@@ -466,29 +475,40 @@ class IpObjects extends \RNTForest\core\models\ModelBase
             $searching = true;
             $reservations = self::find(array(
                 "conditions" => 
-                    " server_class = '".addslashes($this->server_class)."'".
-                    " AND servers_id = ".$this->servers_id.
+                    "server_class = '".addslashes('\RNTForest\ovz\models\VirtualServers')."'".
+                    " AND server_id = ".$this->server_id.
                     " AND allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations->count() > 0) return $reservations;
         }
 
-        if($searching || $this->server_class = '\RNTForest\ovz\models\PhysicalServers'){
+        if($searching || $this->server_class == '\RNTForest\ovz\models\PhysicalServers'){
             $searching = true;
+            $server_id = $this->server_id;
+            if($this->server_class == '\RNTForest\ovz\models\VirtualServers'){
+                $server_id = $this->getDCObject()->physical_servers_id;
+            }
             $reservations = self::find(array(
                 "conditions" => 
-                    " server_class = '".addslashes($this->server_class)."'".
-                    " AND servers_id = ".$this->servers_id.
+                    "server_class = '".addslashes('\RNTForest\ovz\models\PhysicalServers')."'".
+                    " AND server_id = ".$server_id.
                     " AND allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations->count() > 0) return $reservations;
         }            
 
-        if($searching || $this->server_class = '\RNTForest\ovz\models\Colocations'){
+        if($searching || $this->server_class == '\RNTForest\ovz\models\Colocations'){
+            $server_id = $this->server_id;
+            if($this->server_class == '\RNTForest\ovz\models\VirtualServers'){
+                $server_id = $this->getDCObject()->physicalServers->colocations_id;
+            }
+            if($this->server_class == '\RNTForest\ovz\models\PhysicalServers'){
+                $server_id = $this->getDCObject()->colocations_id;
+            }
             $reservations = self::find(array(
                 "conditions" => 
-                    " server_class = '".addslashes($this->server_class)."'".
-                    " AND servers_id = ".$this->servers_id.
+                    "server_class = '".addslashes('\RNTForest\ovz\models\Colocations')."'".
+                    " AND server_id = ".$server_id.
                     " AND allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations->count() > 0) return $reservations;

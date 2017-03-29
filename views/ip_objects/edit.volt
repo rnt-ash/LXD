@@ -18,6 +18,15 @@
     <h2><i class="fa fa-bolt" aria-hidden="true"></i> {{ _("ipobjects_edit_title") }}</h2>
 </div>
 
+{% if reservations is defined and reservations is not empty%}
+<div class="well">
+    <h3>{{_("ipobjects_reservations")}}</h3>
+    {% for reservation in reservations %}
+        {{reservation.toString()}}<br>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="well">
     {{ form("ip_objects/save", 'role': 'form') }}
     {{ form.get('id').render() }}

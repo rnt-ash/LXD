@@ -140,10 +140,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * @param server $server
     * @throws Exceptions
     */
-    protected function tryCheckOvzEnabled($server) {
+    public static function tryCheckOvzEnabled($server) {
         // check if server is ovz enabled   
         if($server->getOvz() == 0){
-            $message = $this->translate("virtualserver_server_not_ovz_enabled");
+            $message = self::translate("virtualserver_server_not_ovz_enabled");
             throw new \Exception($message);
         }
     }
@@ -1259,7 +1259,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         return; 
     }
 
-    private function virutalServerSettingsSave($job,$virtualServer){
+    public static function virutalServerSettingsSave($job,$virtualServer){
         // save settings
         $settings = $job->getRetval(true);
         $virtualServer->setOvzSettings($job->getRetval());
@@ -1270,7 +1270,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             foreach ($messages as $message) {
                 $this->flashSession->warning($message);
             }
-            $message = $this->translate("virtualserver_update_failed");
+            $message = self::translate("virtualserver_update_failed");
             throw new \Exception($message.$virtualServer->getName());
         }
     }

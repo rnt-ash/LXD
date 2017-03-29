@@ -68,6 +68,12 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
             }
             $this->view->form = new IpObjectsForm($item);
         }
+
+        // reservations
+        $tempip = new IpObjects();
+        $tempip->setServerClass($this->session->get('IpObjectsForm')['server_class']);
+        $tempip->setServerId($this->session->get('IpObjectsForm')['server_id']);
+        $this->view->reservations = $tempip->getReservations();
     }
 
     public function cancelAction(){
@@ -121,7 +127,6 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
             $this->setMainIP($ipobject);
             
         // configure ip on virtual servers
-        
         if($ipobject->getServerClass() == '\RNTForest\ovz\models\VirtualServers' && $ipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
             $error = $this->configureAllocatedIpOnVirtualServer($ipobject, 'add');
             if(!empty($error))
@@ -225,15 +230,11 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
         }
 
         // all other IPs to not main  
-        $coId = $ip->getColocationsId();
-        $psId = $ip->getPhysicalServersId();
-        $vsId = $ip->getVirtualServersId();
         $phql="UPDATE \\RNTForest\\ovz\\models\\IpObjects SET main = 0 ".
                 "WHERE allocated >= 2 ".
                 "AND id != ".$ip->getId()." ".
-                "AND colocations_id ".(is_null($coId)?"IS NULL":"=".$coId)." ".
-                "AND physical_servers_id ".(is_null($psId)?"IS NULL":"=".$psId)." ".
-                "AND virtual_servers_id ".(is_null($vsId)?"IS NULL":"=".$vsId)." ";
+                "AND server_id = ".$ip->getServerId()." ".
+                "AND server_class = '".addslashes($ip->getServerClass())."' ";
         $this->modelsManager->executeQuery($phql);
 
         return true;
@@ -247,56 +248,48 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
     */
     protected function configureAllocatedIpOnVirtualServer(IpObjects $ip, $op='add'){
 
-        // find virtual server
-        $virtualServer = VirtualServers::findFirst($ip->getServerID());
-        if (!$virtualServer){
-            $message = $this->translate("virtualserver_does_not_exist");
-            return $message . $item->virtual_servers_id;
-        }
-        
-        if($virtualServer->getOvz() != 1){
-            $message = $this->translate("virtualserver_not_ovz_integrated");
-            return $message;
-        }
-        
-        // execute ovz_modify_vs job        
-        $push = $this->getPushService();
-        if($op == 'add'){
-            $config = array("ipadd"=>$ip->getValue1());
-        }else{
-            $config = array("ipdel"=>$ip->getValue1());
-        }
-        
-        $params = array('UUID'=>$virtualServer->getOvzUuid(),'CONFIG'=>$config,);
-        $job = $push->executeJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params);
-        if(!$job || $job->getDone()==2){
-            $message = $this->translate("virtualserver_job_failed"); 
-            return $message.$job->getError();
-        }
+        try {
+            // validate
+            $virtualServer = VirtualServers::tryFindById($ip->getServerID());  
+            VirtualServersControllerBase::tryCheckOvzEnabled($virtualServer);
 
-        // save new ovz settings
-        $settings = $job->getRetval(true);
-        $virtualServer->setOvzSettings($job->getRetval());
-        VirtualServersControllerBase::virtualServerSettingsAssign($virtualServer,$settings);
+            // execute ovz_modify_vs job        
+            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
+            $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            if($op == 'add'){
+                $config = array("ipadd"=>$ip->getValue1());
+            }else{
+                $config = array("ipdel"=>$ip->getValue1());
+            }
+            $params = array('UUID'=>$virtualServer->getOvzUuid(),'CONFIG'=>$config,);
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
 
-        if ($virtualServer->save() === false) {
-            $messages = $virtualServer->getMessages();
-            foreach ($messages as $message) {
-                $this->flashSession->warning($message);
+            // save new ovz settings
+            VirtualServersControllerBase::virutalServerSettingsSave($job, $virtualServer);
+
+            // update virtual server 
+            if ($virtualServer->update() === false) {
+                $messages = $virtualServer->getMessages();
+                foreach ($messages as $message) {
+                    $this->flashSession->warning($message);
+                }
+                $message = $this->translate("virtualserver_update_failed");
+                throw new \Exception($message.$virtualServer->getName());
             }
-            $message = $this->translate("virtualserver_update_failed");
-            return $message .$virtualServer->getName();
-        }
-        
-        // change allocated
-        $ip->setAllocated(IpObjects::ALLOC_AUTOASSIGNED);
-        if ($ip->update() === false){
-            $messages = $ip->getMessages();
-            foreach ($messages as $message) {
-                $this->flashSession->error($message);
+
+            // change allocated
+            $ip->setAllocated(IpObjects::ALLOC_AUTOASSIGNED);
+            if ($ip->update() === false){
+                $messages = $ip->getMessages();
+                foreach ($messages as $message) {
+                    $this->flashSession->error($message);
+                }
+                $message = $this->translate("ipobjects_ip_update_failed");
+                throw new \Exception($message);
             }
-           $message = $this->translate("ipobjects_ip_update_failed");
-            return $message;
+        }catch(\Exception $e){
+            $this->logger->error($e->getMessage());
+            return $e->getMessage();
         }
     }
     
