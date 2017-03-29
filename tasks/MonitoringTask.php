@@ -50,14 +50,14 @@ class MonitoringTask extends Task
         $system->runMonLocalJobs();
     }
     
-    public function genMonUptimesAction(){
-        $system = new MonSystem();
-        $system->genMonUptimes();
-    }
-    
     public function recomputeUptimesAction(){
         $system = new MonSystem();
         $system->recomputeUptimes();
+    }
+    
+    public function genMonUptimesAction(){
+        $system = new MonSystem();
+        $system->genMonUptimes();
     }
     
     public function genMonLocalDailyLogsAction(){
