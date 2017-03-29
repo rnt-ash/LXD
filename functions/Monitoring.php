@@ -3,56 +3,45 @@ namespace RNTForest\ovz\functions;
 
 class Monitoring{
 
+    /**
+    * Get an array of classpath as key and name as value of the remote monbehaviors.
+    * 
+    * @return array
+    */
     public static function getRemoteBehaviors(){
-        $behaviors = array();
-        
-        $directory = new \DirectoryIterator($_SERVER['DOCUMENT_ROOT'].'/../vendor/rnt-forest/ovz/utilities/monbehaviors');
-        foreach($directory as $fileInfo){
-            if($fileInfo->isDot()) continue;
-            $fileName = $fileInfo->getFilename();
-            if(strpos($fileName,'MonBehavior') > 0){
-                $namespace = "\\RNTForest\\ovz\\utilities\\monbehaviors\\";
-                $class = str_replace('.php','',$fileName);
-                $classpath = $namespace.$class;
-                $shortname = substr($fileName,0,strpos($fileName,'MonBehavior'));
-                $behaviors[$classpath] = $shortname;        
-            }
-        }
-        
-        return $behaviors;
-    }
-    
-    public static function getLocalVirtualBehaviors(){
-        $behaviors = array();
-        
-        $directory = new \DirectoryIterator($_SERVER['DOCUMENT_ROOT'].'/../vendor/rnt-forest/ovz/utilities/monbehaviors');
-        foreach($directory as $fileInfo){
-            if($fileInfo->isDot()) continue;
-            $fileName = $fileInfo->getFilename();
-            if(strpos($fileName,'VirtMonLocalBehavior') > 0){
-                $namespace = "\\RNTForest\\ovz\\utilities\\monbehaviors\\";
-                $class = str_replace('.php','',$fileName);
-                $classpath = $namespace.$class;
-                $shortname = substr($fileName,0,strpos($fileName,'VirtMonLocalBehavior'));
-                $behaviors[$classpath] = $shortname;        
-            }
-        }
-        
-        return $behaviors;
+        return self::buildBehaviorArray('MonBehavior');
     }
 
+    /**
+    * Get an array of classpath as key and name as value of the local monbehaviors for virtual servers.
+    * 
+    * @return array
+    */
+    public static function getLocalVirtualBehaviors(){
+        return self::buildBehaviorArray('VirtMonLocalBehavior');
+    }
+
+    /**
+    * Get an array of classpath as key and name as value of the remote monbehaviors for physical servers.
+    * 
+    * @return array
+    */
     public static function getLocalPhysicalBehaviors(){
+        return self::buildBehaviorArray('PhysMonLocalBehavior');
+    }
+
+    private static function buildBehaviorArray($needle){
         $behaviors = array();
         
         $directory = new \DirectoryIterator($_SERVER['DOCUMENT_ROOT'].'/../vendor/rnt-forest/ovz/utilities/monbehaviors');
         foreach($directory as $fileInfo){
             if($fileInfo->isDot()) continue;
             $fileName = $fileInfo->getFilename();
-            if(strpos($fileName,'PhysMonLocalBehavior') > 0){
+            if(strpos($fileName,$needle) > 0){
                 $namespace = "\\RNTForest\\ovz\\utilities\\monbehaviors\\";
                 $class = str_replace('.php','',$fileName);
                 $classpath = $namespace.$class;
-                $shortname = substr($fileName,0,strpos($fileName,'PhysMonLocalBehavior'));
+                $shortname = substr($fileName,0,strpos($fileName,$needle));
                 $behaviors[$classpath] = $shortname;        
             }
         }
