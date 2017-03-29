@@ -52,7 +52,7 @@ class MonSystem extends \Phalcon\DI\Injectable
             //$monJobs = $this->modelManager->executeQuery("SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteJobs WHERE active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60");
             $monJobs = MonRemoteJobs::find(
                 [
-                "active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60",
+                "active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
                 ]
             );
             $this->logger->debug("runJobs ".count($monJobs)." MonRemoteJobs");
