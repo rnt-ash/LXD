@@ -30,6 +30,7 @@ use RNTForest\core\interfaces\JobServerInterface;
 use RNTForest\core\interfaces\PendingInterface;
 use RNTForest\ovz\interfaces\MonServerInterface;
 use RNTForest\core\libraries\PendingHelpers;
+use RNTForest\ovz\functions\Monitoring;
 
 class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface
 {
@@ -1028,6 +1029,115 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
                     "class" => "\\".$reflection->getName(),
                     "id" => $this->getId(),
                 ],
+            ]
+        );
+    }
+    
+    /**
+    * Adds a new MonRemoteJobs for this server.
+    * 
+    * @param string $behavior
+    * @param int $period
+    * @param int $alarmPeriod
+    * @param int[] $messageContacts
+    * @param int[] $alarmContacts
+    */
+    public function addMonRemoteJob($behavior, $period, $alarmPeriod, $messageContacts, $alarmContacts){
+        // validate and clean parameters
+        if(!key_exists($behavior,Monitoring::getRemoteBehaviors())){
+            throw new \Exception($this->translate("virtualservers_addmonremotejob_no_valid_behavior"));
+        }
+        $period = intval($period);
+        $alarmPeriod = intval($alarmPeriod);
+        $messageContacts = array_map('intval',$messageContacts);
+        $messageContactsString = implode(',',$messageContacts);
+        $alarmContacts = array_map('intval',$alarmContacts);
+        $alarmContactsString = implode(',',$alarmContacts);
+        
+        // set healing to 1 if HttpMonBehavior
+        if(strpos($behavior,'HttpMonBehavior') > 0){
+            $healing = 1;
+        }else{
+            $healing = 0;
+        }
+        
+        $reflection = new \ReflectionClass($this);
+        
+        // and save the new job
+        $monJob = new MonRemoteJobs();
+        $monJob->save(
+            [
+                "servers_id" => $this->getId(),
+                "servers_class" => "\\".$reflection->getName(),
+                "mon_behavior_class" => $behavior,
+                "period" => $period,
+                "alarm_period" => $alarmPeriod,
+                "healing" => $healing,
+                "mon_contacts_message" => $messageContactsString,
+                "mon_contacts_alarm" => $alarmContactsString,
+            ]
+        );
+    }
+    
+    /**
+    * Adds a new MonLocalJob for this server.
+    * 
+    * @param string $behavior
+    * @param int $period
+    * @param int $alarmPeriod
+    * @param int[] $messageContacts
+    * @param int[] $alarmContacts
+    */
+    public function addMonLocalJob($behavior, $period, $alarmPeriod, $messageContacts, $alarmContacts){
+        // validate and clean parameters
+        if(!key_exists($behavior,Monitoring::getLocalVirtualBehaviors())){
+            throw new \Exception($this->translate("virtualservers_addmonlocaljob_no_valid_behavior"));
+        }
+        $period = intval($period);
+        $alarmPeriod = intval($alarmPeriod);
+        $messageContacts = array_map('intval',$messageContacts);
+        $messageContactsString = implode(',',$messageContacts);
+        $alarmContacts = array_map('intval',$alarmContacts);
+        $alarmContactsString = implode(',',$alarmContacts);
+        
+        // gen the warn and maximal value
+        $warningValue = $maximalValue = 0;
+        if(strpos($behavior,'Cpu')){
+            $warningValue = 50;
+            $maximalValue = 80;
+        }elseif(strpos($behavior,'Memoryfree')){
+            // warning at a quarter, minimal 512
+            $warningValue = intval($this->getMemory()*0.25);
+            if($warningValue < 512) $warningValue = 512;
+            
+            // maximal at ten percent, minimal 256
+            $maximalValue = intval($this->getMemory()*0.1);
+            if($maximalValue < 256) $maximalValue = 256;
+        }elseif(strpos($behavior,'Diskspacefree')){
+            // warning at a ten percent, minimal 2
+            $warningValue = intval($this->getSpace()*0.1);
+            if($warningValue < 2) $warningValue = 2;
+            
+            // maximal at five percent, minimal 1 
+            $maximalValue = intval($this->getSpace()*0.05);
+            if($maximalValue < 1) $maximalValue = 1;
+        }
+        
+        $reflection = new \ReflectionClass($this);
+        
+        // and save the new job
+        $monJob = new MonLocalJobs();
+        $monJob->save(
+            [
+                "servers_id" => $this->getId(),
+                "servers_class" => "\\".$reflection->getName(),
+                "mon_behavior_class" => $behavior,
+                "period" => $period,
+                "alarm_period" => $alarmPeriod,
+                "warning_value" => $warningValue,
+                "maximal_value" => $maximalValue,
+                "mon_contacts_message" => $messageContactsString,
+                "mon_contacts_alarm" => $alarmContactsString,
             ]
         );
     }
