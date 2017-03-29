@@ -35,11 +35,6 @@ class MonitoringTask extends Task
         }
     }
     
-    public function localAction(){
-        $monJob = MonRemoteJobs::findFirst(3);
-        $downtime = $monJob->getLastDowntimePeriod();
-    }
-    
     public function runJobsAction(){
         $system = new MonSystem();
         $system->runMonRemoteJobs();

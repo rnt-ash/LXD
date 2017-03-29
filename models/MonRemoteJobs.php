@@ -670,7 +670,7 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         
         $statusAfter = $behavior->execute($this->getMainIp());
         $monLog = new MonRemoteLogs();
-        $monLog->create(["mon_remote_jobs_id" => $this->id, "value" => $statusAfter]);
+        $monLog->create(["mon_remote_jobs_id" => $this->id, "value" => $statusAfter, "modified" => date('Y-m-d H:i:s')]);
         $monLog->save();
         
         if($statusAfter == "1"){
