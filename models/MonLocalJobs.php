@@ -144,12 +144,6 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     * 
     * @var string
     */
-    protected $last_rrd_run;
-    
-    /**
-    * 
-    * @var string
-    */
     protected $modified;
     
     /**
@@ -368,18 +362,6 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Last rrd run
-    * 
-    * @param string $lastRrdRun
-    * @return $this
-    */
-    public function setLastRrdRun($lastRrdRun)
-    {
-        $this->last_rrd_run = $lastRrdRun;
-        return $this;
-    }
-    
-    /**
     * Modified
     * 
     * @param string $modified
@@ -555,15 +537,6 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     public function getLastRun()
     {
         return $this->last_run;
-    }
-    
-    /**
-    *
-    * @return string
-    */
-    public function getLastRrdRun()
-    {
-        return $this->last_rrd_run;
     }
     
     /**
