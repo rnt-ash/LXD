@@ -37,7 +37,7 @@ interface MonServerInterface
     public function getName();
     
     /**
-    * @return \RNTForest\ovz\models\Dcoipobjects
+    * @return \RNTForest\ovz\models\IpObjects
     */
     public function getMainIp();
     
