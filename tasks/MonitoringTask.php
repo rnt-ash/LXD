@@ -35,11 +35,6 @@ class MonitoringTask extends Task
         }
     }
     
-    public function localAction(){
-        $monJob = MonRemoteJobs::findFirst(3);
-        $downtime = $monJob->getLastDowntimePeriod();
-    }
-    
     public function runJobsAction(){
         $system = new MonSystem();
         $system->runMonRemoteJobs();
@@ -55,14 +50,14 @@ class MonitoringTask extends Task
         $system->runMonLocalJobs();
     }
     
-    public function genMonUptimesAction(){
-        $system = new MonSystem();
-        $system->genMonUptimes();
-    }
-    
     public function recomputeUptimesAction(){
         $system = new MonSystem();
         $system->recomputeUptimes();
+    }
+    
+    public function genMonUptimesAction(){
+        $system = new MonSystem();
+        $system->genMonUptimes();
     }
     
     public function genMonLocalDailyLogsAction(){

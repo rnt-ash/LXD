@@ -40,13 +40,13 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     * 
     * @var int
     */
-    protected $servers_id;
+    protected $server_id;
     
     /**
     *
     * @var string
     */
-    protected $servers_class;
+    protected $server_class;
 
     /**
     * 
@@ -172,12 +172,12 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     /**
     * ID of the Server
     * 
-    * @param integer $serversId
+    * @param integer $serverId
     * @return $this
     */
-    public function setServersId($serversId)
+    public function setServerId($serverId)
     {
-        $this->servers_id = $serversId;
+        $this->server_id = $serverId;
         return $this;
     }
     
@@ -186,9 +186,9 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     * 
     * @param string $serverClass
     */
-    public function setServersClass($serverClass)
+    public function setServerClass($serverClass)
     {
-        $this->servers_class = $serverClass;
+        $this->server_class = $serverClass;
         return $this;
     }
        
@@ -421,9 +421,9 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     *
     * @return integer
     */
-    public function getServersId()
+    public function getServerId()
     {
-        return $this->servers_id;
+        return $this->server_id;
     }
     
     /**
@@ -431,9 +431,9 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     * 
     * @return string
     */
-    public function getServersClass()
+    public function getServerClass()
     {
-        return $this->servers_class;
+        return $this->server_class;
     }
     
     /**
@@ -615,8 +615,8 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     * 
     */
     public function setServer(\RNTForest\ovz\interfaces\MonServerInterface $server){
-        $this->servers_class = get_class($server);
-        $this->servers_id = $server->getId();
+        $this->server_class = get_class($server);
+        $this->server_id = $server->getId();
     }
     
     /**
@@ -625,7 +625,7 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     * @return \RNTForest\ovz\interfaces\MonServerInterface
     */
     public function getServer(){
-        return $this->servers_class::findFirst($this->servers_id);
+        return $this->server_class::findFirst($this->server_id);
     }
     
     /**
@@ -670,7 +670,7 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         
         $statusAfter = $behavior->execute($this->getMainIp());
         $monLog = new MonRemoteLogs();
-        $monLog->create(["mon_remote_jobs_id" => $this->id, "value" => $statusAfter]);
+        $monLog->create(["mon_remote_jobs_id" => $this->id, "value" => $statusAfter, "modified" => date('Y-m-d H:i:s')]);
         $monLog->save();
         
         if($statusAfter == "1"){
