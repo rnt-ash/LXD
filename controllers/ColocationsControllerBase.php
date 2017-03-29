@@ -20,8 +20,8 @@
 namespace RNTForest\ovz\controllers;
 
 use RNTForest\ovz\models\Colocations;
-use RNTForest\ovz\models\Dcoipobjects;
-use RNTForest\ovz\forms\DcoipobjectsForm;
+use RNTForest\ovz\models\IpObjects;
+use RNTForest\ovz\forms\IpObjectsForm;
 
 class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -104,22 +104,23 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     public function ipObjectAddAction($id){
 
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "op" => "new",
-            "colocations_id" => intval($id),
+            "server_class" => '\RNTForest\ovz\models\Colocations',
+            "server_id" => intval($id),
             "origin" => array(
                 'controller' => 'colocations',
                 'action' => 'slidedata',
             )
         ));
 
-        $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
+        $ipobjectsForm = new IpObjectsForm(new IpObjects());
         
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'edit',
-            'params' => [$dcoipobjectsForm],
+            'params' => [$ipobjectsForm],
         ]);
     }
     
@@ -132,7 +133,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     public function ipObjectEditAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "op" => "edit",
             "origin" => array(
                 'controller' => 'colocations',
@@ -142,7 +143,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'edit',
             'params' => [$ipobject],
         ]);
@@ -157,7 +158,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
     public function ipObjectDeleteAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "op" => "delete",
             "origin" => array(
                 'controller' => 'colocations',
@@ -167,7 +168,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'delete',
             'params' => [$ipobject],
         ]);

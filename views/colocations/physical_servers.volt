@@ -7,7 +7,7 @@
         </tr>
     </thead>
     <tbody>
-    {% if item.dcoipobjects.count() == 0 %}
+    {% if item.physicalServers.count() == 0 %}
         <tr colspan="3">
             <td>
                 {{ _("colocations_view_nophysicalserver") }}

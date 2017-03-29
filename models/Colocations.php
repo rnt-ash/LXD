@@ -23,8 +23,10 @@ use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
+use Phalcon\Mvc\Model\Behavior\Timestampable;
 
-class Colocations extends \RNTForest\core\models\ModelBase
+
+class Colocations extends \RNTForest\core\models\ModelBase implements \RNTForest\ovz\interfaces\IpServerInterface
 {
 
     /**
@@ -228,16 +230,6 @@ class Colocations extends \RNTForest\core\models\ModelBase
     {
         return $this->modified;
     }
-
-    /**
-    * helper method: returns the DCO Type
-    * 1:Colocation, 2:Physical Server, 3:Virtual Server
-    * 
-    */
-    public function getDcoType()
-    {
-        return 1;
-    }
     
     /**
     * Initialize method for model.
@@ -249,7 +241,24 @@ class Colocations extends \RNTForest\core\models\ModelBase
 
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
         $this->hasMany("id",'RNTForest\ovz\models\PhysicalServers',"colocations_id",array("alias"=>"PhysicalServers", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"colocations_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
+        
+        // Timestampable behavior
+        $this->addBehavior(new Timestampable(array(
+            'beforeUpdate' => array(
+                'field' => 'modified',
+                'format' => 'Y-m-d H:i:s'
+            )
+        )));   
+    }
+
+    /**
+    * get all IpObjects of this colocation
+    * 
+    * @return \RNTForest\ovz\models\IpObjects
+    *     
+    */
+    public function getIpObjects(){
+        return IpObjects::find(["server_class"=>'\RNTForest\ovz\models\colocations','server_id'=>$this->id]);
     }
 
     /**

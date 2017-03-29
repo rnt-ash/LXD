@@ -748,7 +748,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements \RNTFor
         $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
         $this->hasOne("ovz_replica_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"OvzReplicaId", "foreignKey"=>array("allowNulls"=>true)));
         $this->hasOne("ovz_replica_host",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"OvzReplicaHost", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"virtual_servers_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
 
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(

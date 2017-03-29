@@ -22,8 +22,8 @@ namespace RNTForest\ovz\controllers;
 use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\forms\OvzConnectorForm;
 use RNTForest\ovz\services\OvzConnector;
-use RNTForest\ovz\models\Dcoipobjects;
-use RNTForest\ovz\forms\DcoipobjectsForm;
+use RNTForest\ovz\models\IpObjects;
+use RNTForest\ovz\forms\IpObjectsForm;
 
 class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -297,9 +297,9 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         }
 
         // delete IP Objects
-        foreach($physicalServer->dcoipobjects as $dcoipobject){
-            if(!$dcoipobject->delete()){
-                foreach ($dcoipobject->getMessages() as $message) {
+        foreach($physicalServer->ipobjects as $ipobject){
+            if(!$ipobject->delete()){
+                foreach ($ipobject->getMessages() as $message) {
                     $this->flashSession->error($message);
                 }
                 return false;
@@ -405,22 +405,23 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     public function ipObjectAddAction($id){
 
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "op" => "new",
-            "physical_servers_id" => intval($id),
+            "server_class" => '\RNTForest\ovz\models\PhysicalServers',
+            "server_id" => intval($id),
             "origin" => array(
                 'controller' => 'physical_servers',
                 'action' => 'slidedata',
             )
         ));
 
-        $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
+        $ipobjectsForm = new IpObjectsForm(new IpObjects());
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'edit',
-            'params' => [$dcoipobjectsForm],
+            'params' => [$ipobjectsForm],
         ]);
     }
 
@@ -433,7 +434,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     public function ipObjectEditAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "op" => "edit",
             "origin" => array(
                 'controller' => 'physical_servers',
@@ -443,7 +444,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'edit',
             'params' => [$ipobject],
         ]);
@@ -458,7 +459,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     public function ipObjectDeleteAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "op" => "delete",
             "origin" => array(
                 'controller' => 'physical_servers',
@@ -468,7 +469,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'delete',
             'params' => [$ipobject],
         ]);
@@ -482,7 +483,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     */
     public function ipObjectMakeMainAction($ipobject){
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "origin" => array(
                 'controller' => 'physical_servers',
                 'action' => 'slidedata',
@@ -491,7 +492,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'makeMain',
             'params' => [$ipobject],
         ]);

@@ -502,16 +502,6 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
     }
 
     /**
-    * helper method: returns the DCO Type
-    * 1:Colocation, 2:Physical Server, 3:Virtual Server
-    * 
-    */
-    public function getDcoType()
-    {
-        return 2;
-    }
-
-    /**
     * Initialize method for model.
     */
     public function initialize()
@@ -522,7 +512,6 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements \RNTFo
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
         $this->belongsTo("colocations_id",'RNTForest\ovz\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>true));
         $this->hasMany("id",'RNTForest\ovz\models\VirtualServers',"physical_servers_id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id",'RNTForest\ovz\models\Dcoipobjects',"physical_servers_id",array("alias"=>"Dcoipobjects", "foreignKey"=>array("allowNulls"=>true)));
 
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(

@@ -23,12 +23,12 @@ use Phalcon\Http\Client\Request;
 
 use RNTForest\ovz\models\VirtualServers;
 use RNTForest\ovz\models\PhysicalServers;
-use RNTForest\ovz\models\Dcoipobjects;
+use RNTForest\ovz\models\IpObjects;
 use RNTForest\core\models\Customers;
 use RNTForest\ovz\forms\VirtualServersForm;
 use RNTForest\ovz\forms\VirtualServersConfigureForm;
 use RNTForest\ovz\forms\VirtualServersModifyForm;
-use RNTForest\ovz\forms\DcoipobjectsForm;
+use RNTForest\ovz\forms\IpObjectsForm;
 use RNTForest\ovz\forms\SnapshotForm;
 use RNTForest\ovz\forms\ReplicaActivateForm;
 use RNTForest\ovz\forms\RootPasswordChangeForm;
@@ -412,12 +412,12 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
             
             // delete IP Objects
-            foreach($virtualServer->dcoipobjects as $dcoipobject){
+            foreach($virtualServer->ipobjects as $ipobject){
                 if(!$dcoipobject->delete()){
                     foreach ($dcoipobject->getMessages() as $message) {
                         $this->flashSession->error($message);
                     }
-                    $message = $this->translate("virtualserver_dcoipobjects_destroy_failed");
+                    $message = $this->translate("virtualserver_ipobjects_destroy_failed");
                     throw new \Exception($message);
                 }
             }
@@ -862,22 +862,23 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public function ipObjectAddAction($id){
 
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "op" => "new",
-            "virtual_servers_id" => intval($id),
+            "server_class" => '\RNTForest\ovz\models\VirtualServers',
+            "server_id" => intval($id),
             "origin" => array(
                 'controller' => 'virtual_servers',
                 'action' => 'slidedata',
             )
         ));
 
-        $dcoipobjectsForm = new DcoipobjectsForm(new Dcoipobjects());
+        $ipobjectsForm = new IpObjectsForm(new IpObjects());
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'edit',
-            'params' => [$dcoipobjectsForm],
+            'params' => [$ipobjectsForm],
         ]);
     }
 
@@ -890,7 +891,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public function ipObjectEditAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "op" => "edit",
             "origin" => array(
                 'controller' => 'virtual_servers',
@@ -900,7 +901,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'edit',
             'params' => [$ipobject],
         ]);
@@ -915,7 +916,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public function ipObjectDeleteAction($ipobject){
 
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "op" => "delete",
             "origin" => array(
                 'controller' => 'virtual_servers',
@@ -925,7 +926,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'delete',
             'params' => [$ipobject],
         ]);
@@ -939,7 +940,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     */
     public function ipObjectMakeMainAction($ipobject){
         // store in session
-        $this->session->set("DcoipobjectsForm", array(
+        $this->session->set("IpObjectsForm", array(
             "origin" => array(
                 'controller' => 'virtual_servers',
                 'action' => 'slidedata',
@@ -948,7 +949,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         return $this->dispatcher->forward([
             "namespace"  => $this->getAppNs()."controllers",
-            'controller' => 'dcoipobjects',
+            'controller' => 'ip_objects',
             'action' => 'makeMain',
             'params' => [$ipobject],
         ]);
@@ -1136,7 +1137,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 // check if every IP is valid
                 foreach($dnsIPs as $dnsIP){
                     if(!empty($dnsIP)){
-                        if(!Dcoipobjects::isValidIPv4($dnsIP)){
+                        if(!IpObjects::isValidIPv4($dnsIP)){
                             $message1 = $this->translate("virtualserver_IP_not_valid");
                             $message = $dnsIP.$message1;
                             $this->redirectErrorToVirtualServersConfigure($message,'dns',$form);

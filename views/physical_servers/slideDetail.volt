@@ -8,7 +8,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-    {{ partial("partials/ovz/physical_servers/ipobjects.volt") }}
+    {{ partial("partials/ovz/physical_servers/ip_objects.volt") }}
     </div>
 </div>
 
