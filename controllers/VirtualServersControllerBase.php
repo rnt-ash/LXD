@@ -1371,7 +1371,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $replicaSlave->setOvzReplicaStatus(3);
 
             if ($replicaSlave->create() === false){
-                $allMessages = $this->translate("virtualservers_save_replica_slave_failed");
+                $allMessages = $this->translate("virtualserver_save_replica_slave_failed");
                 foreach ($replicaSlave->getMessages() as $message) {
                     $allMessages .= $message->getMessage();
                 }
@@ -1397,7 +1397,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $push = $this->getPushService();
             $job = $push->executeJob($replicaSlaveHost,'ovz_new_vs',$params);
             if($job->getDone() == 2){
-                $message = $this->translate("virtualservers_job_create_failed");
+                $message = $this->translate("virtualserver_job_create_failed");
                 throw new \Exception($message.$job->getError());
             }
             $job1Id = $job->getId();
@@ -1409,7 +1409,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             );
             $job = $push->queueDependentJob($replicaSlaveHost,'ovz_modify_vs',$params,$job1Id);            
             if($job->getDone() == 2){
-                $message = $this->translate("virtualservers_job_modify_failed");
+                $message = $this->translate("virtualserver_job_modify_failed");
                 throw new \Exception($message.$job->getError());
             }
             $job2Id = $job->getId();
@@ -1432,7 +1432,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             );
             $job = $push->queueDependentJob($replicaMasterHost,'ovz_sync_replica',$params,$job2Id,$pending);            
             if($job->getDone() == 2){
-                $message = $this->translate("virtualservers_job_sync_replica_failed");
+                $message = $this->translate("virtualserver_job_sync_replica_failed");
                 throw new \Exception($message.$job->getError());
             }
 
@@ -1445,14 +1445,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $replicaMaster->setOvzReplicaNextrun("");
             $replicaMaster->setOvzReplicaStatus(3);
             if ($replicaMaster->update() == false){
-                $allMessages = $this->translate("virtualservers_update_replica_master_failed");
+                $allMessages = $this->translate("virtualserver_update_replica_master_failed");
                 foreach ($replicaSlave->getMessages() as $message) {
                     $allMessages .= $message->getMessage();
                 }
                 throw new \Exception($allMessages);
             }
 
-            $message = self::translate("virtualservers_replica_sync_run_in_background");
+            $message = self::translate("virtualserver_replica_sync_run_in_background");
             $this->flashSession->success($message);
 
         } catch(\Exception $e){
@@ -1485,7 +1485,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // run replica
             $replica = $this->getReplicaService();
             $replica->run($replicaMaster);
-            $this->flashSession->success("replica_running_in_background");
+            $this->flashSession->success('virtualserver_replica_running_in_background');
 
         } catch (\Exception $e){
             $this->flashSession->error($e->getMessage());
@@ -1506,7 +1506,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->tryCheckPermission('virtual_servers', 'replicas', array('item' => $replicaMaster));
             $this->tryCheckOvzEnabled($replicaMaster);
             
-            if($replicaMaster->getOvzReplica() != 1) throw new \Exception("Virtual Server is not replica master!");
+            if($replicaMaster->getOvzReplica() != 1) throw new \Exception("virtualserver_isnot_replica_master");
             
             // shutdown master
             $this->tryOvzListInfo($replicaMaster);
@@ -1516,14 +1516,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->tryOvzListInfo($replicaMaster);
             $replicaMasterState = $replicaMaster->getOvzState();
             if($replicaMasterState != 'stopped'){
-                throw new \Exception("virtualservers_replica_master_not_stopped");
+                throw new \Exception("virtualserver_replica_master_not_stopped");
             }
     
             $replicaSlave = new VirtualServers;
             $replicaSlave = $replicaMaster->ovzReplicaId;
             $this->tryOvzListInfo($replicaSlave);
             if($replicaSlave->getOvzState() != 'stopped'){
-                throw new \Exception("virtualservers_replica_slave_not_stopped");
+                throw new \Exception("virtualserver_replica_slave_not_stopped");
             }
 
             // run replica, don't go on until job ist fineshed
@@ -1558,7 +1558,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // update settings
             $this->tryOvzListInfo($replicaSlave);
     
-            $this->flashSession->success('virtualservers_replica_failover_success');
+            $this->flashSession->success('virtualserver_replica_failover_success');
     
         } catch (\Exception $e){
             $this->flashSession->error($e->getMessage());
@@ -1615,7 +1615,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 throw new \Exception($message);
             }
 
-            $message = self::translate("virtualservers_replica_switched_off");
+            $message = self::translate("virtualserver_replica_switched_off");
             $this->flashSession->success($message);
 
         }catch(\Exception $e){
