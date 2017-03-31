@@ -415,7 +415,7 @@ class IpObjects extends \RNTForest\core\models\ModelBase
         }
 
         // Check for possible reservations
-        if($this->allocated != self::ALLOC_RESERVED){
+        if(!($this->server_class == '\RNTForest\ovz\models\Colocations' && $this->allocated == self::ALLOC_RESERVED)){
             $reservations = $this->getReservations();
             if($reservations === false){
                 $message1 = self::translate("ipobjects_no_reservation");
@@ -434,7 +434,10 @@ class IpObjects extends \RNTForest\core\models\ModelBase
                 $this->appendMessage($message);
                 return false;        
             }
+        }
 
+
+        if($this->allocated != self::ALLOC_RESERVED){
             // Check for already in use
             if($op == 'new'){
                 $found = self::findFirst(array(
