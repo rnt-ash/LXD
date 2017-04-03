@@ -69,7 +69,8 @@ return new \Phalcon\Config([
                     'physical_servers' => [
                         'index', 'new', 'edit', 'form', 'save', 'delete', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
-                        'slidedata', 'slideSlide', 'ovzHostInfo', 'ovzHostStatisticsInfo', 'ovzConnector', 'ovzConnectorExecute'                
+                        'slidedata', 'slideSlide', 'ovzHostInfo', 'ovzHostStatisticsInfo', 'ovzConnector', 'ovzConnectorExecute',
+                        'monLocalJobAdd', 'monLocalJobAddExecute', 'monRemoteJobAdd', 'monRemoteJobAddExecute',                
                     ]
                 ],
             ],
@@ -328,6 +329,24 @@ return new \Phalcon\Config([
                 'actions' => [
                     'virtual_servers' => [
                         'rootPasswordChange', 'rootPasswordChangeExecute',
+                    ]
+                ],
+            ],
+            'mon_jobs' => [
+                'description' => 'create, edit and delete monjobs', 
+                'scopes' => [
+                    '1' => "edit monjobs on every server",
+                    'partners' => "edit monjobs from partners and own virtual servers only", 
+                    'customers' => "edit monjobs for own virtual servers only", 
+                    '0' => "edit no monjobs", 
+                ],
+                'functions' => array(
+                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
+                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                ),
+                'actions' => [
+                    'virtual_servers' => [
+                        'monLocalJobAdd', 'monLocalJobAddExecute', 'monRemoteJobAdd', 'monRemoteJobAddExecute',
                     ]
                 ],
             ],

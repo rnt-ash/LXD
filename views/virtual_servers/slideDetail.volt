@@ -17,5 +17,13 @@
     {% endif %}
     </div>
 </div>
-
-
+<div class="row">
+    <div class="col-md-12">
+    {{ partial("partials/ovz/virtual_servers/monLocalJobs.volt") }}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+    {{ partial("partials/ovz/virtual_servers/monRemoteJobs.volt") }}
+    </div>
+</div>

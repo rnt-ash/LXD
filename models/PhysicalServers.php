@@ -741,7 +741,7 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         
         return MonRemoteJobs::find(
             [
-                "servers_class = :class: AND servers_id = :id:",
+                "server_class = :class: AND server_id = :id:",
                 "bind" => [
                     "class" => "\\".$reflection->getName(),
                     "id" => $this->getId(),
@@ -760,7 +760,7 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         
         return MonLocalJobs::find(
             [
-                "servers_class = :class: AND servers_id = :id:",
+                "server_class = :class: AND server_id = :id:",
                 "bind" => [
                     "class" => "\\".$reflection->getName(),
                     "id" => $this->getId(),
@@ -804,8 +804,8 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         $monJob = new MonRemoteJobs();
         $monJob->save(
             [
-                "servers_id" => $this->getId(),
-                "servers_class" => "\\".$reflection->getName(),
+                "server_id" => $this->getId(),
+                "server_class" => "\\".$reflection->getName(),
                 "mon_behavior_class" => $behavior,
                 "period" => $period,
                 "alarm_period" => $alarmPeriod,
@@ -866,8 +866,8 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         $monJob = new MonLocalJobs();
         $monJob->save(
             [
-                "servers_id" => $this->getId(),
-                "servers_class" => "\\".$reflection->getName(),
+                "server_id" => $this->getId(),
+                "server_class" => "\\".$reflection->getName(),
                 "mon_behavior_class" => $behavior,
                 "period" => $period,
                 "alarm_period" => $alarmPeriod,

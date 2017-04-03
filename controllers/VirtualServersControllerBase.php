@@ -25,6 +25,7 @@ use RNTForest\ovz\models\VirtualServers;
 use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\models\IpObjects;
 use RNTForest\core\models\Customers;
+use RNTForest\core\models\Logins;
 use RNTForest\ovz\forms\VirtualServersForm;
 use RNTForest\ovz\forms\VirtualServersConfigureForm;
 use RNTForest\ovz\forms\VirtualServersModifyForm;
@@ -32,6 +33,10 @@ use RNTForest\ovz\forms\IpObjectsForm;
 use RNTForest\ovz\forms\SnapshotForm;
 use RNTForest\ovz\forms\ReplicaActivateForm;
 use RNTForest\ovz\forms\RootPasswordChangeForm;
+use RNTForest\ovz\models\MonLocalJobs;
+use RNTForest\ovz\models\MonRemoteJobs;
+use RNTForest\ovz\forms\MonLocalJobsForm;
+use RNTForest\ovz\forms\MonRemoteJobsForm;
 
 use \RNTForest\core\libraries\Helpers;
 
@@ -1703,6 +1708,198 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        $this->redirecToTableSlideDataAction();
+    }
+    
+    /**
+    * Show mon local jobs form
+    * 
+    * @param mixed $physicalServersId
+    */
+    public function monLocalJobAddAction($virtualServersId){
+        // sanitize
+        $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
+
+        // get virtual server object
+        $virtualServer = VirtualServers::findFirstByid($virtualServersId);
+        if (!$virtualServer) {
+            $message = $this->translate("virtualserver_does_not_exist");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
+        }
+        
+        // check permissions
+        if(!$this->permissions->checkPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer))){
+            return $this->forwardTo401();
+        }
+        
+        $monLocalJob = new MonLocalJobs();
+        $monLocalJob->setServerId($virtualServersId);
+        $monLocalJob->setServerClass('\RNTForest\ovz\models\VirtualServers');
+        
+        // call view
+        $this->view->form = new MonLocalJobsForm($monLocalJob); 
+        $this->view->pick("virtual_servers/monLocalJobsForm");
+    }
+    
+    /**
+    * Add new Local MonJob
+    * 
+    */
+    public function monLocalJobAddExecuteAction(){
+        try{
+            // POST request?
+            if (!$this->request->isPost()) 
+                return $this->redirectTo("virtual_servers/slidedata");
+
+            // validate FORM
+            $data = $this->request->getPost();
+            $virtualServersId = $this->filter->sanitize($data['server_id'],"int");
+            $monJob = new MonLocalJobs();
+            $monJob->setServerId($virtualServersId);
+            $monJob->setServerClass('\RNTForest\ovz\models\VirtualServers');
+            $form = new MonLocalJobsForm($monJob);
+            if (!$form->isValid($data, $monJob)) {
+                $this->view->form = $form; 
+                $this->view->pick("virtual_servers/monLocalJobsForm");
+                return; 
+            }
+            
+            // validate
+            $virtualServer = VirtualServers::tryFindById($virtualServersId);
+            $this->tryCheckPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer));
+            
+            // business logic
+            foreach($monJob->getMonContactsMessage() as $monContactMessageId){
+                // throws Exception if login doesn't exist
+                $login = Logins::tryFindById($monContactMessageId);
+                // check if login has the same customer as the virtual server
+                if($login->getCustomersId() != $virtualServer->getCustomersId()){
+                    throw new \Exception(self::translate("monitoring_monjobs_login_not_from_customer"));
+                }
+            }
+            foreach($monJob->getMonContactsAlarm() as $monContactAlarmId){
+                // throws Exception if login doesn't exist
+                $login = Logins::tryFindById($monContactAlarmId);
+                // check if login has the same customer as the virtual server
+                if($login->getCustomersId() != $virtualServer->getCustomersId()){
+                    throw new \Exception(self::translate("monitoring_monjobs_login_not_from_customer"));
+                }
+            }
+            
+            // add local mon job
+            $behavior = $monJob->getMonBehaviorClass();
+            $period = $monJob->getPeriod();
+            $alarmPeriod = $monJob->getAlarmPeriod();
+            $messageContacts = $monJob->getMonContactsMessage();
+            $alarmContacts = $monJob->getMonContactsAlarm();
+            $virtualServer->addMonLocalJob($behavior,$period,$alarmPeriod,$messageContacts,$alarmContacts);
+            
+            // clean up
+            $form->clear();
+            $message = $this->translate("monitoring_monlocaljobs_add_successful");
+            $this->flashSession->success($message);
+        }catch(\Exception $e){
+            $message = $this->translate("monitoring_monlocaljobs_add_failed");
+            $this->flashSession->error($message.$e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        $this->redirecToTableSlideDataAction();
+    }
+    
+    /**
+    * Show mon remote jobs form
+    * 
+    * @param mixed $virtualServersId
+    */
+    public function monRemoteJobAddAction($virtualServersId){
+        // sanitize
+        $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
+
+        // get virtual server object
+        $virtualServer = VirtualServers::findFirstByid($virtualServersId);
+        if (!$virtualServer) {
+            $message = $this->translate("virtualserver_does_not_exist");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
+        }
+        
+        // check permissions
+        if(!$this->permissions->checkPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer))){
+            return $this->forwardTo401();
+        }
+        
+        $monRemoteJob = new MonRemoteJobs();
+        $monRemoteJob->setServerId($virtualServersId);
+        $monRemoteJob->setServerClass('\RNTForest\ovz\models\VirtualServers');
+        
+        // call view
+        $this->view->form = new MonRemoteJobsForm($monRemoteJob);
+        $this->view->pick("virtual_servers/monRemoteJobsForm");
+    }
+    
+    /**
+    * Add new Remote MonJob
+    * 
+    */
+    public function monRemoteJobAddExecuteAction(){
+        try{
+            // POST request?
+            if (!$this->request->isPost()) 
+                return $this->redirectTo("virtual_servers/slidedata");
+                
+            // validate FORM
+            $data = $this->request->getPost();
+            $virtualServersId = $this->filter->sanitize($data['server_id'],"int");
+            $monJob = new MonRemoteJobs();
+            $monJob->setServerId($virtualServersId);
+            $monJob->setServerClass('\RNTForest\ovz\models\VirtualServers');
+            $form = new MonRemoteJobsForm($monJob);
+            if (!$form->isValid($data, $monJob)) {
+                $this->view->form = $form; 
+                $this->view->pick("virtual_servers/monRemoteJobsForm");
+                return; 
+            }
+            
+            // validate
+            $virtualServer = VirtualServers::tryFindById($virtualServersId);
+            $this->tryCheckPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer));
+            
+            // business logic
+            foreach($monJob->getMonContactsMessage() as $monContactMessageId){
+                // throws Exception if login doesn't exist
+                $login = Logins::tryFindById($monContactMessageId);
+                // check if login has the same customer as the virtual server
+                if($login->getCustomersId() != $virtualServer->getCustomersId()){
+                    throw new \Exception(self::translate("monitoring_monjobs_login_not_from_customer"));
+                }
+            }
+            foreach($monJob->getMonContactsAlarm() as $monContactAlarmId){
+                // throws Exception if login doesn't exist
+                $login = Logins::tryFindById($monContactAlarmId);
+                // check if login has the same customer as the virtual server
+                if($login->getCustomersId() != $virtualServer->getCustomersId()){
+                    throw new \Exception(self::translate("monitoring_monjobs_login_not_from_customer"));
+                }
+            }
+            
+            // add remote mon job
+            $behavior = $monJob->getMonBehaviorClass();
+            $period = $monJob->getPeriod();
+            $alarmPeriod = $monJob->getAlarmPeriod();
+            $messageContacts = $monJob->getMonContactsMessage();
+            $alarmContacts = $monJob->getMonContactsAlarm();
+            $virtualServer->addMonRemoteJob($behavior,$period,$alarmPeriod,$messageContacts,$alarmContacts);
+            
+            // clean up
+            $form->clear();
+            $message = $this->translate("monitoring_monremotejobs_add_successful");
+            $this->flashSession->success($message);
+        }catch(\Exception $e){
+            $message = $this->translate("monitoring_monremotejobs_add_failed");
+            $this->flashSession->error($message.$e->getMessage());
             $this->logger->error($e->getMessage());
         }
         $this->redirecToTableSlideDataAction();

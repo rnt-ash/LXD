@@ -24,6 +24,11 @@ use RNTForest\ovz\forms\OvzConnectorForm;
 use RNTForest\ovz\services\OvzConnector;
 use RNTForest\ovz\models\IpObjects;
 use RNTForest\ovz\forms\IpObjectsForm;
+use RNTForest\ovz\models\MonLocalJobs;
+use RNTForest\ovz\models\MonRemoteJobs;
+use RNTForest\ovz\forms\MonLocalJobsForm;
+use RNTForest\ovz\forms\MonRemoteJobsForm;
+use RNTForest\core\models\Logins;
 
 class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -498,7 +503,197 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         ]);
     }
 
+    /**
+    * Show mon local jobs form
+    * 
+    * @param mixed $physicalServersId
+    */
+    public function monLocalJobAddAction($physicalServersId){
+        // sanitize
+        $physicalServersId = $this->filter->sanitize($physicalServersId,"int");
 
+        // get physical server object
+        $physicalServer = PhysicalServers::findFirstByid($physicalServersId);
+        if (!$physicalServer) {
+            $message = $this->translate("physicalserver_does_not_exist");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
+        }
+        
+        // check permissions
+        if(!$this->permissions->checkPermission('physical_servers', 'general', array('item' => $physicalServer))){
+            return $this->forwardTo401();
+        }
+        
+        $monLocalJob = new MonLocalJobs();
+        $monLocalJob->setServerId($physicalServersId);
+        $monLocalJob->setServerClass('\RNTForest\ovz\models\PhysicalServers');
+        
+        // call view
+        $this->view->form = new MonLocalJobsForm($monLocalJob); 
+        $this->view->pick("physical_servers/monLocalJobsForm");
+    }
+    
+    /**
+    * Add new Local MonJob
+    * 
+    */
+    public function monLocalJobAddExecuteAction(){
+        try{
+            // POST request?
+            if (!$this->request->isPost()) 
+                return $this->redirectTo("physical_servers/slidedata");
+
+            // validate FORM
+            $data = $this->request->getPost();
+            $physicalServersId = $this->filter->sanitize($data['server_id'],"int");
+            $monJob = new MonLocalJobs();
+            $monJob->setServerId($physicalServersId);
+            $monJob->setServerClass('\RNTForest\ovz\models\PhysicalServers');
+            $form = new MonLocalJobsForm($monJob);
+            if (!$form->isValid($data, $monJob)) {
+                $this->view->form = $form; 
+                $this->view->pick("physical_servers/monLocalJobsForm");
+                return; 
+            }
+            
+            // validate
+            $physicalServer = PhysicalServers::tryFindById($physicalServersId);
+            $this->tryCheckPermission('physical_servers', 'general', array('item' => $physicalServer));
+            
+            // business logic
+            foreach($monJob->getMonContactsMessage() as $monContactMessageId){
+                // throws Exception if login doesn't exist
+                $login = Logins::tryFindById($monContactMessageId);
+                // check if login has the same customer as the physical server
+                if($login->getCustomersId() != $physicalServer->getCustomersId()){
+                    throw new \Exception(self::translate("monitoring_monjobs_login_not_from_customer"));
+                }
+            }
+            foreach($monJob->getMonContactsAlarm() as $monContactAlarmId){
+                // throws Exception if login doesn't exist
+                $login = Logins::tryFindById($monContactAlarmId);
+                // check if login has the same customer as the physical server
+                if($login->getCustomersId() != $physicalServer->getCustomersId()){
+                    throw new \Exception(self::translate("monitoring_monjobs_login_not_from_customer"));
+                }
+            }
+            
+            // add local mon job
+            $behavior = $monJob->getMonBehaviorClass();
+            $period = $monJob->getPeriod();
+            $alarmPeriod = $monJob->getAlarmPeriod();
+            $messageContacts = $monJob->getMonContactsMessage();
+            $alarmContacts = $monJob->getMonContactsAlarm();
+            $physicalServer->addMonLocalJob($behavior,$period,$alarmPeriod,$messageContacts,$alarmContacts);
+            
+            // clean up
+            $form->clear();
+            $message = $this->translate("monitoring_monlocaljobs_add_successful");
+            $this->flashSession->success($message);
+        }catch(\Exception $e){
+            $message = $this->translate("monitoring_monlocaljobs_add_failed");
+            $this->flashSession->error($message.$e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        $this->redirecToTableSlideDataAction();
+    }
+    
+    /**
+    * Show mon remote jobs form
+    * 
+    * @param mixed $physicalServersId
+    */
+    public function monRemoteJobAddAction($physicalServersId){
+        // sanitize
+        $physicalServersId = $this->filter->sanitize($physicalServersId,"int");
+
+        // get physical server object
+        $physicalServer = PhysicalServers::findFirstByid($physicalServersId);
+        if (!$physicalServer) {
+            $message = $this->translate("physicalserver_does_not_exist");
+            $this->flashSession->error($message);
+            return $this->forwardToTableSlideDataAction();
+        }
+        
+        // check permissions
+        if(!$this->permissions->checkPermission('physical_servers', 'general', array('item' => $physicalServer))){
+            return $this->forwardTo401();
+        }
+        
+        $monRemoteJob = new MonRemoteJobs();
+        $monRemoteJob->setServerId($physicalServersId);
+        $monRemoteJob->setServerClass('\RNTForest\ovz\models\PhysicalServers');
+        
+        // call view
+        $this->view->form = new MonRemoteJobsForm($monRemoteJob); 
+        $this->view->pick("physical_servers/monRemoteJobsForm");
+    }
+    
+    /**
+    * Add new Remote MonJob
+    * 
+    */
+    public function monRemoteJobAddExecuteAction(){
+        try{
+            // POST request?
+            if (!$this->request->isPost()) 
+                return $this->redirectTo("physical_servers/slidedata");
+
+            // validate FORM
+            $data = $this->request->getPost();
+            $physicalServersId = $this->filter->sanitize($data['server_id'],"int");
+            $monJob = new MonRemoteJobs();
+            $monJob->setServerId($physicalServersId);
+            $monJob->setServerClass('\RNTForest\ovz\models\PhysicalServers');
+            $form = new MonRemoteJobsForm($monJob);
+            if (!$form->isValid($data, $monJob)) {
+                $this->view->form = $form; 
+                $this->view->pick("physical_servers/monRemoteJobsForm");
+                return; 
+            }
+            
+            // validate
+            $physicalServer = PhysicalServers::tryFindById($physicalServersId);
+            $this->tryCheckPermission('physical_servers', 'general', array('item' => $physicalServer));
+            
+            // business logic
+            foreach($monJob->getMonContactsMessage() as $monContactMessageId){
+                // throws Exception if login doesn't exist
+                $login = Logins::tryFindById($monContactMessageId);
+                // check if login has the same customer as the physical server
+                if($login->getCustomersId() != $physicalServer->getCustomersId()){
+                    throw new \Exception(self::translate("monitoring_monjobs_login_not_from_customer"));
+                }
+            }
+            foreach($monJob->getMonContactsAlarm() as $monContactAlarmId){
+                // throws Exception if login doesn't exist
+                $login = Logins::tryFindById($monContactAlarmId);
+                // check if login has the same customer as the physical server
+                if($login->getCustomersId() != $physicalServer->getCustomersId()){
+                    throw new \Exception(self::translate("monitoring_monjobs_login_not_from_customer"));
+                }
+            }
+            
+            // add remote mon job
+            $behavior = $monJob->getMonBehaviorClass();
+            $period = $monJob->getPeriod();
+            $alarmPeriod = $monJob->getAlarmPeriod();
+            $messageContacts = $monJob->getMonContactsMessage();
+            $alarmContacts = $monJob->getMonContactsAlarm();
+            $physicalServer->addMonRemoteJob($behavior,$period,$alarmPeriod,$messageContacts,$alarmContacts);
+            
+            // clean up
+            $form->clear();
+            $message = $this->translate("monitoring_monremotejobs_add_successful");
+            $this->flashSession->success($message);
+        }catch(\Exception $e){
+            $message = $this->translate("monitoring_monremotejobs_add_failed");
+            $this->flashSession->error($message.$e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        $this->redirecToTableSlideDataAction();
+    }
 }
 
 /**
