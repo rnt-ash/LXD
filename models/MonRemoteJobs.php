@@ -663,29 +663,36 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         if(!($behavior instanceof MonBehaviorInterface)){
             throw new \Exception($this->translate("monitoring_mon_behavior_not_implements_interface"));    
         }
-        
+
         // update MainIp from Server Object in case it has changed since last execute
-        $server = $this->getServer();
-        $this->setMainIp($server->getMainIp()->toString());
-        
-        $statusAfter = $behavior->execute($this->getMainIp());
-        $monLog = new MonRemoteLogs();
-        $monLog->create(["mon_remote_jobs_id" => $this->id, "value" => $statusAfter, "modified" => date('Y-m-d H:i:s')]);
-        $monLog->save();
-        
-        if($statusAfter == "1"){
-            $this->status = "up";
+        $server = $this->getServer(); 
+        $ipaddress = $server->getMainIp();
+
+        if($ipaddress === false){
+            $this->getLogger()->notice($this->translate("monitoring_monremotejobs_no_ip")." MonRemoteJobId: ".$this->getId());
         }else{
-            $this->status = "down";
+
+            $this->setMainIp($ipaddress->toString());
+
+            $statusAfter = $behavior->execute($this->getMainIp());
+            $monLog = new MonRemoteLogs();
+            $monLog->create(["mon_remote_jobs_id" => $this->id, "value" => $statusAfter, "modified" => date('Y-m-d H:i:s')]);
+            $monLog->save();
+
+            if($statusAfter == "1"){
+                $this->status = "up";
+            }else{
+                $this->status = "down";
+            }
+
+            if($statusBefore != $statusAfter){
+                $this->setLastStatusChange(date('Y-m-d H:i:s'));    
+            }
+
+            $this->setLastRun(date('Y-m-d H:i:s'));
+
+            $this->save();
         }
-        
-        if($statusBefore != $statusAfter){
-            $this->setLastStatusChange(date('Y-m-d H:i:s'));    
-        }
-        
-        $this->setLastRun(date('Y-m-d H:i:s'));
-        
-        $this->save();
     }
     
     /**
@@ -887,5 +894,12 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
         $start = Helpers::createUnixTimestampFromDateTime($startModified);
         $end = Helpers::createUnixTimestampFromDateTime($endModified);
         return new DowntimePeriod($start,$end);   
+    }
+    
+    /**
+    * @return \Phalcon\Logger\AdapterInterface
+    */
+    private function getLogger(){
+        return $this->getDI()['logger'];
     }
 }
