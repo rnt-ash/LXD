@@ -33,7 +33,7 @@ use RNTForest\core\libraries\RemoteSshConnection;
 * - generates asymmetrical keypair, saves it locally on the host and saves the public key in the central db in phalcon app
 * - puts the public key of the adminserver (where the phalcon app runs) as a file on the host
 * - creates and configures a linux user/group for running the webservice
-* - sends all files in the ovzhost directory to the host
+* - sends all files in the jobsystem directory to the host
 * - creates directories for db and logs
 * - installation and configuration of composer
 * - sets file permissions
@@ -49,13 +49,16 @@ use RNTForest\core\libraries\RemoteSshConnection;
 */
 class OvzConnector extends \Phalcon\DI\Injectable
 {
-    private $ConfigOvzHostRootDir = '/srv/ovzhost/';
-    private $ConfigMyPublicKeyFilePath = '/srv/ovzhost/keys/public.pem';
-    private $ConfigMyPrivateKeyFilePath = '/srv/ovzhost/keys/private.key';
-    private $ConfigAdminPublicKeyFilePath = '/srv/ovzhost/keys/adminpublic.key';
-    
-    private $PathToOvzhostDirectoryOnAdminServer = BASE_PATH.'/vendor/rnt-forest/ovz/ovzhost/';
-    
+    private $ConfigOvzJobsystemRootDir = '/srv/jobsystem/';
+    private $ConfigMyPublicKeyFilePath = '/srv/jobsystem/keys/public.pem';
+    private $ConfigMyPrivateKeyFilePath = '/srv/jobsystem/keys/private.key';
+    private $ConfigAdminPublicKeyFilePath = '/srv/jobsystem/keys/adminpublic.key';
+
+    private $PathsToJobsystemDirectoriesOnAdminServer = [
+        BASE_PATH.'/vendor/rnt-forest/core/jobserver/',
+        BASE_PATH.'/vendor/rnt-forest/ovz/jobserver/',
+    ];
+
     /**
     * @var Dependency Injection
     */
@@ -111,10 +114,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
         $this->sendAdminPublicKeyToRemoteserver();
         $this->createLinuxUserAndGroup();
         $this->writeOvzcpLocalConfig();
-        $this->copyOvzhostScriptsToServer();
-        $this->prepareFurtherOvzhostDirectories();
+        $this->copyJobsystemScriptsToServer();
+        $this->prepareFurtherJobsystemDirectories();
         $this->configureComposer();
-        $this->cleanPermissionsInOvzhostDirectories();
+        $this->cleanPermissionsInJobsystemDirectories();
         $this->configureSudoers();
         $this->configureOvzcpService();
         $this->configureOvz();
@@ -195,7 +198,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
     
     private function createAsymmetricKeys(){
         try{
-            $this->createDirectoryIfNotExists($this->ConfigOvzHostRootDir.'keys');
+            $this->createDirectoryIfNotExists($this->ConfigOvzJobsystemRootDir.'keys');
             
             // keys are generated each time because it is cheap and more reliable
             $config = array(
@@ -265,49 +268,50 @@ class OvzConnector extends \Phalcon\DI\Injectable
         }
     }
     
-    private function copyOvzhostScriptsToServer(){
+    private function copyJobsystemScriptsToServer(){
         try{
-            // iterate recursively over the directory with source code files for ovzhost and store them in a array $files
-            // this array consists of the source filepath in the key and the representative destination filepath in the value
-            // the second array $directories is for previously creating the needed directories
-            $directory = new \RecursiveDirectoryIterator($this->PathToOvzhostDirectoryOnAdminServer,\FilesystemIterator::SKIP_DOTS);
-            $iterator = new \RecursiveIteratorIterator($directory);
-            $files = array();
-            $directories = array();
-            foreach ($iterator as $info) {
-                $localFilepath = $info->getPathname();
-                $destinationFilepath = str_replace($this->PathToOvzhostDirectoryOnAdminServer,$this->ConfigOvzHostRootDir,$localFilepath);
-                $files[$localFilepath] = $destinationFilepath;
-                $destinationDirectory = str_replace($this->PathToOvzhostDirectoryOnAdminServer,$this->ConfigOvzHostRootDir,$info->getPath().'/');
-                $directories[$destinationDirectory] = true;
+            foreach($this->PathsToJobsystemDirectoriesOnAdminServer as $pathToJobsystemDirectoryOnAdminServer){
+                // iterate recursively over the directory with source code files for jobsystem and store them in a array $files
+                // this array consists of the source filepath in the key and the representative destination filepath in the value
+                // the second array $directories is for previously creating the needed directories
+                $directory = new \RecursiveDirectoryIterator($pathToJobsystemDirectoryOnAdminServer,\FilesystemIterator::SKIP_DOTS);
+                $iterator = new \RecursiveIteratorIterator($directory);
+                $files = array();
+                $directories = array();
+                foreach ($iterator as $info) {
+                    $localFilepath = $info->getPathname();
+                    $destinationFilepath = str_replace($pathToJobsystemDirectoryOnAdminServer,$this->ConfigOvzJobsystemRootDir,$localFilepath);
+                    $files[$localFilepath] = $destinationFilepath;
+                    $destinationDirectory = str_replace($pathToJobsystemDirectoryOnAdminServer,$this->ConfigOvzJobsystemRootDir,$info->getPath().'/');
+                    $directories[$destinationDirectory] = true;
+                }
+
+                foreach($directories as $directory => $novalue){
+                    $this->RemoteSshConnection->exec('mkdir -p '.$directory);
+                }
+
+                foreach($files as $source => $destination){
+                    $this->RemoteSshConnection->sendFile($source, $destination);
+                }   
             }
-            
-            foreach($directories as $directory => $novalue){
-                $this->RemoteSshConnection->exec('mkdir -p '.$directory);
-            }
-            
-            foreach($files as $source => $destination){
-                $this->RemoteSshConnection->sendFile($source, $destination);
-            }   
-            
         }catch(\Exception $e){
-            $error = 'Problem while sending ovzhost source code files: '.$this->MakePrettyException($e);
+            $error = 'Problem while sending jobsystem source code files: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
             throw new \Exception($error);  
         }        
     }
     
-    private function prepareFurtherOvzhostDirectories(){
+    private function prepareFurtherJobsystemDirectories(){
         try{
             $folders = array(
-                $this->ConfigOvzHostRootDir.'db',
-                $this->ConfigOvzHostRootDir.'log',
+                $this->ConfigOvzJobsystemRootDir.'db',
+                $this->ConfigOvzJobsystemRootDir.'log',
             );
             foreach($folders as $folder) {
                 $this->createDirectoryIfNotExists($folder);
             }
         }catch(\Exception $e){
-            $error = 'Problem while creating further ovzhost directories: '.$this->MakePrettyException($e);
+            $error = 'Problem while creating further jobsystem directories: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
             throw new \Exception($error);  
         }
@@ -319,7 +323,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             if($this->RemoteSshConnection->getLastExitStatus() != 0){
                 throw new \Exception('Could not install composer. Got exitcode '.$exitCode.' and output: "'.$output.'"');
             }
-            $output = $this->RemoteSshConnection->exec('(cd '.$this->ConfigOvzHostRootDir.'; composer update 2>&1)');
+            $output = $this->RemoteSshConnection->exec('(cd '.$this->ConfigOvzJobsystemRootDir.'; composer update 2>&1)');
             if($this->RemoteSshConnection->getLastExitStatus() != 0){
                 throw new \Exception('Could not update composer. Got exitcode '.$exitCode.' and output: "'.$output.'"');
             }
@@ -330,16 +334,16 @@ class OvzConnector extends \Phalcon\DI\Injectable
         }
     }
     
-    private function cleanPermissionsInOvzhostDirectories(){
+    private function cleanPermissionsInJobsystemDirectories(){
         try{
-            $this->RemoteSshConnection->exec('chown root:ovzcp -R '.$this->ConfigOvzHostRootDir.'*');
-            $this->RemoteSshConnection->exec('chmod 640 -R '.$this->ConfigOvzHostRootDir.'*');
-            $this->RemoteSshConnection->exec('chmod 660 -R '.$this->ConfigOvzHostRootDir.'log');
-            $this->RemoteSshConnection->exec('chmod 660 -R '.$this->ConfigOvzHostRootDir.'db');
-            $this->RemoteSshConnection->exec('chmod u+X,g+X -R '.$this->ConfigOvzHostRootDir.'*');
-            $this->RemoteSshConnection->exec('chmod 750 '.$this->ConfigOvzHostRootDir.'JobSystemStarter.php');
+            $this->RemoteSshConnection->exec('chown root:ovzcp -R '.$this->ConfigOvzJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chmod 640 -R '.$this->ConfigOvzJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chmod 660 -R '.$this->ConfigOvzJobsystemRootDir.'log');
+            $this->RemoteSshConnection->exec('chmod 660 -R '.$this->ConfigOvzJobsystemRootDir.'db');
+            $this->RemoteSshConnection->exec('chmod u+X,g+X -R '.$this->ConfigOvzJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chmod 750 '.$this->ConfigOvzJobsystemRootDir.'JobSystemStarter.php');
         }catch(\Exception $e){
-            $error = 'Problem while cleaning permissions in ovzhost directories: '.$this->MakePrettyException($e);
+            $error = 'Problem while cleaning permissions in jobsystem directories: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
             throw new \Exception($error);  
         }
@@ -349,8 +353,8 @@ class OvzConnector extends \Phalcon\DI\Injectable
         try{
             $output = $this->RemoteSshConnection->exec('cat /etc/sudoers | grep \'ovzcp ALL=(ALL)\'');
             if(empty($output)){
-                $sudoersConfig = "ovzcp ALL=(ALL) NOPASSWD: /srv/ovzhost/JobSystemStarter.php\n".
-                    "Defaults!/srv/ovzhost/JobSystemStarter.php !requiretty\n";
+                $sudoersConfig = "ovzcp ALL=(ALL) NOPASSWD: /srv/jobsystem/JobSystemStarter.php\n".
+                    "Defaults!/srv/jobsystem/JobSystemStarter.php !requiretty\n";
                 $this->RemoteSshConnection->exec('echo "'.$sudoersConfig.'" >> /etc/sudoers');
             }         
         }catch(\Exception $e){
@@ -370,8 +374,8 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 "\n".
                 "[Service]\n".
                 "Type=simple\n".
-                "ExecStart=/usr/bin/php -S ".$this->PhysicalServer->getFqdn().":8000 /srv/ovzhost/RestServiceStarter.php\n".
-                "WorkingDirectory=/srv/ovzhost\n".
+                "ExecStart=/usr/bin/php -S ".$this->PhysicalServer->getFqdn().":8000 /srv/jobsystem/RestServiceStarter.php\n".
+                "WorkingDirectory=/srv/jobsystem\n".
                 "User=ovzcp\n".
                 "Restart=on-failure\n".
                 "\n".
@@ -466,7 +470,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 "\t"."define('SERVERFQDN','".$this->PhysicalServer->getFqdn()."');"."\n".
                 "\t".""."\n".
                 "\t"."// FileLogger"."\n".
-                "\t"."define('LOGFILE','".$this->ConfigOvzHostRootDir."log/filelogger.log');"."\n".
+                "\t"."define('LOGFILE','".$this->ConfigOvzJobsystemRootDir."log/filelogger.log');"."\n".
                 "\t"."define('LOGLEVEL','NOTICE');"."\n".
                 "\t".""."\n".
                 "\t"."// OVZ"."\n".
