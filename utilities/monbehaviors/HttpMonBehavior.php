@@ -30,7 +30,7 @@ class HttpMonBehavior implements MonBehaviorInterface{
         if(is_null($target)){
             $host = "nohost";      
         }else{
-            $hots = $target;
+            $host = $target;
         }
         $fp = @fsockopen($host, $this->port, $errno, $errstr, $this->timeout_in_seconds);
         

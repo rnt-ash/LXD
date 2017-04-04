@@ -68,8 +68,9 @@ class MonAlarm extends \Phalcon\DI\Injectable
         }
         $lastAlarmTimestamp = Helpers::createUnixTimestampFromDateTime($lastAlarm);
         $currentTimestamp = time();
+        $result = $currentTimestamp > ($lastAlarmTimestamp + $alarmPeriodInSeconds);
         
-        return $currentTimestamp > ($lastAlarmTimestamp + $alarmPeriodInSeconds);
+        return $result;
     }
     
     private function genAlarmContentMonRemoteJobs(MonRemoteJobs $monJob){

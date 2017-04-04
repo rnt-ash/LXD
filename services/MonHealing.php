@@ -138,21 +138,34 @@ class MonHealing extends \Phalcon\DI\Injectable
         $healJobType = '';
         try{
             // get the second to last (vorletzt auf deutsch...) monlog
-            $monLogResult = MonRemoteLogs::find(
+            // get the modified of the last up 
+            $maxUpModified = MonRemoteLogs::maximum(
                 [
-                "mon_remote_jobs_id" => $monJob->getId(),
-                "order" => "id DESC",
-                "limit" => "2",
+                    "column" => "modified",
+                    "conditions" => "mon_remote_jobs_id = ".$monJob->getId()." AND value = 1",
                 ]
             );
-            $monLogResult->seek(1);
-            $monLog = $monLogResult->current();
+            if(empty($maxUpModified))$maxUpModified = 0;
+            $monJobWithHealJob = MonRemoteLogs::findFirst(
+                [
+                    "mon_remote_jobs_id = :id: AND value = 0 AND heal_job != '' AND modified > :maxupmodified:",
+                    "order" => "modified DESC",   
+                    "bind" => [
+                        "id" => $monJob->getId(),
+                        "maxupmodified" => $maxUpModified,
+                    ]
+                ]
+            );
             
-            $healJobId = $monLog->getHealJob();
-            if(is_numeric($healJobId) && $healJobId > 0){
-                $healJob = \RNTForest\core\models\Jobs::findFirst($healJobId);
-                $healJobType = $healJob->getType();
+            if(!empty($monJobWithHealJob)){
+                $healJobId = $monJobWithHealJob->getHealJob();
+                if(is_numeric($healJobId) && $healJobId > 0){
+                    $healJob = \RNTForest\core\models\Jobs::findFirst($healJobId);
+                    $healJobType = $healJob->getType();
+                    $this->logger->notice("found healjob: ".$healJobType);
+                }   
             }
+            return 'ovz_restart_vs';
         }catch(\Exception $e){
             echo $e->getMessage()."\n";
         } 
