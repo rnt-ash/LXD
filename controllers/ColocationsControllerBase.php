@@ -188,6 +188,49 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             $colocation = Colocations::tryFindById($colocationsId);
             $this->tryCheckPermission('colocation', 'general', array('item' => $colocation));
 
+            $reservations = array();
+            $allocations = array();
+            $allocationsObject = array();
+
+            // nest reservations
+            foreach(IpObjects::getSorted('\RNTForest\ovz\models\Colocations',$colocation->id) as $coloIpobject){
+                if($coloIpobject->allocated != IpObjects::ALLOC_RESERVED){
+                    $allocations[] = $coloIpobject->toString();
+                    $allocationsObject[] = $coloIpobject;
+                }else {
+                    $reservations[$coloIpobject->toString()]=array();
+                    foreach($coloIpobject->getSubReservations() as $psIpobject){
+                        $reservations[$coloIpobject->toString()][$psIpobject->toString()]=array();
+                        foreach($psIpobject->getSubReservations() as $vsIpobject){
+                            $reservations[$coloIpobject->toString()][$psIpobject->toString()][$vsIpobject->toString()]=array();
+                        }
+                    }
+                }
+            }
+
+            // find all other allocations
+            foreach($colocation->physicalServers as $physicalServer){
+                foreach($physicalServer->ipobjects as $psIpobject){
+                    if($psIpobject->allocated != IpObjects::ALLOC_RESERVED){
+                        $allocations[] = $psIpobject->toString();
+                        $allocationsObject[] = $psIpobject;
+                    }
+                }
+                foreach($physicalServer->virtualServers as $virtualServer){
+                    foreach($virtualServer->ipobjects as $vsIpobject){
+                        if($vsIpobject->allocated != IpObjects::ALLOC_RESERVED){
+                            $allocations[] = $vsIpobject->toString();
+                            $allocationsObject[] = $vsIpobject;
+                        }
+                    }
+                }
+            }
+            sort($allocations);
+            
+            
+            print_r($reservations);
+            print_r($allocations);
+            
             // Todo: PDF
             // generate PDF
             

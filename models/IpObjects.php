@@ -519,10 +519,77 @@ class IpObjects extends \RNTForest\core\models\ModelBase
 
         // no reservations found
         return false;        
-
     }
 
+    /**
+    * searching vor sub reservations of this reservation
+    * 
+    * @return \RNTForest\ovz\models\IpObjects[]
+    */
+    public function getSubReservations() {
+        $reservations = array();
+        if($this->server_class == '\RNTForest\ovz\models\Colocations'){
+            // get all physical servers in this colocation
+            $physicalServers = PhysicalServers::find("colocations_id = ".$this->server_id);
+            // get all reservations of this server
+            foreach($physicalServers as $physicalServer){
+                $ipObjects = self::find(array(
+                    "conditions" => 
+                        "server_class = '".addslashes('\RNTForest\ovz\models\PhysicalServers')."'".
+                        " AND server_id = ".$physicalServer->id.
+                        " AND allocated = ".self::ALLOC_RESERVED,
+                    "order" => "value1,value2",
+                ));
+                // merge reservations
+                foreach($ipObjects as $ipObject){
+                    if($ipObject->isPartOf($this)){
+                        $reservations[] = $ipObject;
+                    }
+                }
+            }
+        }            
+        if($this->server_class == '\RNTForest\ovz\models\PhysicalServers'){
+            // get all virtual servers in this physical server
+            $virtualServers = VirtualServers::find("physical_servers_id = ".$this->server_id);
+            // get all reservations of this server
+            foreach($virtualServers as $virtualServer){
+                $ipObjects = self::find(array(
+                    "conditions" => 
+                        "server_class = '".addslashes('\RNTForest\ovz\models\VirtualServers')."'".
+                        " AND server_id = ".$virtualServer->id.
+                        " AND allocated = ".self::ALLOC_RESERVED,
+                    "order" => "value1,value2",
+                ));
+                // merge reservations
+                foreach($ipObjects as $ipObject){
+                    if($ipObject->isPartOf($this)){
+                        $reservations[] = $ipObject;
+                    }
+                }
+            }
+        }            
+        return $reservations;
+    }
 
+    /**
+    * get sorted list of IP objects
+    * 
+    * @param string $server_class
+    * @param int $server_id
+    * 
+    * @return Phalcon\Mvc\Model\ResultsetInterface $reservations
+    */
+    public static function getSorted($server_class, $server_id){
+        $ipObjects = self::find(array(
+            "conditions" => 
+                "server_class = '".addslashes($server_class)."'".
+                " AND server_id = ".$server_id,
+            "order" => "value1,value2",
+        ));
+        return $ipObjects;
+    }
+
+    
     /**
     * generates validator for VirtualServer model
     * 
