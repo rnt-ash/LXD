@@ -42,7 +42,8 @@ return [
     "colocations_save" => "Speichern",
     "colocations_cancel" => "Abbrechen",
     "colocations_genpdf" => "Generiere PDF zu IP Objekten",
-    "colocations_ipobjects" => "IP Objekte",     
+    "colocations_ipobjects" => "IP Objekte",
+    "colocations_pdf_no_ipobjects" => "Keine IP-Reservationen in der Colocation",      
     
     // IP Objects
     "ipobjects_address_is_now_main" => "IP Adresse %address% ist nun die Hauptadresse.",

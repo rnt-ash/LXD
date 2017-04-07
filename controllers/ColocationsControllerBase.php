@@ -22,6 +22,7 @@ namespace RNTForest\ovz\controllers;
 use RNTForest\ovz\models\Colocations;
 use RNTForest\ovz\models\IpObjects;
 use RNTForest\ovz\forms\IpObjectsForm;
+use RNTForest\core\libraries\PDF;
 
 class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -188,6 +189,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             $colocation = Colocations::tryFindById($colocationsId);
             $this->tryCheckPermission('colocation', 'general', array('item' => $colocation));
 
+            /*
             $reservations = array();
             $allocations = array();
             $allocationsObject = array();
@@ -230,10 +232,128 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             
             print_r($reservations);
             print_r($allocations);
+            */
             
-            // Todo: PDF
-            // generate PDF
+            //create PDF Object
+            $this->PDF = new PDF();
+            $this->PDF->SetAutoPageBreak(true, 40);
+            $permissions = $this->config->permissionbase;
+
+            //Author and title        
+            $this->PDF->SetAuthor(BASE_PATH.$this->config->pdf['author']);
+            $this->PDF->SetTitle($this->translate("colocations_ipobjects"));
+
+            //Creating page 
+            $this->PDF->AddPage();
+
+            //Print header
+            $this->PDF->printHeader($this->translate("colocations_ipobjects"),$colocation->getCustomers()->printAddressText('box'));
             
+            $this->PDF->SetFont('','B',11);
+            
+            $this->PDF->Cell(0,0,"Colocation: " .$colocation->getName(), 0, 2, '',false);
+            $this->PDF->Ln(5);
+            
+            //Set two columns
+            $this->PDF->resetColumns();
+            $this->PDF->setEqualColumns(2);
+            
+            $this->PDF->SetFont('','',10);
+            
+            // definition of the needed variables
+            $ipAllocated = array();
+            $ipReserved = array();
+            $ipReservedNet = array();
+            $printed = array();
+            $partOfOther = false;
+            
+            // Checking if Colocation has IP reservations or allocations and saves them in array
+            foreach($colocation->ip_objects as $ipobjectcolo){
+                if($ipobjectcolo->allocated == "1" && $ipobjectcolo->value2 == "24"){
+                    $ipReservedNet[] = $ipobjectcolo;
+                }elseif($ipobjectcolo->allocated == "1" && $ipobjectcolo->value2 != "24"){
+                    $ipReserved[] = $ipobjectcolo;
+                }else{
+                    $coloValue = $ipobjectcolo->value1;
+                        $ipAllocated[] = $coloValue;
+                }
+                
+                //Goes through every Physical server and saves the allocated IPs into array
+                foreach($colocation->PhysicalServers as $physicalServer){
+                    foreach($physicalServer->ip_objects as $ipobjectps){
+                        if($ipobjectps->allocated == "2"){
+                            if(!in_array($ipobjectps, $ipAllocated))$ipAllocated[] = $ipobjectps; 
+                        }
+                    }
+                    
+                    //Goes through every Virtual server and saves the allocated IPs into array
+                    foreach($physicalServer->VirtualServers as $virtualServer){
+                        foreach($virtualServer->ip_objects as $ipobjectvs){
+                            if($ipobjectvs->allocated == "1"){
+                            }else{
+                                if(!in_array($ipobjectvs, $ipAllocated))$ipAllocated[] = $ipobjectvs; 
+                            }
+                        } 
+                    }
+                }
+            }
+            
+            // SORTIEREN NACH IP
+            usort($ipReserved, array('RNTForest\ovz\models\IpObjects', 'cmp'));
+            usort($ipAllocated, array('RNTForest\ovz\models\IpObjects', 'cmp'));
+
+            // Print all the Information
+            // If there is no reservations, then print error message
+            if($ipReserved == null && $ipReservedNet == null){
+                $this->PDF->Cell(0,0,$this->translate("colocations_pdf_no_ipobjects"), 0, 2, '',false);
+                $this->PDF->Output('ipobjects.pdf', 'I');
+                die();
+            }
+            
+            // foreach all subnets                                  
+            foreach($ipReservedNet as $reservedNet){
+                $this->PDF->SetFont('','B',11);
+                $this->PDF->Cell(0,0,$reservedNet->value1 ." /" .$reservedNet->value2 , 0, 2, '',false);
+                $this->PDF->SetFont('','',11);
+                
+                // Checks if there is a subreservation for the IP, so i gets just printed one time
+                foreach($ipAllocated as $allocated){
+                    foreach($ipReserved as $reservedCheck){
+                        if($allocated->isPartOf($reservedCheck)){
+                            $partOfOther = true;
+                        }
+                    }
+                    
+                    //printing the IP if its not part of any subreservation and if its part of the colocation
+                    if($allocated->isPartOf($reservedNet) && $partOfOther == false){
+                        $Servername = $allocated->getServerClass()::findFirstById($allocated->getServerId());
+                        if(!in_array($allocated, $printed))$this->PDF->Cell(0,0,$allocated->value1 ." - " .$Servername->name, 0, 2, '',false);
+                        $printed[] = $allocated;
+                    }
+                }
+                $this->PDF->Ln(2);
+            
+                // Foreach subreservation
+                foreach($ipReserved as $reserved){
+                    $this->PDF->SetFont('','B',11);
+                    if(!in_array($reserved, $printed))$this->PDF->Cell(0,0,$reserved->value1 ." - " .$reserved->value2 , 0, 2, '',false);
+                    $printed[] = $reserved;    
+                    $this->PDF->SetFont('','',11);
+                    
+                    // Checking if the IP is part of the subreservation and prints it out
+                    foreach($ipAllocated as $allocated){
+                        if($allocated->isPartOf($reserved)){
+                            $Servername = $allocated->getServerClass()::findFirstById($allocated->getServerId());
+                            if(!in_array($allocated, $printed))$this->PDF->Cell(0,0,$allocated->value1 ." - " .$Servername->name, 0, 2, '',false);
+                            $printed[] = $allocated;
+                        }
+                    }
+                    $this->PDF->Ln(2);
+                }
+            }         
+            // dispaly the PDF on the monitor
+            $this->PDF->Output('ipobjects.pdf', 'I');
+            die();
 
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
@@ -241,7 +361,5 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             $this->forwardToTableSlideDataAction();
             return;
         }
-        die();
     }    
-    
 }

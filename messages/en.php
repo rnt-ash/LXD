@@ -42,7 +42,8 @@ return [
     "colocations_save" => "Save",
     "colocations_cancel" => "Cancel",
     "colocations_genpdf" => "Generate IP objects PDF",
-    "colocations_ipobjects" => "IP objects", 
+    "colocations_ipobjects" => "IP objects",
+    "colocations_pdf_no_ipobjects" => "No IP reservations in the colocation found", 
      
     // IP Objects
     "ipobjects_address_is_now_main" => "IP Address %address% is now main.",
