@@ -189,51 +189,6 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             $colocation = Colocations::tryFindById($colocationsId);
             $this->tryCheckPermission('colocation', 'general', array('item' => $colocation));
 
-            /*
-            $reservations = array();
-            $allocations = array();
-            $allocationsObject = array();
-
-            // nest reservations
-            foreach(IpObjects::getSorted('\RNTForest\ovz\models\Colocations',$colocation->id) as $coloIpobject){
-                if($coloIpobject->allocated != IpObjects::ALLOC_RESERVED){
-                    $allocations[] = $coloIpobject->toString();
-                    $allocationsObject[] = $coloIpobject;
-                }else {
-                    $reservations[$coloIpobject->toString()]=array();
-                    foreach($coloIpobject->getSubReservations() as $psIpobject){
-                        $reservations[$coloIpobject->toString()][$psIpobject->toString()]=array();
-                        foreach($psIpobject->getSubReservations() as $vsIpobject){
-                            $reservations[$coloIpobject->toString()][$psIpobject->toString()][$vsIpobject->toString()]=array();
-                        }
-                    }
-                }
-            }
-
-            // find all other allocations
-            foreach($colocation->physicalServers as $physicalServer){
-                foreach($physicalServer->ipobjects as $psIpobject){
-                    if($psIpobject->allocated != IpObjects::ALLOC_RESERVED){
-                        $allocations[] = $psIpobject->toString();
-                        $allocationsObject[] = $psIpobject;
-                    }
-                }
-                foreach($physicalServer->virtualServers as $virtualServer){
-                    foreach($virtualServer->ipobjects as $vsIpobject){
-                        if($vsIpobject->allocated != IpObjects::ALLOC_RESERVED){
-                            $allocations[] = $vsIpobject->toString();
-                            $allocationsObject[] = $vsIpobject;
-                        }
-                    }
-                }
-            }
-            sort($allocations);
-            
-            
-            print_r($reservations);
-            print_r($allocations);
-            */
-            
             //create PDF Object
             $this->PDF = new PDF();
             $this->PDF->SetAutoPageBreak(true, 40);
@@ -271,11 +226,12 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             foreach($colocation->ip_objects as $ipobjectcolo){
                 if($ipobjectcolo->allocated == "1" && $ipobjectcolo->value2 == "24"){
                     $ipReservedNet[] = $ipobjectcolo;
-                }elseif($ipobjectcolo->allocated == "1" && $ipobjectcolo->value2 != "24"){
+                }
+                if($ipobjectcolo->allocated == "1" && $ipobjectcolo->value2 != "24"){
                     $ipReserved[] = $ipobjectcolo;
-                }else{
-                    $coloValue = $ipobjectcolo->value1;
-                        $ipAllocated[] = $coloValue;
+                }
+                if($ipobjectcolo->allocated == "2"){
+                    $ipAllocated[] = $ipobjectcolo;
                 }
                 
                 //Goes through every Physical server and saves the allocated IPs into array
@@ -310,13 +266,13 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
                 die();
             }
             
-            // foreach all subnets                                  
+            // foreach all subnets and prints out the subnet-IP                                  
             foreach($ipReservedNet as $reservedNet){
                 $this->PDF->SetFont('','B',11);
                 $this->PDF->Cell(0,0,$reservedNet->value1 ." /" .$reservedNet->value2 , 0, 2, '',false);
                 $this->PDF->SetFont('','',11);
                 
-                // Checks if there is a subreservation for the IP, so i gets just printed one time
+                // Checks if there is a subreservation for the IP, so i gets just printed once
                 foreach($ipAllocated as $allocated){
                     foreach($ipReserved as $reservedCheck){
                         if($allocated->isPartOf($reservedCheck)){
@@ -330,10 +286,11 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
                         if(!in_array($allocated, $printed))$this->PDF->Cell(0,0,$allocated->value1 ." - " .$Servername->name, 0, 2, '',false);
                         $printed[] = $allocated;
                     }
+                    $partOfOther = false;
                 }
                 $this->PDF->Ln(2);
             
-                // Foreach subreservation
+                // Foreach subreservation and printing out the subreservation range
                 foreach($ipReserved as $reserved){
                     $this->PDF->SetFont('','B',11);
                     if(!in_array($reserved, $printed))$this->PDF->Cell(0,0,$reserved->value1 ." - " .$reserved->value2 , 0, 2, '',false);

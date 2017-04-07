@@ -44,6 +44,7 @@ return [
     "colocations_genpdf" => "Generate IP objects PDF",
     "colocations_ipobjects" => "IP objects",
     "colocations_pdf_no_ipobjects" => "No IP reservations in the colocation found", 
+    "colocations_createpdf" => "Create PDF: IP overview",
      
     // IP Objects
     "ipobjects_address_is_now_main" => "IP Address %address% is now main.",

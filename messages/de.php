@@ -43,7 +43,8 @@ return [
     "colocations_cancel" => "Abbrechen",
     "colocations_genpdf" => "Generiere PDF zu IP Objekten",
     "colocations_ipobjects" => "IP Objekte",
-    "colocations_pdf_no_ipobjects" => "Keine IP-Reservationen in der Colocation",      
+    "colocations_pdf_no_ipobjects" => "Keine IP-Reservationen in der Colocation",
+    "colocations_createpdf" => "PDF zur IP-Übersicht erstellen",      
     
     // IP Objects
     "ipobjects_address_is_now_main" => "IP Adresse %address% ist nun die Hauptadresse.",
