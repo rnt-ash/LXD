@@ -113,7 +113,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
         $this->fetchPublicRootSshKey();
         $this->sendAdminPublicKeyToRemoteserver();
         $this->createLinuxUserAndGroup();
-        $this->writeOvzcpLocalConfig();
+        $this->writeLocalConfig();
         $this->copyJobsystemScriptsToServer();
         $this->prepareFurtherJobsystemDirectories();
         $this->configureComposer();
@@ -462,7 +462,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             '\'s/^#?DEF_OSTEMPLATE.*/DEF_OSTEMPLATE="debian-8.0-x86_64-minimal"/\' /etc/vz/vz.conf'); 
     }
     
-    private function writeOvzcpLocalConfig(){
+    private function writeLocalConfig(){
         try{
             $config = ''.
                 "<?php\n".
@@ -482,7 +482,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 "\t"."define('ADMIN_PUBLIC_KEY_FILE','".$this->ConfigAdminPublicKeyFilePath."');"."\n".
                 "\t"."define('SYSTEMWIDE_SECRETKEY','".$this->di['config']->push['jwtsigningkey']."');"."\n".
                 '';
-            $configFilepath = '/srv/ovzcp.local.config.php';
+            $configFilepath = '/srv/local.config.php';
             $this->RemoteSshConnection->exec('echo "'.$config.'" > '.$configFilepath);
             $this->RemoteSshConnection->exec('chown root:ovzcp '.$configFilepath);    
             $this->RemoteSshConnection->exec('chmod 640 '.$configFilepath);
