@@ -179,7 +179,7 @@ return [
     "virtualserver_server_not_ovz_enabled" => "Server ist nicht im OVZ aktiviert",
     "virtualserver_job_infolist_failed" => "Ausführen des Jobs (ovz_list_info) fehlgeschlagen: ",
     "virtualserver_info_success" => "Informationen erfolgreich aktualisiert",
-    "virtualserver_job_create_failed" => "Rstellen des virtuellen Servers fehgeschlagen.",
+    "virtualserver_job_create_failed" => "Erstellen des virtuellen Servers fehgeschlagen.",
     "virtualserver_job_start_failed" => "Ausführen des Jobs (ovz_start_vs) fehlgeschlagen: ",
     "virtualserver_job_start" => "Virtueller Server wurde erfolgreich gestartet",
     "virtualserver_job_stop_failed" => "Ausführen des Jobs (ovz_stop_vs) fehlgeschlagen: ",
