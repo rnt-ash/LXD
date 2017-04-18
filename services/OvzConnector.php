@@ -38,10 +38,10 @@ use RNTForest\core\libraries\RemoteSshConnection;
 * - installation and configuration of composer
 * - sets file permissions
 * - configures sudoers, so that the job-component can be started with root permissions
-* - configures ovzcp.service (systemd)
+* - configures %prefix%jobsystem.service (systemd)
 * - checks OpenVZ 7 kernel, prlctl command, ploop and directories
 * - configures OpenVZ 7
-* - writes the ovzcp.local.config.php
+* - writes the local.config.php
 * - sends a test job (general_test_sendmail to the specified rootalias)
 * - sets the physical server to OVZ=1 if successfully connected
 * 
@@ -53,7 +53,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
     private $ConfigMyPublicKeyFilePath = '/srv/jobsystem/keys/public.pem';
     private $ConfigMyPrivateKeyFilePath = '/srv/jobsystem/keys/private.key';
     private $ConfigAdminPublicKeyFilePath = '/srv/jobsystem/keys/adminpublic.key';
-
+    
     private $PathsToJobsystemDirectoriesOnAdminServer = [
         BASE_PATH.'/vendor/rnt-forest/core/jobserver/',
         BASE_PATH.'/vendor/rnt-forest/ovz/jobserver/',
@@ -87,6 +87,13 @@ class OvzConnector extends \Phalcon\DI\Injectable
     private $RootUsername;
     
     /**
+    * Name for the service (and its user)
+    * 
+    * @var string
+    */
+    private $Servicename;
+    
+    /**
     * Password for authenticate ssh connection
     * 
     * @var string
@@ -99,6 +106,8 @@ class OvzConnector extends \Phalcon\DI\Injectable
         $this->PhysicalServer = $physicalServer;
         $this->RootUsername = $rootUsername;
         $this->RootPassword = $rootPassword;
+        $this->Servicename = $this->getDI()['config']['jobsystem']['prefix'].'jobsystem';
+    
         $this->RemoteSshConnection = new RemoteSshConnection($this->di, $this->PhysicalServer->getFqdn(), $this->RootUsername, $this->RootPassword);
     }
     
@@ -119,7 +128,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
         $this->configureComposer();
         $this->cleanPermissionsInJobsystemDirectories();
         $this->configureSudoers();
-        $this->configureOvzcpService();
+        $this->configureJobsystemService();
         $this->configureOvz();
         
         $this->postInstallation();
@@ -260,7 +269,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
         try{
             // --system means no shell and no password
             // --user-group means that it creates a group with same name
-            $this->RemoteSshConnection->exec('useradd --system --user-group ovzcp');
+            $this->RemoteSshConnection->exec('useradd --system --user-group '.$this->Servicename);
         }catch(\Exception $e){
             $error = 'Problem while creating linux user and group: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
@@ -336,7 +345,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
     
     private function cleanPermissionsInJobsystemDirectories(){
         try{
-            $this->RemoteSshConnection->exec('chown root:ovzcp -R '.$this->ConfigOvzJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chown root:'.$this->Servicename.' -R '.$this->ConfigOvzJobsystemRootDir.'*');
             $this->RemoteSshConnection->exec('chmod 640 -R '.$this->ConfigOvzJobsystemRootDir.'*');
             $this->RemoteSshConnection->exec('chmod 660 -R '.$this->ConfigOvzJobsystemRootDir.'log');
             $this->RemoteSshConnection->exec('chmod 660 -R '.$this->ConfigOvzJobsystemRootDir.'db');
@@ -351,9 +360,9 @@ class OvzConnector extends \Phalcon\DI\Injectable
     
     private function configureSudoers(){
         try{
-            $output = $this->RemoteSshConnection->exec('cat /etc/sudoers | grep \'ovzcp ALL=(ALL)\'');
+            $output = $this->RemoteSshConnection->exec('cat /etc/sudoers | grep \''.$this->Servicename.' ALL=(ALL)\'');
             if(empty($output)){
-                $sudoersConfig = "ovzcp ALL=(ALL) NOPASSWD: /srv/jobsystem/JobSystemStarter.php\n".
+                $sudoersConfig = $this->Servicename." ALL=(ALL) NOPASSWD: /srv/jobsystem/JobSystemStarter.php\n".
                     "Defaults!/srv/jobsystem/JobSystemStarter.php !requiretty\n";
                 $this->RemoteSshConnection->exec('echo "'.$sudoersConfig.'" >> /etc/sudoers');
             }         
@@ -364,10 +373,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
         }
     }
     
-    private function configureOvzcpService(){
+    private function configureJobsystemService(){
         try{
-            $serviceFile = '/usr/lib/systemd/system/ovzcp.service';
-            $ovzcpServiceFileConfig = 
+            $serviceFile = '/usr/lib/systemd/system/'.$this->Servicename.'.service';
+            $jobsystemServiceFileConfig = 
                 "[Unit]\n".
                 "Description=OpenVZ Control Panel Remoteserver Service\n".
                 "After=network.target\n".
@@ -376,30 +385,30 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 "Type=simple\n".
                 "ExecStart=/usr/bin/php -S ".$this->PhysicalServer->getFqdn().":8000 /srv/jobsystem/RestServiceStarter.php\n".
                 "WorkingDirectory=/srv/jobsystem\n".
-                "User=ovzcp\n".
+                "User=".$this->Servicename."\n".
                 "Restart=on-failure\n".
                 "\n".
                 "[Install]\n".
                 "WantedBy=multi-user.target\n";
             
             // try to stop the service (if it exists already)
-            $this->RemoteSshConnection->exec('systemctl stop ovzcp.service 2>&1');
+            $this->RemoteSshConnection->exec('systemctl stop '.$this->Servicename.'.service 2>&1');
             
             // write complete file new
-            $this->RemoteSshConnection->exec('echo "'.$ovzcpServiceFileConfig.'" > '.$serviceFile);
+            $this->RemoteSshConnection->exec('echo "'.$jobsystemServiceFileConfig.'" > '.$serviceFile);
             
             // link the init file
-            $this->RemoteSshConnection->exec('ln -s '.$serviceFile.' /etc/systemd/system/multi-user.target.wants/ovzcp.service');
+            $this->RemoteSshConnection->exec('ln -s '.$serviceFile.' /etc/systemd/system/multi-user.target.wants/'.$this->Servicename.'.service');
             
             // start the service
             $this->RemoteSshConnection->exec('systemctl daemon-reload');
-            $output = $this->RemoteSshConnection->exec('systemctl start ovzcp.service');
+            $output = $this->RemoteSshConnection->exec('systemctl start '.$this->Servicename.'.service');
             if($this->RemoteSshConnection->getLastExitStatus() != 0){
-                throw new \Exception('Could not start ovzcp.service. Got exitcode '.$exitCode.' and output: "'.$output.'"');
+                throw new \Exception('Could not start '.$this->Servicename.'.service. Got exitcode '.$exitCode.' and output: "'.$output.'"');
             }
             
         }catch(\Exception $e){
-            $error = 'Problem while configuring ovzcp.service: '.$this->MakePrettyException($e);
+            $error = 'Problem while configuring '.$this->Servicename.'.service: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
             throw new \Exception($error);  
         } 
@@ -484,10 +493,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 '';
             $configFilepath = '/srv/local.config.php';
             $this->RemoteSshConnection->exec('echo "'.$config.'" > '.$configFilepath);
-            $this->RemoteSshConnection->exec('chown root:ovzcp '.$configFilepath);    
+            $this->RemoteSshConnection->exec('chown root:'.$this->Servicename.' '.$configFilepath);    
             $this->RemoteSshConnection->exec('chmod 640 '.$configFilepath);
         }catch(\Exception $e){
-            $error = 'Problem while writing ovzcp local config: '.$this->MakePrettyException($e);
+            $error = 'Problem while writing '.$this->Servicename.' local config: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
             throw new \Exception($error);
         }    
