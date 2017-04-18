@@ -19,6 +19,8 @@
 
 namespace RNTForest\jobsystem\ovz\jobs;
 
+use RNTForest\jobsystem\general\utility\Helpers;
+
 class OvzSyncReplicaBgJob extends AbstractOvzJob{
 
     public function run() {
@@ -26,7 +28,7 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
 
         $snapshotName = "TEMP REPLICA ".date('Y-m-d H:i:s');
         $snapshotDesc = "Temporary snapshot for replica";
-        $snapshotUUID = $this->genUuid();
+        $snapshotUUID = Helpers::genUuid();
 
         $this->Done = 1;    
         $retval = array();
