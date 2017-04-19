@@ -197,8 +197,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     protected function tryOvzListInfo($virtualServer){
         
         // check if update is realy needed
-        $lastupdate = new \DateTime($virtualServer->getOvzSettingsArray()['Timestamp']);
-        if ($lastupdate->diff(new \DateTime())->format('%s') <= 10) return true;
+        if(!empty($virtualServer->getOvzSettingsArray()['Timestamp'])){
+            $lastupdate = new \DateTime($virtualServer->getOvzSettingsArray()['Timestamp']);
+            if ($lastupdate->diff(new \DateTime())->format('%s') <= 10) return true;
+        }
         
         // no pending needed because job reads only    
         $params = array('UUID'=>$virtualServer->getOvzUuid());
@@ -220,9 +222,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     protected function tryOvzStatisticInfo($virtualServer){
         
         // check if update is realy needed
-        $lastupdate = new \DateTime($virtualServer->getOvzStatisticsArray()['Timestamp']);
-        if ($lastupdate->diff(new \DateTime())->format('%s') <= 10) return true;
-        
+        if(!empty($virtualServer->getOvzStatisticsArray()['Timestamp'])){
+            $lastupdate = new \DateTime($virtualServer->getOvzStatisticsArray()['Timestamp']);
+            if ($lastupdate->diff(new \DateTime())->format('%s') <= 10) return true;
+        }
+                
         // no pending needed because job reads only    
         $params = array('UUID'=>$virtualServer->getOvzUuid());
         $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_statistics_info',$params);
