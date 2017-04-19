@@ -478,6 +478,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             "op" => "new",
             "vstype" => "CT",
             "ostemplates" => $ostemplates,
+            "distribution" => "",
         ));
 
         $virtualServerForm = new VirtualServersForm(new VirtualServers());
