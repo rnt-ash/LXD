@@ -398,7 +398,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $this->flashSession->error($message.$e->getMessage());
             $this->logger->error($e->getMessage());
         }
-        $this->redirecToTableSlideDataAction();
+        $this->redirectToTableSlideDataAction();
     }
 
     /**
@@ -596,7 +596,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $this->flashSession->error($message.$e->getMessage());
             $this->logger->error($e->getMessage());
         }
-        $this->redirecToTableSlideDataAction();
+        $this->redirectToTableSlideDataAction();
     }
     
     /**
@@ -692,7 +692,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $this->flashSession->error($message.$e->getMessage());
             $this->logger->error($e->getMessage());
         }
-        $this->redirecToTableSlideDataAction();
+        $this->redirectToTableSlideDataAction();
     }
 }
 

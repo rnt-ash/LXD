@@ -1051,7 +1051,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->logger->error($e->getMessage());
         }
 
-        $this->redirecToTableSlideDataAction();
+        $this->redirectToTableSlideDataAction();
     }
 
     /**
@@ -1464,7 +1464,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
         }
-        $this->redirecToTableSlideDataAction();        
+        $this->redirectToTableSlideDataAction();        
     }
 
     /**
@@ -1497,7 +1497,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->logger->error($e->getMessage());
         }
         
-        $this->redirecToTableSlideDataAction();        
+        $this->redirectToTableSlideDataAction();        
     }
 
     public function ovzReplicaFailoverAction($replicaMasterId) {
@@ -1570,7 +1570,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->logger->error($e->getMessage());
         }
         
-        $this->redirecToTableSlideDataAction();        
+        $this->redirectToTableSlideDataAction();        
     }
 
     public function ovzReplicaDeleteAction($masterId) {
@@ -1710,7 +1710,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
         }
-        $this->redirecToTableSlideDataAction();
+        $this->redirectToTableSlideDataAction();
     }
     
     /**
@@ -1806,7 +1806,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->flashSession->error($message.$e->getMessage());
             $this->logger->error($e->getMessage());
         }
-        $this->redirecToTableSlideDataAction();
+        $this->redirectToTableSlideDataAction();
     }
     
     /**
@@ -1902,7 +1902,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->flashSession->error($message.$e->getMessage());
             $this->logger->error($e->getMessage());
         }
-        $this->redirecToTableSlideDataAction();
+        $this->redirectToTableSlideDataAction();
     }
 }
 
