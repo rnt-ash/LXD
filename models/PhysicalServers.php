@@ -564,12 +564,6 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         $validator = new Validation();
 
         // name
-        /**
-        * Container name that can be used to refer to said container in commands.
-        * Names must be alphanumeric and may contain the characters \, -, _. Names
-        * with white spaces must be enclosed in quotation marks.
-        * 
-        */
         $message = self::translate("physicalserver_name_required");
         $validator->add('name', new PresenceOfValidator([
             'message' => $message
@@ -583,12 +577,6 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             'messageMaximum' => $messagemax,
             'messageMinimum' => $messagemin,
         ]));
-        
-        $message = self::translate("physicalserver_name_valid");
-        $validator->add('name', new RegexValidator([
-            'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
-            'message' => $message
-        ]));        
         
         $message = self::translate("physicalserver_fqdn_required");
         // fqdn
