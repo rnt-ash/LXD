@@ -49,7 +49,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         if ($scope == 'customers'){
             $scopeQuery .= " AND customers_id = ".$this->session->get('auth')['customers_id'];
         } else if($scope == 'partners'){
-            $scopeQuery .= 'AND (RNTForest\ovz\models\VirtualServers.customers_id = '.$this->session->get('auth')['customers_id'];
+            $scopeQuery .= ' AND (RNTForest\ovz\models\VirtualServers.customers_id = '.$this->session->get('auth')['customers_id'];
             $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'].")";
             $joinQuery = array('model'=>'RNTForest\core\models\CustomersPartners',
                 'conditions'=>'RNTForest\ovz\models\VirtualServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
@@ -77,9 +77,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     protected function prepareSlideFilters($virtualServers,$level) { 
 
         // put resultsets to the view
-        $scope = $this->permissions->getScope("virtual_servers","filter_customers");
-        $this->view->customers = Customers::generateArrayForSelectElement($scope);
-
         $scope = $this->permissions->getScope("virtual_servers","filter_physical_servers");
         $this->view->physicalServers = PhysicalServers::generateArrayForSelectElement($scope);
 
@@ -90,10 +87,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if($oldfilter != $this->slideDataInfo['filters']['filterAll']) $this->slideDataInfo['page'] = 1;
         }
 
-        if($this->request->has('filterCustomers')){
-            $oldfilter = $this->slideDataInfo['filters']['filterCustomers'];
-            $this->slideDataInfo['filters']['filterCustomers'] = $this->request->get("filterCustomers", "int");
-            if($oldfilter != $this->slideDataInfo['filters']['filterCustomers']) $this->slideDataInfo['page'] = 1;
+        if($this->request->has('filterCustomers_id')){
+            $oldfilter = $this->slideDataInfo['filters']['filterCustomers_id'];
+            $this->slideDataInfo['filters']['filterCustomers_id'] = $this->request->get("filterCustomers_id", "int");
+            $this->slideDataInfo['filters']['filterCustomers'] = $this->request->get("filterCustomers", "string");
+            if($oldfilter != $this->slideDataInfo['filters']['filterCustomers_id']) $this->slideDataInfo['page'] = 1;
         }
 
         if($this->request->has('filterPhysicalServers')){
@@ -108,8 +106,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if(strpos(strtolower($virtualServer->name),strtolower($this->slideDataInfo['filters']['filterAll']))===false)            
                 return false;
         }
-        if(!empty($this->slideDataInfo['filters']['filterCustomers'])){ 
-            if($virtualServer->customers_id != $this->slideDataInfo['filters']['filterCustomers'])
+        if(!empty($this->slideDataInfo['filters']['filterCustomers_id'])){ 
+            if($virtualServer->customers_id != $this->slideDataInfo['filters']['filterCustomers_id'])
                 return false;
         }
         if(!empty($this->slideDataInfo['filters']['filterPhysicalServers'])){ 
@@ -1908,6 +1906,22 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->logger->error($e->getMessage());
         }
         $this->redirectToTableSlideDataAction();
+    }
+    
+    /**
+    * return customers according to the filter
+    * 
+    */
+    public function getCustomersAsJsonAction(){
+        // POST request?
+        if (!$this->request->isPost()) 
+            return $this->redirectToTableSlideDataAction();
+
+        // get query from post and scope
+        $filterString = $this->request->getPost("query", "string");
+        $scope = $this->permissions->getScope('virtual_servers','filter_customers');
+        $customers = \RNTForest\core\models\Customers::getCustomersAsJson($filterString,$scope);
+        return $customers;
     }
 }
 

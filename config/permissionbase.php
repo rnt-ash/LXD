@@ -70,7 +70,7 @@ return new \Phalcon\Config([
                         'index', 'new', 'edit', 'form', 'save', 'delete', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
                         'slidedata', 'slideSlide', 'ovzHostInfo', 'ovzHostStatisticsInfo', 'ovzConnector', 'ovzConnectorExecute',
-                        'monLocalJobAdd', 'monLocalJobAddExecute', 'monRemoteJobAdd', 'monRemoteJobAddExecute',                
+                        'monLocalJobAdd', 'monLocalJobAddExecute', 'monRemoteJobAdd', 'monRemoteJobAddExecute', 'getCustomersAsJson',
                     ]
                 ],
             ],
@@ -113,7 +113,7 @@ return new \Phalcon\Config([
                     'virtual_servers' => [
                         'index', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
-                        'save', 'slidedata', 'slideSlide', 'ovzUpdateInfo', 
+                        'save', 'slidedata', 'slideSlide', 'ovzUpdateInfo', 'getCustomersAsJson',
                     ]
                 ],
             ],

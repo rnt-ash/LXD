@@ -119,7 +119,6 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     protected function prepareSlideFilters($items,$level) { 
 
         // put resultsets to the view
-        $this->view->customers = $this->getMyCustomers();
         $this->view->colocations = $this->getMyColocations();
 
         // Alle Filter abholen
@@ -128,11 +127,12 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $this->slideDataInfo['filters']['filterAll'] = $this->request->get("filterAll", "string");
             if($oldfilter != $this->slideDataInfo['filters']['filterAll']) $this->slideDataInfo['page'] = 1;
         }
-
-        if($this->request->has('filterCustomers')){
-            $oldfilter = $this->slideDataInfo['filters']['filterCustomers'];
-            $this->slideDataInfo['filters']['filterCustomers'] = $this->request->get("filterCustomers", "int");
-            if($oldfilter != $this->slideDataInfo['filters']['filterCustomers']) $this->slideDataInfo['page'] = 1;
+          
+        if($this->request->has('filterCustomers_id')){
+            $oldfilter = $this->slideDataInfo['filters']['filterCustomers_id'];
+            $this->slideDataInfo['filters']['filterCustomers_id'] = $this->request->get("filterCustomers_id", "int");
+            $this->slideDataInfo['filters']['filterCustomers'] = $this->request->get("filterCustomers", "string");
+            if($oldfilter != $this->slideDataInfo['filters']['filterCustomers_id']) $this->slideDataInfo['page'] = 1;
         }
 
         if($this->request->has('filterColocations')){
@@ -146,9 +146,9 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         if(!empty($this->slideDataInfo['filters']['filterAll'])){ 
             if(strpos(strtolower($physicalServer->name),strtolower($this->slideDataInfo['filters']['filterAll']))===false)
                 return false;
-        }
-        if(!empty($this->slideDataInfo['filters']['filterCustomers'])){ 
-            if($physicalServer->customers_id != $this->slideDataInfo['filters']['filterCustomers'])
+        } 
+        if(!empty($this->slideDataInfo['filters']['filterCustomers_id'])){ 
+            if($physicalServer->customers_id != $this->slideDataInfo['filters']['filterCustomers_id'])
                 return false;
         }
         if(!empty($this->slideDataInfo['filters']['filterColocations'])){ 
@@ -693,6 +693,22 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $this->logger->error($e->getMessage());
         }
         $this->redirectToTableSlideDataAction();
+    }
+    
+    /**
+    * return customers according to the filter
+    * 
+    */
+    public function getCustomersAsJsonAction(){
+        // POST request?
+        if (!$this->request->isPost()) 
+            return $this->redirectToTableSlideDataAction();
+
+        // get query from post and scope
+        $filterString = $this->request->getPost("query", "string");
+        $scope = $this->permissions->getScope('physical_servers','filter_customers');
+        $customers = \RNTForest\core\models\Customers::getCustomersAsJson($filterString,$scope);
+        return $customers;
     }
 }
 

@@ -40,9 +40,11 @@
                     <span class="input-group-addon"><i class="fa fa-times" onclick="$('#filterAll').val('');$('form#slidedatatoolbar').submit();"></i></span>
                 </div>
                 {% if permissions.checkPermission("virtual_servers", "filter_customers") %}
-                <label class="select col-lg-12 col-xs-12 customersFilterLabel">
-                    {{ select_static('filterCustomers',customers,'size':'1','class':'form-control','onchange':'javascript: this.form.submit();') }}
-                </label>
+                <div class="input-group col-xs-12 clearfix">
+                    <input type="hidden" name="filterCustomers_id" onchange="$('form#slidedatatoolbar').submit();">
+                    {{ text_field("filterCustomers",'class':'form-control autocomplete','placeholder':'Kunde')}}
+                    <span class="input-group-addon"><i class="fa fa-times" onclick="$('#filterCustomers').val('');$('form#slidedatatoolbar').submit();"></i></span>
+                </div>
                 {% endif %}
             </div>
         </div>
