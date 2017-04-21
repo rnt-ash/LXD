@@ -32,9 +32,20 @@ return new \Phalcon\Config([
                     'colocations' => [
                         'index', 'search', 'create', 'new', 'edit', 'form',
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
-                        'save', 'delete', 'tabledata', 'slidedata', 'slideSlide', 'generateIpPdf'                
+                        'save', 'delete', 'tabledata', 'slidedata', 'slideSlide', 'generateIpPdf', 'getCustomersAsJson',                
                     ]
                 ],
+            ],
+            // filter by customers
+            'filter_customers' => [
+                'description' => 'Filter Colocation by all customers', 
+                'scopes' => [
+                    '1' => "Filter for Colocation by customers", 
+                    'partners' => "Filter for Colocation by all customers where this login is partner", 
+                    '0' => "Filter not allowed", 
+                ],
+                'functions' => [],
+                'actions' => [],
             ],
         ],
         'ip_objects' => [

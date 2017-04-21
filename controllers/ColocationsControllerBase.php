@@ -65,6 +65,13 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             $this->slideDataInfo['filters']['filterAll'] = $this->request->get("filterAll", "string");
             if($oldfilter != $this->slideDataInfo['filters']['filterAll']) $this->slideDataInfo['page'] = 1;
         }
+        
+        if($this->request->has('filterCustomers_id')){
+            $oldfilter = $this->slideDataInfo['filters']['filterCustomers_id'];
+            $this->slideDataInfo['filters']['filterCustomers_id'] = $this->request->get("filterCustomers_id", "int");
+            $this->slideDataInfo['filters']['filterCustomers'] = $this->request->get("filterCustomers", "string");
+            if($oldfilter != $this->slideDataInfo['filters']['filterCustomers_id']) $this->slideDataInfo['page'] = 1;
+        }
     }
     
     protected function isValidSlideFilterItem($colocation,$level){
@@ -72,6 +79,10 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         if(!empty($this->slideDataInfo['filters']['filterAll'])){ 
                 if(strpos(strtolower($colocation->name),strtolower($this->slideDataInfo['filters']['filterAll']))===false)
                     return false;
+        }
+        if(!empty($this->slideDataInfo['filters']['filterCustomers_id'])){ 
+            if($colocation->customers_id != $this->slideDataInfo['filters']['filterCustomers_id'])
+                return false;
         }
         return true; 
     }
@@ -322,5 +333,21 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             $this->forwardToTableSlideDataAction();
             return;
         }
+    }
+    
+    /**
+    * return customers according to the filter
+    * 
+    */
+    public function getCustomersAsJsonAction(){
+        // POST request?
+        if (!$this->request->isPost()) 
+            return $this->redirectToTableSlideDataAction();
+
+        // get query from post and scope
+        $filterString = $this->request->getPost("query", "string");
+        $scope = $this->permissions->getScope('virtual_servers','filter_customers');
+        $customers = \RNTForest\core\models\Customers::getCustomersAsJson($filterString,$scope);
+        return $customers;
     }    
 }
