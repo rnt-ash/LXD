@@ -814,7 +814,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         * The virtual machine name must not exceed 40 characters
         * Names must be alphanumeric and may contain the characters \, -, _. Names
         * with white spaces must be enclosed in quotation marks.
+        * Link: https://docs.openvz.org/openvz_command_line_reference.webhelp/_miscellaneous_parameters.html 
         * 
+        * Due to the need of points in the name and no known downside, we allow the usage of points! 
         */
         $message = self::translate("virtualserver_name_required");
         $validator->add('name', new PresenceOfValidator([
@@ -832,7 +834,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
 
         $message = self::translate("virtualserver_name_valid");
         $validator->add('name', new RegexValidator([
-            'pattern' => '/^[a-zA-Z0-9\-_\s]*$/',
+            'pattern' => '/^[a-zA-Z0-9\-_\s\.]*$/',
             'message' => $message
         ]));        
 
