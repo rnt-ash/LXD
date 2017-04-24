@@ -265,7 +265,7 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
             $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
 
             // save new ovz settings
-            VirtualServersControllerBase::virutalServerSettingsSave($job, $virtualServer);
+            VirtualServersControllerBase::virtualServerSettingsSave($job, $virtualServer);
 
             // update virtual server 
             if ($virtualServer->update() === false) {

@@ -205,7 +205,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
          
         // save settings to virtual server
-        $this->virutalServerSettingsSave($job,$virtualServer);
+        $this->virtualServerSettingsSave($job,$virtualServer);
 
         return $job;
     }
@@ -306,7 +306,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $job = $this->tryStartVS($virtualServer);
 
             // save new state            
-            $this->virutalServerSettingsSave($job,$virtualServer);
+            $this->virtualServerSettingsSave($job,$virtualServer);
 
             // success
             $message = $this->translate("virtualserver_job_start");
@@ -340,7 +340,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $job = $this->tryStopVS($virtualServer);
 
             // save new state            
-            $this->virutalServerSettingsSave($job,$virtualServer);
+            $this->virtualServerSettingsSave($job,$virtualServer);
 
             // success
             $message = $this->translate("virtualserver_job_stop");
@@ -374,7 +374,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $job = $this->tryRestartVS($virtualServer);
 
             // save new state            
-            $this->virutalServerSettingsSave($job,$virtualServer);
+            $this->virtualServerSettingsSave($job,$virtualServer);
 
             // success
             $message = self::translate("virtualserver_job_restart");
@@ -1044,7 +1044,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 'CONFIG'=>$virtualServerConfig
             );
             $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
-            $this->virutalServerSettingsSave($job,$virtualServer);
+            $this->virtualServerSettingsSave($job,$virtualServer);
 
             // success message
             $message = $this->translate("virtualserver_job_modifyvs");
@@ -1077,7 +1077,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // no pending needed because job is readonly
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
-            $this->virutalServerSettingsSave($job,$virtualServer);
+            $this->virtualServerSettingsSave($job,$virtualServer);
 
             // get OVZ Settings
             $ovzSettings = json_decode($virtualServer->getOvzSettings(),true);
@@ -1126,7 +1126,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // no pending needed because job is readonly
             $params = array('UUID'=>$virtualServer->getOvzUuid());
             $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
-            $this->virutalServerSettingsSave($job,$virtualServer);
+            $this->virtualServerSettingsSave($job,$virtualServer);
 
             // validate FORM
             $form = new VirtualServersConfigureForm();
@@ -1242,7 +1242,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 'CONFIG'=>$virtualServerConfig
             );
             $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
-            $this->virutalServerSettingsSave($job,$virtualServer);
+            $this->virtualServerSettingsSave($job,$virtualServer);
 
             // success
             $message = $this->translate("virtualserver_job_modifyvs");
@@ -1267,7 +1267,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         return; 
     }
 
-    public static function virutalServerSettingsSave($job,$virtualServer){
+    public static function virtualServerSettingsSave($job,$virtualServer){
         // save settings
         $settings = $job->getRetval(true);
         $virtualServer->setOvzSettings($job->getRetval());
