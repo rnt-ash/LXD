@@ -1276,7 +1276,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         if ($virtualServer->save() === false) {
             $messages = $virtualServer->getMessages();
             foreach ($messages as $message) {
-                $this->flashSession->warning($message);
+                \Phalcon\Di::getDefault()->get('flashSession')->warning($message);
             }
             $message = self::translate("virtualserver_update_failed");
             throw new \Exception($message.$virtualServer->getName());
