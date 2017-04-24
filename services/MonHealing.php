@@ -165,7 +165,7 @@ class MonHealing extends \Phalcon\DI\Injectable
                     $this->logger->notice("found healjob: ".$healJobType);
                 }   
             }
-            return 'ovz_restart_vs';
+            
         }catch(\Exception $e){
             echo $e->getMessage()."\n";
         } 
