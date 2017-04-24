@@ -1297,6 +1297,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $virtualServer->setCore(intval($settings['Hardware']['cpu']['cpus']));
         $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size'])/1024/1024));
         $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size'])/1024/1024));
+        // temporary
+        $virtualServer->setOvzUuid($settings['uuid']);
     }
 
     public function ovzReplicaActivateAction($virtualServersId){
