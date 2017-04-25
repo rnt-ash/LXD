@@ -76,7 +76,7 @@ class MonSystem extends \Phalcon\DI\Injectable
             $this->updateOvzStatisticsOnAllServers();
             $monJobs = MonLocalJobs::find(
                 [
-                "active = 1",
+                "active = 1 AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
                 ]
             );
             $this->logger->debug("runLocalJobs ".count($monJobs)." MonLocalJobs");
