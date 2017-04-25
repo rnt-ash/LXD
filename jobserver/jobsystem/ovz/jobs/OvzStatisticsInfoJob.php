@@ -59,7 +59,7 @@ class OvzStatisticsInfoJob extends AbstractOvzJob {
         && key_exists('total',$ovzStatistics['guest']['ram'])
         && key_exists('usage',$ovzStatistics['guest']['ram'])
         ){
-            $memoryFreeMb = $ovzStatistics['guest']['ram']['total'] - $ovzStatistics['guest']['ram']['usage'];
+            $memoryFreeMb = $ovzStatistics['guest']['ram']['total'] - ($ovzStatistics['guest']['ram']['usage'] - $ovzStatistics['guest']['ram']['cached']);
             // already in MB per default in statistics
             $ovzStatistics['guest']['ram']['memory_free_mb'] = $memoryFreeMb;
         }
