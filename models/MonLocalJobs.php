@@ -619,6 +619,9 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
         }    
         
         $valuestatus = $behavior->execute($ovzStatistics,$this->warning_value,$this->maximal_value);
+        if($valuestatus == null){
+            throw new \Exception($this->translate("monitoring_mon_behavior_could_not_instantiate_valuestatus"));
+        }
         $monLog = new MonLocalLogs();
         $monLog->create(["mon_local_jobs_id" => $this->id, "value" => $valuestatus->getValue(), "modified" => date('Y-m-d H:i:s')]);
         $monLog->save();

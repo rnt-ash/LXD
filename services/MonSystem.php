@@ -80,8 +80,12 @@ class MonSystem extends \Phalcon\DI\Injectable
             );
             $this->logger->debug("runLocalJobs ".count($monJobs)." MonLocalJobs");
             foreach($monJobs as $monJob){
-                //echo(json_encode($monJob));
-                $monJob->execute();
+                // separate Exception-Handling to not abort the whole process if one MonLocalJob execution fails
+                try{
+                    $monJob->execute();
+                }catch(\Exception $e){
+                    $this->logger->debug("runMonLocalJobs execute Job-ID ".$monJob->getId().": ".$e->getMessage());
+                }
                 if($monJob->getStatus() != 'normal'){
                     $this->getMonAlarm()->notifyMonLocalJobs($monJob);                
                 }
