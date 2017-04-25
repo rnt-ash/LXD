@@ -4,13 +4,13 @@
 Besteht aus zwei Teilen, dem Remote- und dem Local-Monitoring. Es bietet die folgenden Kern-Features an:
 - Monitoring
 - automatische Heilung von VirtualServers auf connecteten Physicalservers durch Restart-Jobs (nur Remote-Monitoring)
-- Alarmierung durch Mail
+- Alarmierung durch Mail [weitere Infos](###alarmierung)
 - Platzsparende Aufbewahrung von historischen Log-Daten (älter als vom letzten Monat)
 
 ### Grundlegende Konzepte
 
 #### Periodische Ausführung mit Cronjobs
-Empfohlen das Monitoring über Phalcon-Tasks mit Cronjobs zu betreiben. Es gilt den [MonitoringTask](../tasks/MonitoringTask.php) 
+Es ist empfohlen das Monitoring über Phalcon-Tasks mit Cronjobs zu betreiben. Es gilt den [MonitoringTask](../tasks/MonitoringTask.php) 
 aufzurufen und eine entsprechende Action anzugeben. Folgende Actions werden für den Betrieb benötigt:
 - Action `runJobs` jede Minute zur Ausführung von MonRemoteJobs im Status up
 - Action `runCriticalJobs` jede Minute zur Ausführung von MonRemoteJobs im Status down, mit Eskalation (Heilung, Alarmierung)
@@ -44,6 +44,24 @@ genThresholdString()-Methode voraus, welche von der Alarmierung für die Generie
 Ein wichtiger Punkt im Local-Monitoring ist, dass für PhysicalServers andere Behaviors als für VirtualServers verwendet werden 
 sollen, da die zu vorhandenen Statistik-Daten in unterschiedlichen Formaten abgelegt sind.
 
+### Alarmierung
+Es existieren zwei Stufen der Alarmierung, die Message und der Alarm. Pro MonJob können Kontakte für Message und Alarm angegeben
+werden. Dafür wird ein kommaseparierter String mit Logins-IDs angegeben. Es macht Sinn den Alarm auf einen Kontakt zu machen, der
+die Mails zeitnah liest (z.B. Push auf Handy). Für den Message Konakt kann auch einer verwendet werden, der nur zu Bürozeiten gelesen
+wird (z.B. ein öffentlicher Ordner). Folgendermassen wird benachrichtigt:
+
+Alarm:
+- Remote: MonRemoteJob ist down und benötigt wahrscheinlich Eingriff eines Admins (z.B. kein Healing aktiv oder Selfhealing brachte keine Besserung)
+- Remote: MonRemoteJob ist wieder up (nur wenn vorhin für diesen Job Alarm geschickt wurde)
+- Local: Unter bzw. Überschreitung des Maximalvalues
+
+Message:
+- Remote: Benachrichtigung über eine Short Downtime (weniger als 1 Minute)
+- Remote: Benachrichtigung über ausgeführten HealJob
+- Local: Unter bzw. Überschreitung des Warnvalues
+
+Pro MonJob kann eine alarmperiod definiert werden. Durch dies wird konfiguriert, wie oft eine erneute Warnmeldung geschickt werden
+soll.
 ### Remote-Monitoring Ergänzungen
 Monitoring vom zentralen ControlPanel Server auf über Netzwerk angebotene Services entfernter Server, 
 z.B. http, ftp, ping oder ssh.
