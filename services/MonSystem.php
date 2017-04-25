@@ -73,7 +73,6 @@ class MonSystem extends \Phalcon\DI\Injectable
     */
     public function runMonLocalJobs(){
         try{
-            $this->updateOvzStatisticsOnAllServers();
             $monJobs = MonLocalJobs::find(
                 [
                 "active = 1 AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
@@ -92,31 +91,6 @@ class MonSystem extends \Phalcon\DI\Injectable
             $this->logger->debug("runMonLocalJobs: ".$e->getMessage());
         }
     }
-    
-    private function updateOvzStatisticsOnAllServers(){
-        try{
-            $physicals = PhysicalServers::find(
-                [
-                    "ovz = 1",
-                ]
-            );
-            foreach($physicals as $physical){
-                if($physical->getOvz() == '1'){
-                    $physical->updateOvzStatistics();
-                }
-            }
-            
-            // could be better done with a join and PHQL, would be more performant
-            $virtuals = VirtualServers::find();
-            foreach($virtuals as $virtual){
-                if($virtual->PhysicalServers->getOvz() == '1'){
-                    $virtual->updateOvzStatistics();
-                }
-            }
-        }catch(\Exception $e){
-            $this->logger->debug("updateOvzStatisticsOnAllServers: ".$e->getMessage());
-        }     
-    } 
     
     /**
     * 
