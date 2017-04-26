@@ -6,7 +6,7 @@
                 <div class="pull-right">
                     <div class="btn-group">
                         <a href="/virtual_servers/ovzSnapshotList/{{item.id}}"
-                            class="btn btn-default btn-xs loadingScreen" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_snapshot_refresh") }}">
+                            class="btn btn-default btn-xs loadingScreen pending" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_snapshot_refresh") }}">
                             <i class="fa fa-refresh"></i>
                         </a>
                     </div>
@@ -26,7 +26,7 @@
                 <ul>
                     <li class="list-group-item">
                         <div class="btn-group">
-                            <a href="/virtual_servers/ovzSnapshotCreate/{{item.id}}" class="btn btn-default btn-xs"
+                            <a href="/virtual_servers/ovzSnapshotCreate/{{item.id}}" class="btn btn-default btn-xs pending"
                                 data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_snapshot_create") }}">
                                 <i class="fa fa-plus fa-lg"></i>
                             </a>

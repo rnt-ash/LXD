@@ -6,7 +6,7 @@
                 <div class="pull-right">
                     <div class="btn-group">
                     {{ link_to("virtual_servers/monLocalJobAdd/"~item.id,'<i class="fa fa-plus"></i>',
-                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monlocaljobs_add")) }}
+                        'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monlocaljobs_add")) }}
                     </div>
                 </div>
             </th>
@@ -29,11 +29,11 @@
             <tr>
                 <td>
                     {{ link_to("virtual_servers/monLocalJobEdit/"~monLocalJob.id,'<i class="fa fa-pencil"></i>',
-                        'class': 'btn btn-default btn-xs disabled', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monlocaljobs_edit")) }}
+                        'class': 'btn btn-default btn-xs disabled pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monlocaljobs_edit")) }}
                     {{ link_to("virtual_servers/monLocalJobDiagram/"~monLocalJob.id,'<i class="fa fa-pie-chart"></i>',
-                        'class': 'btn btn-default btn-xs disabled', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monlocaljobs_diagram")) }}
+                        'class': 'btn btn-default btn-xs disabled pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monlocaljobs_diagram")) }}
                     <a href="#" link="/virtual_servers/monLocalJobDelete/{{monLocalJob.id}}" text="{{ _("monitoring_monlocaljobs_deleteconf") }}"
-                        class="btn btn-default btn-xs confirm-button disabled" data-toggle="tooltip" data-placement="top" title="{{ _("monitoring_monlocaljobs_deleteconf") }}"><i class="fa fa-trash-o"></i></a>
+                        class="btn btn-default btn-xs confirm-button disabled pending" data-toggle="tooltip" data-placement="top" title="{{ _("monitoring_monlocaljobs_deleteconf") }}"><i class="fa fa-trash-o"></i></a>
                 </td>
                 <td>
                     {{ monLocalJob.getMonBehaviorClass() }}

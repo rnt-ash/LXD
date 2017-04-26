@@ -5,7 +5,7 @@
         <div class="list-group-item" title="{{ snapshot['Description'] }}">
             <div class="btn-group">
                 <a href="#" link="ovzSnapshotSwitch/{{snapshot['UUID']}}/{{serverId}}" 
-                    class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top"
+                    class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top"
                     text="{{ _("virtualserver_snapshot_switchinfo") }}" title="{{ _("virtualserver_snapshot_switch") }}">
                     <i class="fa fa-play-circle fa-lg"></i>
                 </a>
@@ -14,7 +14,7 @@
             {% if snapshot['Removable'] == 1 %}
             <div class="btn-group">
                 <a href="#" link="ovzSnapshotDelete/{{snapshot['UUID']}}/{{serverId}}"
-                    class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top"
+                    class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top"
                     text="{{ _("virtualserver_snapshot_deleteinfo") }}" title="{{ _("virtualserver_snapshot_delete") }}">
                     <i class="fa fa-trash fa-lg"></i>
                 </a>
@@ -34,7 +34,7 @@
         <ul>
             <li class="list-group-item">
                 <div class="btn-group">
-                    <a href="/virtual_servers/ovzSnapshotCreate/{{serverId}}" class="btn btn-default btn-xs"
+                    <a href="/virtual_servers/ovzSnapshotCreate/{{serverId}}" class="btn btn-default btn-xs pending"
                         data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_snapshot_new") }}">
                         <i class="fa fa-plus fa-lg"></i>
                     </a>

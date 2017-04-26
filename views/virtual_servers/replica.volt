@@ -8,14 +8,14 @@
                 <div class="pull-right">
                     {% if item.ovz_replica <= 0 %}
                         {{ link_to("virtual_servers/ovzReplicaActivate/"~item.id,'<i class="fa fa-plus"></i>',
-                            'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_replica_tooltip_activate")) }}
+                            'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_replica_tooltip_activate")) }}
                     {% else %}    
                         {{ link_to("virtual_servers/ovzReplicaRun/"~item.id,'<i class="fa fa-play loadingScreen"></i>',
-                            'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_replica_tooltip_run")) }}
+                            'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_replica_tooltip_run")) }}
                         <a href="#" link="/virtual_servers/ovzReplicaFailover/{{item.id}}" text="{{ _("virtualserver_replica_confirm_failover") }}"
-                            class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_replica_tooltip_failover") }}"><i class="fa fa-random"></i></a>
+                            class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_replica_tooltip_failover") }}"><i class="fa fa-random"></i></a>
                         <a href="#" link="/virtual_servers/ovzReplicaDelete/{{item.id}}" text="{{ _("virtualserver_replica_confirm_delete") }}"
-                            class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_replica_tooltip_delete") }}"><i class="fa fa-trash-o"></i></a>
+                            class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_replica_tooltip_delete") }}"><i class="fa fa-trash-o"></i></a>
                     {% endif %}
                 </div>
             </th>

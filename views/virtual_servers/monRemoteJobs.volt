@@ -6,7 +6,7 @@
                 <div class="pull-right">
                     <div class="btn-group">
                     {{ link_to("virtual_servers/monRemoteJobAdd/"~item.id,'<i class="fa fa-plus"></i>',
-                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monremotejobs_add")) }}
+                        'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monremotejobs_add")) }}
                     </div>
                 </div>
             </th>
@@ -30,9 +30,9 @@
             <tr>
                 <td>
                     {{ link_to("virtual_servers/monRemoteJobEdit/"~monRemoteJob.id,'<i class="fa fa-pencil"></i>',
-                        'class': 'btn btn-default btn-xs disabled', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monremotejobs_edit")) }}
+                        'class': 'btn btn-default btn-xs disabled pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monremotejobs_edit")) }}
                     <a href="#" link="/virtual_servers/monRemoteJobDelete/{{monRemoteJob.id}}" text="{{ _("monitoring_monremotejobs_deleteconf") }}"
-                        class="btn btn-default btn-xs confirm-button disabled" data-toggle="tooltip" data-placement="top" title="{{ _("monitoring_monremotejobs_deleteconf") }}"><i class="fa fa-trash-o"></i></a>
+                        class="btn btn-default btn-xs confirm-button disabled pending" data-toggle="tooltip" data-placement="top" title="{{ _("monitoring_monremotejobs_deleteconf") }}"><i class="fa fa-trash-o"></i></a>
                 </td>
                 <td>
                     {{ monRemoteJob.getMonBehaviorClass() }}
