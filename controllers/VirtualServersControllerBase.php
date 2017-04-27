@@ -37,6 +37,10 @@ use RNTForest\ovz\models\MonLocalJobs;
 use RNTForest\ovz\models\MonRemoteJobs;
 use RNTForest\ovz\forms\MonLocalJobsForm;
 use RNTForest\ovz\forms\MonRemoteJobsForm;
+use RNTForest\ovz\datastructures\ReplicaActivateFormFields;
+use RNTForest\ovz\datastructures\RootPasswordChangeFormFields;
+use RNTForest\ovz\datastructures\SnapshotFormFields;
+use RNTForest\ovz\datastructures\VirtualServersConfigureFormFields;
 
 use \RNTForest\core\libraries\Helpers;
 
@@ -1923,32 +1927,4 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $customers = \RNTForest\core\models\Customers::getCustomersAsJson($filterString,$scope);
         return $customers;
     }
-}
-
-/**
-* helper classes
-*/
-class SnapshotFormFields{
-    public $virtual_servers_id = 0;
-    public $name = "";
-    public $description = "";
-}
-
-class ReplicaActivateFormFields{
-    public $virtual_servers_id = 0;
-    public $physical_servers_id = 0;
-}
-
-class VirtualServersConfigureFormFields{
-    public $virtual_servers_id = 0;
-    public $dns = "";
-    public $cores = 0;
-    public $memory = "";
-    public $diskspace = "";
-    public $startOnBoot = 0;
-    public $description = "";
-}
-
-class RootPasswordChangeFormFields{
-    public $password = "";
 }

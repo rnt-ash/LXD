@@ -29,6 +29,7 @@ use RNTForest\ovz\models\MonRemoteJobs;
 use RNTForest\ovz\forms\MonLocalJobsForm;
 use RNTForest\ovz\forms\MonRemoteJobsForm;
 use RNTForest\core\models\Logins;
+use RNTForest\ovz\datastructures\OvzConnectorFormFields;
 
 class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -710,13 +711,4 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         $customers = \RNTForest\core\models\Customers::getCustomersAsJson($filterString,$scope);
         return $customers;
     }
-}
-
-/**
-* helper class
-*/
-class OvzConnectorFormFields{
-    public $physical_servers_id = 0;
-    public $username = "";
-    public $password = "";
 }
