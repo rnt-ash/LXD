@@ -25,6 +25,7 @@ use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Validation\Validator\Confirmation as ConfirmationValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
+use Phalcon\Mvc\Model\Message as Message;
 
 use RNTForest\core\interfaces\JobServerInterface;
 use RNTForest\core\interfaces\PendingInterface;
@@ -32,6 +33,7 @@ use RNTForest\ovz\interfaces\MonServerInterface;
 use RNTForest\ovz\interfaces\IpServerInterface;
 use RNTForest\core\libraries\PendingHelpers;
 use RNTForest\ovz\functions\Monitoring;
+use RNTForest\core\models\Customers;
 
 class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface, IpServerInterface
 {
@@ -787,6 +789,13 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         $op = $session['op'];
         $vstype = $session['vstype'];
 
+        // check if selected customer exists
+        if(!Customers::findFirst($this->customers_id) OR empty($this->customers_id)){
+            $message = new Message($this->translate("virtualserver_customer_not_exist"),"customers");            
+            $this->appendMessage($message);
+            return false;
+        }
+        
         $validator = $this->generateValidator($op,$vstype);
         if(!$this->validate($validator)) return false;
         

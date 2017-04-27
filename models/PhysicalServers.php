@@ -24,6 +24,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
+use Phalcon\Mvc\Model\Message as Message;
 
 use RNTForest\core\interfaces\JobServerInterface;
 use RNTForest\core\interfaces\PendingInterface;
@@ -31,6 +32,7 @@ use RNTForest\ovz\interfaces\MonServerInterface;
 use RNTForest\ovz\interfaces\IpServerInterface;
 use RNTForest\core\libraries\PendingHelpers;
 use RNTForest\ovz\functions\Monitoring;
+use RNTForest\core\models\Customers;
 
 class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface, IpServerInterface
 {
@@ -546,6 +548,13 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     */
     public function validation()
     {
+        // check if selected customer exists
+        if(!Customers::findFirst($this->customers_id) OR empty($this->customers_id)){
+            $message = new Message($this->translate("physicalserver_customer_not_exist"),"customers");            
+            $this->appendMessage($message);
+            return false;
+        }
+        
         $validator = $this->generateValidator();
         if(!$this->validate($validator)) return false;
 
@@ -577,7 +586,7 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             'messageMaximum' => $messagemax,
             'messageMinimum' => $messagemin,
         ]));
-        
+
         $message = self::translate("physicalserver_fqdn_required");
         // fqdn
         $validator->add('fqdn', new PresenceOfValidator([
@@ -589,6 +598,12 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
             'message' => $message
         ]));        
+        
+        $message = self::translate("physicalserver_customer_required");
+        // customers_id
+        $validator->add('customers_id', new PresenceOfValidator([
+            'message' => $message
+        ]));
         
         $message = self::translate("physicalserver_core_required");
         // core

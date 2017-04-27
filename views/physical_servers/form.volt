@@ -15,14 +15,22 @@
             <div class="alert alert-danger" role="alert">{{form.getMessagesFor('id')[0]}}</div>  
         {% endif %}
 
-        {{ renderElement('name',form,6) }}
-        {{ renderElement('fqdn',form,6) }}
-        {{ renderElement('customers_id',form,6) }}
-        {{ renderElement('colocations_id',form,6) }}
-        {{ renderElement('core',form,6) }}
-        {{ renderElement('memory',form,6) }}
-        {{ renderElement('space',form,6) }}
-        {{ renderElement('activation_date',form,6) }}
+        <div class="clearfix">
+            {{ renderElement('name',form,6) }}
+            {{ renderElement('fqdn',form,6) }}
+        </div>
+        <div class="clearfix">
+            {{ renderElement('customers',form,6,'autocomplete') }}
+            {{ renderElement('colocations_id',form,6) }}
+        </div>
+        <div class="clearfix">
+            {{ renderElement('core',form,6) }}
+            {{ renderElement('memory',form,6) }}
+        </div>
+        <div class="clearfix">
+            {{ renderElement('space',form,6) }}
+            {{ renderElement('activation_date',form,6) }}
+        </div>
         {{ renderElement('description',form) }}
 
         <div class="col-lg-12">

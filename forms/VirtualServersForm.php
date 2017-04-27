@@ -28,7 +28,6 @@ use Phalcon\Forms\Element\Date;
 use Phalcon\Forms\Element\Hidden;
 use Phalcon\Forms\Element\Password;
 use Phalcon\Validation;
-use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
@@ -78,21 +77,26 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         }
 
         // customer
+        $this->add(new Hidden("customers_id"));
+        
         $message = $this->translate("virtualserver_choose_customer");
-        $element = new Select(
-            "customers_id",
-            Customers::find(array("columns"=>"id,CONCAT(company,' (',lastname,' ' ,firstname,')',' ',city) as name","order"=>"name")),
-            array("using"=>array("id","name"),
-                "useEmpty"   => true,
-                "emptyText"  => $message,
-                "emptyValue" => "",            
-            )
-        );
+        $element = new Text("customers");
         $message = $this->translate("virtualserver_customer");
         $element->setLabel($message);
-        $element->setFilters(array('int'));
+        $customerText = '';
+        if(!is_null($virtualServer->customers_id)){
+            $customerText = Customers::findFirst($virtualServer->customers_id)->printAddressText('line');
+        }
+        $element->setAttribute("value",$customerText);
+        $element->setFilters(array('string'));
+        $message = $this->translate("virtualserver_customer_required");
+        $element->addValidators(array(
+            new PresenceOfValidator(array(
+                'message' => $message
+            ))
+        ));
         $this->add($element);
-
+        
         // physical servers
         $message = $this->translate("virtualserver_choose_physicalserver");
         $element = new Select(
@@ -181,11 +185,6 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $element->setLabel($message);
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
-        
-        // Validator
-        $validator = VirtualServers::generateValidator($op,$vstype);
-        $this->setValidation($validator);
-
     }
 
 }

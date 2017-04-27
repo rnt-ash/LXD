@@ -16,7 +16,7 @@
         {% endif %}
 
         {{ renderElement('name',form,6) }}
-        {{ renderElement('customers_id',form,6) }}
+        {{ renderElement('customers',form,6,'autocomplete') }}
         {{ renderElement('description',form) }}
         {{ renderElement('location',form,6) }}
         {{ renderElement('activation_date',form,6) }}

@@ -24,8 +24,10 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
+use Phalcon\Mvc\Model\Message as Message;
 
 use RNTForest\ovz\models\IpObjects;
+use RNTForest\core\models\Customers;
 
 class Colocations extends \RNTForest\core\models\ModelBase implements \RNTForest\ovz\interfaces\IpServerInterface
 {
@@ -286,6 +288,26 @@ class Colocations extends \RNTForest\core\models\ModelBase implements \RNTForest
         }
     }
     
+    /**
+    * Validations and business logic
+    *
+    * @return boolean
+    */
+    public function validation()
+    {
+        // check if selected customer exists
+        if(!Customers::findFirst($this->customers_id) OR empty($this->customers_id)){
+            $message = new Message($this->translate("colocations_customer_not_exist"),"customers");            
+            $this->appendMessage($message);
+            return false;
+        }
+        
+        // get params from session
+        $validator = $this->generateValidator();
+        if(!$this->validate($validator)) return false;
+        
+        return true;
+    }
     
     /**
     * generates validator for Colocations model

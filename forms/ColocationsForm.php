@@ -28,6 +28,9 @@ use Phalcon\Forms\Element\Date;
 use RNTForest\core\models\Customers;
 use RNTForest\ovz\models\Colocations;
 
+use Phalcon\Validation;
+use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
+
 class ColocationsForm extends \RNTForest\core\forms\FormBase
 {
 
@@ -41,19 +44,24 @@ class ColocationsForm extends \RNTForest\core\forms\FormBase
         $this->add(new Hidden("id"));
 
         // customer
+        $this->add(new Hidden("customers_id"));
+        
         $message = $this->translate("colocations_choose_customer");
-        $element = new Select(
-            "customers_id",
-            Customers::find(array("columns"=>"id,CONCAT(company,' (',lastname,' ' ,firstname,')',' ',city) as name","order"=>"name")),
-            array("using"=>array("id","name"),
-                "useEmpty"   => true,
-                "emptyText"  => $message,
-                "emptyValue" => "",            
-            )
-        );
+        $element = new Text("customers");
         $message = $this->translate("colocations_customer");
         $element->setLabel($message);
-        $element->setFilters(array('int'));
+        $customerText = '';
+        if(!is_null($entity->customers_id)){
+            $customerText = Customers::findFirst($entity->customers_id)->printAddressText('line');
+        }
+        $element->setAttribute("value",$customerText);
+        $element->setFilters(array('string'));
+        $message = $this->translate("colocations_customer_required");
+        $element->addValidators(array(
+            new PresenceOfValidator(array(
+                'message' => $message
+            ))
+        ));
         $this->add($element);
 
         // name
@@ -90,10 +98,5 @@ class ColocationsForm extends \RNTForest\core\forms\FormBase
         $element->setDefault(date("Y-m-d"));
         $element->setFilters(array('string', 'trim'));
         $this->add($element);
-        
-        // Validator
-        $validator = Colocations::generateValidator();
-        $this->setValidation($validator);
     }
-
 }

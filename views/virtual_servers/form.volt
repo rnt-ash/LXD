@@ -17,7 +17,7 @@
 
         {{ renderElement('name',form,6) }}
         {{ renderElement('fqdn',form,6) }}
-        {{ renderElement('customers_id',form,6) }}
+        {{ renderElement('customers',form,6,'autocomplete') }}
         {{ renderElement('physical_servers_id',form,6) }}
         {{ renderElement('ostemplate',form,6) }}
         {{ renderElement('password',form,6,'genPW') }}

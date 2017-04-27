@@ -21,6 +21,7 @@
                     <div id="searchFilter" class="input-group col-lg-6 col-sm-6 col-xs-12 pull-right">
                         <span class="input-group-addon"><i class="fa fa-search" onclick="$('form#slidedatatoolbar').submit();"></i></span>
                         {{ text_field("filterAll",'class':'form-control','placeholder':'Filter') }}
+                        <input type="submit" style="display:none">
                         <span class="input-group-addon"><i class="fa fa-times" onclick="$('#filterAll').val('');$('form#slidedatatoolbar').submit();"></i></span>
                     </div>
                     {% if permissions.checkPermission("colocations", "filter_customers") %}
