@@ -172,7 +172,7 @@ return [
     "physicalserver_ip_deleteconf" => "Sind Sie sicher, dass Sie das IP-Objekt löschen wollen ?",
     "physicalserver_ip_delete" => "IP-Objekt löschen",
     "physicalserver_ip_primary" => "zum Hauptobjekt festlegen",
-    "physicalserver_slide_title" => "Physical Server",
+    "physicalserver_slide_title" => "Physikalische Server",
             
     // Virtual Server
     "virtualserver_all_virtualservers" => "Alle Virtual Servers",
