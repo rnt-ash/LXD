@@ -126,6 +126,8 @@ return [
     "physicalserver_fqdn_valid" => "must be a String separated by points",
     "physicalserver_customer_required" => "customer is required",
     "physicalserver_customer_not_exist" => "selected customer doesn't exist",
+    "physicalserver_colocation_required" => "Colocation is required",
+    "physicalserver_colocation_not_exist" => "Please select an existing Colocation",
     "physicalserver_core_required" => "core is required",
     "physicalserver_memory_required" => "memory is required",
     "physicalserver_space_required" => "space is required",

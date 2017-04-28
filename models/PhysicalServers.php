@@ -555,6 +555,13 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             return false;
         }
         
+        // check if selected colocation exists
+        if(!Colocations::findFirst($this->colocations_id)){
+            $message = new Message($this->translate("physicalserver_colocation_not_exist"),"colocations_id");
+            $this->appendMessage($message);
+            return false;
+        }
+        
         $validator = $this->generateValidator();
         if(!$this->validate($validator)) return false;
 
@@ -603,6 +610,12 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         // customers_id
         $validator->add('customers_id', new PresenceOfValidator([
             'message' => $message
+        ]));
+        
+        $message = self::translate("physicalserver_colocation_required");
+        // colocation
+        $validator->add('colocations_id', new PresenceOfValidator([
+            'message' => $message,
         ]));
         
         $message = self::translate("physicalserver_core_required");
