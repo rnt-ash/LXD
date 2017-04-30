@@ -973,7 +973,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * @param string $scope
     */
     public static function generateArrayForSelectElement($scope){
-        $findParameters = array("columns"=>"id, name");
+        $findParameters = array("columns"=>"id, name","order"=>"name");
         $resultset = self::findFromScope($scope,$findParameters);
         $virtualServers = array(0 => self::translate("virtualserver_all_virtualservers"));
         foreach($resultset as $virtualServer){

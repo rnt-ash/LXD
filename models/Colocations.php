@@ -374,7 +374,7 @@ class Colocations extends \RNTForest\core\models\ModelBase implements \RNTForest
     * @param string $scope
     */
     public static function generateArrayForSelectElement($scope){
-        $findParameters = array("columns"=>"id, name");
+        $findParameters = array("columns"=>"id, name","order"=>"name");
         $resultset = self::findFromScope($scope,$findParameters);
         $colocations = array(0 => self::translate("colocation_all_colocations"));
         foreach($resultset as $colocation){
