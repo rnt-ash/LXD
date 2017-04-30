@@ -665,7 +665,7 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     * @param string $scope
     */
     public static function generateArrayForSelectElement($scope){
-        $findParameters = array("columns"=>"id, name");
+        $findParameters = array("columns"=>"id, name","order"=>"name");
         $resultset = self::findFromScope($scope,$findParameters);
         $physicalServers = array(0 => self::translate("physicalserver_all_physicalservers"));
         foreach($resultset as $physicalServer){
