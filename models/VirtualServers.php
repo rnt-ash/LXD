@@ -472,6 +472,16 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
+    * Pending
+    *
+    * @param string $pending
+    */
+    public function setPending($pending)
+    {
+        $this->pending = $pending;
+    }
+    
+    /**
     * Returns the value of field id
     *
     * @return integer
@@ -741,6 +751,16 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function getModified()
     {
         return $this->modified;
+    }
+    
+    /**
+    * Returns the value of field pending
+    *
+    * @return string
+    */
+    public function getPending()
+    {
+        return $this->pending;
     }
     
     /**

@@ -349,6 +349,16 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     }
 
     /**
+    * Pending
+    *
+    * @param string $pending
+    */
+    public function setPending($pending)
+    {
+        $this->pending = $pending;
+    }
+    
+    /**
     * Returns the value of field id
     *
     * @return integer
@@ -508,6 +518,15 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         return $this->modified;
     }
 
+    /**
+    * Returns the value of field pending
+    *
+    * @return string
+    */
+    public function getPending()
+    {
+        return $this->pending;
+    }
     /**
     * Initialize method for model.
     */
