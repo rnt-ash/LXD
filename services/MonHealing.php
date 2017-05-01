@@ -60,6 +60,7 @@ class MonHealing extends \Phalcon\DI\Injectable
             
         if($monJob->isInErrorState()){
             if($this->shouldAlarmImmediately($monJob)){
+                $this->logger->debug('MonHealing checked to alarm this job immediately: '.$monJob->getId());
                 // recompute uptime first for actual data in notification
                 $monJob->recomputeUptime();
                 // alarm if nothing else is possible (termination condition)
@@ -76,7 +77,7 @@ class MonHealing extends \Phalcon\DI\Injectable
                     
                     $healJobId = $this->executeHealJob('ovz_restart_vs',$monJob,$pending);
                     $monJob->setRecentHealJobId($healJobId);
-
+            
                     // check again (recursion call)
                     $this->healStepwise($monJob);    
                     // and notify AFTER about the healjob (so that the state after the new check is available in the info-mail)
@@ -111,10 +112,14 @@ class MonHealing extends \Phalcon\DI\Injectable
         if(!$monJob->getHealing()){
             return True;
         }
-            
+        
         // alarm immediately if last healjob was a restart of the vs
         $lastHealJobType = $this->getLastRelevantHealJobType($monJob);    
         if($lastHealJobType == 'ovz_restart_vs'){
+            return True;
+        }
+        // if the jobsystem fails it should alarm immediately
+        elseif($lastHealJobType == 'jobsystemfailed'){
             return True;
         } 
         
@@ -156,18 +161,20 @@ class MonHealing extends \Phalcon\DI\Injectable
                     ]
                 ]
             );
-            
             if(!empty($monJobWithHealJob)){
                 $healJobId = $monJobWithHealJob->getHealJob();
                 if(is_numeric($healJobId) && $healJobId > 0){
                     $healJob = \RNTForest\core\models\Jobs::findFirst($healJobId);
                     $healJobType = $healJob->getType();
                     $this->logger->notice("found healjob: ".$healJobType);
+                }elseif($healJobId == -1){
+                    $this->logger->error("no existent healjob found, but log was marked as healed.");
+                    $healJobType = 'jobsystemfailed';
                 }   
             }
             
         }catch(\Exception $e){
-            echo $e->getMessage()."\n";
+            $this->logger->error('Problem while get last relevant healjobtype: '.$e->getMessage());
         } 
         return $healJobType;
     }
@@ -188,7 +195,8 @@ class MonHealing extends \Phalcon\DI\Injectable
         }
         $push = $this->getPush();
         $job = null;
-        $healJobId = 0;
+        // set healjobid to minus one to mark the monlog that a healjob will be executed
+        $healJobId = -1;
         
         $monServer = $this->getMonServerInstance($monJob);
         if(!($monServer instanceof \RNTForest\ovz\models\VirtualServers)){
@@ -196,26 +204,37 @@ class MonHealing extends \Phalcon\DI\Injectable
         }
         $params['UUID'] = $monServer->getOvzUuid();
         try{
-            $job = $push->executeJob($parent,$healJobType,$params,$pending);
-            $healJobId = $job->getId();
+            // first, mark monlog to be healed to prevent loops
             $monLog = MonRemoteLogs::findFirst(
                 [
                 "mon_remote_jobs_id" => $monJob->getId(),
                 "order" => "id DESC",
                 ]
             );
-            $monLog->setHealJob($job->getId());
+            $monLog->setHealJob($healJobId);
             $monLog->save();
-            if($job->getDone() != '1'){
-                throw new \Exception($this->translate("monitoring_healjob_failed").$job->getError());    
+            
+            // then heal
+            $job = $push->executeJob($parent,$healJobType,$params,$pending);
+            $healJobId = $job->getId();
+
+            // only set the id of the job, when the job id is not null (prevent loops)
+            if($job->getId() != null){
+                $monLog->setHealJob($job->getId());
+                $monLog->save();
+                
+                if($job->getDone() == '1'){
+                    // wait some seconds if healjob was successful, so that the server has time to be up again for the next monitoring
+                    sleep(10);
+                }
+            
+                if($job->getDone() != '1'){
+                    throw new \Exception($this->translate("monitoring_healjob_failed").$job->getError());    
+                }   
             }
             
-            // wait some seconds if healjob was successful, so that the server has time to be up again for the next monitoring
-            if($job->getDone() == '1'){
-                sleep(10);
-            }
         }catch(\Exception $e){
-            echo $e->getMessage();
+            $this->logger->error("HealJob execution failed: ".$e->getMessage());
             if($job != null && $job->getDone() == 0){
                 // if job was not sent it should be marked as failed so that it wont be executed in future
                 $error = $this->translate("monitoring_healjob_not_executed_error");
@@ -224,6 +243,7 @@ class MonHealing extends \Phalcon\DI\Injectable
                 $job->save();
                 $this->logger->error("Healjob: ".$job->getId(). " ".$error);
             }
+            
         }
 
         return $healJobId;  
