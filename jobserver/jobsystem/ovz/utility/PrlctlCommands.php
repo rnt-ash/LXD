@@ -483,7 +483,34 @@ class PrlctlCommands {
             }
             $arr = $val;
             unset($arr);
+
+            // convert ram to mb and add to array at new key
+            if(is_array($statistics) 
+            && key_exists('guest',$statistics)
+            && is_array($statistics['guest'])
+            && key_exists('ram',$statistics['guest'])
+            && is_array($statistics['guest']['ram'])
+            && key_exists('total',$statistics['guest']['ram'])
+            && key_exists('usage',$statistics['guest']['ram'])
+            ){
+                $memoryFreeMb = $statistics['guest']['ram']['total'] - ($statistics['guest']['ram']['usage'] - $statistics['guest']['ram']['cached']);
+                // already in MB per default in statistics
+                $statistics['guest']['ram']['memory_free_mb'] = $memoryFreeMb;
+            }
             
+            // convert diskspace to gb and add to array at new key
+            if(is_array($statistics) 
+            && key_exists('guest',$statistics)
+            && is_array($statistics['guest'])
+            && key_exists('fs0',$statistics['guest'])
+            && is_array($statistics['guest']['fs0'])
+            && key_exists('free',$statistics['guest']['fs0'])
+            ){
+                $diskspaceFreeKb = $statistics['guest']['fs0']['free'];
+                // convert from KB to GB
+                $diskspaceFreeGb = $diskspaceFreeKb / 1024 / 1024;
+                $statistics['guest']['fs0']['diskspace_free_gb'] = $diskspaceFreeGb;
+            }
         } 
         
         $this->Json = json_encode($statistics);

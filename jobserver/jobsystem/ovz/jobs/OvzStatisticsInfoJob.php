@@ -50,34 +50,6 @@ class OvzStatisticsInfoJob extends AbstractOvzJob {
         // add modified at first position of the array
         $this->array_unshift_assoc($ovzStatistics,'Timestamp',date("Y-m-d H:i:s"));
         
-        // convert ram to mb and add to array at new key
-        if(is_array($ovzStatistics) 
-        && key_exists('guest',$ovzStatistics)
-        && is_array($ovzStatistics['guest'])
-        && key_exists('ram',$ovzStatistics['guest'])
-        && is_array($ovzStatistics['guest']['ram'])
-        && key_exists('total',$ovzStatistics['guest']['ram'])
-        && key_exists('usage',$ovzStatistics['guest']['ram'])
-        ){
-            $memoryFreeMb = $ovzStatistics['guest']['ram']['total'] - ($ovzStatistics['guest']['ram']['usage'] - $ovzStatistics['guest']['ram']['cached']);
-            // already in MB per default in statistics
-            $ovzStatistics['guest']['ram']['memory_free_mb'] = $memoryFreeMb;
-        }
-        
-        // convert diskspace to gb and add to array at new key
-        if(is_array($ovzStatistics) 
-        && key_exists('guest',$ovzStatistics)
-        && is_array($ovzStatistics['guest'])
-        && key_exists('fs0',$ovzStatistics['guest'])
-        && is_array($ovzStatistics['guest']['fs0'])
-        && key_exists('free',$ovzStatistics['guest']['fs0'])
-        ){
-            $diskspaceFreeKb = $ovzStatistics['guest']['fs0']['free'];
-            // convert from KB to GB
-            $diskspaceFreeGb = $diskspaceFreeKb / 1024 / 1024;
-            $ovzStatistics['guest']['fs0']['diskspace_free_gb'] = $diskspaceFreeGb;
-        }
-        
         if(is_array($ovzStatistics) && !empty($ovzStatistics)){
             $this->Done = 1;    
             $this->Retval = json_encode($ovzStatistics);

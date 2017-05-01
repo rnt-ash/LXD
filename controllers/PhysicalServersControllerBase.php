@@ -189,6 +189,42 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         return $this->di['push'];
     }
 
+    
+    /**
+    * Update OVZ settings and statistics of host and all guests
+    * 
+    * @param int $serverId
+    */
+    public function ovzAllInfoAction($serverId){
+        // get VirtualServer
+        try{
+            // sanitize parameters
+            $serverId = $this->filter->sanitize($serverId, "int");
+            
+            // find physical server
+            $physicalServer = PhysicalServers::findFirst($serverId);
+            $message = $this->translate("physicalserver_doesn_not_exist");
+            if (!$physicalServer) throw new \Exception($message . $serverId);
+
+            // not ovz enabled
+            $message = $this->translate("physicalserver_not_ovz_enabled");
+            if(!$physicalServer->getOvz()) throw new \Exception($message);
+
+            // execute ovz_all_info job        
+            $push = $this->getPushService();
+            $job = $push->executeJob($physicalServer,'ovz_all_info',array());
+            $message =  $this->translate("physicalserver_job_failed");
+            if(!$job || $job->getDone()==2) throw new \Exception($message."(ovz_all_info) !");
+            
+            
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        // go back to slidedata view
+        $this->redirectTo("physical_servers/slidedata");
+    }    
+    
     /**
     * Update OVZ settings
     * 
