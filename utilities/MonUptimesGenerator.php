@@ -51,15 +51,12 @@ class MonUptimesGenerator{
         $splittedMonLogs = array();
         $splittedMonLogs = MonUptimesGenerator::sortAndSplitMonLogs($monLogs);
         
-        MonUptimesGenerator::getLogger()->debug('splittedMonLogs: '.json_encode($splittedMonLogs));
-        
         // compute uptimes from the logs
         $computedUptimes = array();
         foreach($splittedMonLogs as $yearMonth => $sortedMonLogs){
+            MonUptimesGenerator::getLogger()->debug('yearMonth: '.$yearMonth);
             $computedUptimes[$yearMonth] = MonUptimesGenerator::computeUptime($yearMonth,$sortedMonLogs);
         }
-        
-        MonUptimesGenerator::getLogger()->debug('computedUptimes: '.json_encode($computedUptimes));
         
         // filter $computedUptimes so that only valide will be created (e.g. throw null away)
         // normally only 1 uptime is in $computedUptimes, because it will be created monthly
@@ -70,8 +67,6 @@ class MonUptimesGenerator{
             }
         }
 
-        MonUptimesGenerator::getLogger()->debug('cleanedUptimes: '.json_encode($cleanedUptimes));
-        
         foreach($cleanedUptimes as $yearMonth => $uptime){
             // delete existing MonUptimes of this $monJob with this $yearMonth first
             $oldMonUptime = MonUptimes::findFirst(
@@ -101,20 +96,20 @@ class MonUptimesGenerator{
             $monUptime->save();
             
             // delete MonRemoteLogs of this $monJob and $yearMonth
-            //$monthStart = MonUptimesGenerator::genMonthStartByYearMonth($yearMonth);
-//            $monthEnd = MonUptimesGenerator::genMonthEndByYearMonth($yearMonth);
+            $monthStart = MonUptimesGenerator::genMonthStartByYearMonth($yearMonth);
+            $monthEnd = MonUptimesGenerator::genMonthEndByYearMonth($yearMonth);
             
-//            $modelManager = MonUptimesGenerator::getModelManager();
-//            $endLog = $modelManager->executeQuery(
-//                "DELETE FROM \\RNTForest\\ovz\\models\\MonRemoteLogs ".
-//                    " WHERE mon_remote_jobs_id = :id: ".
-//                    " AND modified BETWEEN :monthstart: AND :monthend: ",
-//                [
-//                    "id" => $monJob->getId(),
-//                    "monthstart" => $monthStart,
-//                    "monthend" => $monthEnd,
-//                ]
-//            );
+            $modelManager = MonUptimesGenerator::getModelManager();
+            $endLog = $modelManager->executeQuery(
+                "DELETE FROM \\RNTForest\\ovz\\models\\MonRemoteLogs ".
+                    " WHERE mon_remote_jobs_id = :id: ".
+                    " AND modified BETWEEN :monthstart: AND :monthend: ",
+                [
+                    "id" => $monJob->getId(),
+                    "monthstart" => $monthStart,
+                    "monthend" => $monthEnd,
+                ]
+            );
         }
     }
     
@@ -163,9 +158,7 @@ class MonUptimesGenerator{
                 $upSeconds = $maxSeconds - $downTimeInSeconds;
                 
                 $upPercentage = $upSeconds / $maxSeconds;
-                
                 $uptime = new Uptime($maxSeconds, $upSeconds, $upPercentage);
-            
             }    
         }catch(\Exception $e){
             MonUptimesGenerator::getLogger()->error(MonUptimesGenerator::translate("monitoring_monuptimesgenerator_computefailed").$e->getMessage());
@@ -191,7 +184,7 @@ class MonUptimesGenerator{
         $endDowntime = '';
         $downTimeInSeconds = 0;
         foreach($sortedMonLogs as $monLog){
-            if($monLog instanceof MonLog){
+            if($monLog instanceof MonRemoteLogs){
                 $curValue = $monLog->getValue();
                 // Negative statuschange
                 if($curValue == 0 && $lastValue == 1){
