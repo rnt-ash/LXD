@@ -147,8 +147,12 @@ class MonSystem extends \Phalcon\DI\Injectable
             
             if(!empty($monJobIds)){
                 $ids = implode(',',$monJobIds);
+                $this->logger->debug('ids are: '.json_encode($ids));
                 // delete MonRemoteLogs with nonexisting MonRemoteJobs
-                $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonRemoteLogs WHERE mon_remote_jobs_id NOT IN (?0)",[$ids]);
+                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonRemoteLogs.mon_remote_jobs_id FROM \\RNTForest\\ovz\\models\\MonRemoteLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonRemoteJobs ON \\RNTForest\\ovz\\models\\MonRemoteLogs.mon_remote_jobs_id = \\RNTForest\\ovz\\models\\MonRemoteJobs.id WHERE \\RNTForest\\ovz\\models\\MonRemoteJobs.id IS NULL");
+                foreach($rows as $row){
+                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonRemoteLogs WHERE mon_remote_jobs_id = (:id:)",['id'=>$row['mon_remote_jobs_id']]);
+                }
             }
 
         }catch(\Exception $e){
@@ -179,7 +183,10 @@ class MonSystem extends \Phalcon\DI\Injectable
             if(!empty($monJobIds)){
                 $ids = implode(',',$monJobIds);
                 // delete MonLocalLogs with nonexisting MonLocalJobs
-                $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonLocalLogs WHERE mon_local_jobs_id NOT IN (?0)",[$ids]);
+                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonLocalLogs.mon_local_jobs_id FROM \\RNTForest\\ovz\\models\\MonLocalLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonLocalJobs ON \\RNTForest\\ovz\\models\\MonLocalLogs.mon_local_jobs_id = \\RNTForest\\ovz\\models\\MonLocalJobs.id WHERE \\RNTForest\\ovz\\models\\MonLocalJobs.id IS NULL");
+                foreach($rows as $row){
+                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonLocalLogs WHERE mon_local_jobs_id = (:id:)",['id'=>$row['mon_local_jobs_id']]);
+                }
             }
 
         }catch(\Exception $e){
