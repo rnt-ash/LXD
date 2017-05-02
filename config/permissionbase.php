@@ -80,7 +80,7 @@ return new \Phalcon\Config([
                     'physical_servers' => [
                         'index', 'new', 'edit', 'form', 'save', 'delete', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
-                        'slidedata', 'slideSlide', 'ovzAllInfo', 'ovzHostInfo', 'ovzHostStatisticsInfo', 'ovzConnector', 'ovzConnectorExecute',
+                        'slidedata', 'slideSlide', 'ovzAllInfo', 'ovzConnector', 'ovzConnectorExecute',
                         'monLocalJobAdd', 'monLocalJobAddExecute', 'monRemoteJobAdd', 'monRemoteJobAddExecute', 'getCustomersAsJson',
                     ]
                 ],

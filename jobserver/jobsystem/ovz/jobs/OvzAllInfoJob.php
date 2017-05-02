@@ -42,9 +42,11 @@ class OvzAllInfoJob extends AbstractOvzJob {
             // Guest Infos
             $exitstatus = $this->PrlctlCommands->listInfo('');
             if($exitstatus > 0) return $this->commandFailed("Getting guest info failed",$exitstatus);
-            $info['GuestInfo'] = json_decode($this->PrlctlCommands->getJson(),true);
-            foreach($info['GuestInfo'] as $key=>$value){
-               $this->array_unshift_assoc($info['GuestInfo'][$key],'Timestamp',date("Y-m-d H:i:s"));
+            $guestInfo = json_decode($this->PrlctlCommands->getJson(),true);
+            foreach($guestInfo as $key=>$value){
+                // Build GuestInfo Array with UUID as Key
+                $info['GuestInfo'][$value['ID']] = $value;
+                $this->array_unshift_assoc($info['GuestInfo'][$value['ID']],'Timestamp',date("Y-m-d H:i:s"));
             }
 
             // Host Info
@@ -52,7 +54,7 @@ class OvzAllInfoJob extends AbstractOvzJob {
             if($exitstatus > 0) return $this->commandFailed("Getting host info failed",$exitstatus);
             $info['HostInfo'] = json_decode($this->PrlsrvctlCommands->getJson(),true);
             $this->array_unshift_assoc($info['HostInfo'],'Timestamp',date("Y-m-d H:i:s"));
-            
+
             // Guest Statistics
             $exitstatus = $this->PrlctlCommands->listVS();
             if($exitstatus > 0) return $this->commandFailed("Getting VS list failed",$exitstatus);
@@ -75,7 +77,7 @@ class OvzAllInfoJob extends AbstractOvzJob {
             $this->Done = 1;    
             $this->Retval = json_encode($info);
             $this->Context->getLogger()->debug("Get all info success.");
-            
+
         }catch(\Exception $e){
             $this->Done = 2;
             $this->Error = "Get all info failed.";
@@ -89,7 +91,7 @@ class OvzAllInfoJob extends AbstractOvzJob {
         $arr = array_reverse($arr, true); 
         return $arr;
     }
-    
+
     /**
     * Checks free Diskspace
     * 

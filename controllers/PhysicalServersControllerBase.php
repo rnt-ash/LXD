@@ -20,6 +20,7 @@
 namespace RNTForest\ovz\controllers;
 
 use RNTForest\ovz\models\PhysicalServers;
+use RNTForest\ovz\models\VirtualServers;
 use RNTForest\ovz\forms\OvzConnectorForm;
 use RNTForest\ovz\services\OvzConnector;
 use RNTForest\ovz\models\IpObjects;
@@ -203,7 +204,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             
             // find physical server
             $physicalServer = PhysicalServers::findFirst($serverId);
-            $message = $this->translate("physicalserver_doesn_not_exist");
+            $message = $this->translate("physicalserver_does_not_exist");
             if (!$physicalServer) throw new \Exception($message . $serverId);
 
             // not ovz enabled
@@ -215,7 +216,46 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $job = $push->executeJob($physicalServer,'ovz_all_info',array());
             $message =  $this->translate("physicalserver_job_failed");
             if(!$job || $job->getDone()==2) throw new \Exception($message."(ovz_all_info) !");
+
+            // get infos as array
+            $infos = $job->getRetval(true);
+            $message =  $this->translate("physicalserver_info_not_valid_array");
+            if(!is_array($infos)) throw new \Exception($message);
+
+            // save host settings and statistics
+            $physicalServer->setOvzSettings(json_encode($infos['HostInfo']));
+            $physicalServer->setOvzStatistics(json_encode($infos['HostStatistics']));
+            if ($physicalServer->save() === false) {
+                $messages = $physicalServer->getMessages();
+                foreach ($messages as $message) {
+                    $this->flashSession->warning($message);
+                }
+                $message = $this->translate("physicalserver_update_failed");
+                throw new \Exception($message . $physicalServer->getName());
+            }
+
+            // save guest settings and statistics
+            foreach($infos['GuestInfo'] as $key=>$info){
+                // find virtual server
+                $virtualServer = VirtualServers::findFirst("ovz_uuid = '".$key."'");
+                $message = $this->translate("virtualserver_does_not_exist");
+                if (!$virtualServer) throw new \Exception($message . "UUID: " . $key);
+                
+                $virtualServer->setOvzSettings(json_encode($infos['GuestInfo'][$key]));
+                $virtualServer->setOvzStatistics(json_encode($infos['GuestStatistics'][$key]));
+                if ($virtualServer->save() === false) {
+                    $messages = $virtualServer->getMessages();
+                    foreach ($messages as $message) {
+                        $this->flashSession->warning($message);
+                    }
+                    $message = $this->translate("virtualserver_update_failed");
+                    throw new \Exception($message . $virtualServer->getName());
+                }
+            }
             
+            // success
+            $message = $this->translate("physicalserver_update_success");
+            $this->flashSession->success($message);
             
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
@@ -224,106 +264,6 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         // go back to slidedata view
         $this->redirectTo("physical_servers/slidedata");
     }    
-    
-    /**
-    * Update OVZ settings
-    * 
-    * @param int $serverId
-    */
-    public function ovzHostInfoAction($serverId){
-        // get VirtualServer
-        try{
-            // sanitize parameters
-            $serverId = $this->filter->sanitize($serverId, "int");
-
-            // find physical server
-            $physicalServer = PhysicalServers::findFirst($serverId);
-            $message = $this->translate("physicalserver_doesn_not_exist");
-            if (!$physicalServer) throw new \Exception($message . $serverId);
-
-            // not ovz enabled
-            $message = $this->translate("physicalserver_not_ovz_enabled");
-            if(!$physicalServer->getOvz()) throw new \Exception($message);
-
-            // execute ovz_host_info job        
-            $push = $this->getPushService();
-            $job = $push->executeJob($physicalServer,'ovz_host_info',array());
-            $message =  $this->translate("physicalserver_job_failed");
-            if(!$job || $job->getDone()==2) throw new \Exception($message."(ovz_host_info) !");
-
-            // save settings
-            $settings = $job->getRetval(true);
-            $physicalServer->setOvzSettings($job->getRetval());
-            if ($physicalServer->save() === false) {
-                $messages = $physicalServer->getMessages();
-                foreach ($messages as $message) {
-                    $this->flashSession->warning($message);
-                }
-                $message = $this->translate("physicalserver_update_failed");
-                throw new \Exception($message . $physicalServer->getName());
-            }
-
-            // success
-            $message = $this->translate("physicalserver_update_success");
-            $this->flashSession->success($message);
-
-        }catch(\Exception $e){
-            $this->flashSession->error($e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        // go back to slidedata view
-        $this->redirectTo("physical_servers/slidedata");
-    }
-
-    /**
-    * Update OVZ host statistics
-    * 
-    * @param int $serverId
-    */
-    public function ovzHostStatisticsInfoAction($serverId){
-        // get VirtualServer
-        try{
-            // sanitize parameters
-            $serverId = $this->filter->sanitize($serverId, "int");
-
-            // find physical server
-            $physicalServer = PhysicalServers::findFirst($serverId);
-            $message = $this->translate("physicalserver_doesn_not_exist");
-            if (!$physicalServer) throw new \Exception($message . $serverId);
-
-            // not ovz enabled
-            $message = $this->translate("physicalserver_not_ovz_enabled");
-            if(!$physicalServer->getOvz()) throw new \Exception($message);
-
-            // execute ovz_hoststatistics_info job        
-            $push = $this->getPushService();
-            $job = $push->executeJob($physicalServer,'ovz_hoststatistics_info',array());
-            $message =  $this->translate("physicalserver_job_failed");
-            if(!$job || $job->getDone()==2) throw new \Exception($message."(ovz_hoststatistics_info) !");
-
-            // save statistics
-            $settings = $job->getRetval(true);
-            $physicalServer->setOvzStatistics($job->getRetval());
-            if ($physicalServer->save() === false) {
-                $messages = $physicalServer->getMessages();
-                foreach ($messages as $message) {
-                    $this->flashSession->warning($message);
-                }
-                $message = $this->translate("physicalserver_update_failed");
-                throw new \Exception($message . $physicalServer->getName());
-            }
-
-            // success
-            $message = $this->translate("physicalserver_update_success");
-            $this->flashSession->success($message);
-
-        }catch(\Exception $e){
-            $this->flashSession->error($e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        // go back to slidedata view
-        $this->redirectTo("physical_servers/slidedata");
-    }
     
     /**
     * checks before delete
