@@ -64,4 +64,9 @@ class MonitoringTask extends Task
         $system = new MonSystem();
         $system->genMonLocalDailyLogs();
     }
+    
+    public function testAction(){
+        $system = new MonSystem();
+        $system->test();
+    }
 }

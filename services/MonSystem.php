@@ -21,8 +21,7 @@ namespace RNTForest\ovz\services;
 
 use \RNTForest\ovz\models\MonRemoteJobs;
 use \RNTForest\ovz\models\MonLocalJobs;
-use \RNTForest\ovz\models\PhysicalServers;
-use \RNTForest\ovz\models\VirtualServers;
+use \RNTForest\ovz\utilities\AllInfoUpdater;
 
 class MonSystem extends \Phalcon\DI\Injectable
 {
@@ -73,6 +72,12 @@ class MonSystem extends \Phalcon\DI\Injectable
     */
     public function runMonLocalJobs(){
         try{
+            // first update all info from all servers
+            AllInfoUpdater::updateAllServers();
+            
+            // then do the monitoring
+            $beforeLocalMonitoring = microtime(true);
+            
             $monJobs = MonLocalJobs::find(
                 [
                 "active = 1 AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
@@ -84,15 +89,17 @@ class MonSystem extends \Phalcon\DI\Injectable
                 try{
                     $monJob->execute();
                 }catch(\Exception $e){
-                    $this->logger->debug("runMonLocalJobs execute Job-ID ".$monJob->getId().": ".$e->getMessage());
+                    $this->logger->warning("runMonLocalJobs execute Job-ID ".$monJob->getId().": ".$e->getMessage());
                 }
                 if($monJob->getStatus() != 'normal'){
                     $this->getMonAlarm()->notifyMonLocalJobs($monJob);                
                 }
             }
-            
+            $durationLocalMonitoring = (microtime(true))-$beforeLocalMonitoring;
+            $this->logger->debug('duration of for localmonitoring '.$durationLocalMonitoring.' seconds');
+        
         }catch(\Exception $e){
-            $this->logger->debug("runMonLocalJobs: ".$e->getMessage());
+            $this->logger->error("runMonLocalJobs: ".$e->getMessage());
         }
     }
     
@@ -191,5 +198,38 @@ class MonSystem extends \Phalcon\DI\Injectable
         }catch(\Exception $e){
             $this->logger->debug("genMonLocalDailyLogs: ".$e->getMessage());
         }    
+    }
+    
+    public function test(){
+        return;
+        try{$this->logger->debug("Start with test");
+            AllInfoUpdater::updateAllServers();
+            
+            $beforeLocalMonitoring = microtime(true);
+            
+            $monJobs = MonLocalJobs::find(
+                [
+                "active = 1 AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
+                ]
+            );
+            $this->logger->debug("runLocalJobs ".count($monJobs)." MonLocalJobs");
+            foreach($monJobs as $monJob){
+                // separate Exception-Handling to not abort the whole process if one MonLocalJob execution fails
+                try{
+                    $monJob->execute();
+                }catch(\Exception $e){
+                    $this->logger->debug("runMonLocalJobs execute Job-ID ".$monJob->getId().": ".$e->getMessage());
+                }
+                if($monJob->getStatus() != 'normal'){
+                    $this->getMonAlarm()->notifyMonLocalJobs($monJob);                
+                }
+            }
+            $durationLocalMonitoring = (microtime(true))-$beforeLocalMonitoring;
+            $this->logger->debug('duration of for localmonitoring '.$durationLocalMonitoring.' seconds');
+        
+             
+        }catch(\Exception $e){
+            $this->logger->error("test: ".$e->getMessage());
+        }
     }
 }

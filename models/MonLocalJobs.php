@@ -600,42 +600,39 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
         $server = $this->getServer();
         $ovzStatistics = $server->getOvzStatistics();
         
-        $decodedOvzStatistics = json_decode($ovzStatistics);
+        $decodedOvzStatistics = json_decode($ovzStatistics,true);
         $timestamp = '';
         if(is_array($decodedOvzStatistics) && key_exists('Timestamp',$decodedOvzStatistics)){
             $timestamp = $decodedOvzStatistics['Timestamp'];    
         }
          
-        // if model is older than 1 minute update the ovz_statistics with a job
+        // if model is older than 1 minute write this to log, should not be
         if(empty($timestamp) || Helpers::createUnixTimestampFromDateTime($timestamp) < (time()-60)){
-            $server->updateOvzStatistics();
-            $server->refresh();  
+            $this->getLogger()->notice($this->translate("monitoring_monlocaljobs_statistics_timestamp_to_old").'(MonLocalJob '.$this->getId().', Timestamp: '.$timestamp.')');
+        }else{
+            $value = '';        
+            $behavior = new $this->mon_behavior_class();
+            if(!($behavior instanceof MonLocalBehaviorInterface)){
+                throw new \Exception($this->translate("monitoring_mon_behavior_not_implements_interface"));    
+            }    
+            
+            $valuestatus = $behavior->execute($ovzStatistics,$this->warning_value,$this->maximal_value);
+            if($valuestatus == null){
+                throw new \Exception($this->translate("monitoring_mon_behavior_could_not_instantiate_valuestatus"));
+            }
+            $monLog = new MonLocalLogs();
+            $monLog->create(["mon_local_jobs_id" => $this->id, "value" => $valuestatus->getValue(), "modified" => date('Y-m-d H:i:s')]);
+            $monLog->save();
+            
+            $this->status = $statusAfter = $valuestatus->getStatus();
+            
+            if($statusBefore != $statusAfter){
+                $this->setLastStatusChange(date('Y-m-d H:i:s'));    
+            }
+            
+            $this->setLastRun(date('Y-m-d H:i:s'));
+            $this->save();    
         }
-        
-        $value = '';        
-        $behavior = new $this->mon_behavior_class();
-        if(!($behavior instanceof MonLocalBehaviorInterface)){
-            throw new \Exception($this->translate("monitoring_mon_behavior_not_implements_interface"));    
-        }    
-        
-        $valuestatus = $behavior->execute($ovzStatistics,$this->warning_value,$this->maximal_value);
-        if($valuestatus == null){
-            throw new \Exception($this->translate("monitoring_mon_behavior_could_not_instantiate_valuestatus"));
-        }
-        $monLog = new MonLocalLogs();
-        $monLog->create(["mon_local_jobs_id" => $this->id, "value" => $valuestatus->getValue(), "modified" => date('Y-m-d H:i:s')]);
-        $monLog->save();
-        
-        
-        $this->status = $statusAfter = $valuestatus->getStatus();
-        
-        if($statusBefore != $statusAfter){
-            $this->setLastStatusChange(date('Y-m-d H:i:s'));    
-        }
-        
-        $this->setLastRun(date('Y-m-d H:i:s'));
-        
-        $this->save();
     }
     
     public function genMonLocalDailyLogs(){
@@ -856,5 +853,12 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
         }        
         
         return $neededMonLogs;
+    }
+    
+    /**
+    * @return \Phalcon\Logger\AdapterInterface
+    */
+    private function getLogger(){
+        return $this->getDI()['logger'];
     }
 }
