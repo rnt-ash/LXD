@@ -171,11 +171,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->tryCheckPermission('virtual_servers','general',array('item' => $virtualServer));
             $this->tryCheckOvzEnabled($virtualServer);
 
-            // execute ovz_list_info job 
-            $this->tryOvzListInfo($virtualServer);
-
-            // execute ovz_statistics_info job 
-            $this->tryOvzStatisticInfo($virtualServer);
+            // execute ovz_all_info job 
+            $this->tryGetOvzAllInfo($virtualServer);
 
             // success
             $message = $this->translate("virtualserver_info_success");
@@ -189,55 +186,21 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $this->redirectTo("virtual_servers/slidedata");
     }
     
-    /**
-    * execute ovz_list_info job
-    * 
-    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
-    * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
-    * @throws \Exceptions
-    */
-    protected function tryOvzListInfo($virtualServer){
-        
+    protected function tryGetOvzAllInfo($virtualServer){
         // check if update is realy needed
         if(!empty($virtualServer->getOvzSettingsArray()['Timestamp'])){
             $lastupdate = new \DateTime($virtualServer->getOvzSettingsArray()['Timestamp']);
             if ($lastupdate->diff(new \DateTime())->format('%s') <= 10) return true;
         }
-        
+
         // no pending needed because job reads only    
         $params = array('UUID'=>$virtualServer->getOvzUuid());
-        $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
-         
-        // save settings to virtual server
-        $this->virtualServerSettingsSave($job,$virtualServer);
-
-        return $job;
-    }
-    
-    /**
-    * execute ovz_statistics_info job
-    * 
-    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
-    * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
-    * @throws \Exceptions
-    */
-    protected function tryOvzStatisticInfo($virtualServer){
+        $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_all_info',$params);
         
-        // check if update is realy needed
-        if(!empty($virtualServer->getOvzStatisticsArray()['Timestamp'])){
-            $lastupdate = new \DateTime($virtualServer->getOvzStatisticsArray()['Timestamp']);
-            if ($lastupdate->diff(new \DateTime())->format('%s') <= 10) return true;
-        }
-                
-        // no pending needed because job reads only    
-        $params = array('UUID'=>$virtualServer->getOvzUuid());
-        $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_statistics_info',$params);
-         
         // save settings to virtual server
-        $virtualServer->setOvzStatistics($job->getRetval());
-
-        return $job;
-    }
+        $this->trySaveAllInfo($job,$virtualServer);
+        
+    }    
 
     /**
     * execute ovz_start_vs job
@@ -1271,13 +1234,49 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         return; 
     }
 
+    /**
+    * try to save all infos from ovz_all_info job to virtual server
+    * 
+    * @param \RNTForest\core\models\Jobs $job
+    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
+    * 
+    * @throws \Exceptions
+    */
+    public static function trySaveAllInfo($job,$virtualServer){
+        // save settings
+        $retval = $job->getRetval(true);
+        $uuid = $virtualServer->getOvzUuid();
+
+        $virtualServer->setOvzStatistics($retval['GuestStatistics'][$uuid]);
+        $settings = $retval['GuestInfo'][$uuid];
+        $virtualServer->setOvzSettings(json_encode($settings));
+        self::virtualServerSettingsAssign($virtualServer,$settings);
+
+        if ($virtualServer->update() === false) {
+            $messages = $virtualServer->getMessages();
+            foreach ($messages as $message) {
+                \Phalcon\Di::getDefault()->get('flashSession')->warning($message);
+            }
+            $message = self::translate("virtualserver_update_failed");
+            throw new \Exception($message.$virtualServer->getName());
+        }
+    }
+    
+    /**
+    * try to save settings from jobs to virtual server
+    * 
+    * @param \RNTForest\core\models\Jobs $job
+    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
+    * 
+    * @throws \Exceptions
+    */
     public static function virtualServerSettingsSave($job,$virtualServer){
         // save settings
         $settings = $job->getRetval(true);
         $virtualServer->setOvzSettings($job->getRetval());
         self::virtualServerSettingsAssign($virtualServer,$settings);
 
-        if ($virtualServer->save() === false) {
+        if ($virtualServer->update() === false) {
             $messages = $virtualServer->getMessages();
             foreach ($messages as $message) {
                 \Phalcon\Di::getDefault()->get('flashSession')->warning($message);
@@ -1315,8 +1314,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->tryCheckOvzEnabled($virtualServer);
 
             // check last info Update..
-            $this->tryOvzListInfo($virtualServer);
-
+            $this->tryGetOvzAllInfo($virtualServer);
+            
             // prepare form fields
             $replicaFormFields = new ReplicaActivateFormFields();
             $replicaFormFields->virtual_servers_id = $virtualServersId;
@@ -1521,11 +1520,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if($replicaMaster->getOvzReplica() != 1) throw new \Exception("virtualserver_isnot_replica_master");
             
             // shutdown master
-            $this->tryOvzListInfo($replicaMaster);
+            $this->tryGetOvzAllInfo($replicaMaster);
             if($replicaMaster->getOvzState() == 'running') $this->tryStopVS($replicaMaster);
     
             // check if master and slave is stopped            
-            $this->tryOvzListInfo($replicaMaster);
+            $this->tryGetOvzAllInfo($replicaMaster);
             $replicaMasterState = $replicaMaster->getOvzState();
             if($replicaMasterState != 'stopped'){
                 throw new \Exception("virtualserver_replica_master_not_stopped");
@@ -1533,7 +1532,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     
             $replicaSlave = new VirtualServers;
             $replicaSlave = $replicaMaster->ovzReplicaId;
-            $this->tryOvzListInfo($replicaSlave);
+            $this->tryGetOvzAllInfo($replicaSlave);
             if($replicaSlave->getOvzState() != 'stopped'){
                 throw new \Exception("virtualserver_replica_slave_not_stopped");
             }
@@ -1568,7 +1567,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // update settings
-            $this->tryOvzListInfo($replicaSlave);
+            $this->tryGetOvzAllInfo($replicaSlave);
     
             $this->flashSession->success('virtualserver_replica_failover_success');
     
@@ -1656,7 +1655,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->tryCheckOvzEnabled($virtualServer);
 
             // check last info Update..
-            $this->tryOvzListInfo($virtualServer);
+            $this->tryGetOvzAllInfo($virtualServer);
 
             // prepare form fields
             $rootPasswordChangeFormFields = new RootPasswordChangeFormFields();
