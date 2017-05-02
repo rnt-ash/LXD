@@ -1040,11 +1040,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->tryCheckPermission('virtual_servers','changestate',array("item"=>$virtualServer));
             $this->tryCheckOvzEnabled($virtualServer);
 
-            // execute ovz_list_info
-            // no pending needed because job is readonly
+            // execute ovz_all_info
+            // no pending needed because job reads only
             $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
-            $this->virtualServerSettingsSave($job,$virtualServer);
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_all_info',$params);
+            $this->trySaveAllInfo($job,$virtualServer);
 
             // get OVZ Settings
             $ovzSettings = json_decode($virtualServer->getOvzSettings(),true);
@@ -1089,11 +1089,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->tryCheckPermission('virtual_servers','changestate',array("item"=>$virtualServer));
             $this->tryCheckOvzEnabled($virtualServer);
 
-            // execute ovz_list_info
-            // no pending needed because job is readonly
+            // execute ovz_all_info
+            // no pending needed because job is reads only
             $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_list_info',$params);
-            $this->virtualServerSettingsSave($job,$virtualServer);
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_all_info',$params);
+            $this->trySaveAllInfo($job,$virtualServer);
 
             // validate FORM
             $form = new VirtualServersConfigureForm();
