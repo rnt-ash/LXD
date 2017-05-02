@@ -730,24 +730,6 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     }
     
     /**
-    * Updates the OvzStatistics with a job and saves it to the model.
-    * 
-    */
-    public function updateOvzStatistics(){
-        if($this->ovz == '1'){
-            $push = $this->getDI()['push'];
-            $params = array();
-            $job = $push->executeJob($this,'ovz_hoststatistics_info',$params);
-            if($job->getDone()==2) throw new \Exception("Job (ovz_hoststatistics_info) executions failed: ".$job->getError());
-
-            // save statistics
-            $statistics = $job->getRetval(true);
-            $this->setOvzStatistics($job->getRetval());
-            $this->save();
-        }
-    }
-    
-    /**
     * Get the main IpObjects of this Server.
     * 
     * @return \RNTForest\ovz\models\IpObjects

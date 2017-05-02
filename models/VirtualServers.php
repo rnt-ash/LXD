@@ -1005,24 +1005,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
     
     /**
-    * Updates the OvzStatistics with a job and saves it to the model.
-    * 
-    */
-    public function updateOvzStatistics(){
-        if($this->PhysicalServers->getOvz() == '1'){
-            $push = $this->getDI()['push'];
-            $params = array('UUID'=>$this->getOvzUuid());
-            $job = $push->executeJob($this->PhysicalServers,'ovz_statistics_info',$params);
-            if($job->getDone()==2) throw new \Exception("Job (ovz_statistics_info) executions failed: ".$job->getError());
-
-            // save statistics
-            $statistics = $job->getRetval(true);
-            $this->setOvzStatistics($job->getRetval());
-            $this->save();
-        }
-    }
-    
-    /**
     * Get the main IpObjects of this Server.
     * 
     * @return \RNTForest\ovz\models\IpObjects

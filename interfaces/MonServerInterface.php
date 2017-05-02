@@ -57,11 +57,6 @@ interface MonServerInterface
     public function getOvzStatistics();
     
     /**
-    * Update the OvzStatistics from the real actual state.
-    */
-    public function updateOvzStatistics();
-    
-    /**
     * Refresh the entity object.
     */
     public function refresh();
