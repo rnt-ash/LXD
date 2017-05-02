@@ -147,7 +147,6 @@ class MonSystem extends \Phalcon\DI\Injectable
             
             if(!empty($monJobIds)){
                 $ids = implode(',',$monJobIds);
-                $this->logger->debug('ids are: '.json_encode($ids));
                 // delete MonRemoteLogs with nonexisting MonRemoteJobs
                 $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonRemoteLogs.mon_remote_jobs_id FROM \\RNTForest\\ovz\\models\\MonRemoteLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonRemoteJobs ON \\RNTForest\\ovz\\models\\MonRemoteLogs.mon_remote_jobs_id = \\RNTForest\\ovz\\models\\MonRemoteJobs.id WHERE \\RNTForest\\ovz\\models\\MonRemoteJobs.id IS NULL");
                 foreach($rows as $row){

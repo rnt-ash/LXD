@@ -360,6 +360,7 @@ return [
     "monitoring_monlocaldailylogsgenerator_computefailed" => "Berechnen des Durchschnitts fehlgeschlagen: ",
     "monitoring_monlocaldailylogsgenerator_delete_old_daily_log" => "Das alte Daily Log wurde gelöscht: ",
     "monitoring_monjobs_login_not_from_customer" => "Ausgewähltes Login entspricht nicht dem Kunden des Phyiscal Server",
+    "monitoring_mon_behavior_could_not_instantiate_valuestatus" => "Es konnte kein ValueStatus Objekt instanziert werden (evt. fehlen die Infos im Statistics Array)",
     // MonLocalJobs        
     "monitoring_monlocaljobs_no_valid_unit" => "Das angegebene Einheit-Argument ist nicht erlaub.",
     "monitoring_monlocaljobs_end_before_start" => "Das angegebene End-Datum darf nicht vor dem Start-Datum sein.",
