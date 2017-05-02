@@ -238,8 +238,11 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             foreach($infos['GuestInfo'] as $key=>$info){
                 // find virtual server
                 $virtualServer = VirtualServers::findFirst("ovz_uuid = '".$key."'");
-                $message = $this->translate("virtualserver_does_not_exist");
-                if (!$virtualServer) throw new \Exception($message . "UUID: " . $key);
+                if (!$virtualServer) {
+                    $message = $this->translate("virtualserver_does_not_exist");
+                    $this->flashSession->warning($message . "UUID: " . $key);
+                    continue;
+                }
                 
                 $virtualServer->setOvzSettings(json_encode($infos['GuestInfo'][$key]));
                 $virtualServer->setOvzStatistics(json_encode($infos['GuestStatistics'][$key]));
