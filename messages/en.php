@@ -381,6 +381,7 @@ return [
     "monitoring_monlocaljobs_alarm_period_digit" => "Alarm period must be a digit",
     "monitoring_monlocaljobs_message_contacts_required" => "At least one Message-Contact has to be selected",
     "monitoring_monlocaljobs_alarm_contacts_required" => "At least one Alarm-Contact has to be selected",
+    "monitoring_monlocaljobs_statistics_timestamp_to_old" => "Statistics are to old. The job will not be executed/logged this time and so will be executed when crontab starts the task again.",
     // MonRemoteJobs
     "monitoring_monremotejobs_title" => "Remote MonJobs",
     "monitoring_monremotejobs_notfound" => "No remote MonJobs found...",

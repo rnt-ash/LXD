@@ -384,6 +384,7 @@ return [
     "monitoring_monlocaljobs_alarm_period_digit" => "Alarm Intervall muss eine Zahl sein",
     "monitoring_monlocaljobs_message_contacts_required" => "Mindestens ein Benachrichtigungs-Kontak ist erforderlich",
     "monitoring_monlocaljobs_alarm_contacts_required" => "Mindestens ein Alarmierungs-Kontakt ist erforderlich",
+    "monitoring_monlocaljobs_statistics_timestamp_to_old" => "Statistiken sind zu alt. Der Job wird nicht geloggt bzw. ausgeführt in diesem Durchgang. Beim nächsten Start über Crontab wird er wieder gestartet.",
     // MonRemoteJobs
     "monitoring_monremotejobs_title" => "Remote MonJobs",
     "monitoring_monremotejobs_notfound" => "Keine Remote MonJobs gefunden...",
