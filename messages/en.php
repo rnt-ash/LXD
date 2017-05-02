@@ -180,7 +180,7 @@ return [
     "virtualserver_update_failed" => "Updating the virual server failed: .",
     "virtualserver_invalid_level" => "invalid level!",
     "virtualserver_server_not_ovz_enabled" => "Server is not OVZ enabled!",
-    "virtualserver_job_infolist_failed" => "Job (ovz_list_info) executions failed: ",
+    "virtualserver_job_infolist_failed" => "Job (ovz_all_info) executions failed: ",
     "virtualserver_info_success" => "Informations successfully updated",
     "virtualserver_job_create_failed" => "Create virtual server failed.",
     "virtualserver_job_start_failed" => "Job (ovz_start_vs) executions failed: ",

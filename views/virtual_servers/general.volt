@@ -62,6 +62,16 @@
                 {{item.fqdn}}
             </td>
         </tr>
+        {% if item.ovz == 1 %}
+        <tr>
+            <td>
+                {{ _("virtualserver_general_uuid") }}
+            </td>
+            <td>
+                {{item.ovz_uuid}}
+            </td>
+        </tr>
+        {% endif %}
         <tr>
             <td>
                 {{ _("virtualserver_general_physicalserver") }}

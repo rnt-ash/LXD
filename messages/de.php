@@ -182,7 +182,7 @@ return [
     "virtualserver_update_failed" => "Aktualisieren des virtuellen Servers fehlgeschlagen: .",
     "virtualserver_invalid_level" => "Ungültiger Level!",
     "virtualserver_server_not_ovz_enabled" => "Server ist nicht im OVZ aktiviert",
-    "virtualserver_job_infolist_failed" => "Ausführen des Jobs (ovz_list_info) fehlgeschlagen: ",
+    "virtualserver_job_infolist_failed" => "Ausführen des Jobs (ovz_all_info) fehlgeschlagen: ",
     "virtualserver_info_success" => "Informationen erfolgreich aktualisiert",
     "virtualserver_job_create_failed" => "Erstellen des virtuellen Servers fehgeschlagen.",
     "virtualserver_job_start_failed" => "Ausführen des Jobs (ovz_start_vs) fehlgeschlagen: ",
