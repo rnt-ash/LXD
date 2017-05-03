@@ -137,11 +137,11 @@ class OvzAllInfoJob extends AbstractOvzJob {
             }
         }
         $memory = array();
-        $memory[] = $meminfo["MemFree"];
-        $memory[] = explode (" ",$memory[0]);
+        $memFree = explode(" ",$meminfo["MemFree"]);
+        $cached = explode(" ",$meminfo["Cached"]);
+        // not used, so free and cached
+        $freeMb = (intval($memFree[0])+intval($cached[0]))/1024;
 
-        // convert kb to mb
-        $freebytes = $memory[0] / 1024; 
-        return $freebytes;
+        return $freeMb;
     }
 }
