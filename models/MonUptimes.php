@@ -69,84 +69,70 @@ class MonUptimes extends \RNTForest\core\models\ModelBase
     * Unique ID
     *
     * @param integer $id
-    * @return $this
     */
     public function setId($id)
     {
         $this->id = $id;
-        return $this;
     }
     
     /**
     * Remote MonJob
     *
     * @param integer $mon_jobs_remote_id
-    * @return $this
     */
     public function setMonJobsRemoteId($mon_jobs_remote_id)
     {
         $this->mon_jobs_remote_id = $mon_jobs_remote_id;
-        return $this;
     }
     
     /**
     * YearMonth
     *
     * @param integer $year_month
-    * @return $this
     */
     public function setYearMonth($year_month)
     {
         $this->year_month = $year_month;
-        return $this;
     }
     
     /**
     * Max seconds
     *
     * @param integer $max_seconds
-    * @return $this
     */
     public function setMaxSeconds($max_seconds)
     {
         $this->max_seconds = $max_seconds;
-        return $this;
     }
     
     /**
     * Up seconds
     *
     * @param integer $up_seconds
-    * @return $this
     */
     public function setUpSeconds($up_seconds)
     {
         $this->up_seconds = $up_seconds;
-        return $this;
     }
     
     /**
     * Up percentage
     *
     * @param integer $up_percentage
-    * @return $this
     */
     public function setUpPercentage($up_percentage)
     {
         $this->up_percentage = $up_percentage;
-        return $this;
     }
     
     /**
     * Modified
     *
     * @param integer $modified
-    * @return $this
     */
     public function setModified($modified)
     {
         $this->modified = $modified;
-        return $this;
     }
     
     

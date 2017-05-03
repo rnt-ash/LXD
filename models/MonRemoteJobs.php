@@ -161,24 +161,20 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     * Unique ID
     *
     * @param integer $id
-    * @return $this
     */
     public function setId($id)
     {
         $this->id = $id;
-        return $this;
     }
     
     /**
     * ID of the Server
     * 
     * @param integer $serverId
-    * @return $this
     */
     public function setServerId($serverId)
     {
         $this->server_id = $serverId;
-        return $this;
     }
     
     /**
@@ -189,223 +185,186 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     public function setServerClass($serverClass)
     {
         $this->server_class = $serverClass;
-        return $this;
     }
        
     /**
     * Main IP
     * 
     * @param string $mainIp
-    * @return $this
     */
     public function setMainIp($mainIp)
     {
         $this->main_ip = $mainIp;
-        return $this;
     }
     
     /**
     * Namespace and classname of the behavior class
     * 
     * @param string $monBehaviorClass
-    * @return $this
     */
     public function setMonBehaviorClass($monBehaviorClass)
     {
         $this->mon_behavior_class = $monBehaviorClass;
-        return $this;
     }
     
     /**
     * Period in minutes
     * 
     * @param integer $monServicesCase
-    * @return $this
     */
     public function setPeriod($period)
     {
         $this->period = $period;
-        return $this;
     }
     
     /**
     * Status
     * 
     * @param string $status
-    * @return $this
     */
     public function setStatus($status)
     {
         $this->status = $status;
-        return $this;
     }
     
     /**
     * Last status change
     * 
     * @param string $lastStatusChange
-    * @return $this
     */
     public function setLastStatusChange($lastStatusChange)
     {
         $this->last_status_change = $lastStatusChange;
-        return $this;
     }
     
     /**
     * Uptime
     * 
     * @param string $uptime
-    * @return $this
     */
     public function setUptime($uptime)
     {
         $this->uptime = $uptime;
-        return $this;
     }
     
     /**
     * Active
     *
     * @param integer $active
-    * @return $this
     */
     public function setActive($active)
     {
         $this->active = $active;
-        return $this;
     }
     
     /**
     * Healing
     *
     * @param integer $healing
-    * @return $this
     */
     public function setHealing($healing)
     {
         $this->healing = $healing;
-        return $this;
     }
     
     /**
     * Alarm
     * 
     * @param integer $alarm
-    * @return $this
     */
     public function setAlarm($alarm)
     {
         $this->alarm = $alarm;
-        return $this;
     }
     
     /**
     * Alarmed
     * 
     * @param integer $alarmed
-    * @return $this
     */
     public function setAlarmed($alarmed)
     {
         $this->alarmed = $alarmed;
-        return $this;
     } 
     
     /**
     * Muted
     * 
     * @param integer $muted
-    * @return $this
     */
     public function setMuted($muted)
     {
         $this->muted = $muted;
-        return $this;
     }
     
     /**
     * Last alarm
     * 
     * @param string $lastAlarm
-    * @return $this
     */
     public function setLastAlarm($lastAlarm)
     {
         $this->last_alarm = $lastAlarm;
-        return $this;
     }
     
     /**
     * Alarm period in minutes
     * 
     * @param mixed $alarmPeriodInMinutes
-    * @return $this
     */
     public function setAlarmPeriod($alarmPeriod)
     {
         $this->alarm_period = $alarmPeriod;
-        return $this;
     }
     
     /**
     * Message Contacts
     * 
     * @param string $monContactsMessage
-    * @return $this
     */
     public function setMonContactsMessage($monContactsMessage)
     {
         $this->mon_contacts_message = $monContactsMessage;
-        return $this;
     }
     
     /**
     * Alarm Contacts
     * 
     * @param string $monContactsAlarm
-    * @return $this
     */
     public function setMonContactsAlarm($monContactsAlarm)
     {
         $this->mon_contacts_alarm = $monContactsAlarm;
-        return $this;
     }
     
     /**
     * Last run
     * 
     * @param string $lastRun
-    * @return $this
     */
     public function setLastRun($lastRun)
     {
         $this->last_run = $lastRun;
-        return $this;
     }
     
     /**
     * Modified
     * 
     * @param string $modified
-    * @return $this
     */
     public function setModified($modified)
     {
         $this->modified = $modified;
-        return $this;
     }
     
     /**
     * Set the transient recent healjob id
     * 
     * @param integer $healJobId
-    * @return MonRemoteJobs
     */
     public function setRecentHealJobId($healJobId)
     {
         $this->recent_healjob_id = $healJobId;
-        return $this;
     }
     
     /**

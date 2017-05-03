@@ -145,207 +145,160 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     * Method to set the value of field id
     *
     * @param integer $id
-    * @return $this
     */
     public function setId($id)
     {
         $this->id = $id;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field name
     *
     * @param string $name
-    * @return $this
     */
     public function setName($name)
     {
         $this->name = $name;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field description
     *
     * @param string $description
-    * @return $this
     */
     public function setDescription($description)
     {
         $this->description = $description;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field customers_id
     *
     * @param integer $customers_id
-    * @return $this
     */
     public function setCustomersId($customers_id)
     {
         $this->customers_id = $customers_id;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field colocations_id
     *
     * @param integer $colocations_id
-    * @return $this
     */
     public function setColocationsId($colocations_id)
     {
         $this->colocations_id = $colocations_id;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field root_public_key
     *
     * @param string $root_public_key
-    * @return $this
     */
     public function setRootPublicKey($root_public_key)
     {
         $this->root_public_key = $root_public_key;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field job_public_key
     *
     * @param string $jobpublic_key
-    * @return $this
     */
     public function setJobPublicKey($job_public_key)
     {
         $this->job_public_key = $job_public_key;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field ovz
     *
     * @param integer $ovz
-    * @return $this
     */
     public function setOvz($ovz)
     {
         $this->ovz = $ovz;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field ovz_settings
     *
     * @param string $ovz_settings
-    * @return $this
     */
     public function setOvzSettings($ovz_settings)
     {
         $this->ovz_settings = $ovz_settings;
-
-        return $this;
     }
 
     /**
     * OpenVZ statistics as JSON
     *
     * @param string $ovz_statistics
-    * @return $this
     */
     public function setOvzStatistics($ovz_statistics)
     {
         $this->ovz_statistics = $ovz_statistics;
-        return $this;
     }
 
     /**
     * Method to set the value of field fqdn
     *
     * @param string $fqdn
-    * @return $this
     */
     public function setFqdn($fqdn)
     {
         $this->fqdn = $fqdn;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field core
     *
     * @param integer $core
-    * @return $this
     */
     public function setCore($core)
     {
         $this->core = $core;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field memory
     *
     * @param integer $memory
-    * @return $this
     */
     public function setMemory($memory)
     {
         $this->memory = $memory;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field space
     *
     * @param integer $space
-    * @return $this
     */
     public function setSpace($space)
     {
         $this->space = $space;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field activation_date
     *
     * @param string $activation_date
-    * @return $this
     */
     public function setActivationDate($activation_date)
     {
         $this->activation_date = $activation_date;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field modified
     *
     * @param string $modified
-    * @return $this
     */
     public function setModified($modified)
     {
         $this->modified = $modified;
-
-        return $this;
     }
 
     /**

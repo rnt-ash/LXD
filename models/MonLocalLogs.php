@@ -51,48 +51,40 @@ class MonLocalLogs extends \RNTForest\core\models\ModelBase
     * Unique ID
     *
     * @param integer $id
-    * @return $this
     */
     public function setId($id)
     {
         $this->id = $id;
-        return $this;
     }
     
     /**
     * ID of the monjob
     * 
     * @param integer $monJobsLocalId
-    * @return $this
     */
     public function setMonJobsLocalId($monJobsLocalId)
     {
         $this->mon_jobs_local_id = $monJobsLocalId;
-        return $this;
     }
     
     /**
     * Value
     * 
     * @param string $value
-    * @return $this
     */
     public function setValue($value)
     {
         $this->value = $value;
-        return $this;
     }
     
     /**
     * Modified
     * 
     * @param string $modified
-    * @return $this
     */
     public function setModified($modified)
     {
         $this->modified = $modified;
-        return $this;
     }
     
     /**

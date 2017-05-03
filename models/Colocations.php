@@ -86,82 +86,63 @@ class Colocations extends \RNTForest\core\models\ModelBase implements \RNTForest
     * Method to set the value of field id
     *
     * @param integer $id
-    * @return $this
     */
     public function setId($id) {
         $this->id = $id;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field customers_id
     *
     * @param integer $customers_id
-    * @return $this
     */
     public function setCustomersId($customers_id)
     {
         $this->customers_id = $customers_id;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field name
     *
     * @param string $name
-    * @return $this
     */
     public function setName($name)
     {
         $this->name = $name;
-
-        return $this;
     }
 
     /**
     * @param string $description
-    * @return $this
     */
     public function setDescription($description) {
         $this->description = $description;
-        return $this;
     }
 
     /**
     * @param string $location
-    * @return $this
     */
     public function setLocation($location) {
         $this->location = $location;
-        return $this;
     }
 
     /**
     * Method to set the value of field activation_date
     *
     * @param string $activation_date
-    * @return $this
     */
     public function setActivationDate($activation_date)
     {
         $this->activation_date = $activation_date;
-
-        return $this;
     }
 
     /**
     * Method to set the value of field modified
     *
     * @param string $modified
-    * @return $this
     */
     public function setModified($modified)
     {
         $this->modified = $modified;
-
-        return $this;
     }
 
     /**

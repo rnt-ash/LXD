@@ -57,60 +57,50 @@ class MonRemoteLogs extends \RNTForest\core\models\ModelBase
     * Unique ID
     *
     * @param integer $id
-    * @return $this
     */
     public function setId($id)
     {
         $this->id = $id;
-        return $this;
     }
     
     /**
     * ID of the monjob
     * 
     * @param integer $monJobsRemoteId
-    * @return $this
     */
     public function setMonJobsRemoteId($monJobsRemoteId)
     {
         $this->mon_jobs_remote_id = $monJobsRemoteId;
-        return $this;
     }
     
     /**
     * Value
     * 
     * @param string $value
-    * @return $this
     */
     public function setValue($value)
     {
         $this->value = $value;
-        return $this;
     }
     
     /**
     * ID of the healJob
     * 
     * @param integer $healJob
-    * @return $this
     */
     public function setHealJob($healJob)
     {
         $this->heal_job = $healJob;
-        return $this;
     }
     
     /**
     * Modified
     * 
     * @param string $modified
-    * @return $this
     */
     public function setModified($modified)
     {
         $this->modified = $modified;
-        return $this;
     }
     
     /**

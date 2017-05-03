@@ -211,7 +211,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * Name of the virtual server
     *
     * @param string $name
-    * @return $this
     */
     public function setName($name)
     {
@@ -222,7 +221,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * Description
     *
     * @param string $description
-    * @return $this
     */
     public function setDescription($description)
     {
@@ -233,7 +231,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * Foreign key: Customers
     *
     * @param integer $customers_id
-    * @return $this
     */
     public function setCustomersId($customers_id)
     {
@@ -244,7 +241,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * Foreign key: PhysicalServers
     *
     * @param integer $physical_servers_id
-    * @return $this
     */
     public function setPhysicalServersId($physical_servers_id)
     {
@@ -255,7 +251,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * Public key (OpenSSL)
     *
     * @param string $job_public_key
-    * @return $this
     */
     public function setJobPublicKey($job_public_key)
     {
@@ -266,7 +261,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * Virtual server is OpenVZ guest
     *
     * @param int $ovz
-    * @return $this
     */
     public function setOvz($ovz)
     {
@@ -277,7 +271,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * UUID of the virtual server
     *
     * @param string $ovz_uuid
-    * @return $this
     */
     public function setOvzUuid($ovz_uuid)
     {
@@ -288,7 +281,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * VS Type of the virtual server
     *
     * @param string $ovz_vstyp CT or VM
-    * @return $this
     */
     public function setOvzVstype($ovz_vstyp)
     {
@@ -299,7 +291,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * OpenVZ settings as JSON
     *
     * @param string $ovz_settings
-    * @return $this
     */
     public function setOvzSettings($ovz_settings)
     {
@@ -310,7 +301,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * OpenVZ statistics as JSON
     *
     * @param string $ovz_statistics
-    * @return $this
     */
     public function setOvzStatistics($ovz_statistics)
     {
@@ -321,7 +311,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * OpenVZ snapshots as JSON
     *
     * @param string $ovz_snapshots
-    * @return $this
     */
     public function setOvzSnapshots($ovz_snapshots)
     {
@@ -332,7 +321,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * OpenVZ guest has replica
     *
     * @param integer $ovz_replica 0=off, 1=master, 2=slave
-    * @return $this
     */
     public function setOvzReplica($ovz_replica)
     {
@@ -343,7 +331,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * Foreign key to replica slave/master
     *
     * @param integer $ovz_replica_id
-    * @return $this
     */
     public function setOvzReplicaId($ovz_replica_id)
     {
@@ -354,7 +341,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * Foreign key to replica host
     *
     * @param integer $ovz_replica_host
-    * @return $this
     */
     public function setOvzReplicaHost($ovz_replica_host)
     {
@@ -365,7 +351,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * cron entries to start teh replica preiodical
     *
     * @param string $ovz_replica_cron
-    * @return $this
     */
     public function setOvzReplicaCron($ovz_replica_cron)
     {
@@ -376,7 +361,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * date of the replica last run
     *
     * @param string $ovz_replica_lastrun
-    * @return $this
     */
     public function setOvzReplicaLastrun($ovz_replica_lastrun)
     {
@@ -387,7 +371,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * date of the claculated next run of the replica
     *
     * @param string $ovz_replica_nextrun
-    * @return $this
     */
     public function setOvzReplicaNextrun($ovz_replica_nextrun)
     {
@@ -398,7 +381,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * replica status
     *
     * @param integer $ovz_replica_status 0:off, 1:idle, 2:sync, 3:initial, 9:error
-    * @return $this
     */
     public function setOvzReplicaStatus($ovz_replica_status)
     {

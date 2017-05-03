@@ -57,24 +57,20 @@ class MonLocalDailyLogs extends \RNTForest\core\models\ModelBase
     * Unique ID
     *
     * @param integer $id
-    * @return $this
     */
     public function setId($id)
     {
         $this->id = $id;
-        return $this;
     }
     
     /**
     * Remote MonJob
     *
     * @param integer $mon_jobs_local_id
-    * @return $this
     */
     public function setMonJobsLocalId($mon_jobs_local_id)
     {
         $this->mon_jobs_local_id = $mon_jobs_local_id;
-        return $this;
     }
     
     /**
@@ -82,36 +78,30 @@ class MonLocalDailyLogs extends \RNTForest\core\models\ModelBase
     * e.g. 2017-03-22
     *
     * @param string $day
-    * @return $this
     */
     public function setDay($day)
     {
         $this->day = $day;
-        return $this;
     }
     
     /**
     * Value
     * 
     * @param string $value
-    * @return MonLocalDailyLogs
     */
     public function setValue($value)
     {
         $this->value = $value;
-        return $this;
     }
     
     /**
     * Modified
     *
     * @param integer $modified
-    * @return $this
     */
     public function setModified($modified)
     {
         $this->modified = $modified;
-        return $this;
     }
     
     
