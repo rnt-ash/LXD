@@ -24,27 +24,23 @@ use RNTForest\ovz\datastructures\MonLocalValueStatus;
 use RNTForest\ovz\models\MonLocalJobs;
 use RNTForest\core\libraries\Helpers;
 
-class DiskspacefreeVirtMonLocalBehavior implements MonLocalBehaviorInterface{
+class MemoryfreeMonLocalBehavior implements MonLocalBehaviorInterface{
     
     /**
     * Returns the Status and Value of a MonLocalLogs in use of the given arguments.
     * 
     * @param string $ovzStatistics JSON
+    * @param string $monBehaviorParams JSON
     * @param numeric $warnvalue
     * @param numeric $maxvalue
     * @return \RNTForest\ovz\utilities\MonLocalValueStatus
     */
-    public function execute($ovzStatistics,$warnvalue,$maxvalue){                
+    public function execute($ovzStatistics,$monBehaviorParams,$warnvalue,$maxvalue){                
         $valuestatus = null;
         $ovzStatistics = json_decode($ovzStatistics,true);
-        if(is_array($ovzStatistics) 
-        && key_exists('guest',$ovzStatistics)
-        && is_array($ovzStatistics['guest'])
-        && key_exists('fs0',$ovzStatistics['guest'])
-        && is_array($ovzStatistics['guest']['fs0'])
-        && key_exists('diskspace_free_gb',$ovzStatistics['guest']['fs0'])
-        ){
-            $value = $ovzStatistics['guest']['fs0']['diskspace_free_gb'];
+        $monBehaviorParams = json_decode($monBehaviorParams,true);
+        try{
+            $value = Helpers::getSubPartOfArray($monBehaviorParams,$ovzStatistics);    
             $status = MonLocalJobs::$STATENORMAL;
             if($value < $maxvalue){
                 $status = MonLocalJobs::$STATEMAXIMAL;
@@ -52,7 +48,11 @@ class DiskspacefreeVirtMonLocalBehavior implements MonLocalBehaviorInterface{
                 $status = MonLocalJobs::$STATEWARNING;
             }
             $valuestatus = new MonLocalValueStatus($value,$status);            
+
+        }catch(\Exception $e){
+            $this->getLogger()->error('Problem while getting value of ovzStatistics: '.$e->getMessage());        
         }
+        
         return $valuestatus;
     }
     
@@ -62,13 +62,21 @@ class DiskspacefreeVirtMonLocalBehavior implements MonLocalBehaviorInterface{
     * @param numeric $ovzStatistics JSON
     * @param numeric $warnvalue
     * @param numeric $maxvalue
+    * @param string $monBehaviorParams JSON
     * @return string
     */
-    public function genThresholdString($actvalue,$warnvalue,$maxvalue){
+    public function genThresholdString($actvalue,$warnvalue,$maxvalue,$monBehaviorParams){
         $content = '';
-        $content .= 'Value is now: '.Helpers::formatBytesHelper(Helpers::convertToBytes($actvalue.'GB')).'<br />';
-        $content .= 'Warnvalue is: '.Helpers::formatBytesHelper(Helpers::convertToBytes($warnvalue.'GB')).'<br />';
-        $content .= 'Maxvalue is: '.Helpers::formatBytesHelper(Helpers::convertToBytes($maxvalue.'GB')).'<br />';
+        $content .= 'Value is now: '.Helpers::formatBytesHelper(Helpers::convertToBytes($actvalue.'MB')).'<br />';
+        $content .= 'Warnvalue is: '.Helpers::formatBytesHelper(Helpers::convertToBytes($warnvalue.'MB')).'<br />';
+        $content .= 'Maxvalue is: '.Helpers::formatBytesHelper(Helpers::convertToBytes($maxvalue.'MB')).'<br />';
         return $content;
+    }
+    
+    /**
+    * @return \Phalcon\Logger\AdapterInterface
+    */
+    private function getLogger(){
+        return  \Phalcon\Di::getDefault()->getShared('logger');
     }
 }

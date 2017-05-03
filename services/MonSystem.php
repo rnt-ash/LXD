@@ -92,6 +92,7 @@ class MonSystem extends \Phalcon\DI\Injectable
                     $this->logger->warning("runMonLocalJobs execute Job-ID ".$monJob->getId().": ".$e->getMessage());
                 }
                 if($monJob->getStatus() != 'normal'){
+                    $this->logger->notice('Job will be alarmed: '.$monJob->getId());
                     $this->getMonAlarm()->notifyMonLocalJobs($monJob);                
                 }
             }

@@ -22,36 +22,37 @@ namespace RNTForest\ovz\utilities\monbehaviors;
 use RNTForest\ovz\interfaces\MonLocalBehaviorInterface;
 use RNTForest\ovz\datastructures\MonLocalValueStatus;
 use RNTForest\ovz\models\MonLocalJobs;
+use RNTForest\core\libraries\Helpers;
 
-class CpuloadVirtMonLocalBehavior implements MonLocalBehaviorInterface{
+class DiskspacefreeMonLocalBehavior implements MonLocalBehaviorInterface{
     
     /**
     * Returns the Status and Value of a MonLocalLogs in use of the given arguments.
     * 
     * @param string $ovzStatistics JSON
+    * @param string $monBehaviorParams JSON
     * @param numeric $warnvalue
     * @param numeric $maxvalue
     * @return \RNTForest\ovz\utilities\MonLocalValueStatus
     */
-    public function execute($ovzStatistics,$warnvalue,$maxvalue){                
+    public function execute($ovzStatistics,$monBehaviorParams,$warnvalue,$maxvalue){                
         $valuestatus = null;
         $ovzStatistics = json_decode($ovzStatistics,true);
-        if(is_array($ovzStatistics) 
-        && key_exists('guest',$ovzStatistics)
-        && is_array($ovzStatistics['guest'])
-        && key_exists('cpu',$ovzStatistics['guest'])
-        && is_array($ovzStatistics['guest']['cpu'])
-        && key_exists('usage',$ovzStatistics['guest']['cpu'])
-        ){
-            $value = $ovzStatistics['guest']['cpu']['usage'];
+        $monBehaviorParams = json_decode($monBehaviorParams,true);
+        try{
+            $value = Helpers::getSubPartOfArray($monBehaviorParams,$ovzStatistics);    
             $status = MonLocalJobs::$STATENORMAL;
-            if($value > $maxvalue){
+            if($value < $maxvalue){
                 $status = MonLocalJobs::$STATEMAXIMAL;
-            }elseif($value > $warnvalue){
+            }elseif($value < $warnvalue){
                 $status = MonLocalJobs::$STATEWARNING;
             }
             $valuestatus = new MonLocalValueStatus($value,$status);            
+
+        }catch(\Exception $e){
+            $this->getLogger()->error('Problem while getting value of ovzStatistics: '.$e->getMessage());        
         }
+        
         return $valuestatus;
     }
     
@@ -61,13 +62,22 @@ class CpuloadVirtMonLocalBehavior implements MonLocalBehaviorInterface{
     * @param numeric $ovzStatistics JSON
     * @param numeric $warnvalue
     * @param numeric $maxvalue
+    * @param string $monBehaviorParams JSON
     * @return string
     */
-    public function genThresholdString($actvalue,$warnvalue,$maxvalue){
+    public function genThresholdString($actvalue,$warnvalue,$maxvalue,$monBehaviorParams){
         $content = '';
-        $content .= 'Value is now: '.$actvalue.'%<br />';
-        $content .= 'Warnvalue is: '.$warnvalue.'%<br />';
-        $content .= 'Maxvalue is: '.$maxvalue.'%<br />';
+        $content .= 'MonBehaviorParams: '.$monBehaviorParams.'<br />';
+        $content .= 'Value is now: '.Helpers::formatBytesHelper(Helpers::convertToBytes($actvalue.'GB')).'<br />';
+        $content .= 'Warnvalue is: '.Helpers::formatBytesHelper(Helpers::convertToBytes($warnvalue.'GB')).'<br />';
+        $content .= 'Maxvalue is: '.Helpers::formatBytesHelper(Helpers::convertToBytes($maxvalue.'GB')).'<br />';
         return $content;
+    }
+    
+    /**
+    * @return \Phalcon\Logger\AdapterInterface
+    */
+    private function getLogger(){
+        return  \Phalcon\Di::getDefault()->getShared('logger');
     }
 }

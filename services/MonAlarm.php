@@ -252,7 +252,7 @@ class MonAlarm extends \Phalcon\DI\Injectable
         );
         $behaviorclass = $monJob->getMonBehaviorClass();
         $monBehavior = new $behaviorclass();
-        $content .= $monBehavior->genThresholdString($newestMonLog->getValue(),$monJob->getWarningValue(),$monJob->getMaximalValue());
+        $content .= $monBehavior->genThresholdString($newestMonLog->getValue(),$monJob->getWarningValue(),$monJob->getMaximalValue(),$monJob->getMonBehaviorParams());
         return $content;
     }
     
