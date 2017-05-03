@@ -93,6 +93,10 @@ class AllInfoUpdater{
         $durationUpdate = (microtime(true))-$beforeUpdate;
         AllInfoUpdater::getLogger()->debug('duration of for update '.$durationUpdate.' seconds');
         
+        // delete Job if it was successful to cleanup db
+        if($job->getDone() == 1){
+            $job->delete();
+        }
     }
     
     /**
