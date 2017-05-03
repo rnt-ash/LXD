@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS `mon_local_jobs` (
   `server_id` int(11) NOT NULL,
   `server_class` varchar(100) NOT NULL,
   `mon_behavior_class` varchar(100) NOT NULL,
+  `mon_behavior_params` varchar(100) NOT NULL,
   `period` int(11) NOT NULL DEFAULT 5,
   `status` varchar(16) DEFAULT 'normal',
   `last_status_change` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',

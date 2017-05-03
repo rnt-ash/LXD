@@ -58,6 +58,12 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     
     /**
     * 
+    * @var string
+    */
+    protected $mon_behavior_params;    
+    
+    /**
+    * 
     * @var int
     */
     protected $period;
@@ -186,6 +192,16 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     public function setMonBehaviorClass($monBehaviorClass)
     {
         $this->mon_behavior_class = $monBehaviorClass;
+    }
+    
+    /**
+    * JSON encoded Array behavior params
+    * 
+    * @param string $monBehaviorParams
+    */
+    public function setMonBehaviorParams($monBehaviorParams)
+    {
+        $this->mon_behavior_params = $monBehaviorParams;
     }
     
     /**
@@ -374,6 +390,16 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     public function getMonBehaviorClass()
     {
         return $this->mon_behavior_class;
+    }
+    
+    /**
+    * returns mon behavior params
+    * 
+    * @return string
+    */
+    public function getMonBehaviorParams()
+    {
+        return $this->mon_behavior_params;
     }
     
     /**
@@ -581,7 +607,7 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
                 throw new \Exception($this->translate("monitoring_mon_behavior_not_implements_interface"));    
             }    
             
-            $valuestatus = $behavior->execute($ovzStatistics,$this->warning_value,$this->maximal_value);
+            $valuestatus = $behavior->execute($ovzStatistics,$this->mon_behavior_params,$this->warning_value,$this->maximal_value);
             if($valuestatus == null){
                 throw new \Exception($this->translate("monitoring_mon_behavior_could_not_instantiate_valuestatus"));
             }
