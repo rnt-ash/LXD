@@ -62,17 +62,20 @@ class OvzAllInfoJob extends AbstractOvzJob {
                 $exitstatus = $this->PrlctlCommands->statisticsInfo($vs['uuid']);
                 if($exitstatus > 0) return $this->commandFailed("Getting guest statistics failed",$exitstatus);
                 $info['GuestStatistics'][$vs['uuid']] = json_decode($this->PrlctlCommands->getJson(),true);
+                $this->array_unshift_assoc($info['GuestStatistics'][$vs['uuid']],'FsInfo',$this->genGuestFsInfo($info['GuestStatistics'][$vs['uuid']]));
                 $this->array_unshift_assoc($info['GuestStatistics'][$vs['uuid']],'Timestamp',date("Y-m-d H:i:s"));
             }
 
             // Host Statistics
             $hoststats = array();
             $hoststats['Timestamp'] = date("Y-m-d H:i:s");
+            $hoststats['FsInfo'] = $this->genHostFsInfo();
             $hoststats['cpu_load'] = $this->checkCPULoad();
             $hoststats['memory_free_mb'] = $this->checkMemoryFree();
             $hoststats['diskspace_free_gb'] = $this->checkDiskspaceFree();
             $info['HostStatistics'] = $hoststats;
 
+            
             // everything seems ok            
             $this->Done = 1;    
             $this->Retval = json_encode($info);
@@ -92,6 +95,85 @@ class OvzAllInfoJob extends AbstractOvzJob {
         return $arr;
     }
 
+    /**
+    * Gens the FsInfo Array for the Host
+    * 
+    * @return array
+    */
+    private function genHostFsInfo() {
+        $parts = [];
+            
+        if($this->Context->getCli()->execute('df --output="source,target,size,used,avail"') == 0){
+            $output = $this->Context->getCli()->getOutput();
+            
+            // kick out the first element, it is the header which we do not need
+            array_shift($output);
+            
+            foreach($output as $line){
+                $splits = preg_split('/\s+/', $line);
+                // make a warning if there ar not 5 splits
+                if( count($splits) != 5){
+                    $this->Warning .= 'Problem generate HostFsInfo while handling line: \''.json_encode($line)."\'\n";    
+                }
+                
+                // only take /dev but ignore /dev/ploop 
+                if(strpos($splits[0],'/dev/') !== false
+                AND strpos($splits[0],'/dev/ploop') === false
+                ){
+                    $temp['source'] = $splits[0];
+                    $temp['target'] = $splits[1];
+                    $temp['size_gb'] = $splits[2]/1024/1024;
+                    $temp['used_gb'] = $splits[3]/1024/1024;
+                    $temp['free_gb'] = $splits[4]/1024/1024;
+                    $parts[$temp['target']] = $temp;
+                }
+            }
+        }
+
+        return $parts;
+    }
+    
+    /**
+    * Gens the FsInfo Array for a Guest (from the given array)
+    * 
+    * @param array $virtualArray
+    * @return array
+    */
+    private function genGuestFsInfo($virtualArray) {
+        $disk = [];
+        try{
+            if(key_exists('guest',$virtualArray)
+            && is_array($virtualArray['guest'])
+            && key_exists('fs0',$virtualArray['guest'])
+            && is_array($virtualArray['guest']['fs0'])
+            ){
+                $subArray = $virtualArray['guest']['fs0'];    
+                if(!key_exists('name',$subArray)
+                || !key_exists('total',$subArray)
+                || !key_exists('free',$subArray)
+                ){
+                    throw new \Exception('needed keys in fs0 do not exist in '.json_encode($subArray));
+                }
+                
+                $temp['source'] = $subArray['name'];
+                $temp['target'] = '/';
+                $temp['size_gb'] = $subArray['total']/1024/1024;
+                $temp['used_gb'] = null;
+                $temp['free_gb'] = $subArray['free']/1024/1024;
+                
+                $temp['used_gb'] = $temp['size_gb']-$temp['free_gb'];
+                
+                $disk[$temp['target']] = $temp;
+            }else{
+                throw new \Exception('needed keys for access to fs0 dont exist in '.json_encode($virtualArray)); 
+            }   
+        }catch(\Exception $e){
+            $this->Warning .= "Prooblem generate GuestFsInfo: ".$e->getMessage()."\n"; 
+        }
+        
+        return $disk;
+    }
+    
     /**
     * Checks free Diskspace
     * 
