@@ -273,7 +273,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             // Print all the Information given in the arrays
             // If there is no reservations, then print message
             if($ipReserved == null && $ipReservedNet == null){
-                $this->PDF->Cell(0,0,$this->translate("colocations_pdf_no_ipobjects"), 0, 2, '',false);
+                $this->PDF->Cell(0,0,$this->translate("colocations_pdf_no_ipobjects"), 0, 2, '', false, '', 1);
                 $this->PDF->Output('ipobjects.pdf', 'I');
                 die();
             }
@@ -281,8 +281,8 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             // foreach all subnets and prints out the subnet-IP                                  
             foreach($ipReservedNet as $reservedNet){
                 $this->PDF->SetFont('','B',11);
-                $this->PDF->Cell(0,0,$reservedNet->value1 ." /" .$reservedNet->value2 , 0, 2, '',false);
-                $this->PDF->SetFont('','',11);
+                $this->PDF->Cell(0,0,$reservedNet->value1 ." /" .$reservedNet->value2, 0, 2, '', false, '', 1);
+                $this->PDF->SetFont('','',10);
                 
                 // Checks if there is a subreservation for the IP, so i gets just printed once
                 foreach($ipAllocated as $allocated){
@@ -295,34 +295,39 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
                     // Printing the IP if its not part of any subreservation and if its part of the colocation
                     if($allocated->isPartOf($reservedNet) && $partOfOther == false){
                         $Servername = $allocated->getServerClass()::findFirstById($allocated->getServerId());
-                        if(!in_array($allocated, $printed))$this->PDF->Cell(0,0,$allocated->value1 ." - " .$Servername->name, 0, 2, '',false);
+                        if(!in_array($allocated, $printed))$this->PDF->Cell(0,0,$allocated->value1 ." - " .$Servername->name, 0, 2, '', false, '', 1);
                         $printed[] = $allocated;
                     }
                     $partOfOther = false;
                 }
-            
-                // Foreach subreservation and printing out the subreservation range
-                foreach($ipReserved as $reserved){
-                    $this->PDF->SetFont('','B',11);
-                    $this->PDF->Ln(1);
-                    if(!in_array($reserved, $printed) && $reserved->isPartOf($reservedNet)){
-                        $this->PDF->Cell(0,0,$reserved->value1 ." - " .$reserved->value2 , 0, 2, '',false);
-                        $printed[] = $reserved;    
-                    }
-                    $this->PDF->SetFont('','',11);
+            }
+            // Foreach subreservation and printing out the subreservation range
+            foreach($ipReserved as $reserved){
+                $this->PDF->SetFont('','B',11);
+                $this->PDF->Ln(1);
+                if(!in_array($reserved, $printed) /*&& $reserved->isPartOf($reservedNet)*/){
+                    $this->PDF->Cell(0,0,$reserved->value1 ."-" .$reserved->value2 ." - " .$reserved->comment, 0, 2, '', false, '', 1);
+                    $printed[] = $reserved;    
+                }
                     
-                    // Checking if the IP is part of the subreservation and prints it out
-                    foreach($ipAllocated as $allocated){
-                        if($allocated->isPartOf($reserved) && $reserved->isPartOf($reservedNet)){
-                            $Servername = $allocated->getServerClass()::findFirstById($allocated->getServerId());
-                            if(!in_array($allocated, $printed))$this->PDF->Cell(0,0,$allocated->value1 ." - " .$Servername->name, 0, 2, '',false);
-                            $printed[] = $allocated;
+                // Checking if the IP is part of the subreservation and prints it out
+                foreach($ipAllocated as $allocated){
+                    $this->PDF->SetFont('','',10);
+                    if($allocated->isPartOf($reserved) /*&& $reserved->isPartOf($reservedNet)*/){
+                        $Servername = $allocated->getServerClass()::findFirstById($allocated->getServerId());
+                        if(!in_array($allocated, $printed)){
+                            if($allocated->comment != null){
+                                $this->PDF->Cell(0,0,$allocated->value1 ." - " .$allocated->comment, 0, 2, '', false, '', 1);
+                            }else{
+                                $this->PDF->Cell(0,0,$allocated->value1 ." - " .$Servername->name, 0, 2, '', false, '', 1);
+                            }
                         }
+                        $printed[] = $allocated;
                     }
                 }
+            }
                 
-                $this->PDF->Ln(3);
-            }         
+            $this->PDF->Ln(3);
             // Dispaly the PDF on the monitor
             $this->PDF->Output('ipobjects.pdf', 'I');
             die();
