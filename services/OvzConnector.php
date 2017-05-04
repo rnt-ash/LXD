@@ -23,7 +23,7 @@ use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\core\libraries\RemoteSshConnection;
 
 /**
-* The OvzConnector is used to connect a preinstalled OpenVZ 7 server to the OVZCP.
+* The OvzConnector is used to connect a preinstalled OpenVZ 7 server to the ECP.
 * Consult the INSTALL-OVZ7LEMP.md to read about the correct usage.
 * Connector will be called from the Phalcon App in a wizard like manier.
 * 

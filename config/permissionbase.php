@@ -73,8 +73,8 @@ return new \Phalcon\Config([
                     '0' => "Show no physical servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'physical_servers' => [
@@ -161,8 +161,8 @@ return new \Phalcon\Config([
                     '0' => "Create no virtual servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -180,8 +180,8 @@ return new \Phalcon\Config([
                     '0' => "delete no virtual servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -199,8 +199,8 @@ return new \Phalcon\Config([
                     '0' => "edit no virtual servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -218,8 +218,8 @@ return new \Phalcon\Config([
                     '0' => "configure no virtual servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -237,8 +237,8 @@ return new \Phalcon\Config([
                     '0' => "save no virtual servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -256,8 +256,8 @@ return new \Phalcon\Config([
                     '0' => "Change state on no virtual servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -275,8 +275,8 @@ return new \Phalcon\Config([
                     '0' => "Manage snapshots for no virtual servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -295,8 +295,8 @@ return new \Phalcon\Config([
                     '0' => "Manage replicas for no virtual servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -315,8 +315,8 @@ return new \Phalcon\Config([
                     '0' => "modify no virtual servers", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -334,8 +334,8 @@ return new \Phalcon\Config([
                     '0' => "set nowhere a new password", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
@@ -352,8 +352,8 @@ return new \Phalcon\Config([
                     '0' => "edit no monjobs", 
                 ],
                 'functions' => array(
-                    'partners' => '\RNTForest\OVZCP\libraries\PermissionFunctions::partners',
-                    'customers' =>'\RNTForest\OVZCP\libraries\PermissionFunctions::customers',
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
                 ),
                 'actions' => [
                     'virtual_servers' => [
