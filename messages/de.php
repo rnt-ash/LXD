@@ -312,6 +312,7 @@ return [
     "virtualserver_general_delete" => "Virtuellen Server löschen",
     "virtualserver_general_customer" => "Kunde: ",
     "virtualserver_general_fqdn" => "FQDN: ",
+    "virtualserver_general_uuid" => "OVZ UUID: ",
     "virtualserver_general_physicalserver" => "Physikalischer Server: ",
     "virtualserver_general_activdate" => "Aktivierungsdatum: ",
     "virtualserver_general_state" => "Status: ",
