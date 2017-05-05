@@ -54,8 +54,9 @@ class MonAlarm extends \Phalcon\DI\Injectable
                 $subject = 'Alarm: '.$behavior.' on '.$monJob->getServer()->getName();
                 $this->sendMail($mailaddress,$subject,$this->genAlarmContentMonRemoteJobs($monJob));
             }
-            $monJob->setLastAlarm((new \DateTime())->format('Y-m-d H:i:s'));
-            $monJob->setAlarmed(1)->save();
+            $monJob->setLastAlarm(date('Y-m-d H:i:s'));
+            $monJob->setAlarmed(1);
+            $monJob->save();
             $this->logger->notice("RemoteMonJobs (ID: ".intval($monJob->getId()).", MonService: ".$monJob->getMonBehaviorClass().") alarmed.");
         }
     }
@@ -130,7 +131,8 @@ class MonAlarm extends \Phalcon\DI\Injectable
                 $subject = 'Disalarm: '.$behavior.' on '.$monJob->getServer()->getName();
                 $this->sendMail($mailaddress,$subject,$this->genAlarmContentMonRemoteJobs($monJob));
             }
-            $monJob->setAlarmed(0)->save();
+            $monJob->setAlarmed(0);
+            $monJob->save();
         }
     }
     
