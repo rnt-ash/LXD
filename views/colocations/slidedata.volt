@@ -26,7 +26,7 @@
                     </div>
                     {% if permissions.checkPermission("colocations", "filter_customers") %}
                     <div class="input-group col-xs-12 clearfix">
-                        <input type="hidden" name="filterCustomers_id" onchange="$('form#slidedatatoolbar').submit();">
+                        {{ hidden_field("filterCustomers_id","onchange":"$('form#slidedatatoolbar').submit();") }}
                         {{ text_field("filterCustomers",'class':'form-control autocomplete','placeholder':'Kunde')}}
                         <span class="input-group-addon"><i class="fa fa-times" onclick="$('#filterCustomers').val('');$('form#slidedatatoolbar').submit();"></i></span>
                     </div>
