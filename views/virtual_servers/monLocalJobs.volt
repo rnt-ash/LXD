@@ -1,4 +1,4 @@
-<table class="table">
+<table class="table table-striped table-condensed">
     <thead>
         <tr>
             <th colspan="4">
