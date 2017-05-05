@@ -33,7 +33,7 @@
                     <div class="input-group col-xs-12 clearfix">
                         {{ hidden_field("filterCustomers_id","onchange":"$('form#slidedatatoolbar').submit();") }}
                         {{ text_field("filterCustomers",'class':'form-control autocomplete','placeholder':'Kunde')}}
-                        <span class="input-group-addon"><i class="fa fa-times" onclick="$('#filterCustomers').val('');$('form#slidedatatoolbar').submit();"></i></span>
+                        <span class="input-group-addon"><i class="fa fa-times" onclick="$('#filterCustomers').val('');$('#filterCustomers_id').val('');$('form#slidedatatoolbar').submit();"></i></span>
                     </div>
                     {% endif %}
                 </div>
