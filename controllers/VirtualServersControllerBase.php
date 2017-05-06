@@ -1696,17 +1696,16 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         try {    
             // validate
             $virtualServer = VirtualServers::tryFindById($item->virtual_servers_id);  
-            $this->tryCheckPermission('virtual_servers', 'snapshots', array('item' => $virtualServer));
+            $this->tryCheckPermission('virtual_servers', 'change_root_password', array('item' => $virtualServer));
             $this->tryCheckOvzEnabled($virtualServer);
 
             // execute ovz_set_pwd job        
-            // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage
-            $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            // no pending needed
             $params = array(
                 'UUID'=>$virtualServer->getOvzUuid(),
                 'ROOTPWD'=>$data['password']
             );
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_create_snapshot',$params,$pending);
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_set_pwd',$params);
 
             // success message
             $message = $this->translate("virtualserver_change_root_password_successful");
