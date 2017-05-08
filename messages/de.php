@@ -45,7 +45,8 @@ return [
     "colocations_genpdf" => "Generiere PDF zu IP Objekten",
     "colocations_ipobjects" => "IP Objekte",
     "colocations_pdf_no_ipobjects" => "Keine IP-Reservationen in der Colocation",
-    "colocations_createpdf" => "PDF zur IP-Übersicht erstellen",      
+    "colocations_createpdf" => "PDF zur IP-Übersicht erstellen",
+    "colocations_new_colocation" => "Neue Colocation erstellen",
     
     // IP Objects
     "ipobjects_address_is_now_main" => "IP Adresse %address% ist nun die Hauptadresse.",
@@ -173,6 +174,7 @@ return [
     "physicalserver_ip_delete" => "IP-Objekt löschen",
     "physicalserver_ip_primary" => "zum Hauptobjekt festlegen",
     "physicalserver_slide_title" => "Physikalische Server",
+    "physicalservers_new_physicalserver" => "Physikalischen Server hinzufügen",
             
     // Virtual Server
     "virtualserver_all_virtualservers" => "Alle Virtual Servers",

@@ -23,9 +23,10 @@
                     </ul>
                 </div>  
                 {% endif %}  
-                {{ link_to(contaction~"?orderdir="~orderdir,orderdirIcon,'class': 'btn btn-default orderButton') }}
+                {{ link_to(contaction~"?orderdir="~orderdir,orderdirIcon,'class': 'btn btn-default orderButton',
+                    'title':_("tableslide_change_order"), 'data-toggle':'tooltip') }}
                 <label id="selectRows" class="select">
-                    {{ select_static('limit',['10':'10 rows','25':'25 rows','50':'50 rows','100':'100 rows'],'size':'1','class':'form-control','onchange':'javascript: this.form.submit();') }}
+                    {{ select_static('limit',['10':'10 '~_("tableslide_rows"),'25':'25 '~_("tableslide_rows"),'50':'50 '~_("tableslide_rows"),'100':'100 '~_("tableslide_rows")],'size':'1','class':'form-control','onchange':'javascript: this.form.submit();') }}
                 </label>
             </div>
             <div class="col-sm-8 col-lg-6 serverFilter pull-right">
@@ -38,13 +39,17 @@
                     <span class="input-group-addon"><i class="fa fa-search" onclick="$('form#slidedatatoolbar').submit();"></i></span>
                     {{ text_field("filterAll",'class':'form-control','placeholder':'Filter Virtual Servers') }}
                     <input type="submit" style="display: none;">
-                    <span class="input-group-addon"><i class="fa fa-times" onclick="$('#filterAll').val('');$('form#slidedatatoolbar').submit();"></i></span>
+                    <span class="input-group-addon" title="{{ _("tableslide_filter_clear") }}" data-toggle="tooltip">
+                        <i class="fa fa-times" onclick="$('#filterAll').val('');$('form#slidedatatoolbar').submit();"></i>
+                    </span>
                 </div>
                 {% if permissions.checkPermission("virtual_servers", "filter_customers") %}
                 <div class="input-group col-xs-12 clearfix">
                     {{ hidden_field("filterCustomers_id","onchange":"$('form#slidedatatoolbar').submit();") }}
-                    {{ text_field("filterCustomers",'class':'form-control autocomplete','placeholder':'Kunde')}}
-                    <span class="input-group-addon"><i class="fa fa-times" onclick="$('#filterCustomers').val('');$('#filterCustomers_id').val('');$('form#slidedatatoolbar').submit();"></i></span>
+                    {{ text_field("filterCustomers",'class':'form-control autocomplete','placeholder':_("tableslide_filter_customer"))}}
+                    <span class="input-group-addon" title="{{ _("tableslide_filter_clear") }}" data-toggle="tooltip">
+                        <i class="fa fa-times" onclick="$('#filterCustomers').val('');$('#filterCustomers_id').val('');$('form#slidedatatoolbar').submit();"></i>
+                    </span>
                 </div>
                 {% endif %}
             </div>

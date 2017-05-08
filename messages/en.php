@@ -46,6 +46,7 @@ return [
     "colocations_ipobjects" => "IP objects",
     "colocations_pdf_no_ipobjects" => "No IP reservations in the colocation found", 
     "colocations_createpdf" => "Create PDF: IP overview",
+    "colocations_new_colocation" => "Add new colocation",
      
     // IP Objects
     "ipobjects_address_is_now_main" => "IP Address %address% is now main.",
@@ -171,6 +172,7 @@ return [
     "physicalserver_ip_delete" => "Delete IP object",
     "physicalserver_ip_primary" => "Make IP object to primary",
     "physicalserver_slide_title" => "Physical Servers",
+    "physicalservers_new_physicalserver" => "Add Physical Server",
  
     // Virtual Server
     "virtualserver_all_virtualservers" => "All Virtual Servers",
