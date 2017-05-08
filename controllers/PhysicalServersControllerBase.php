@@ -31,6 +31,8 @@ use RNTForest\ovz\forms\MonLocalJobsForm;
 use RNTForest\ovz\forms\MonRemoteJobsForm;
 use RNTForest\core\models\Logins;
 use RNTForest\ovz\datastructures\OvzConnectorFormFields;
+use RNTForest\core\libraries\Helpers;
+
 
 class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSlideBase
 {
@@ -267,6 +269,30 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         // go back to slidedata view
         $this->redirectTo("physical_servers/slidedata");
     }    
+    
+    /**
+    * Does some preSave configurations like convert the bytestrings to MB for memory or GB for diskspace.
+    * 
+    * @param PhysicalServers $physicalServer
+    * @param PhysicalServersForm $form
+    */
+    protected function preSave($physicalServer,$form){
+        try{
+            // Workaround: if a Byte suffix is given convert Space to GB and Memory to MB
+            if(!is_numeric($physicalServer->getSpace())){
+                $physicalServer->setSpace(Helpers::convertBytesToGibiBytes(Helpers::convertToBytes($physicalServer->getSpace())));
+            }
+            if(!is_numeric($physicalServer->getMemory())){
+                $physicalServer->setMemory(Helpers::convertBytesToMibiBytes(Helpers::convertToBytes($physicalServer->getMemory())));    
+            }
+            
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+            return false;
+        }
+        return true;
+    }
     
     /**
     * checks before delete

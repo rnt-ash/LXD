@@ -111,22 +111,23 @@ class PhysicalServersForm extends \RNTForest\core\forms\FormBase
         $this->add($element);
 
         // memory
-        $element = new Numeric("memory");
+        $element = new Text("memory");
         $message = $this->translate("physicalserver_memory");
         $element->setLabel($message);
+        $element->setDefault('16GB');
         $message = $this->translate("physicalserver_memory_available");
         $element->setAttribute("placeholder",$message);
-        $element->setFilters(array('int'));
+        $element->setFilters(array('string'));
         $this->add($element);
 
         // space
-        $element = new Numeric("space");
+        $element = new Text("space");
         $message = $this->translate("physicalserver_space");
         $element->setLabel($message);
-        $element->setDefault(102400);
+        $element->setDefault('1TB');
         $message = $this->translate("physicalserver_space_available");
         $element->setAttribute("placeholder",$message);
-        $element->setFilters(array('int'));
+        $element->setFilters(array('string'));
         $this->add($element);
         
         // activation_date

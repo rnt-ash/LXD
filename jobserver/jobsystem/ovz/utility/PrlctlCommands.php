@@ -142,9 +142,46 @@ class PrlctlCommands {
     public function listInfo($UUID,$host=""){
         $cmd = "prlctl list -aifj ".escapeshellarg($UUID);
         $exitstatus = $this->Cli->execute($cmd,$host);
-        if ($exitstatus == 0) {
-            $this->Json = implode("\n",$this->Cli->getOutput());
+        if ($exitstatus != 0) {
+            return $exitstatus;
         }
+
+        $settings = json_decode(implode("\n",$this->Cli->getOutput()),true);
+        
+        foreach($settings as $key => $setting){
+            // convert ram to mb and add to array at new key
+            if(is_array($setting) 
+            && key_exists('Hardware',$setting)
+            && is_array($setting['Hardware'])
+            && key_exists('memory',$setting['Hardware'])
+            && is_array($setting['Hardware']['memory'])
+            && key_exists('size',$setting['Hardware']['memory'])
+            ){
+                $memorySizeString = $setting['Hardware']['memory']['size'];
+                // should be in MB per default in settings
+                if(strpos(strtolower($memorySizeString),'mb') !== false){
+                    $settings[$key]['Hardware']['memory']['size_in_mb'] = substr($memorySizeString, 0, -2);
+                }
+            }
+
+            // convert diskspace to gb and add to array at new key
+            if(is_array($setting) 
+            && key_exists('Hardware',$setting)
+            && is_array($setting['Hardware'])
+            && key_exists('hdd0',$setting['Hardware'])
+            && is_array($setting['Hardware']['hdd0'])
+            && key_exists('size',$setting['Hardware']['hdd0'])
+            ){
+                $hddSizeString = $setting['Hardware']['hdd0']['size'];
+                // should be in MB per default in settings
+                if(strpos(strtolower($hddSizeString),'mb') !== false){
+                    $settings[$key]['Hardware']['hdd0']['size_in_gb'] = intval(substr($hddSizeString, 0, -2))/1024;
+                }
+            }                              
+        }
+
+        $this->Json = json_encode($settings);
+
         return $exitstatus;
     }
 
@@ -204,7 +241,8 @@ class PrlctlCommands {
                 $cmd = "prlctl set ".escapeshellarg($UUID)." --cpus ".intval($value);
                 break;
             case 'diskspace':
-                $cmd = "prlctl set ".escapeshellarg($UUID)." --diskspace ".intval($value);
+                // diskspace in jobs is in GB but in prlctl it needs to be in mb
+                $cmd = "prlctl set ".escapeshellarg($UUID)." --diskspace ".intval($value*1024);
                 break;
             case 'onboot':
                 $cmd = "prlctl set ".escapeshellarg($UUID)." --onboot ".escapeshellarg($value);

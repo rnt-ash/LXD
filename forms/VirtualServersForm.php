@@ -124,23 +124,24 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $this->add($element);
 
         // memory
-        $element = new Numeric("memory");
+        $element = new Text("memory");
         $message = $this->translate("virtualserver_memory");
         $element->setLabel($message);
-        $element->setDefault(1024);
+        $element->setDefault('1GB');
         $message = $this->translate("virtualserver_memory_example");
         $element->setAttribute("placeholder",$message);
-        $element->setFilters(array('int'));
+        $element->setFilters(array('string'));
+        $element->setAttribute("value",'17GB');
         $this->add($element);
-
+        
         // space
-        $element = new Numeric("space");
+        $element = new Text("space");
         $message = $this->translate("virtualserver_space");
         $element->setLabel($message);
-        $element->setDefault(102400);
+        $element->setDefault('100GB');
         $message = $this->translate("virtualserver_space_example");
         $element->setAttribute("placeholder",$message);
-        $element->setFilters(array('int'));
+        $element->setFilters(array('string'));
         $this->add($element);
 
         // activation_date

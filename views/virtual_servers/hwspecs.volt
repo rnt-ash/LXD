@@ -37,7 +37,7 @@
                 {{ _("virtualserver_hwspec_space") }}
             </td>
             <td>
-                {{(item.space*1024*1024)|formatBytesHelper}}
+                {{(item.space*1024*1024*1024)|formatBytesHelper}}
             </td>
         </tr>
     </tbody>

@@ -24,6 +24,7 @@
         {{ renderElement('distribution',form,6) }}
         {{ renderElement('core',form,6) }}
         {{ renderElement('memory',form,6) }}
+        {{ renderElement('memory_in_mb',form,6) }}
         {{ renderElement('space',form,6) }}
         {{ renderElement('activation_date',form,6) }}
         {{ renderElement('description',form) }}

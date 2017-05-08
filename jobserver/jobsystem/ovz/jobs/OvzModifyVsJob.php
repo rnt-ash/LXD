@@ -32,7 +32,7 @@ class OvzModifyVsJob extends AbstractOvzJob{
                     "hostname" => "hostname of the system (string)",
                     "cpus" => "number of cpu cores (int)",
                     "memsize" => "amount of ram in mb (int)",
-                    "diskspace" => "amount of diskspace in mb (int)",
+                    "diskspace" => "amount of diskspace in gb (int)",
                     "onboot" => "if it should be started automatically on boot of the host(string <yes|no>)",
                     "nameserver" => "define the nameserver/s of the system in ip-address format (string 0-unlimited whitespace separated)",
                     "description" => "description of the virtual system (string)"

@@ -492,6 +492,30 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     }
 
     /**
+    * Does some preSave configurations like convert the bytestrings to MB for memory or GB for diskspace.
+    * 
+    * @param VirtualServers $virtualServer
+    * @param VirtualServersForm $form
+    */
+    protected function preSave($virtualServer,$form){
+        try{
+            // Workaround: if a Byte suffix is given convert Space to GB and Memory to MB
+            if(!is_numeric($virtualServer->getSpace())){
+                $virtualServer->setSpace(Helpers::convertBytesToGibiBytes(Helpers::convertToBytes($virtualServer->getSpace())));
+            }
+            if(!is_numeric($virtualServer->getMemory())){
+                $virtualServer->setMemory(Helpers::convertBytesToMibiBytes(Helpers::convertToBytes($virtualServer->getMemory())));    
+            }
+            
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+            return false;
+        }
+        return true;
+    }
+    
+    /**
     * generates a new CT or VM
     * 
     * @param VirtualServers $virtualServer
@@ -1054,8 +1078,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $virtualServersConfigureFormFields->virtual_servers_id = $virtualServer->getId();
             $virtualServersConfigureFormFields->dns = $ovzSettings['DNS Servers'];
             $virtualServersConfigureFormFields->cores = $virtualServer->getCore();
-            $virtualServersConfigureFormFields->memory = $virtualServer->getMemory()." MB";
-            $virtualServersConfigureFormFields->diskspace = Helpers::formatBytesHelper(Helpers::convertToBytes($virtualServer->getSpace()."MB"));
+            $virtualServersConfigureFormFields->memory = Helpers::formatBytesHelper(Helpers::convertToBytes($virtualServer->getMemory()."MB"));
+            $virtualServersConfigureFormFields->diskspace = Helpers::formatBytesHelper(Helpers::convertToBytes($virtualServer->getSpace()."GB"));
             if($ovzSettings['Autostart'] == 'on'){
                 $virtualServersConfigureFormFields->startOnBoot = 1;
             }elseif($ovzSettings['Autostart'] == 'off') {
@@ -1192,7 +1216,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // final diskspace in MibiBytes
-            $diskspace = Helpers::convertBytesToMibiBytes($diskspace);
+            $diskspace = Helpers::convertBytesToGibiBytes($diskspace);
 
             // execute ovz_modify_vs job        
             $virtualServerConfig = array(
@@ -1298,8 +1322,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $virtualServer->setOvz(1);
         $virtualServer->setOvzVstype($settings['Type']);
         $virtualServer->setCore(intval($settings['Hardware']['cpu']['cpus']));
-        $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size'])/1024/1024));
-        $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size'])/1024/1024));
+        $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size_in_mb'])));
+        $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size_in_gb'])));
     }
 
     public function ovzReplicaActivateAction($virtualServersId){
