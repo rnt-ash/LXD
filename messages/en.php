@@ -361,6 +361,7 @@ return [
     "monitoring_monlocaldailylogsgenerator_delete_old_daily_log" => "Had to delete MonLocalDailyLog because it will be new generated: ",
     "monitoring_monjobs_login_not_from_customer" => "Selected Login does not have the same customer as the physical server",
     "monitoring_mon_behavior_could_not_instantiate_valuestatus" => "A ValueStatus object could not be instantiated (maybe the needed infos are not available in the statistics)",
+    "monitoring_allinfoupdater_mark_failed" => "The Job was marked as failed because it could not be sent immediately by the monitoring.",
     // MonLocalJobs
     "monitoring_monlocaljobs_no_valid_unit" => "The passed unit argument is no valid unit.",
     "monitoring_monlocaljobs_end_before_start" => "End date cannot be before start date.",

@@ -59,8 +59,15 @@ class AllInfoUpdater{
         
         $beforeUpdate = microtime(true);
         $message = AllInfoUpdater::translate("physicalserver_job_failed");
-        if(!$job || $job->getDone()==2) throw new \Exception($message."(ovz_all_info) !");
-
+        if(!$job) throw new \Exception($message."(ovz_all_info) !");
+        // mark Job as failed and write error if it was not sent to prevent accumulation of needless jobs (a new one is created every time)
+        if($job->getSent() == '0000-00-00 00:00:00'){
+            $job->setDone(2);
+            $job->setError(AllInfoUpdater::translate('monitoring_allinfoupdater_mark_failed'));
+            $job->save();
+            throw new \Exception($message."(ovz_all_info) !");
+        }
+        
         // get infos as array
         $infos = $job->getRetval(true);
         $message = AllInfoUpdater::translate("physicalserver_info_not_valid_array");
