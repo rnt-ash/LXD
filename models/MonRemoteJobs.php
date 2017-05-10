@@ -562,14 +562,6 @@ class MonRemoteJobs extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Initialize method for model.
-    */
-    public function initialize(){
-        $this->hasMany("id",'RNTForest\ovz\models\MonUptimes',"remote_mon_jobs_id",array("alias"=>"MonUptimes", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasMany("id",'RNTForest\ovz\models\RemoteMonLogs',"remote_mon_jobs_id",array("alias"=>"RemoteMonLogs", "foreignKey"=>array("allowNulls"=>true)));
-    }
-    
-    /**
     * set linked server
     * 
     */
