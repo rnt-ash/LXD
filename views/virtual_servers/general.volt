@@ -1,10 +1,8 @@
-<table class="table table-condensed">
-    <thead>
-        <tr>
-            <th colspan="2">
-                <div class="pull-left">
-                    <h5 class="panel-title pull-left">{{ _("virtualserver_generalinfo") }}</h5>
-                </div>
+<div class="clearfix panel panel-default sub-panel">
+    <div class="panel-heading">
+        <span role="button" data-target="#general{{item.id}}" onclick="toggleIcon('#generalToggleIcon'+{{item.id}})" data-toggle="collapse">
+            <h5 class="panel-title">
+                <i id="generalToggleIcon{{item.id}}" class="fa fa-chevron-down"></i>&nbsp;{{ _("virtualserver_generalinfo") }}
                 <div class="pull-right">
                     {% if item.ovz == 1 %}
                     <div class="btn-group">
@@ -42,67 +40,71 @@
                         class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_general_delete") }}"><i class="fa fa-trash-o"></i></a>
 
                 </div>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                {{ _("virtualserver_general_customer") }}
-            </td>
-            <td>
-                {{item.customers.printAddressText('short')}}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ _("virtualserver_general_fqdn") }}
-            </td>
-            <td>
-                {{item.fqdn}}
-            </td>
-        </tr>
-        {% if item.ovz == 1 %}
-        <tr>
-            <td>
-                {{ _("virtualserver_general_uuid") }}
-            </td>
-            <td>
-                {{item.ovz_uuid}}
-            </td>
-        </tr>
-        {% endif %}
-        <tr>
-            <td>
-                {{ _("virtualserver_general_physicalserver") }}
-            </td>
-            <td>
-                {{item.physicalServers.name}}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ _("virtualserver_general_activdate") }}
-            </td>
-            <td>
-                {{item.activation_date}}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ _("virtualserver_general_state") }}
-            </td>
-            <td>
-                {{item.ovz_state}}
-            </td>
-        </tr>
-        <tr>
-            <td>
-                {{ _("virtualserver_general_description") }}
-            </td>
-            <td>
-                {{item.description}}
-            </td>
-        </tr>
-    </tbody>
-</table>
+            </h5>
+        </span>
+    </div>
+    <div id="general{{item.id}}" class="panel-collapse collapse in">
+        <table class="table table-condensed">
+            <tbody>
+                <tr>
+                    <td>
+                        {{ _("virtualserver_general_customer") }}
+                    </td>
+                    <td>
+                        {{item.customers.printAddressText('short')}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ _("virtualserver_general_fqdn") }}
+                    </td>
+                    <td>
+                        {{item.fqdn}}
+                    </td>
+                </tr>
+                {% if item.ovz == 1 %}
+                <tr>
+                    <td>
+                        {{ _("virtualserver_general_uuid") }}
+                    </td>
+                    <td>
+                        {{item.ovz_uuid}}
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>
+                        {{ _("virtualserver_general_physicalserver") }}
+                    </td>
+                    <td>
+                        {{item.physicalServers.name}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ _("virtualserver_general_activdate") }}
+                    </td>
+                    <td>
+                        {{item.activation_date}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ _("virtualserver_general_state") }}
+                    </td>
+                    <td>
+                        {{item.ovz_state}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ _("virtualserver_general_description") }}
+                    </td>
+                    <td>
+                        {{item.description}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
