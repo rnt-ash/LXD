@@ -113,8 +113,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             foreach($resultset as $physicalServer){
                 $physicalServers[$physicalServer->id]['name'] = $physicalServer->name;
                 $physicalServers[$physicalServer->id]['count'] = count(VirtualServers::find("physical_servers_id = ".$physicalServer->id." AND ovz_replica < 2"));
-                if($this->slideDataInfo['filters']['filterPhysicalServers'] == $physicalServer->id)
-                    $physicalServers[$physicalServer->id]['selected'] = 'selected';
+                if(!empty($this->slideDataInfo['filters']['filterPhysicalServers'])){
+                    if($this->slideDataInfo['filters']['filterPhysicalServers'] == $physicalServer->id){
+                        $physicalServers[$physicalServer->id]['selected'] = 'selected';
+                    }
+                }
             }
         }
         $this->view->physicalServers = $physicalServers;
