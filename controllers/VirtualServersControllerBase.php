@@ -79,11 +79,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     }
 
     protected function prepareSlideFilters($virtualServers,$level) { 
-
-        // put resultsets to the view
-        $scope = $this->permissions->getScope("virtual_servers","filter_physical_servers");
-        $this->view->physicalServers = PhysicalServers::generateArrayForSelectElement($scope);
-
         // receive all filters
         if($this->request->has('filterAll')){
             $oldfilter = $this->slideDataInfo['filters']['filterAll'];
@@ -103,6 +98,26 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->slideDataInfo['filters']['filterPhysicalServers'] = $this->request->get("filterPhysicalServers", "int");
             if($oldfilter != $this->slideDataInfo['filters']['filterPhysicalServers']) $this->slideDataInfo['page'] = 1;
         }
+        
+        // put resultsets to the view
+        // get physical servers from scope
+        $scope = $this->permissions->getScope("virtual_servers","filter_physical_servers"); 
+        $findParameters = array("order"=>"name");
+        $resultset = PhysicalServers::findFromScope($scope,$findParameters);
+        
+        // create array
+        if(!empty($resultset)){
+            $physicalServers = array();
+            $physicalServers[0]['name'] = PhysicalServers::translate("physicalserver_all_physicalservers");
+            $physicalServers[0]['count'] = '';
+            foreach($resultset as $physicalServer){
+                $physicalServers[$physicalServer->id]['name'] = $physicalServer->name;
+                $physicalServers[$physicalServer->id]['count'] = count(VirtualServers::find("physical_servers_id = ".$physicalServer->id." AND ovz_replica < 2"));
+                if($this->slideDataInfo['filters']['filterPhysicalServers'] == $physicalServer->id)
+                    $physicalServers[$physicalServer->id]['selected'] = 'selected';
+            }
+        }
+        $this->view->physicalServers = $physicalServers;
     }
 
     protected function isValidSlideFilterItem($virtualServer,$level){

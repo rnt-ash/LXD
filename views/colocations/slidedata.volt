@@ -15,9 +15,9 @@
                     'title':_("colocations_new_colocation"), 'data-toggle':'tooltip') }}
                     {{ link_to(contaction~"?orderdir="~orderdir,orderdirIcon,'class': 'btn btn-default orderButton',
                     'title':_("tableslide_change_order"), 'data-toggle':'tooltip') }}
-                    <label id="selectRows" class="select">
-                        {{ select_static('limit',['10':'10 '~_("tableslide_rows"),'25':'25 '~_("tableslide_rows"),'50':'50 '~_("tableslide_rows"),'100':'100 '~_("tableslide_rows")],'size':'1','class':'form-control','onchange':'javascript: this.form.submit();') }}
-                    </label>
+                    <span id="selectRows" class="select">
+                        {{ select_static('limit',['10':'10 '~_("tableslide_rows"),'25':'25 '~_("tableslide_rows"),'50':'50 '~_("tableslide_rows"),'100':'100 '~_("tableslide_rows")],'size':'1','class':'selectpicker','data-width':'auto','onchange':'javascript: this.form.submit();') }}
+                    </span>
                 </div>
                 <div class="col-sm-8 col-lg-6 pull-right">
                     <div id="searchFilter" class="input-group col-lg-6 col-sm-6 col-xs-12 pull-right">

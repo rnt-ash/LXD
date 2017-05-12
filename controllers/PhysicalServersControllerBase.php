@@ -21,6 +21,7 @@ namespace RNTForest\ovz\controllers;
 
 use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\models\VirtualServers;
+use RNTForest\ovz\models\Colocations;
 use RNTForest\ovz\forms\OvzConnectorForm;
 use RNTForest\ovz\services\OvzConnector;
 use RNTForest\ovz\models\IpObjects;
@@ -121,10 +122,6 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     }
 
     protected function prepareSlideFilters($items,$level) { 
-
-        // put resultsets to the view
-        $this->view->colocations = $this->getMyColocations();
-
         // Alle Filter abholen
         if($this->request->has('filterAll')){
             $oldfilter = $this->slideDataInfo['filters']['filterAll'];
@@ -144,6 +141,26 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $this->slideDataInfo['filters']['filterColocations'] = $this->request->get("filterColocations", "int");
             if($oldfilter != $this->slideDataInfo['filters']['filterColocations']) $this->slideDataInfo['page'] = 1;
         }
+        
+        // put resultsets to the view
+        // get colocations from scope
+        $scope = $this->permissions->getScope("physical_servers","filter_colocations"); 
+        $findParameters = array("order"=>"name");
+        $resultset = Colocations::findFromScope($scope,$findParameters);
+        
+        // create array
+        if(!empty($resultset)){
+            $colocations = array();
+            $colocations[0]['name'] = Colocations::translate("physicalserver_filter_all_colocations");
+            $colocations[0]['count'] = '';
+            foreach($resultset as $colocation){
+                $colocations[$colocation->id]['name'] = $colocation->name;
+                $colocations[$colocation->id]['count'] = count($colocation->PhysicalServers);
+                if($this->slideDataInfo['filters']['filterColocations'] == $colocation->id)
+                    $colocations[$colocation->id]['selected'] = 'selected';
+            }
+        }
+        $this->view->colocations = $colocations;
     }
 
     protected function isValidSlideFilterItem($physicalServer,$level){
