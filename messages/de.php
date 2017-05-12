@@ -283,7 +283,7 @@ return [
     "virtualserver_snapshot_refresh" => "Snapshots aktualisieren",
     "virtualserver_snapshot_create" => "Neuen Snapshot erstellen",
     "virtualserver_snapshot_created" => "Snapshot wurde erfolgreich erstellt",
-    "virtualserver_snapshot_run" => "jetziger Stand",
+    "virtualserver_snapshot_run" => "Jetzt",
     "virtualserver_snapshot_switchinfo" => "Sind Sie sicher, dass Sie zu diesem Snapshot wechseln wollen ?",
     "virtualserver_snapshot_switch" => "Zu diesem Snapshot wechseln",
     "virtualserver_snapshot_switched" => "Erfolgreich zu Snapshot gewechselt",

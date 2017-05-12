@@ -280,7 +280,7 @@ return [
     "virtualserver_snapshot_refresh" => "Refresh Snapshots",
     "virtualserver_snapshot_create" => "Create a new Snapshot",
     "virtualserver_snapshot_created" => "Snapshot successfully created",
-    "virtualserver_snapshot_run" => "Current run",
+    "virtualserver_snapshot_run" => "Now",
     "virtualserver_snapshot_switchinfo" => "Are you sure you want to switch to this Snapshot ?",
     "virtualserver_snapshot_switch" => "Switch to this Snapshot",
     "virtualserver_snapshot_switched" => "Successfully switched to Snapshot",
