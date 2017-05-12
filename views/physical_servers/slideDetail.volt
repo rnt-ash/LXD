@@ -11,12 +11,10 @@
         <div class="col-xs-12">
         {{ partial("partials/ovz/physical_servers/ip_objects.volt") }}
         </div>
-    </div>
-    <div>
-        <div class="col-md-6 col-xs-12 removePadding">
+        <div class="col-md-6 col-xs-12 padding-small-right">
         {{ partial("partials/ovz/physical_servers/monLocalJobs.volt") }}
         </div>
-        <div class="col-md-6 col-xs-12 removePadding">
+        <div class="col-md-6 col-xs-12 padding-small-left">
         {{ partial("partials/ovz/physical_servers/monRemoteJobs.volt") }}
         </div>
     </div>
