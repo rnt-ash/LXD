@@ -345,11 +345,11 @@ class OvzConnector extends \Phalcon\DI\Injectable
     
     private function cleanPermissionsInJobsystemDirectories(){
         try{
-            $this->RemoteSshConnection->exec('chown root:'.$this->Servicename.' -R '.$this->ConfigOvzJobsystemRootDir.'*');
-            $this->RemoteSshConnection->exec('chmod 640 -R '.$this->ConfigOvzJobsystemRootDir.'*');
-            $this->RemoteSshConnection->exec('chmod 660 -R '.$this->ConfigOvzJobsystemRootDir.'log');
-            $this->RemoteSshConnection->exec('chmod 660 -R '.$this->ConfigOvzJobsystemRootDir.'db');
-            $this->RemoteSshConnection->exec('chmod u+X,g+X -R '.$this->ConfigOvzJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chown -R  '.$this->Servicename.':'.$this->Servicename.''.$this->ConfigOvzJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chmod -R 640 '.$this->ConfigOvzJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chmod -R 660 '.$this->ConfigOvzJobsystemRootDir.'log');
+            $this->RemoteSshConnection->exec('chmod -R 660 '.$this->ConfigOvzJobsystemRootDir.'db');
+            $this->RemoteSshConnection->exec('chmod -R u+X,g+X '.$this->ConfigOvzJobsystemRootDir.'*');
             $this->RemoteSshConnection->exec('chmod 750 '.$this->ConfigOvzJobsystemRootDir.'JobSystemStarter.php');
         }catch(\Exception $e){
             $error = 'Problem while cleaning permissions in jobsystem directories: '.$this->MakePrettyException($e);
@@ -478,6 +478,9 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 "\t"."// Server"."\n".
                 "\t"."define('SERVERFQDN','".$this->PhysicalServer->getFqdn()."');"."\n".
                 "\t".""."\n".
+                "\t"."// Jobsystem"."\n".
+                "\t"."define('SERVICENAME','".$this->Servicename."');"."\n".
+                "\t".""."\n".
                 "\t"."// FileLogger"."\n".
                 "\t"."define('LOGFILE','".$this->ConfigOvzJobsystemRootDir."log/filelogger.log');"."\n".
                 "\t"."define('LOGLEVEL','NOTICE');"."\n".
@@ -493,7 +496,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 '';
             $configFilepath = '/srv/local.config.php';
             $this->RemoteSshConnection->exec('echo "'.$config.'" > '.$configFilepath);
-            $this->RemoteSshConnection->exec('chown root:'.$this->Servicename.' '.$configFilepath);    
+            $this->RemoteSshConnection->exec('chown '.$this->Servicename.':'.$this->Servicename.' '.$configFilepath);    
             $this->RemoteSshConnection->exec('chmod 640 '.$configFilepath);
         }catch(\Exception $e){
             $error = 'Problem while writing '.$this->Servicename.' local config: '.$this->MakePrettyException($e);
