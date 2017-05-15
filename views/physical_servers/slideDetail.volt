@@ -1,8 +1,8 @@
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-8 padding-small-right">
     {{ partial("partials/ovz/physical_servers/general.volt") }}
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4 padding-small-left">
     {{ partial("partials/ovz/physical_servers/hwspecs.volt") }}
     </div>
 </div>
