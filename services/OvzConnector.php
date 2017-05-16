@@ -482,8 +482,8 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 "\t"."define('SERVICENAME','".$this->Servicename."');"."\n".
                 "\t".""."\n".
                 "\t"."// FileLogger"."\n".
-                "\t"."define('LOGFILE','".$this->ConfigOvzJobsystemRootDir."log/filelogger.log');"."\n".
-                "\t"."define('LOGLEVEL','NOTICE');"."\n".
+                "\t"."define('LOG_FILE','".$this->ConfigOvzJobsystemRootDir."log/filelogger.log');"."\n".
+                "\t"."define('LOG_LEVEL','NOTICE');"."\n".
                 "\t".""."\n".
                 "\t"."// OVZ"."\n".
                 "\t"."define('OVZ_PRIVATE_PATH','/vz/private');"."\n".
