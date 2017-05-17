@@ -488,11 +488,14 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 "\t"."// OVZ"."\n".
                 "\t"."define('OVZ_PRIVATE_PATH','/vz/private');"."\n".
                 "\t".""."\n".
-                "\t"."// Key Pair"."\n".
+                "\t"."// Security"."\n".
                 "\t"."define('PUBLIC_KEY_FILE','".$this->ConfigMyPublicKeyFilePath."');"."\n".
                 "\t"."define('PRIVATE_KEY_FILE','".$this->ConfigMyPrivateKeyFilePath."');"."\n".
                 "\t"."define('ADMIN_PUBLIC_KEY_FILE','".$this->ConfigAdminPublicKeyFilePath."');"."\n".
-                "\t"."define('SYSTEMWIDE_SECRETKEY','".$this->di['config']->push['jwtsigningkey']."');"."\n".
+                "\t"."define('JWT_SIGNINGKEY','".$this->di['config']->push['jwtsigningkey']."');"."\n".
+                "\t"."define('SYMMETRIC_SHAREDSECRET','".$this->di['config']->push['jwtsigningkey']."');"."\n".
+                "\t"."define('SYMMETRIC_METHOD','".$this->di['config']->push['symEncryptionMethod']."');"."\n".
+                "\t"."define('SYMMETRIC_IVLENGTH','".$this->di['config']->push['symEncryptionIvLength']."');"."\n".
                 '';
             $configFilepath = '/srv/local.config.php';
             $this->RemoteSshConnection->exec('echo "'.$config.'" > '.$configFilepath);
