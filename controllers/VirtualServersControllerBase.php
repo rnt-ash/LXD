@@ -405,8 +405,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             
             // delete IP Objects
             foreach($virtualServer->ipobjects as $ipobject){
-                if(!$dcoipobject->delete()){
-                    foreach ($dcoipobject->getMessages() as $message) {
+                if(!$ipobject->delete()){
+                    foreach ($ipobject->getMessages() as $message) {
                         $this->flashSession->error($message);
                     }
                     $message = $this->translate("virtualserver_ipobjects_destroy_failed");
