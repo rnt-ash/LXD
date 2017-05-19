@@ -1497,7 +1497,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $replicaMaster->setOvzReplicaLastrun("");
             $replicaMaster->setOvzReplicaNextrun("");
             $replicaMaster->setOvzReplicaStatus(3);
-            if ($replicaMaster->update() == false){
+            if ($replicaMaster->update() === false){
                 $allMessages = $this->translate("virtualserver_update_replica_master_failed");
                 foreach ($replicaSlave->getMessages() as $message) {
                     $allMessages .= $message->getMessage();
