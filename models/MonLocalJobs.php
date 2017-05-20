@@ -554,7 +554,11 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
     * @return \RNTForest\ovz\interfaces\MonServerInterface
     */
     public function getServer(){
-        return $this->server_class::findFirst($this->server_id);
+        $server = $this->server_class::findFirst($this->server_id);
+        if(!$server){
+            $this->getLogger()->error('Server could not been instantiated. ServerClass: '.$this->server_class.' with ID: '.$this->server_id);
+        }
+        return $server;
     }
     
     /**
