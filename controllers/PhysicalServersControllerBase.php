@@ -62,7 +62,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             "scope" => $scopeQuery,
             "join" => $joinQuery,
             "order" => "name",
-            "orderdir" => "ASC",
+            "orderdir" => "asc",
             "filters" => array(),
             "page" => 1,
             "limit" => 10,

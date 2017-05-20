@@ -51,7 +51,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             "scope" => $scopeQuery,
             "join" => $joinQuery,
             "order" => "name",
-            "orderdir" => "ASC",
+            "orderdir" => "asc",
             "filters" => array(),
             "page" => 1,
             "limit" => 10,
