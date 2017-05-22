@@ -8,7 +8,9 @@
                         {#{{ link_to("virtual_servers/todo/"~item.id,'<i class="fa fa-bar-chart"></i>','class': 'btn btn-default btn-xs') }}
                         {{ link_to("virtual_servers/todo/"~item.id,'<i class="fa fa-question-circle-o"></i>','class': 'btn btn-default btn-xs') }}#}
                         {% if item.ovz == 1 %}
-                            {{ link_to("virtual_servers/virtualServersConfigure/"~item.id,'<i class="fa fa-wrench"></i>','class': 'btn btn-default btn-xs loadingScreen pending') }}
+                            {% if permissions.checkPermission("virtual_servers", "configure") %}
+                                {{ link_to("virtual_servers/virtualServersConfigure/"~item.id,'<i class="fa fa-wrench"></i>','class': 'btn btn-default btn-xs loadingScreen pending') }}
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>

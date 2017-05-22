@@ -26,19 +26,24 @@
                     {% endif %}
                     
                     {% if item.ovz == 1 %}
-                        {{ link_to("virtual_servers/virtualServerModify/"~item.id,'<i class="fa fa-pencil"></i>',
-                            'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
+                        {% if permissions.checkPermission("virtual_servers", "modify") %}
+                            {{ link_to("virtual_servers/virtualServerModify/"~item.id,'<i class="fa fa-pencil"></i>',
+                                'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
+                        {% endif %}
                         {{ link_to("virtual_servers/ovzUpdateInfo/"~item.id,'<i class="fa fa-refresh"></i>',
                             'class': 'btn btn-default btn-xs loadingScreen pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_updateovz")) }}
                         {{ link_to("virtual_servers/rootPasswordChange/"~item.id,'<i class="fa fa-key"></i>',
                             'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_setpwd")) }}
                     {% else %}
-                        {{ link_to("virtual_servers/edit/"~item.id,'<i class="fa fa-pencil"></i>',
-                            'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
+                        {% if permissions.checkPermission("virtual_servers", "edit") %}
+                            {{ link_to("virtual_servers/edit/"~item.id,'<i class="fa fa-pencil"></i>',
+                                'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
+                        {% endif %}
                     {% endif %}
+                    {% if permissions.checkPermission("virtual_servers", "delete") %}
                     <a href="#" link="/virtual_servers/delete/{{item.id}}" text="{{ _("virtualserver_general_deleteinfo") }}"
                         class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_general_delete") }}"><i class="fa fa-trash-o"></i></a>
-
+                    {% endif %}
                 </div>
             </h5>
         </span>
