@@ -2,7 +2,7 @@
 
 {% block header %}
 <div class="page-header">
-    <h2><i class="fa fa-cube" aria-hidden="true"></i>{{ _("virtualserver_title") }}</h2>
+    <h2><i class="fa fa-cube" aria-hidden="true"></i> {{ _("virtualserver_title") }}</h2>
 </div>
 {% endblock %}
 
@@ -11,7 +11,7 @@
     <form id="slidedatatoolbar" action="" method="post">
         <div class="row">
             <div class="col-sm-4 col-lg-6 buttons">
-                {% if permissions.checkPermission("virtual_servers", "new") %}
+                {% if permissions.checkPermission("virtual_servers", "new") AND physicalServers is not empty %}
                 <div class="btn-group createButton">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <b>{{ _("virtualserver_view_new") }}</b> <span class="caret"></span>

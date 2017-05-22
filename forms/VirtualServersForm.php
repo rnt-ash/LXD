@@ -98,10 +98,19 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $this->add($element);
         
         // physical servers
+        $physicalServersSelect = array();
+        $scope = $this->permissions->getScope("virtual_servers","new"); 
+        $findParameters = array("order"=>"name");
+        $physicalServers = PhysicalServers::findFromScope($scope,$findParameters);
+        foreach($physicalServers as $physicalServer){
+            $physicalServersSelect[$physicalServer->getId()] = $physicalServer->getName()." ";
+            $physicalServersSelect[$physicalServer->getId()] .= " [".count(VirtualServers::find("physical_servers_id = ".$physicalServer->getId()))."]";
+        }
+        
         $message = $this->translate("virtualserver_choose_physicalserver");
         $element = new Select(
             "physical_servers_id",
-            PhysicalServers::find(),
+            $physicalServersSelect,
             array("using"=>array("id","name",),
                 "useEmpty"   => true,
                 "emptyText"  => $message,

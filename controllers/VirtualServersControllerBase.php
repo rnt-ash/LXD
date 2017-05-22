@@ -106,7 +106,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $resultset = PhysicalServers::findFromScope($scope,$findParameters);
         
         // create array
-        if(!empty($resultset)){
+        if(!empty($resultset->toArray())){
             $physicalServers = array();
             $physicalServers[0]['name'] = PhysicalServers::translate("physicalserver_all_physicalservers");
             $physicalServers[0]['count'] = '';
