@@ -78,7 +78,7 @@ return new \Phalcon\Config([
                 ),
                 'actions' => [
                     'physical_servers' => [
-                        'index', 'new', 'edit', 'form', 'save', 'delete', 
+                        'index', 'edit', 'form', 'save', 'delete', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
                         'slidedata', 'slideSlide', 'ovzAllInfo', 'ovzConnector', 'ovzConnectorExecute',
                         'monLocalJobAdd', 'monLocalJobAddExecute', 'monRemoteJobAdd', 'monRemoteJobAddExecute', 'getCustomersAsJson',
@@ -107,6 +107,19 @@ return new \Phalcon\Config([
                 ],
                 'functions' => [],
                 'actions' => [],
+            ],
+            'new' => [
+                'description' => 'create a physical server', 
+                'scopes' => [
+                    '1' => "Create on all colocations", 
+                    '0' => "Create no physical servers", 
+                ],
+                'functions' => [],
+                'actions' => [
+                    'physical_servers' => [
+                        'new',
+                    ]
+                ],
             ],
         ],
         'virtual_servers' => [

@@ -11,8 +11,10 @@
         <form id="slidedatatoolbar" action="" method="post">
             <div class="row">
                 <div class="col-sm-4 col-lg-6 buttons">
-                    {{ link_to(controller~"/new",'<i class="fa fa-plus"></i>','class': 'btn btn-default createButton',
-                        'title':_("physicalservers_new_physicalserver"), 'data-toggle':'tooltip') }}
+                    {% if permissions.checkPermission("physical_servers", "new") %}
+                        {{ link_to(controller~"/new",'<i class="fa fa-plus"></i>','class': 'btn btn-default createButton',
+                            'title':_("physicalservers_new_physicalserver"), 'data-toggle':'tooltip') }}
+                    {% endif %}
                     {{ link_to(contaction~"?orderdir="~orderdir,orderdirIcon,'class': 'btn btn-default orderButton',
                         'title':_("tableslide_change_order"), 'data-toggle':'tooltip') }}
                     <span id="selectRows" class="select">
