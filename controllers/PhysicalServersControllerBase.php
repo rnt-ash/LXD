@@ -155,7 +155,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             $colocations[0]['count'] = '';
             foreach($resultset as $colocation){
                 $colocations[$colocation->id]['name'] = $colocation->name;
-                $colocations[$colocation->id]['count'] = count($colocation->PhysicalServers);
+                $colocations[$colocation->id]['count'] = count($colocation->PhysicalServers)." PS";
                 if(!empty($this->slideDataInfo['filters']['filterColocations'])){
                     if($this->slideDataInfo['filters']['filterColocations'] == $colocation->id){
                         $colocations[$colocation->id]['selected'] = 'selected';
