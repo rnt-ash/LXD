@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `virtual_servers` (
   `name` varchar(40) NOT NULL COMMENT 'Beschreibender Name, früher FQDN!',
   `description` text,
   `customers_id` int(11) unsigned NOT NULL,
-  `physical_servers_id` int(11) NOT NULL,
+  `physical_servers_id` int(11) unsigned NOT NULL,
   `job_public_key` text DEFAULT NULL,
   `ovz` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'ist OpenVZ-Guest',
   `ovz_uuid` varchar(50),
