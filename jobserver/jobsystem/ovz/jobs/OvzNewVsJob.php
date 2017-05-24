@@ -78,8 +78,7 @@ class OvzNewVsJob extends AbstractOvzJob{
 
         // start background job
         $this->Context->getLogger()->debug("Starting background job");
-        $cmd = "php JobSystemStarter.php background ".intval($this->Id)." > /dev/null";
-        $exitstatus = $this->Context->getCli()->executeBackground($cmd);
+        $exitstatus = $this->startInBackground();
         if($exitstatus > 0) return $this->commandFailed("Starting backgroundjob failed",$exitstatus);
         
         $this->Done = -1;
