@@ -235,7 +235,7 @@ class MonHealing extends \Phalcon\DI\Injectable
             
         }catch(\Exception $e){
             $this->logger->error("HealJob execution failed: ".$e->getMessage());
-            if($job != null && $job->getDone() == 0){
+            if($job != null && ($job->getDone() == 0 || $job->getDone() == 2)){
                 // if job was not sent it should be marked as failed so that it wont be executed in future
                 $error = $this->translate("monitoring_healjob_not_executed_error");
                 $job->setDone(2);
