@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\services;
+namespace RNTForest\ovz\connectors;
 
 use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\core\libraries\RemoteSshConnection;
@@ -345,7 +345,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
     
     private function cleanPermissionsInJobsystemDirectories(){
         try{
-            $this->RemoteSshConnection->exec('chown -R  '.$this->Servicename.':'.$this->Servicename.''.$this->ConfigOvzJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chown -R  '.$this->Servicename.':'.$this->Servicename.' '.$this->ConfigOvzJobsystemRootDir.'*');
             $this->RemoteSshConnection->exec('chmod -R 640 '.$this->ConfigOvzJobsystemRootDir.'*');
             $this->RemoteSshConnection->exec('chmod -R 660 '.$this->ConfigOvzJobsystemRootDir.'log');
             $this->RemoteSshConnection->exec('chmod -R 660 '.$this->ConfigOvzJobsystemRootDir.'db');

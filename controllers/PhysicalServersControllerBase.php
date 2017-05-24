@@ -23,7 +23,7 @@ use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\models\VirtualServers;
 use RNTForest\ovz\models\Colocations;
 use RNTForest\ovz\forms\OvzConnectorForm;
-use RNTForest\ovz\services\OvzConnector;
+use RNTForest\ovz\connectors\OvzConnector;
 use RNTForest\ovz\models\IpObjects;
 use RNTForest\ovz\forms\IpObjectsForm;
 use RNTForest\ovz\models\MonLocalJobs;
