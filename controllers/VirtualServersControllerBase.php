@@ -1967,4 +1967,41 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $customers = \RNTForest\core\models\Customers::getCustomersAsJson($filterString,$scope);
         return $customers;
     }
+    
+    /**
+    * Execute support job task
+    * 
+    */
+    public function supportJobAction(){
+        try{
+            $this->tryCheckPermission('virtual_servers', 'support');
+
+            $warnings = [];
+            
+            $virtualServers = VirtualServers::find('ovz_replica < 2');
+            foreach($virtualServers as $virtualServer){
+                $push = $this->getPushService();
+                try{
+                    $job = $push->executeJob($virtualServer,'ovz_support_task', []);
+                }catch(\Exception $e){ 
+                    // go on
+                    $warnings[] = $e->getMessage();
+                }
+            }
+            
+            // everything Ok
+            $message = "virtualserver_support_task_successful";
+            $this->flashSession->success($message);
+            
+            if(!empty($warnings)){
+                $warning = implode('; ',$warnings);
+                $this->flashSession->warning($warning);
+            }
+
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        $this->redirectTo("/administration");
+    }
 }

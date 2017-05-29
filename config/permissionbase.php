@@ -374,6 +374,19 @@ return new \Phalcon\Config([
                     ]
                 ],
             ],
+            // support job task
+            'support' => [
+                'description' => 'Support Job',
+                'scopes' => [
+                    '1' => "Can execute support job",
+                    '0' => "Cannot execute support job",
+                ],
+                'actions' => [
+                    'virtual_servers' => [
+                        'supportJob',
+                    ]
+                ]
+            ],
         ],
     ]
 ]);

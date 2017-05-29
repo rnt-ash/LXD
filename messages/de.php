@@ -270,6 +270,8 @@ return [
     "virtualserver_password_confirm_match" => "Die Passwörter stimmen nicht überein",
     "virtualserver_change_root_password_successful" => "Das Root Passwort wurde erfolgreich geändert",
     "virtualserver_change_root_password_failed" => "Das Root Passwort konnte nicht geändert werden: ",
+    "virtualserver_view_support_job_message" => "Sind Sie sicher, dass Sie den Support Job auf allen Virtual Server ausführen wollen?",
+    "virtualserver_support_task_successful" => "Support Job erfolgreich ausgeführt",
     //View
     "virtualserver_title" => " Virtuelle Server",
     "virtualserver_view_new" => "Neu",

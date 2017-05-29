@@ -267,6 +267,8 @@ return [
     "virtualserver_password_confirm_match" => "The passwords do not match",
     "virtualserver_change_root_password_successful" => "The root password has successfully been changed",
     "virtualserver_change_root_password_failed" => "The root password could not be changed: ",
+    "virtualserver_view_support_job_message" => "Are you sure you want to execute the support job on all virtual servers?",
+    "virtualserver_support_task_successful" => "Support Job executed successfully",
     //View
     "virtualserver_title" => "Virtual Servers",
     "virtualserver_view_new" => "New",
