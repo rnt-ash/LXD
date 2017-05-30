@@ -132,7 +132,10 @@ return new \Phalcon\Config([
                     'customers' => "Show own virtual servers only", 
                     '0' => "Show no virtual servers", 
                 ],
-                'functions' => [],
+                'functions' => array(
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
+                ),
                 'actions' => [
                     'virtual_servers' => [
                         'index', 
