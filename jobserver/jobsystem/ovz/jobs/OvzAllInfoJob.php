@@ -59,11 +59,7 @@ class OvzAllInfoJob extends AbstractOvzJob {
             $exitstatus = $this->PrlctlCommands->listVS();
             if($exitstatus > 0) return $this->commandFailed("Getting VS list failed",$exitstatus);
             foreach(json_decode($this->PrlctlCommands->getJson(),true) as $vs) {
-                $exitstatus = $this->PrlctlCommands->statisticsInfo($vs['uuid']);
-                if($exitstatus > 0) return $this->commandFailed("Getting guest statistics failed",$exitstatus);
-                $info['GuestStatistics'][$vs['uuid']] = json_decode($this->PrlctlCommands->getJson(),true);
-                $this->array_unshift_assoc($info['GuestStatistics'][$vs['uuid']],'FsInfo',$this->genGuestFsInfo($info['GuestStatistics'][$vs['uuid']]));
-                $this->array_unshift_assoc($info['GuestStatistics'][$vs['uuid']],'Timestamp',date("Y-m-d H:i:s"));
+                $info['GuestStatistics'][$vs['uuid']] = json_decode($this->readStatisticsFromFile($vs['uuid']));
             }
 
             // Host Statistics
@@ -86,6 +82,14 @@ class OvzAllInfoJob extends AbstractOvzJob {
             $this->Error = "Get all info failed.";
             $this->Context->getLogger()->debug($this->Error);            
         }
+    }
+    
+    private function readStatisticsFromFile($uuid){
+        $file = __DIR__.'/../../../statistics/'.$uuid;
+        if(!file_exists($file)){
+            $this->Cli->execute('touch '.$file);
+        }
+        return file_get_contents($file);    
     }
 
     function array_unshift_assoc(&$arr, $key, $val) { 
@@ -131,47 +135,6 @@ class OvzAllInfoJob extends AbstractOvzJob {
         }
 
         return $parts;
-    }
-    
-    /**
-    * Gens the FsInfo Array for a Guest (from the given array)
-    * 
-    * @param array $virtualArray
-    * @return array
-    */
-    private function genGuestFsInfo($virtualArray) {
-        $disk = [];
-        try{
-            if(key_exists('guest',$virtualArray)
-            && is_array($virtualArray['guest'])
-            && key_exists('fs0',$virtualArray['guest'])
-            && is_array($virtualArray['guest']['fs0'])
-            ){
-                $subArray = $virtualArray['guest']['fs0'];    
-                if(!key_exists('name',$subArray)
-                || !key_exists('total',$subArray)
-                || !key_exists('free',$subArray)
-                ){
-                    throw new \Exception('needed keys in fs0 do not exist in '.json_encode($subArray));
-                }
-                
-                $temp['source'] = $subArray['name'];
-                $temp['target'] = '/';
-                $temp['size_gb'] = $subArray['total']/1024/1024;
-                $temp['used_gb'] = null;
-                $temp['free_gb'] = $subArray['free']/1024/1024;
-                
-                $temp['used_gb'] = $temp['size_gb']-$temp['free_gb'];
-                
-                $disk[$temp['target']] = $temp;
-            }else{
-                throw new \Exception('needed keys for access to fs0 dont exist in '.json_encode($virtualArray)); 
-            }   
-        }catch(\Exception $e){
-            $this->Warning .= "Prooblem generate GuestFsInfo: ".$e->getMessage()."\n"; 
-        }
-        
-        return $disk;
     }
     
     /**

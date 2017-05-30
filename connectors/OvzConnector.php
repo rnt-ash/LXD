@@ -130,6 +130,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
         $this->configureSudoers();
         $this->configureJobsystemService();
         $this->configureOvz();
+        $this->addOvzCronjobs();
         
         $this->postInstallation();
         $this->testJobSystem();
@@ -315,6 +316,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $folders = array(
                 $this->ConfigOvzJobsystemRootDir.'db',
                 $this->ConfigOvzJobsystemRootDir.'log',
+                $this->ConfigOvzJobsystemRootDir.'statistics',
             );
             foreach($folders as $folder) {
                 $this->createDirectoryIfNotExists($folder);
@@ -503,6 +505,44 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->RemoteSshConnection->exec('chmod 640 '.$configFilepath);
         }catch(\Exception $e){
             $error = 'Problem while writing '.$this->Servicename.' local config: '.$this->MakePrettyException($e);
+            $this->Logger->error('OvzConnector: '.$error);
+            throw new \Exception($error);
+        }    
+    }
+    
+    private function addOvzCronjobs(){
+        try{
+            $cronjobs = "*/5 * * * * root php ".$this->ConfigOvzJobsystemRootDir."jobsystem/ovz/utility/PrlctlStatisticsFileGenerator.php\n";
+
+            $filename = $this->PhysicalServer->getName().'.crontab.tmp';
+            $this->RemoteSshConnection->receiveFile('/etc/crontab',__DIR__.'/'.$filename);
+            $file = file(__DIR__.'/'.$filename);
+
+            if(!($ziel = fopen(__DIR__.'/'.$filename,"w"))) throw new \Exception("Crontab file could not be written: ".$filename);
+            $replace = false;
+            $written = false;
+            // write file line by line new
+            foreach ($file as $line){
+                if(trim($line) == "###EAT CONFIG###") {
+                    $replace = !$replace;
+                    if($replace) fwrite($ziel,"###EAT CONFIG###\n".$cronjobs);
+                    $written = true;
+                }
+                if (!$replace) fwrite($ziel,$line);
+            }
+            if(!$written){
+                // if no EAT CONFIG marker ar there (e.g. first run)
+                fwrite($ziel,"###EAT CONFIG###\n".$cronjobs."###EAT CONFIG###\n");
+            }
+            fclose($ziel); 
+
+
+            // /etc/crontab send and remove local temp file
+            $this->RemoteSshConnection->sendFile(__DIR__.'/'.$filename,'/etc/crontab');               
+            $this->RemoteSshConnection->exec('chmod 644 /etc/crontab');
+            exec('rm '.__DIR__.'/'.$filename);
+        }catch(\Exception $e){
+            $error = 'Problem while adding Cronjobs: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
             throw new \Exception($error);
         }    
