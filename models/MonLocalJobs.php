@@ -602,7 +602,7 @@ class MonLocalJobs extends \RNTForest\core\models\ModelBase
         }
          
         // if model is older than 1 minute write this to log, should not be
-        if(empty($timestamp) || Helpers::createUnixTimestampFromDateTime($timestamp) < (time()-300)){
+        if(empty($timestamp) || Helpers::createUnixTimestampFromDateTime($timestamp) < (time()-600)){
             $this->getLogger()->notice($this->translate("monitoring_monlocaljobs_statistics_timestamp_to_old").'(MonLocalJob '.$this->getId().', Timestamp: '.$timestamp.')');
         }else{
             $value = '';        
