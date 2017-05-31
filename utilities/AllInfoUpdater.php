@@ -22,6 +22,7 @@ namespace RNTForest\ovz\utilities;
 use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\models\VirtualServers;
 use RNTForest\core\services\Push;
+use RNTForest\core\libraries\Helpers;
 
 class AllInfoUpdater{
     
@@ -35,13 +36,40 @@ class AllInfoUpdater{
         foreach($physicals as $physical){
             AllInfoUpdater::getLogger()->debug('start for physical '.$physical->getName());
             try{
-                AllInfoUpdater::updatePhysical($physical);
+                if(AllInfoUpdater::isStatisticTimestampToOld($physical)){
+                    AllInfoUpdater::updatePhysical($physical);
+                }else{
+                    AllInfoUpdater::getLogger()->debug('statistics timestamp of '.$physical->getName().' not old enough to make an update');
+                }
             }catch(\Exception $e){
                 // catch Exceptions separate so that problem with one physical does not have impact to the rest
                 AllInfoUpdater::getLogger()->error('Error while updatePhysical '.$physical->getName().': '.$e->getMessage());
             }
             AllInfoUpdater::getLogger()->debug('end for physical '.$physical->getName());
         }
+    }
+    
+    /**
+    * 
+    * @param PhysicalServers $physicalServer
+    * @return boolean
+    */
+    private static function isStatisticTimestampToOld(PhysicalServers $physicalServer){
+        // per default is timestamp to old, so if no statistic is present or statistics are not in correct format...
+        $result = true;
+        
+        $statistics = json_decode($physicalServer->getOvzStatistics(),true);
+        if(is_array($statistics)
+        && key_exists('Timestamp',$statistics)
+        ){
+            $statisticsUnixTimestamp = Helpers::createUnixTimestampFromDateTime($statistics['Timestamp']);    
+            $nowUnixTimestamp = time();
+            $tenMinutesInSeconds = 10*60;
+            
+            $result = (($statisticsUnixTimestamp + $tenMinutesInSeconds) < $nowUnixTimestamp);
+        }
+        
+        return $result;
     }
     
     private static function updatePhysical(PhysicalServers $physicalServer){
