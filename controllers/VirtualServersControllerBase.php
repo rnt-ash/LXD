@@ -21,6 +21,7 @@ namespace RNTForest\ovz\controllers;
 
 use Phalcon\Http\Client\Request;
 
+use RNTForest\core\libraries\PDF;
 use RNTForest\ovz\models\VirtualServers;
 use RNTForest\ovz\models\PhysicalServers;
 use RNTForest\ovz\models\IpObjects;
@@ -2003,5 +2004,46 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->logger->error($e->getMessage());
         }
         $this->redirectTo("/administration");
+    }
+    
+    /**
+    * Show virtual server datasheet as PDF
+    * 
+    * @param mixed $virtualServersId
+    * @return mixed
+    * @throws Exceptions
+    */
+    public function genPDFAction($virtualServersId){
+        // Sanitize Parameters
+        $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
+
+        try{
+            // Validate (throws exceptions)
+            $virtualServer = VirtualServers::tryFindById($virtualServersId);
+            $this->tryCheckPermission('virtual_servers', 'general', array('item' => $virtualServer));
+            
+            // Create PDF Object
+            $this->PDF = new PDF();
+            $this->PDF->SetAutoPageBreak(true, 10);
+
+            // Author and title        
+            $this->PDF->SetAuthor(BASE_PATH.$this->config->pdf['author']);
+            $this->PDF->SetTitle($this->translate("virtualservers_datasheet"));
+
+            // Creating page 
+            $this->PDF->AddPage();
+
+            // Print header
+            $this->PDF->printHeader($this->translate("virtualservers_datasheet"),$virtualServer->Customers->printAddressText('box'));
+
+            // Dispaly the PDF on the monitor
+            $this->PDF->Output($virtualServer->getName().'.pdf', 'I');
+            die();
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+            $this->redirectToTableSlideDataAction();
+            return;
+        }
     }
 }

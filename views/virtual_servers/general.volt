@@ -44,6 +44,8 @@
                     <a href="#" link="/virtual_servers/delete/{{item.id}}" text="{{ _("virtualserver_general_deleteinfo") }}"
                         class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_general_delete") }}"><i class="fa fa-trash-o"></i></a>
                     {% endif %}
+                    {{ link_to('virtual_servers/genPDF/'~item.getId(),'<i class="fa fa-file-pdf-o"></i>', 'target': '_blank',
+                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualservers_show_pdf")) }}
                 </div>
             </h5>
         </span>

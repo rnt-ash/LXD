@@ -140,7 +140,7 @@ return new \Phalcon\Config([
                     'virtual_servers' => [
                         'index', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
-                        'save', 'slidedata', 'slideSlide', 'ovzUpdateInfo', 'getCustomersAsJson',
+                        'save', 'slidedata', 'slideSlide', 'ovzUpdateInfo', 'getCustomersAsJson', 'genPDF',
                     ]
                 ],
             ],
