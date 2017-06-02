@@ -5,8 +5,10 @@
                 <i id="ipObjectsToggleIcon{{item.id}}" class="fa fa-chevron-down"></i>&nbsp;{{ _("virtualserver_ipobject") }}
                 <div class="pull-right">
                     <div class="btn-group">
+                    {% if permissions.checkPermission("ip_objects", "general") %}
                     {{ link_to("virtual_servers/ipObjectAdd/"~item.id,'<i class="fa fa-plus"></i>',
                         'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_ip_newobject")) }}
+                    {% endif %}
                     </div>
                 </div>
             </h5>
@@ -24,6 +26,7 @@
             {% else %}
                 {% for index, ip in item.ipobjects %}
                     <tr>
+                        {% if permissions.checkPermission("ip_objects", "general") %}
                         <td>
                             {{ link_to("virtual_servers/ipObjectEdit/"~ip.id,'<i class="fa fa-pencil"></i>',
                                 'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_ip_edit")) }}
@@ -34,6 +37,7 @@
                                     'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_ip_primary")) }}
                             {% endif %}
                         </td>
+                        {% endif %}
                         <td>
                             {% if ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_RESERVED') %}
                                 Reserved
