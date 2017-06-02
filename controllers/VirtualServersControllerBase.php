@@ -1694,7 +1694,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         try{
             // validate (throws exceptions)
             $virtualServer = VirtualServers::tryFindById($virtualServersId);
-            $this->tryCheckPermission('virtual_servers', 'replicas', array('item' => $virtualServer));
+            $this->tryCheckPermission('virtual_servers', 'change_root_password', array('item' => $virtualServer));
             $this->tryCheckOvzEnabled($virtualServer);
 
             // check last info Update..
