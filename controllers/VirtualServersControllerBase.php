@@ -2032,10 +2032,65 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // Creating page 
             $this->PDF->AddPage();
+            $this->PDF->SetFillColor(32,32,32);
 
             // Print header
             $this->PDF->printHeader($this->translate("virtualservers_datasheet"),$virtualServer->Customers->printAddressText('box'));
 
+            // Print Content
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_servrname") .$virtualServer->name, 0, 2, '',false);
+            $this->PDF->SetTextColor(255,255,255);
+            $this->PDF->SetFont('','B');
+            $this->PDF->Ln(2);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_general_info"), 0, 2, 'L',true);
+            $this->PDF->SetTextColor(0,0,0);
+            $this->PDF->SetFont('','');
+            $this->PDF->Ln(1);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_fqdn") .$virtualServer->fqdn, 0, 2, '',false);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_activ_date") .$virtualServer->activation_date, 0, 2, '',false);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_server_type"), 0, 2, '',false);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_pricepermonth"), 0, 2, '',false);
+            // TODO Serverinformation output
+            
+            $this->PDF->SetTextColor(255,255,255);
+            $this->PDF->SetFont('','B');
+            $this->PDF->Ln(2);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_system_specification"), 0, 2, 'L',true);
+            $this->PDF->SetTextColor(0,0,0);
+            $this->PDF->SetFont('','');
+            $this->PDF->Ln(1);
+            
+            // Setting Defaults
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_system") , 0, 2, '',false);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_os_system"), 0, 2, '',false);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_cores").$virtualServer->core, 0, 2, '',false);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_memory").Helpers::formatBytesHelper($virtualServer->memory*1024*1024), 0, 2, '',false);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_discspace").Helpers::formatBytesHelper($virtualServer->space*1024*1024*1024), 0, 2, '',false);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_description"), 0, 2, '',false);
+            
+            // Getting all IPobject for the Server
+            $ipobjects = $virtualServer->getIpObjects();
+            
+            $this->PDF->SetTextColor(255,255,255);
+            $this->PDF->SetFont('','B');
+            $this->PDF->Ln(2);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_ip_adress"), 0, 2, 'L',true);
+            $this->PDF->SetTextColor(0,0,0);
+            $this->PDF->SetFont('','');
+            $this->PDF->Ln(1);
+            foreach($ipobjects as $ip){
+                $this->PDF->Cell(0,0,"IP: " .$ip->value1, 0, 2, '',false);     
+            }
+            
+            $this->PDF->SetTextColor(255,255,255);
+            $this->PDF->SetFont('','B');
+            $this->PDF->Ln(2);
+            $this->PDF->Cell(0,0,$this->translate("virtualservers_comment"), 0, 2, 'L',true);
+            $this->PDF->SetTextColor(0,0,0);
+            $this->PDF->SetFont('','');
+            $this->PDF->Ln(1);
+            $this->PDF->Cell(0,0,$virtualServer->getDescription(), 0, 2, '',false);    
+            
             // Dispaly the PDF on the monitor
             $this->PDF->Output($virtualServer->getName().'.pdf', 'I');
             die();
