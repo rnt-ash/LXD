@@ -223,7 +223,7 @@ class Colocations extends \RNTForest\core\models\ModelBase implements \RNTForest
         $this->setup(array('notNullValidations'=>false));
         $this->setup(array('virtualForeignKeys'=>false));
 
-        $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customers", "foreignKey"=>true));
+        $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customer", "foreignKey"=>true));
         $this->hasMany("id",'RNTForest\ovz\models\PhysicalServers',"colocations_id",array("alias"=>"PhysicalServers", "foreignKey"=>array("allowNulls"=>true)));
         
         // Timestampable behavior

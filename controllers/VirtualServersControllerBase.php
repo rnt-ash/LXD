@@ -2036,7 +2036,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->PDF->SetFillColor(32,32,32);
 
             // Print header
-            $this->PDF->printHeader($this->translate("virtualservers_datasheet"),$virtualServer->Customers->printAddressText('box'));
+            $this->PDF->printHeader($this->translate("virtualservers_datasheet"),$virtualServer->Customer->printAddressText('box'));
 
             // Print Content
             $this->PDF->Cell(0,0,$this->translate("virtualservers_servrname") .$virtualServer->name, 0, 2, '',false);

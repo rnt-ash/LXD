@@ -58,7 +58,7 @@
                         {{ _("virtualserver_general_customer") }}
                     </td>
                     <td>
-                        {{item.customers.printAddressText('short')}}
+                        {{item.customer.printAddressText('short')}}
                     </td>
                 </tr>
                 <tr>
