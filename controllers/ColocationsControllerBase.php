@@ -213,7 +213,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             $this->PDF->AddPage();
 
             // Print header
-            $this->PDF->printHeader($this->translate("colocations_ipobjects"),$colocation->getCustomers()->printAddressText('box'));
+            $this->PDF->printHeader($this->translate("colocations_ipobjects"),$colocation->Customer->printAddressText('box'));
             
             $this->PDF->SetFont('','B',12);
             
