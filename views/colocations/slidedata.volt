@@ -23,7 +23,7 @@
                     <div id="searchFilter" class="input-group col-lg-6 col-sm-6 col-xs-12 pull-right">
                         <span class="input-group-addon"><i class="fa fa-search" onclick="$('form#slidedatatoolbar').submit();"></i></span>
                         {{ text_field("filterAll",'class':'form-control','placeholder':'Filter') }}
-                        <input type="submit" style="display:none">
+                        <input type="submit" class="hideSubmit">
                         <span class="input-group-addon" title="{{ _("tableslide_filter_clear") }}" data-toggle="tooltip">
                             <i class="fa fa-times" onclick="$('#filterAll').val('');$('form#slidedatatoolbar').submit();"></i>
                         </span>
