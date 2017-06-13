@@ -122,6 +122,7 @@ CREATE TABLE IF NOT EXISTS `mon_jobs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `server_id` int(11) NOT NULL,
   `server_class` varchar(100) NOT NULL,
+  `mon_type` varchar(10) NOT NULL COMMENT 'local or remote',
   `main_ip` varchar(39),
   `mon_behavior_class` varchar(100) NOT NULL,
   `mon_behavior_params` varchar(100),

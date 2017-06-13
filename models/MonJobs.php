@@ -57,6 +57,12 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     protected $server_class;
 
     /**
+    *
+    * @var string
+    */
+    protected $mon_type;
+
+    /**
     * Used for remote monitoring to prevent getting main ip each time.
     * remote only
     * 
@@ -243,6 +249,16 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     public function setServerClass($serverClass)
     {
         $this->server_class = $serverClass;
+    }
+       
+    /**
+    * Set type (local or remote).
+    * 
+    * @param string $type
+    */
+    public function setMonType($type)
+    {
+        $this->mon_type = $type;
     }
        
     /**
@@ -485,6 +501,16 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     public function getServerClass()
     {
         return $this->server_class;
+    }
+    
+    /**
+    * returns monitoring type
+    * 
+    * @return string
+    */
+    public function getMonType()
+    {
+        return $this->mon_type;
     }
     
     /**
