@@ -812,6 +812,9 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         if(strpos($behavior,'Cpu')){
             $warningValue = 50;
             $maximalValue = 80;
+        
+            // set params
+            $behaviorParams = '["cpu_load"]';
         }elseif(strpos($behavior,'Memoryfree')){
             // warning at a quarter, minimal 512
             $warningValue = intval($this->getMemory()*0.25);
@@ -820,6 +823,9 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             // maximal at ten percent, minimal 256
             $maximalValue = intval($this->getMemory()*0.1);
             if($maximalValue < 512) $maximalValue = 512;
+        
+            // set params
+            $behaviorParams = '["memory_free_mb"]';
         }elseif(strpos($behavior,'Diskspacefree')){
             // warning at a ten percent, minimal 2
             $warningValue = intval($this->getSpace()*0.1);
@@ -828,6 +834,9 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             // maximal at five percent, minimal 1 
             $maximalValue = intval($this->getSpace()*0.05);
             if($maximalValue < 5) $maximalValue = 5;
+        
+            // set params
+            $behaviorParams = '["FsInfo","/","free_gb"]';
         }
         
         $reflection = new \ReflectionClass($this);
@@ -839,6 +848,7 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
                 "server_id" => $this->getId(),
                 "server_class" => "\\".$reflection->getName(),
                 "mon_behavior_class" => $behavior,
+                "mon_behavior_params" => $behaviorParams,
                 "period" => $period,
                 "alarm_period" => $alarmPeriod,
                 "warning_value" => $warningValue,

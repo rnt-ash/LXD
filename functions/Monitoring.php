@@ -17,17 +17,8 @@ class Monitoring{
     * 
     * @return array
     */
-    public static function getLocalVirtualBehaviors(){
-        return self::buildBehaviorArray('VirtMonLocalBehavior');
-    }
-
-    /**
-    * Get an array of classpath as key and name as value of the remote monbehaviors for physical servers.
-    * 
-    * @return array
-    */
-    public static function getLocalPhysicalBehaviors(){
-        return self::buildBehaviorArray('PhysMonLocalBehavior');
+    public static function getLocalBehaviors(){
+        return self::buildBehaviorArray('MonLocalBehavior');
     }
 
     private static function buildBehaviorArray($needle){

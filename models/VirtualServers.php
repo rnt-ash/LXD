@@ -1104,7 +1104,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     */
     public function addMonLocalJob($behavior, $period, $alarmPeriod, $messageContacts, $alarmContacts){
         // validate and clean parameters
-        if(!key_exists($behavior,Monitoring::getLocalVirtualBehaviors())){
+        if(!key_exists($behavior,Monitoring::getLocalBehaviors())){
             throw new \Exception($this->translate("virtualservers_addmonlocaljob_no_valid_behavior"));
         }
         $period = intval($period);
@@ -1119,6 +1119,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         if(strpos($behavior,'Cpu')){
             $warningValue = 50;
             $maximalValue = 80;
+        
+            // set params
+            $behaviorParams = '["guest","cpu","usage"]';
         }elseif(strpos($behavior,'Memoryfree')){
             // warning at a quarter, minimal 512
             $warningValue = intval($this->getMemory()*0.25);
@@ -1127,6 +1130,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
             // maximal at ten percent, minimal 256
             $maximalValue = intval($this->getMemory()*0.1);
             if($maximalValue < 256) $maximalValue = 256;
+            
+            // set params
+            $behaviorParams = '["guest","ram","memory_free_mb"]';
         }elseif(strpos($behavior,'Diskspacefree')){
             // warning at a ten percent, minimal 2
             $warningValue = intval($this->getSpace()*0.1);
@@ -1135,6 +1141,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
             // maximal at five percent, minimal 1 
             $maximalValue = intval($this->getSpace()*0.05);
             if($maximalValue < 1) $maximalValue = 1;
+            
+            // set params
+            $behaviorParams = '["FsInfo","/","free_gb"]';
         }
         
         $reflection = new \ReflectionClass($this);
@@ -1146,6 +1155,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
                 "server_id" => $this->getId(),
                 "server_class" => "\\".$reflection->getName(),
                 "mon_behavior_class" => $behavior,
+                "mon_behavior_params" => $behaviorParams,
                 "period" => $period,
                 "alarm_period" => $alarmPeriod,
                 "warning_value" => $warningValue,
