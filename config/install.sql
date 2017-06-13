@@ -163,6 +163,16 @@ CREATE TABLE IF NOT EXISTS `mon_remote_logs` (
   KEY `modified` (`modified`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `mon_logs` (
+  `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `mon_jobs_id` int(11) NOT NULL COMMENT 'FK mon_jobs_id',
+  `value` text NOT NULL,
+  `heal_job` int(11) DEFAULT NULL COMMENT 'FK jobs',
+  `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY `mon_jobs_id` (`mon_jobs_id`),
+  KEY `modified` (`modified`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `mon_uptimes` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `mon_remote_jobs_id` int(11) NOT NULL COMMENT 'FK mon_remote_jobs_id',
