@@ -720,6 +720,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @return boolean
     */
     public function isInErrorState(){
+        if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         return $this->Status == 'down';
     }
     
@@ -730,6 +731,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * 
     */
     public function recomputeUptime(){
+        if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $monUptimes = MonUptimes::find(
             [
                 "mon_remote_jobs_id = :id:",
@@ -829,6 +831,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @return \EAT\monitoring\model\DownTimePeriod[]
     */
     private function createDownTimePeriods(){
+        if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $downTimes = array();
         $monLogs = MonRemoteLogs::find(
             [
@@ -885,6 +888,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * 
     */
     public function genMonUptimes(){
+        if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         MonUptimesGenerator::genMonUptime($this);
     }
     
@@ -895,6 +899,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * 
     */
     public function hadRecentHealJob(){
+        if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         return $this->recent_healjob_id > 0;
     }
     
@@ -906,6 +911,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @return DowntimePeriod
     */
     public function getLastDowntimePeriod(){
+        if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $modelManager = $this->getDI()['modelsManager'];
         $endLog = $modelManager->executeQuery(
             "SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteLogs AS m1 ".
@@ -952,6 +958,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * 
     */
     public function genMonLocalDailyLogs(){
+        if($this->mon_type != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
         MonLocalDailyLogsGenerator::genLocalDailyLogs($this);    
     }
     
@@ -964,6 +971,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @return array 
     */
     public function getLocalMonLogsThisWeekHourly(){
+        if($this->mon_type != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
         $start = new \DateTime();
         $start->setTimestamp(strtotime("this week"));
         $end = new \DateTime();
@@ -980,6 +988,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @return array 
     */
     public function getLocalMonLogsThisMonthHourly(){
+        if($this->mon_type != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
         $start = new \DateTime();
         $start->setTimestamp(strtotime("first day of this month"));
         $end = new \DateTime();
@@ -996,6 +1005,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @return array 
     */
     public function getLocalMonLogsThisMonthDaily(){
+        if($this->mon_type != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
         $start = new \DateTime();
         $start->setTimestamp(strtotime("first day of this month"));
         $end = new \DateTime();
@@ -1012,6 +1022,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @return array 
     */
     public function getLocalMonLogsThisYearDaily(){
+        if($this->mon_type != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
         $start = new \DateTime();
         $start->setTimestamp(strtotime("first day of this year"));
         $end = new \DateTime();
@@ -1032,6 +1043,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @return array
     */
     public function getLocalMonLogs(\DateTime $start, \DateTime $end, $unit){
+        if($this->mon_type != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
         if(!($unit == 'all' || $unit == 'hourly' || $unit == 'daily')){
             throw new \Exception($this->translate("monitoring_monlocaljobs_no_valid_unit"));
         }
@@ -1241,18 +1253,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $type = '';
 
         $behavior = new $this->mon_behavior_class();
-        if($behavior instanceof MonBehaviorInterface){
-            $type = 'remote';
-        }elseif($behavior instanceof MonLocalBehaviorInterface){
-            $type = 'local';
-        }else{
+        if(!($behavior instanceof MonBehaviorInterface || $behavior instanceof MonLocalBehaviorInterface)){
             throw new \Exception($this->translate("monitoring_mon_behavior_not_implements_interface"));    
         }
 
         // update MainIp from Server Object in case it has changed since last execute
         $server = $this->getServer(); 
 
-        if($type == 'remote'){
+        if($this->mon_type == 'remote'){
             $ipaddress = $server->getMainIp();
 
             if($ipaddress === false){
@@ -1272,7 +1280,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 }
                 $executed = true;
             }
-        }elseif($type == 'local'){
+        }elseif($this->mon_type == 'local'){
             $ovzStatistics = $server->getOvzStatistics();
         
             $decodedOvzStatistics = json_decode($ovzStatistics,true);
