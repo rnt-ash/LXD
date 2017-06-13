@@ -23,7 +23,14 @@ use Phalcon\DiInterface;
 
 use RNTForest\ovz\models\VirtualServers;   
 
-
+/**
+* 
+* @property \RNTForest\core\services\Push $push
+* @property \RNTForest\hws\services\Sync $sync
+* @property \RNTForest\ovz\services\Replica $replica
+* @property \RNTForest\core\libraries\Permissions $permissions
+* 
+*/
 class Replica extends \Phalcon\DI\Injectable
 {
     /**
@@ -37,15 +44,6 @@ class Replica extends \Phalcon\DI\Injectable
 
     protected function translate($token,$params=array()){
         return $this->getDI()->getShared('translate')->_($token,$params);
-    }
-
-    /**
-    * dummy method only for auto completion purpose
-    * 
-    * @return \RNTForest\core\services\Push
-    */
-    protected function getPushService(){
-        return $this->di['push'];
     }
 
     /**
@@ -63,9 +61,8 @@ class Replica extends \Phalcon\DI\Injectable
 
         // execute ovz_list_snapshots job 
         // no pending needed because job is readonly       
-        $push = $this->getPushService();
         $params = array('UUID'=>$replicaMaster->getOvzUuid());
-        $job = $push->executeJob($replicaMaster->PhysicalServers,'ovz_list_snapshots',$params);
+        $job = $this->push->executeJob($replicaMaster->PhysicalServers,'ovz_list_snapshots',$params);
         $message = $this->translate("virtualserver_job_listsnapshots_failed");
         if(!$job || $job->getDone()==2) throw new \Exception($message);
 
@@ -128,7 +125,7 @@ class Replica extends \Phalcon\DI\Injectable
             'params' => array(),
             'callback' => '\RNTForest\ovz\functions\Pending::updateAfterReplicaRun'
         );
-        $job = $push->executeJob($replicaMaster->physicalServers,'ovz_sync_replica',$params,$pending);
+        $job = $this->push->executeJob($replicaMaster->physicalServers,'ovz_sync_replica',$params,$pending);
         if($job->getDone() == 2){
             $message = $this->translate("virtualservers_job_sync_replica_failed");
             throw new \Exception($message.$job->getError());
@@ -137,47 +134,24 @@ class Replica extends \Phalcon\DI\Injectable
         return $job;
     }
 
-
-
-
-
-
-
-/**************************** old, todo **********************************/
-
-    private function reconnectMySQL(){
-        // Datenbank schliessen..
-        $this->MySQL->close();
-
-        // ..und gleich wieder öffnen!            
-        if(!$this->MySQL = new mysqli(DB_HOST, DB_USER, DB_PWD, DB_DBASE)) 
-            file_put_contents("EATDebug.log","Verbindung zu MySQL konnte nicht aufgebaut werden...\n",FILE_APPEND);
-        $this->MySQL->set_charset("utf8");
-    }            
-
-
     /**
-    * Sucht alle Server auf einen OVZ-Host und kontrolliert, ob Replica aktiviert ist.
+    * search for all unactivated replicas
     * 
     */
-    public function checkForUnactivatedReplicas(){
-        // Alle virtuellen Server abholen (idle und error)
-        $sql = "SELECT id,name,ovz_replica,ovz_replica_status FROM `servers` ".
-        "WHERE dco_parent in (SELECT id FROM servers WHERE ovz=1 AND dco_parent=1)";
-        if (!$res=$this->MySQL->query($sql)) 
-            throw new Exception("Probleme beim Abholen der Server: ".$this->MySQL->error);
+    public function ovzReplicaCheckForUnactivatedReplicas(){
+        $servers = VirtualServers::find(["conditions"=>"ovz=1 AND ovz_replica=0","order"=>"name"]);
 
         $message = "";
-        while ($row = $res->fetch_assoc()){
-            if(in_array($row['id'],$this->excludeFromReplica)) continue;
-            if($row['ovz_replica']==0) 
-                $message .=  "Server ".$row['name']."(ID".$row['id']."): Replika ist nicht aktiviert.\n";
-            if($row['ovz_replica']==1 && $row['ovz_replica_status']==0) 
-                $message .=  "Server ".$row['name']."(".$row['id']."): Replika ist aktiviert, Status aber auf 0 (off).\n";
+        $excludedServers = explode(',',$this->config->replica['excludedServers']);
+        foreach($servers as $server){
+            if(in_array($server->getId(),$excludedServers)) continue;
+            $message .=  "Server ".$server->getName().": Replica not activated.\n";
         }
+
         if(!empty($message)){
-            $message = "Folgende Server wurden gefunden, bei welchen die Replika-Sync nicht aktiviert wurde.\n\n".$message;
-            mail("info@aronet.ch","Inkonsistenzen bei Replikas",$message);
+            $login = \RNTForest\core\models\Logins::findFirst($this->config->replica['infoLoginId']);
+            $message = "Servers with non activated replica found!\n\n".$message;
+            mail($login->getEmail(),"Inconsistencies in replicas",$message);
         }
     }
 
@@ -188,31 +162,57 @@ class Replica extends \Phalcon\DI\Injectable
     */
     public function dailyReplicaSync(){
         try{
-            // Alle Replikas abholen (idle und error)
-            $sql = "SELECT id,ovz_replica_host FROM servers WHERE ovz_replica=1 AND (ovz_replica_status = 1 OR ovz_replica_status = 9)";
-            if (!$res=$this->MySQL->query($sql)) 
-                throw new Exception("Probleme beim Abholen der aktiven Replikas: ".$this->MySQL->error);
+            $servers = VirtualServers::find([
+                "conditions"=>"ovz_replica=1 AND (ovz_replica_status = 1 OR ovz_replica_status = 9)",
+                "order"=>"name",
+                "limit"=>"2"
+            ]);
+            if($servers === false) throw new \Exception("Can't get replica servers.");
 
-            // ToDo: ev. mehrer Sync paralell laufen lassen.
+            foreach($servers as $server){
+                $this->logger->info('dailyReplica for '.$server->getName().' started...');
 
-            // Replikas anstossen...
-            while ($row = $res->fetch_assoc()){
-                if($jobID = $this->replicaStart($row['id'])){
-                    // Warten bis Job abgearbeitet ist
-                    while(!$this->isJobFinished($jobID))sleep(10);
-                } else {
-                    // Ist etwas schiefgegangen, nicht abbrechen sondern mit dem Nächsten weiter machen.
-                    $this->genLog('alarm','error','3000',$this->error,'1');
-                }
+                try{
+                    $job = $this->run($server);
+                    // wait until job is finished
+                    while(!$this->isJobFinished($job))sleep(10);
+                    $this->logger->info('dailyReplica for '.$server->getName().' finished...');
+                    
+                } catch (\Exception $e){
+                    // something goes wrong: write log and go on...
+                    $this->logger->warning('dailyReplica for '.$server->getName().' error:'.$e->getMessage());
+                }               
             }
-        } catch(Exception $e){
-            // Logeintrag erstellen
-            if(!$this->MySQL->ping()) $this->reconnectMySQL();
-            $logtext = "Es wurde eine Fehlermeldung generiert: ".$this->MySQL->real_escape_string(htmlentities($this->makePrettyException($e)));
-            $this->genLog('alarm','error','3000',$logtext,'1');
+
+        } catch (\Exception $e){
+            //if(!$this->MySQL->ping()) $this->reconnectMySQL();
+            $this->logger->error($e->getMessage());
+            return false;
         }
         return true;
     }
+
+    public function isJobFinished(\RNTForest\core\models\Jobs $job){
+        $this->dbPing();
+        $job->refresh();
+        return ($job->getDone()>0?true:false);
+    }
+    
+    /**
+    * checks the DB connection and try to reconnect
+    * 
+    */
+    public function dbPing() {
+        try {
+            $this->db->fetchOne('SELECT 1');
+        } catch (\PDOException $e) {
+            $this->connect();
+        }
+    }
+    
+
+
+/**************************** old, todo **********************************/
 
 
     /**

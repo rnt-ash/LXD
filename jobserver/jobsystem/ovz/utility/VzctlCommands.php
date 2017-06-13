@@ -133,13 +133,13 @@ class VzctlCommands {
     /**
     * create a snapshot
     * 
-    * @param string $UUID
+    * @param string $CTID
     * @param string $name
     * @param string $description
     * @param string $host
     */
-    public function createSnapshot($UUID,$name,$description,$snapshotUUID,$host=""){
-        $cmd = ("vzctl snapshot ".escapeshellarg($UUID).
+    public function createSnapshot($CTID,$name,$description,$snapshotUUID,$host=""){
+        $cmd = ("vzctl snapshot ".escapeshellarg($CTID).
                 " --name ".escapeshellarg($name).
                 " --description ".escapeshellarg($description).
                 (($snapshotUUID!=NULL)?" --id ".escapeshellarg($snapshotUUID):""));
@@ -178,13 +178,13 @@ class VzctlCommands {
     /**
     * mount a snapshot
     * 
-    * @param string $UUID
+    * @param string $CTID
     * @param string $snapshotID
     * @param string $target
     * @param string $host
     */
-    public function mountSnapshot($UUID,$snapshotID,$target,$host=""){
-        $cmd = ("vzctl snapshot-mount ".escapeshellarg($UUID).
+    public function mountSnapshot($CTID,$snapshotID,$target,$host=""){
+        $cmd = ("vzctl snapshot-mount ".escapeshellarg($CTID).
                 " --id ".escapeshellarg($snapshotID).
                 " --target ".escapeshellarg($target));
         $exitstatus = $this->Cli->execute($cmd,$host);
@@ -194,13 +194,13 @@ class VzctlCommands {
     /**
     * unmount a snapshot
     * 
-    * @param string $UUID
+    * @param string $CTID
     * @param string $snapshotID
     * @param string $target
     * @param string $host
     */
-    public function umountSnapshot($UUID,$snapshotID,$host=""){
-        $cmd = ("vzctl snapshot-umount ".escapeshellarg($UUID).
+    public function umountSnapshot($CTID,$snapshotID,$host=""){
+        $cmd = ("vzctl snapshot-umount ".escapeshellarg($CTID).
                 " --id ".escapeshellarg($snapshotID));
         $exitstatus = $this->Cli->execute($cmd,$host);
         return $exitstatus;

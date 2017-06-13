@@ -41,7 +41,7 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
             if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Mount of replica slave failed",$exitstatus));
 
             // create replica master snapshot
-            $exitstatus = $this->VzctlCommands->createSnapshot($this->Params['UUID'],$snapshotName,$snapshotDesc,$snapshotUUID);        
+            $exitstatus = $this->VzctlCommands->createSnapshot($this->uuid2ctid($this->Params['UUID']),$snapshotName,$snapshotDesc,$snapshotUUID);        
             if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Snapshot for Replica failed",$exitstatus));
 
             // set flag
@@ -55,7 +55,7 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
             }
                 
             // mount snapshot
-            $exitstatus = $this->VzctlCommands->mountSnapshot($this->Params['UUID'],$snapshotUUID,"/vz/mnt/".$this->Params['UUID']);        
+            $exitstatus = $this->VzctlCommands->mountSnapshot($this->uuid2ctid($this->Params['UUID']),$snapshotUUID,"/vz/mnt/".$this->Params['UUID']);        
             if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Mount snapshot failed. VZCTL Returncode: $exitstatus",$exitstatus));
 
             // Run sync (save detail log in file)
@@ -102,7 +102,7 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
             
 
             // umount snapshots
-            $exitstatus = $this->VzctlCommands->umountSnapshot($this->Params['UUID'],$snapshotUUID);        
+            $exitstatus = $this->VzctlCommands->umountSnapshot($this->uuid2ctid($this->Params['UUID']),$snapshotUUID);        
             if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Unmount snapshot failed. VZCTL returncode: $exitstatus",$exitstatus));
 
             // delete mountdirectory
@@ -124,10 +124,10 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
 
         }catch(\Exception $e){
             // Cleanup (no error dedection)
-            $this->VzctlCommands->umountSnapshot($this->Params['UUID'],$snapshotUUID);
+            $this->VzctlCommands->umountSnapshot($this->uuid2ctid($this->Params['UUID']),$snapshotUUID);
             exec('rm -rf /vz/mnt/'.$this->Params['UUID']);
-            $this->VzctlCommands->deleteSnapshot($this->Params['UUID'],$snapshotUUID);
-            $this->VzctlCommands->umount($this->Params['SLAVEUUID'],$this->Params['SLAVEHOSTFQDN']);
+            $this->PrlctlCommands->deleteSnapshot($this->Params['UUID'],$snapshotUUID);
+            $this->PrlctlCommands->umount($this->Params['SLAVEUUID'],$this->Params['SLAVEHOSTFQDN']);
         }
 
         // set end flag

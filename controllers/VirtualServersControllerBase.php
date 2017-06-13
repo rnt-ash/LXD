@@ -1517,15 +1517,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $this->redirectToTableSlideDataAction();        
     }
 
-    /**
-    * dummy method only for auto completion purpose
-    * 
-    * @return \RNTForest\ovz\services\Replica
-    */
-    protected function getReplicaService(){
-        return $this->di['replica'];
-    }
-    
     public function ovzReplicaRunAction($replicaMasterId) {
 
         // sanitize Parameters
@@ -1538,8 +1529,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->tryCheckOvzEnabled($replicaMaster);
 
             // run replica
-            $replica = $this->getReplicaService();
-            $replica->run($replicaMaster);
+            $this->replica->run($replicaMaster);
             $this->flashSession->success('virtualserver_replica_running_in_background');
 
         } catch (\Exception $e){
@@ -1582,8 +1572,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // run replica, don't go on until job ist fineshed
-            $replica = $this->getReplicaService();
-            if($job = $replica->run($replicaMaster)){
+            if($job = $this->replica->run($replicaMaster)){
                 $push = $this->getPushService();
                 while($job->getDone()<1){
                     sleep(5);
@@ -1681,7 +1670,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
         $this->forwardToTableSlideDataAction();
     }
-
+    
     /**
     * Show rootPasswordChange form
     * 

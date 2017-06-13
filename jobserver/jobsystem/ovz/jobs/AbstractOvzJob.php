@@ -73,6 +73,19 @@ abstract class AbstractOvzJob extends AbstractJob{
         return $exitstatus;
     }
 
+    protected function ctid2uuid($ctid){
+        $listarray = array();
+        exec('vzlist -H -o uuid '.intval($ctid),$listarray);
+        return trim($listarray[0]);
+    }
+    
+    protected function uuid2ctid($uuid){
+        $listarray = array();
+        exec('prlctl list -H -o envid '.intval($uuid),$listarray);
+        return trim($listarray[0]);
+    }
+
+    
     /**
     * checks if a VS exists. Otherwise it generates an Error 
     * 
