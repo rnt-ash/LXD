@@ -46,7 +46,7 @@ class OvzPoolUpdateBgJob extends AbstractOvzJob{
 
         try{
             // run RSync
-            $exclude = "--exclude=db/ --exclude=keys/ --exclude=log/ --exclude=vendor/ ";
+            $exclude = "--exclude=db/ --exclude=keys/ --exclude=log/ --exclude=vendor/ --exclude=statistics/ ";
             $cmd = "rsync -apvlz --stats --delete ".$exclude." ".POOLSERVER."::ECPPool/OVZ/ /srv/jobsystem";
             $exitstatus = $this->Cli->execute($cmd);
             if($exitstatus > 0) return $this->commandFailed("problems with RSync ECPPool/OVZ transfer. (RSync code:".$exitstatus.")");
