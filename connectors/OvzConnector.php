@@ -482,6 +482,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 "\t".""."\n".
                 "\t"."// Jobsystem"."\n".
                 "\t"."define('SERVICENAME','".$this->Servicename."');"."\n".
+                "\t"."define('POOLSERVER','".$this->di['config']->jobsystem['poolserver']."');"."\n".
                 "\t".""."\n".
                 "\t"."// FileLogger"."\n".
                 "\t"."define('LOG_FILE','".$this->ConfigOvzJobsystemRootDir."log/filelogger.log');"."\n".
