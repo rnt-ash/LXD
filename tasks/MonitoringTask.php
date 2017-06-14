@@ -22,6 +22,8 @@ use Phalcon\Cli\Task;
 use RNTForest\core\services\Push;
 use RNTForest\ovz\services\MonSystem;
 use RNTForest\ovz\services\MonHealing;
+use RNTForest\ovz\services\MonSystemNew;
+use RNTForest\ovz\services\MonHealingNew;
 use RNTForest\ovz\models\VirtualServers;
 use RNTForest\ovz\models\MonRemoteJobs;
 
@@ -62,6 +64,36 @@ class MonitoringTask extends Task
     
     public function genMonLocalDailyLogsAction(){
         $system = new MonSystem();
+        $system->genMonLocalDailyLogs();
+    }
+    
+    public function runJobsNewAction(){
+        $system = new MonSystemNew();
+        $system->runMonRemoteJobs();
+    }
+    
+    public function runCriticalJobsNewAction(){
+        $healing = new MonHealingNew();
+        $healing->healFailedMonRemoteJobs();
+    }
+    
+    public function runLocalJobsNewAction(){
+        $system = new MonSystemNew();
+        $system->runMonLocalJobs();
+    }
+    
+    public function recomputeUptimesNewAction(){
+        $system = new MonSystemNew();
+        $system->recomputeUptimes();
+    }
+    
+    public function genMonUptimesNewAction(){
+        $system = new MonSystemNew();
+        $system->genMonUptimes();
+    }
+    
+    public function genMonLocalDailyLogsNewAction(){
+        $system = new MonSystemNew();
         $system->genMonLocalDailyLogs();
     }
     

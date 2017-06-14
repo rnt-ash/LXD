@@ -20,11 +20,12 @@
 namespace RNTForest\ovz\models;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
-use RNTForest\ovz\models\MonLogsRemote;
+use RNTForest\ovz\interfaces\MonLocalBehaviorInterface;
+use RNTForest\ovz\models\MonLogs as MonLogsRemote;
 use RNTForest\ovz\models\MonUptimes;
 use RNTForest\core\libraries\Helpers;
 use RNTForest\ovz\datastructures\DowntimePeriod;
-use RNTForest\ovz\utilities\MonUptimesGenerator;
+use RNTForest\ovz\utilities\MonUptimesGeneratorNew as MonUptimesGenerator ;
 
 class MonJobs extends \RNTForest\core\models\ModelBase
 {
@@ -732,6 +733,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     */
     public function recomputeUptime(){
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
+        
         $monUptimes = MonUptimes::find(
             [
                 "mon_remote_jobs_id = :id:",
@@ -759,18 +761,18 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         
        
         // add information from MonRemoteLogs
-        $oldestMonLog = MonRemoteLogs::findFirst(
+        $oldestMonLog = MonLogs::findFirst(
             [
-                "mon_remote_jobs_id = :id:",
+                "mon_jobs_id = :id:",
                 "order" => "modified ASC",
                 "bind" => [
                     "id" => $this->getId(),
                 ],
             ]
         );
-        $newestMonLog = MonRemoteLogs::findFirst(
+        $newestMonLog = MonLogs::findFirst(
             [
-                "mon_remote_jobs_id = :id:",
+                "mon_jobs_id = :id:",
                 "order" => "modified DESC",
                 "bind" => [
                     "id" => $this->getId(),
@@ -820,7 +822,10 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         
         $this->setUptime(json_encode($uptime));
         
-        $this->save();
+        if($this->save() !== true){
+            $messages = $this->getMessages();
+            $this->getLogger()->error('could not save job '.$this->id.' Messages: '.implode(' ',$messages));
+        }
     }
     
     /**
@@ -1269,8 +1274,8 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 $this->setMainIp($ipaddress->toString());
 
                 $statusAfter = $behavior->execute($this->getMainIp());
-                $monLog = new MonRemoteLogs();
-                $monLog->create(["mon_remote_jobs_id" => $this->id, "value" => $statusAfter, "modified" => date('Y-m-d H:i:s')]);
+                $monLog = new MonLogs();
+                $monLog->create(["mon_jobs_id" => $this->id, "value" => $statusAfter, "modified" => date('Y-m-d H:i:s')]);
                 $monLog->save();
 
                 if($statusAfter == "1"){
@@ -1298,8 +1303,8 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 if($valuestatus == null){
                     throw new \Exception($this->translate("monitoring_mon_behavior_could_not_instantiate_valuestatus"));
                 }
-                $monLog = new MonLocalLogs();
-                $monLog->create(["mon_local_jobs_id" => $this->id, "value" => $valuestatus->getValue(), "modified" => date('Y-m-d H:i:s')]);
+                $monLog = new MonLogs();
+                $monLog->create(["mon_jobs_id" => $this->id, "value" => $valuestatus->getValue(), "modified" => date('Y-m-d H:i:s')]);
                 $monLog->save();
                 
                 $this->status = $statusAfter = $valuestatus->getStatus();

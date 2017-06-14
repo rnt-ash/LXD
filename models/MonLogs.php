@@ -33,7 +33,7 @@ class MonLogs extends \RNTForest\core\models\ModelBase
     * 
     * @var integer
     */
-    protected $mon_jobs_remote_id;
+    protected $mon_jobs_id;
     
     /**
     * 
@@ -66,11 +66,11 @@ class MonLogs extends \RNTForest\core\models\ModelBase
     /**
     * ID of the monjob
     * 
-    * @param integer $monJobsRemoteId
+    * @param integer $monJobsId
     */
-    public function setMonJobsRemoteId($monJobsRemoteId)
+    public function setMonJobsId($monJobsId)
     {
-        $this->mon_jobs_remote_id = $monJobsRemoteId;
+        $this->mon_jobs_id = $monJobsId;
     }
     
     /**
@@ -118,7 +118,7 @@ class MonLogs extends \RNTForest\core\models\ModelBase
     */
     public function getMonJobsRemoteId()
     {
-        return $this->mon_jobs_remote_id;
+        return $this->mon_jobs_id;
     }
     
     /**

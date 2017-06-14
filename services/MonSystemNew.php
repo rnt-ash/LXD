@@ -22,7 +22,7 @@ namespace RNTForest\ovz\services;
 use \RNTForest\ovz\models\MonJobs;
 use \RNTForest\ovz\utilities\AllInfoUpdater;
 
-class MonSystem extends \Phalcon\DI\Injectable
+class MonSystemNew extends \Phalcon\DI\Injectable
 {
     /**
     * 
@@ -107,7 +107,7 @@ class MonSystem extends \Phalcon\DI\Injectable
     * @return \RNTForest\ovz\services\MonAlarm
     */
     private function getMonAlarm(){
-        return $this->getDI()['monAlarm'];
+        return $this->getDI()['monAlarmNew'];
     }
     
     /**
@@ -200,7 +200,7 @@ class MonSystem extends \Phalcon\DI\Injectable
             if(!empty($monJobIds)){
                 $ids = implode(',',$monJobIds);
                 // delete MonLogs with nonexisting local MonJobs
-                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id FROM \\RNTForest\\ovz\\models\\MonLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonJobs ON \\RNTForest\\ovz\\models\\MonLogs.mon_local_jobs_id = \\RNTForest\\ovz\\models\\MonJobs.id WHERE \\RNTForest\\ovz\\models\\MonJobs.id IS NULL");
+                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id FROM \\RNTForest\\ovz\\models\\MonLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonJobs ON \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id = \\RNTForest\\ovz\\models\\MonJobs.id WHERE \\RNTForest\\ovz\\models\\MonJobs.id IS NULL");
                 foreach($rows as $row){
                     $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonLogs WHERE mon_jobs_id = (:id:)",['id'=>$row['mon_jobs_id']]);
                 }
