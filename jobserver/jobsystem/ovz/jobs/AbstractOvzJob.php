@@ -81,7 +81,7 @@ abstract class AbstractOvzJob extends AbstractJob{
     
     protected function uuid2ctid($uuid){
         $listarray = array();
-        exec('prlctl list -H -o envid '.intval($uuid),$listarray);
+        exec('prlctl list -H -o envid '.trim($uuid),$listarray);
         return trim($listarray[0]);
     }
 

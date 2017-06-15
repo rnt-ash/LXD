@@ -49,4 +49,8 @@ class ReplicaTask extends Task
     public function dailyReplicaSyncAction(){
         $this->replica->dailyReplicaSync();
     }
+
+    public function cleanUpReplicaSnapshotsAction(){
+        $this->replica->cleanUpReplicaSnapshots();
+    }
 }

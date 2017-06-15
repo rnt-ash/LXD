@@ -24,6 +24,7 @@ use Phalcon\DiInterface;
 use RNTForest\ovz\models\VirtualServers;   
 
 /**
+* @property \Phalcon\Logger\Adapter\File $logger
 * 
 * @property \RNTForest\core\services\Push $push
 * @property \RNTForest\hws\services\Sync $sync
@@ -139,13 +140,13 @@ class Replica extends \Phalcon\DI\Injectable
     * 
     */
     public function ovzReplicaCheckForUnactivatedReplicas(){
-        $servers = VirtualServers::find(["conditions"=>"ovz=1 AND ovz_replica=0","order"=>"name"]);
+        $replicaMasters = VirtualServers::find(["conditions"=>"ovz=1 AND ovz_replica=0","order"=>"name"]);
 
         $message = "";
         $excludedServers = explode(',',$this->config->replica['excludedServers']);
-        foreach($servers as $server){
-            if(in_array($server->getId(),$excludedServers)) continue;
-            $message .=  "Server ".$server->getName().": Replica not activated.\n";
+        foreach($replicaMasters as $replicaMaster){
+            if(in_array($replicaMaster->getId(),$excludedServers)) continue;
+            $message .=  "Server ".$replicaMaster->getName().": Replica not activated.\n";
         }
 
         if(!empty($message)){
@@ -162,30 +163,29 @@ class Replica extends \Phalcon\DI\Injectable
     */
     public function dailyReplicaSync(){
         try{
-            $servers = VirtualServers::find([
+            $replicaMasters = VirtualServers::tryFind([
                 "conditions"=>"ovz_replica=1 AND (ovz_replica_status = 1 OR ovz_replica_status = 9)",
                 "order"=>"name",
-                "limit"=>"2"
             ]);
-            if($servers === false) throw new \Exception("Can't get replica servers.");
 
-            foreach($servers as $server){
-                $this->logger->info('dailyReplica for '.$server->getName().' started...');
+            foreach($replicaMasters as $replicaMaster){
+                $this->logger->info('dailyReplica for '.$replicaMaster->getName().' started...');
 
                 try{
-                    $job = $this->run($server);
+                    $job = $this->run($replicaMaster);
                     // wait until job is finished
                     while(!$this->isJobFinished($job))sleep(10);
-                    $this->logger->info('dailyReplica for '.$server->getName().' finished...');
+                    $this->logger->info('dailyReplica for '.$replicaMaster->getName().' finished...');
+                    if($job->getDone()==2) throw new \Exception($job->getError());
                     
                 } catch (\Exception $e){
                     // something goes wrong: write log and go on...
-                    $this->logger->warning('dailyReplica for '.$server->getName().' error:'.$e->getMessage());
+                    $this->logger->warning('dailyReplica for '.$replicaMaster->getName().' error:'.$e->getMessage());
                 }               
             }
 
         } catch (\Exception $e){
-            //if(!$this->MySQL->ping()) $this->reconnectMySQL();
+            $this->dbPing();
             $this->logger->error($e->getMessage());
             return false;
         }
@@ -210,134 +210,103 @@ class Replica extends \Phalcon\DI\Injectable
         }
     }
     
-
-
-/**************************** old, todo **********************************/
-
-
-    /**
-    * Kontrolliert ob ein Sync fällig ist und für Ihn entsprechend aus
-    * 
-    */
-    public function checkForNextSync(){
-        try{
-            // Alle fälligen Replikas abholen
-            $sql = "SELECT id FROM servers WHERE ovz_replica=1 AND ovz_replica_status > 0 AND ovz_replica_nextrun != '0000-00-00 00:00:00' AND ovz_replica_nextrun <= now()";
-            if (!$res=$this->MySQL->query($sql)) 
-                throw new Exception("Problem beim abholen der fälligen Replikas: ".$this->MySQL->error);
-
-            // Fällige Replikas anstossen...
-            while ($row = $res->fetch_assoc()){
-                if(!$this->replicaStart($row['id']))
-                // Ist etwas schiefgegangen, nicht abbrechen sondern mit dem nächsten weiter machen.
-                $this->genLog('alarm','error','3000',$this->error,'1');
-            }
-        } catch(Exception $e){
-            // Logeintrag erstellen
-            $logtext = "Es wurde eine Fehlermeldung generiert: ".$this->MySQL->real_escape_string(htmlentities($this->makePrettyException($e)));
-            $this->genLog('alarm','error','3000',$logtext,'1');
-        }
-        return true;
-    }
-
-
-
     public function cleanUpReplicaSnapshots(){
         try{
-            // letztes mögliches Datum berechenen
-            $lastDate = new DateTime(NULL,new DateTimeZone('Europe/Zurich'));
-            $lastDate->sub(new DateInterval('P'.REPLICA_SNAPSHOTS_KEEP_DAYS.'D'));
+            // calculate last possible date
+            $lastDate = new \DateTime(NULL,new \DateTimeZone('Europe/Zurich'));
+            $lastDate->sub(new \DateInterval('P'.$this->config->replica["snapshotsKeepDays"].'D'));
+            
+            print_r($lastDate);
 
-            // Alle Replikaservers durchgehen
-            $sql="SELECT ovz_replica_id, ovz_replica_host FROM servers WHERE ovz_replica=1";
-            if(!$res = $this->MySQL->query($sql)) 
-                throw new Exception("Abfragen der ReplicaCTID fehlgeschlagen:".$this->MySQL->error);
-            while($row = $res->fetch_assoc()){
-                // Snapshots vom Replikaserver abholen
-                $params = array('CTID' => $row['ovz_replica_id']);
-                if(!$this->EATPush->executeJob($row['ovz_replica_host'],'ovz_get_snapshots',$params)){
-                    // Bei Problemen mit einem Replika beim nächsten weiter machen
-                    $logtext = "Abholen der Snaphots vom Server fehlgeschlagen.".$this->EATPush->getError();
-                    $this->genLog('alarm','error','3000',$logtext,'1');
+            $replicaMasters = VirtualServers::tryFind(["conditions"=>"ovz_replica=1","limit"=>"2"]);
+            foreach($replicaMasters as $replicaMaster){
+                // get all snapshots of this replica slave
+                // execute ovz_list_snapshots job 
+                // no pending needed because job is readonly       
+                $params = array('UUID'=>$replicaMaster->OvzReplicaId->getOvzUuid());
+                $job = $this->push->executeJob($replicaMaster->OvzReplicaId->PhysicalServers,'ovz_list_snapshots',$params);
+                $message = $this->translate("virtualserver_job_listsnapshots_failed");
+                if(!$job || $job->getDone()==2) {
+                    $this->logger->warning($message);
                     continue;
                 }
-                $aSnapshots = (array) $this->EATPush->getRetval();
+                $aSnapshots = $job->getRetval(true);
                 foreach($aSnapshots as $snapshot){
-                    $snapshotdate = new datetime($snapshot['DATE'],new DateTimeZone('Europe/Zurich'));
+                    $snapshotdate = new \DateTime($snapshot['Date'],new \DateTimeZone('Europe/Zurich'));
                     if($snapshotdate < $lastDate){
-                        // Snapshot entfernen
-                        $params = array(
-                            'CTID' => $row['ovz_replica_id'],
-                            'UUID' => $snapshot['UUID']
-                        );
-                        if(!$this->EATPush->executeJob($row['ovz_replica_host'],'ovz_delete_snapshot',$params)){
-                            // Bei Problemen mit einem Replika beim nächsten weiter machen
-                            $logtext = "Senden des Löschauftrag zu Snapshot ".$snapshot['UUID']." zu Replika ID".$row['ovz_replica_id']." fehlgeschlagen: ".$this->EATPush->getError();
-                            $this->genLog('alarm','error','3000',$logtext,'1');
+                        // remove snapshot
+                        $params = array('UUID'=>$replicaMaster->OvzReplicaId->getOvzUuid(),'SNAPSHOTID'=>$snapshot['UUID']);
+                        $job = $this->push->executeJob($replicaMaster->OvzReplicaId->PhysicalServers,'ovz_delete_snapshot',$params);
+                        $message = "Deleting snapshot ".$snapshot['UUID']." of replica ".$replicaMaster->OvzReplicaId->getOvzUuid()." failed: ".$job->getError();
+                        if(!$job || $job->getDone()==2) {
+                            $this->logger->warning($message);
                             continue;
                         } else {
-                            // Warten bis Job abgearbeitet ist
-                            $jobID = $this->EATPush->getLastID();
-                            while(!$this->isJobFinished($jobID))sleep(10);
-
-                            $logtext = "Löschauftrag zu Snapshot ".$snapshot['UUID']." zu Replika ID".$row['ovz_replica_id']." wurde gesendet.";
-                            $this->genLog('info','ok','3000',$logtext,'1');
+                            // wait until job is finished
+                            while(!$this->isJobFinished($job))sleep(10);
+                            $this->logger->info('Deleting snapshot '.$snapshot['UUID'].' for replica slave '.$replicaMaster->OvzReplicaId->getName().' finished.');
                         }
                     }
                 }
             }
+            
+            // success
+            $this->logger->info('Deleting snapshots for replica slaves sucessfull finished.');
+            
         } catch(Exception $e){
-            // Logeintrag erstellen
-            $logtext = "Probleme beim Clean Up der Replika Snapshots: ".$this->MySQL->real_escape_string(htmlentities($this->makePrettyException($e)));
-            $this->genLog('alarm','error','3000',$logtext,'1');
+            $this->logger->error('Deleting snapshots for replica slaves failed: '.$e->getMessage());
+            return false;
         }
         return true;
     }
 
-
-    public function getStats(){
+    /**
+    * Checks if an sync is due and starts them
+    * 
+    */
+    public function checkForNextSync(){
         try{
-            // Alle Replika Master auflisten        
-            $sql = "SELECT id,name,ovz_replica_id,ovz_replica_cron,ovz_replica_lastrun,ovz_replica_nextrun,ovz_replica_status ".
-            "FROM servers WHERE ovz_replica = 1";
-            $res = $this->MySQL->query($sql);
-            if(!$res) throw new Exception("Replika Master können nicht abgeholt werden ".$this->MySQL->error);
-            while($row = $res->fetch_assoc()){
-                echo "Server: ".$row['name']." [".$row['id']."]\n";
-                $jobs = $this->getSyncJobsFromMaster($row['id']);
-                foreach($jobs as $job){
-                    echo "Status: ".$job['done']." Error: ".$job['error']."\n";
-                }
-            }
+            // gets all overdue replicas
+            $replicaMasters = VirtualServers::tryFind("ovz_replica=1 AND ovz_replica_status > 0 AND ovz_replica_nextrun != '0000-00-00 00:00:00' AND ovz_replica_nextrun <= now()");
 
-        }catch(Exception $e){
-            echo "Auflisten der Statistiken nicht möglich: ".$e->getMessage();    
+            // Start overdues replicas...
+            foreach($replicaMasters as $replicaMaster){
+                try{
+                    $job = $this->run($replicaMaster);
+                    // wait until job is finished
+                    while(!$this->isJobFinished($job))sleep(10);
+                    if($job->getDone()==2) throw new \Exception($job->getError());
+                } catch(Exception $e){
+                    // somtehing went wrong? Warn an go on
+                    $this->logger->warning("Replica (".$replicaMaster->getName().") checkForNextSync() failed ".$e->getMessage());
+                }                
+            }
+        } catch(Exception $e){
+            $this->logger->error("Replica:checkForNextSync() failed ".$e->getMessage());
+            return false;
         }
+        return true;
     }
 
-    private function getSyncJobsFromMaster($masterID){
-        $jobs = array();
-
-        // Alle Jobs zu diesem Master abholen
-        $sql = "SELECT * FROM jobs WHERE type ='ovz_sync_replica'";
-        $res = $this->MySQL->query($sql);
-        if(!$res) throw new Exception("Jobs können nicht abgeholt werden ".$this->MySQL->error);
-        while($row = $res->fetch_assoc()){
-            $params = json_decode($row['params'],true);
-            if($params['CTID'] == $masterID){
-                $jobs[$row['id']]['params'] = $params;
-                $jobs[$row['id']]['created'] = $row['created'];
-                $jobs[$row['id']]['sent'] = $row['sent'];
-                $jobs[$row['id']]['done'] = $row['done'];
-                $jobs[$row['id']]['error'] = $row['error'];
-                $jobs[$row['id']]['retval'] = json_decode($row['retval'],true);
-            }
+    /**
+    * collect all replica sync stats from a day
+    * 
+    * @param string $date format Y-m-d
+    * @throws \Exceptions
+    */
+    public function tryGetStats($date){
+        $stats = array();
+        $jobs = \RNTForest\core\models\Jobs::tryFind([
+            "conditions"=>"type ='ovz_sync_replica' AND DATE(created) ='".$date."' AND done = 1",
+            "oder"=>"created",
+        ]);
+        foreach($jobs as $job){
+            $params = $job->getParams(true);
+            $stat = $job->getRetval(true); 
+            unset($stat['sync_stats']);
+            $stat=array('server_uuid'=>$params['UUID'])+$stat;
+            $stats[]=$stat;
         }
-        return $jobs;
+        return $stats;
     }
-
-
-
-/**************************** old **********************************/
-
 }

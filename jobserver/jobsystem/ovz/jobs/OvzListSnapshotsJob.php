@@ -30,7 +30,7 @@ class OvzListSnapshotsJob extends AbstractOvzJob {
 
     public static function usage(){
         return [
-            "type" => "ovz_list_snapshot",
+            "type" => "ovz_list_snapshots",
             "description" => "get a list of snapshot on a VS",
             "params" => [
                 "UUID" => "Universally Unique Identifier (UUID) of the VS"

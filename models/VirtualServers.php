@@ -35,6 +35,15 @@ use RNTForest\core\libraries\PendingHelpers;
 use RNTForest\ovz\functions\Monitoring;
 use RNTForest\core\models\Customers;
 
+
+/**
+* @property \RNTForest\core\models\Customers $Customer
+* @property \RNTForest\ovz\models\PhysicalServers $VirtualServers
+* @property \RNTForest\ovz\models\VirtualServers $OvzReplicaId
+* @property \RNTForest\ovz\models\PhysicalServers $OvzReplicaHost
+* @property \RNTForest\ovz\models\PhysicalServersHws $VirtualServersHws
+* 
+*/
 class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface, IpServerInterface
 {
 

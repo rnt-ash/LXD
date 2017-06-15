@@ -83,8 +83,8 @@ class VzctlCommands {
     * @param string $UUID
     * @return int return value
     */
-    public function start($UUID){
-        $cmd = "vzctl start ".escapeshellarg($UUID);
+    public function start($CTID){
+        $cmd = "vzctl start ".escapeshellarg($CTID);
         return $this->Cli->execute($cmd);
     }
 
@@ -94,8 +94,8 @@ class VzctlCommands {
     * @param string $UUID
     * @return int return value
     */
-    public function restart($UUID){
-        $cmd = "vzctl restart ".escapeshellarg($UUID);
+    public function restart($CTID){
+        $cmd = "vzctl restart ".escapeshellarg($CTID);
         return $this->Cli->execute($cmd);
     }
 
@@ -105,8 +105,8 @@ class VzctlCommands {
     * @param string $UUID
     * @return int return value
     */
-    public function stop($UUID){
-        $cmd = "vzctl stop ".escapeshellarg($UUID);
+    public function stop($CTID){
+        $cmd = "vzctl stop ".escapeshellarg($CTID);
         return $this->Cli->execute($cmd);
     }
     
@@ -115,8 +115,8 @@ class VzctlCommands {
     *         
     * @param int $uuid
     */
-    public function mount($UUID,$host=''){
-        $cmd = "vzctl mount ".escapeshellarg($UUID);
+    public function mount($CTID,$host=''){
+        $cmd = "vzctl mount ".escapeshellarg($CTID);
         return $this->Cli->execute($cmd,$host);
     }
     
@@ -125,11 +125,29 @@ class VzctlCommands {
     *         
     * @param int $uuid
     */
-    public function umount($UUID,$host=''){
-        $cmd = "vzctl umount ".escapeshellarg($UUID);
+    public function umount($CTID,$host=''){
+        $cmd = "vzctl umount ".escapeshellarg($CTID);
         return $this->Cli->execute($cmd,$host);
     }
 
+    private function getContainerStatus($CTID,$host=""){
+
+        $cmd = "vzctl status ".$CTID;
+        $exitstatus = $this->Cli->execute($cmd,$host);
+
+        $aRetValTemp = explode(' ',$this->Cli->getOutput()[0]);
+        $aRetVal = array(
+            'CTID' => $CTID,
+            'EXIST' => strtolower(trim($aRetValTemp[2]))=='exist'?true:false,
+            'MOUNTED' => strtolower(trim($aRetValTemp[3]))=='mounted'?true:false,
+            'RUNNING' => strtolower(trim($aRetValTemp[4]))=='running'?true:false,
+            'SUSPENDED'  => (isset($aRetValTemp[5]) && strtolower(trim($aRetValTemp[5]))=='suspended')?true:false,
+        );
+        
+        return $aRetVal;
+    }
+    
+    
     /**
     * create a snapshot
     * 
@@ -139,11 +157,27 @@ class VzctlCommands {
     * @param string $host
     */
     public function createSnapshot($CTID,$name,$description,$snapshotUUID,$host=""){
+        
+        // OVZ7 CRIU Issue (stop Container for Snapshot)
+        // 15.6.2017 wird ab der neusten Version immer noch benötigt
+        $running = false;
+        if ($CTID!=2000 || $CTID!=2001){
+            $status = $this->getContainerStatus($CTID,$host);
+            if($status['RUNNING']) $running = true;
+            $this->Stop($CTID);
+        }
+        
         $cmd = ("vzctl snapshot ".escapeshellarg($CTID).
                 " --name ".escapeshellarg($name).
                 " --description ".escapeshellarg($description).
                 (($snapshotUUID!=NULL)?" --id ".escapeshellarg($snapshotUUID):""));
         $exitstatus = $this->Cli->execute($cmd,$host);
+
+        // OVZ7 CRIU Issue (Restart Container)
+        if ($running){
+            $this->start($CTID);
+        }
+
         return $exitstatus;
     }
 
@@ -154,8 +188,8 @@ class VzctlCommands {
     * @param string $snapshotID
     * @param string $host
     */
-    public function deleteSnapshot($UUID,$snapshotID,$host=""){
-        $cmd = ("vzctl snapshot-delete ".escapeshellarg($UUID).
+    public function deleteSnapshot($CTID,$snapshotID,$host=""){
+        $cmd = ("vzctl snapshot-delete ".escapeshellarg($CTID).
                 " --id ".escapeshellarg($snapshotID));
         $exitstatus = $this->Cli->execute($cmd,$host);
         return $exitstatus;
@@ -168,8 +202,8 @@ class VzctlCommands {
     * @param string $snapshotID
     * @param string $host
     */
-    public function switchSnapshot($UUID,$snapshotID,$host=""){
-        $cmd = ("vzctl snapshot-switch ".escapeshellarg($UUID).
+    public function switchSnapshot($CTID,$snapshotID,$host=""){
+        $cmd = ("vzctl snapshot-switch ".escapeshellarg($CTID).
                 " --id ".escapeshellarg($snapshotID));
         $exitstatus = $this->Cli->execute($cmd,$host);
         return $exitstatus;
