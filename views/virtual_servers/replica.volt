@@ -8,8 +8,8 @@
                         {{ link_to("virtual_servers/ovzReplicaActivate/"~item.id,'<i class="fa fa-plus"></i>',
                             'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_replica_tooltip_activate")) }}
                     {% else %}    
-                        {{ link_to("virtual_servers/ovzReplicaRun/"~item.id,'<i class="fa fa-play loadingScreen"></i>',
-                            'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_replica_tooltip_run")) }}
+                        <a href="#" link="/virtual_servers/ovzReplicaRun/{{item.id}}" text="{{ _("virtualserver_replica_confirm_run") }}"
+                            class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_replica_tooltip_run") }}"><i class="fa fa-play"></i></a>
                         <a href="#" link="/virtual_servers/ovzReplicaFailover/{{item.id}}" text="{{ _("virtualserver_replica_confirm_failover") }}"
                             class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_replica_tooltip_failover") }}"><i class="fa fa-random"></i></a>
                         <a href="#" link="/virtual_servers/ovzReplicaDelete/{{item.id}}" text="{{ _("virtualserver_replica_confirm_delete") }}"
