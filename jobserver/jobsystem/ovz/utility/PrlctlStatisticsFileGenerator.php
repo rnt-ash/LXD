@@ -101,6 +101,11 @@ class PrlctlStatisticsFileGenerator {
         $this->array_unshift_assoc($statistic,'FsInfo',$this->genGuestFsInfo($statistic));
         $this->array_unshift_assoc($statistic,'Timestamp',date("Y-m-d H:i:s"));
         
+        // directory already exists?
+        if(!file_exists($this->StatisticsFilesDirectory)){
+            mkdir($this->StatisticsFilesDirectory,0770,true);
+        }        
+        
         // write to file
         $file = $this->StatisticsFilesDirectory.$uuid;
         if(!file_exists($file)){
