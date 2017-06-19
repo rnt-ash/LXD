@@ -19,9 +19,8 @@
   
 namespace RNTForest\ovz\services;
 
-use RNTForest\ovz\models\MonRemoteJobs;
-use RNTForest\ovz\models\MonLocalJobs;
-use RNTForest\ovz\models\MonLocalLogs;
+use RNTForest\ovz\models\MonJobs;
+use RNTForest\ovz\models\MonLogs;
 use RNTForest\core\libraries\Helpers;
 
 class MonAlarm extends \Phalcon\DI\Injectable
@@ -41,12 +40,16 @@ class MonAlarm extends \Phalcon\DI\Injectable
     }
     
     /**
-    * Alarms to all MonContactsAlarm of the given RemoteMonJobs.
+    * Alarms to all MonContactsAlarm of the given remote MonJobs.
     * Checks AlarmPeriod and sends only if it's already time again.
     * 
-    * @param RemoteMonJobs $monJob
+    * remote only
+    * 
+    * @param MonJobs $monJob
+    * @throws \Exception
     */
-    public function alarmMonRemoteJobs(MonRemoteJobs $monJob){
+    public function alarmMonRemoteJobs(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         if($monJob->getAlarm() && !$monJob->getMuted() && $this->checkAlarmPeriod($monJob->getAlarmPeriod(), $monJob->getLastAlarm())){
             $alarmMailaddresses = $monJob->getMonContactsAlarmMailaddresses();
             foreach($alarmMailaddresses as $mailaddress){
@@ -57,10 +60,16 @@ class MonAlarm extends \Phalcon\DI\Injectable
             $monJob->setLastAlarm(date('Y-m-d H:i:s'));
             $monJob->setAlarmed(1);
             $monJob->save();
-            $this->logger->notice("RemoteMonJobs (ID: ".intval($monJob->getId()).", MonService: ".$monJob->getMonBehaviorClass().") alarmed.");
+            $this->logger->notice("Remote MonJobs (ID: ".intval($monJob->getId()).", MonBehavior: ".$monJob->getMonBehaviorClass().") alarmed.");
         }
     }
     
+    /**
+    * Checks if it is already time to send again.
+    * 
+    * @param integer $alarmPeriodInMinutes
+    * @param integer $lastAlarm
+    */
     private function checkAlarmPeriod($alarmPeriodInMinutes, $lastAlarm){
         $alarmPeriodInSeconds = 60 * $alarmPeriodInMinutes;
         // if period is 0 return true direct without further checking because it would be unnecessary
@@ -74,14 +83,30 @@ class MonAlarm extends \Phalcon\DI\Injectable
         return $result;
     }
     
-    private function genAlarmContentMonRemoteJobs(MonRemoteJobs $monJob){
+    /**
+    * Gens alarm content for remote MonJobs.
+    * 
+    * remote only
+    * 
+    * @param MonJobs $monJob
+    */
+    private function genAlarmContentMonRemoteJobs(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $content = '';
         $content .= $this->genContentMonRemoteJobsGeneralSection($monJob);
         $content .= $this->genContentUptimeSection($monJob);
         return $content;    
     }
     
-    private function genContentMonRemoteJobsGeneralSection(MonRemoteJobs $monJob){
+    /**
+    * Gens the general section content for a remote MonJobs.
+    * 
+    * remote only
+    * 
+    * @param MonJobs $monJob
+    */
+    private function genContentMonRemoteJobsGeneralSection(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $content = '';
         $monServer = $monJob->getServer();
         $name = $monServer->getName();  
@@ -100,7 +125,15 @@ class MonAlarm extends \Phalcon\DI\Injectable
         return $content;
     }
     
-    private function genContentUptimeSection(MonRemoteJobs $monJob){
+    /**
+    * Gens the general section content for a remote MonJobs.
+    * 
+    * remote only
+    * 
+    * @param MonJobs $monJob
+    */
+    private function genContentUptimeSection(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $content = '';
         $uptime = json_decode($monJob->getUptime(),true);
         if(is_array($uptime)){
@@ -118,12 +151,15 @@ class MonAlarm extends \Phalcon\DI\Injectable
     }
     
     /**
-    * Disalarms fo the given MonRemoteJobs object.
-    * 
-    * @param MonRemoteJobs $monJob
+    * Disalarms fo the given remote MonJobs object.
+    *
+    * remote only
+    *  
+    * @param MonJobs $monJob
     * @throws \Exception
     */
-    public function disalarmMonRemoteJobs(MonRemoteJobs $monJob){
+    public function disalarmMonRemoteJobs(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         if($monJob->getAlarm() == '1' && $monJob->getMuted() == '0'){
             $alarmMailaddresses = $monJob->getMonContactsAlarmMailaddresses();
             foreach($alarmMailaddresses as $mailaddress){
@@ -137,12 +173,15 @@ class MonAlarm extends \Phalcon\DI\Injectable
     }
     
     /**
-    * Informs about the current healjob of the given MonRemoteJobs.
+    * Informs about the current healjob of the given remote MonJobs object.
     * 
-    * @param MonRemoteJobs $monJob
+    * remote only
+    * 
+    * @param MonJobs $monJob
     * @throws \Exception
     */
-    public function informAboutHealJob(MonRemoteJobs $monJob){
+    public function informAboutHealJob(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         if($monJob->getAlarm() && !$monJob->getMuted()){
             $content = '';
             $monServer = $monJob->getServerClass()::findFirst($monJob->getServerId());
@@ -180,10 +219,13 @@ class MonAlarm extends \Phalcon\DI\Injectable
     /**
     * Informs about a short downtime.
     * 
-    * @param MonRemoteJobs $monJob
+    * remote only
+    * 
+    * @param MonJobs $monJob
     * @throws \Exception
     */
-    public function informAboutShortDowntime(MonRemoteJobs $monJob){
+    public function informAboutShortDowntime(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         if($monJob->getAlarm() && !$monJob->getMuted()){
             $content = '';
             $monServer = $monJob->getServerClass()::findFirst($monJob->getServerId());
@@ -208,19 +250,27 @@ class MonAlarm extends \Phalcon\DI\Injectable
         }
     }
     
-    private function inform(MonRemoteJobs $monJob, $subject, $content){
+    private function inform(MonJobs $monJob, $subject, $content){
         $messageMailaddresses = $monJob->getMonContactsMessageMailaddresses();
         foreach($messageMailaddresses as $mailaddress){
             $this->sendMail($mailaddress,$subject,$content);
         }       
     }
     
-    public function notifyMonLocalJobs(MonLocalJobs $monJob){
+    /**
+    * Notifies for local MonJobs.
+    * 
+    * local only
+    * 
+    * @param MonJobs $monJob
+    */
+    public function notifyMonLocalJobs(MonJobs $monJob){
+        if($monJob->getMonType() != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
         if($monJob->getAlarm() && $this->checkAlarmPeriod($monJob->getAlarmPeriod(), $monJob->getLastAlarm())){
             $mailaddresses = array();
-            if($monJob->getStatus() == MonLocalJobs::$STATEMAXIMAL){
+            if($monJob->getStatus() == MonJobs::$LOCAL_STATEMAXIMAL){
                 $mailaddresses = $monJob->getMonContactsAlarmMailaddresses();
-            }elseif($monJob->getStatus() == MonLocalJobs::$STATEWARNING){
+            }elseif($monJob->getStatus() == MonJobs::$LOCAL_STATEWARNING){
                 $mailaddresses = $monJob->getMonContactsMessageMailaddresses();
             }
             foreach($mailaddresses as $mailaddress){
@@ -233,7 +283,15 @@ class MonAlarm extends \Phalcon\DI\Injectable
         }
     }
     
-    private function genAlarmContentMonLocalJob(MonLocalJobs $monJob){
+    /**
+    * Gens the content for a local MonJob
+    * 
+    * local only
+    * 
+    * @param MonLocalJobs $monJob
+    */
+    private function genAlarmContentMonLocalJob(MonJobs $monJob){
+        if($monJob->getMonType() != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
         $content = '';
         $monServer = $monJob->getServer();
         $name = $monServer->getName();  
@@ -243,9 +301,9 @@ class MonAlarm extends \Phalcon\DI\Injectable
         $content .= 'OVZ AlarmingSystem Alarm for '.$name."<br />";
         $content .= '==>'.$behavior.'<=='." (MonJob ID: ".$monJob->getId().")<br />";
         $content .= 'Status now: '.$status.' (since '.$lastStatuschange.')'."<br />";
-        $newestMonLog = MonLocalLogs::findFirst(
+        $newestMonLog = MonLogs::findFirst(
             [
-                "mon_local_jobs_id = :id:",
+                "mon_jobs_id = :id:",
                 "order" => "id DESC",
                 "bind" => [
                     "id" => $monJob->getId(),

@@ -33,7 +33,7 @@ class MonLocalDailyLogs extends \RNTForest\core\models\ModelBase
     * 
     * @var integer
     */
-    protected $mon_jobs_local_id;
+    protected $mon_jobs_id;
     
     /**
     * 
@@ -64,13 +64,13 @@ class MonLocalDailyLogs extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Remote MonJob
+    * Set id of local MonJob
     *
-    * @param integer $mon_jobs_local_id
+    * @param integer $mon_jobs_id
     */
-    public function setMonJobsLocalId($mon_jobs_local_id)
+    public function setMonJobsId($mon_jobs_id)
     {
-        $this->mon_jobs_local_id = $mon_jobs_local_id;
+        $this->mon_jobs_id = $mon_jobs_id;
     }
     
     /**
@@ -118,9 +118,9 @@ class MonLocalDailyLogs extends \RNTForest\core\models\ModelBase
     *
     * @return integer
     */
-    public function getMonJobsLocalId()
+    public function getMonJobsId()
     {
-        return $this->mon_jobs_local_id;
+        return $this->mon_jobs_id;
     }
     
     /**

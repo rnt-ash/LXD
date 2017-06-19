@@ -19,8 +19,8 @@
   
 namespace RNTForest\ovz\services;
 
-use \RNTForest\ovz\models\MonRemoteJobs;
-use \RNTForest\ovz\models\MonRemoteLogs;
+use \RNTForest\ovz\models\MonJobs;
+use \RNTForest\ovz\models\MonLogs;
 use \RNTForest\ovz\interfaces\MonServerInterface;
 
 class MonHealing extends \Phalcon\DI\Injectable
@@ -39,9 +39,15 @@ class MonHealing extends \Phalcon\DI\Injectable
         return $this->getDI()->getShared('translate')->_($token,$params);
     }
     
+    /**
+    * Heals remote MonJobs with status 'down'.
+    * 
+    * 
+    * remote only
+    */
     public function healFailedMonRemoteJobs(){
         try{
-            $monJobs = MonRemoteJobs::find(["active = 1 AND status = 'down'"]);
+            $monJobs = MonJobs::find(["mon_type = 'remote' AND active = 1 AND status = 'down'"]);
             $this->logger->debug("healFailedMonRemoteJobs ".count($monJobs)." MonRemoteJobs");
             
             foreach($monJobs as $monJob){
@@ -54,7 +60,16 @@ class MonHealing extends \Phalcon\DI\Injectable
         }
     }
     
-    private function healStepwise(MonRemoteJobs $monJob){
+    /**
+    * Tries to immediately check again, heal with a reboot of the ct (if poosible).
+    * 
+    * remote only
+    * 
+    * @param MonJobs $monJob
+    */
+    private function healStepwise(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
+        
         $monJob->execute();
         $this->logger->debug("executed with value ".$monJob->getStatus());
             
@@ -103,11 +118,15 @@ class MonHealing extends \Phalcon\DI\Injectable
     * Under certain circumstances it is impossible to heal autonomous, e.g. hostserver is down or no network.
     * So it should alarm to notify an admin.
     * 
-    * @param MonRemoteJobs $monJob
+    * remote only
+    * 
+    * @param MonJobs $monJob
     * @return boolean
     * @throws \Exception
     */
-    private function shouldAlarmImmediately(MonRemoteJobs $monJob){
+    private function shouldAlarmImmediately(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
+        
         // alarm immediately if healing is not active
         if(!$monJob->getHealing()){
             return True;
@@ -136,22 +155,26 @@ class MonHealing extends \Phalcon\DI\Injectable
     /**
     * Returns the type of the last relevant HealJob for this MonJob.
     * 
-    * @param MonRemoteJobs $monJob
+    * remote only
+    * 
+    * @param MonJobs $monJob
     * @return string
     */
-    private function getLastRelevantHealJobType(MonRemoteJobs $monJob){
+    private function getLastRelevantHealJobType(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
+        
         $healJobType = '';
         try{
             // get the second to last (vorletzt auf deutsch...) monlog
             // get the modified of the last up 
-            $maxUpModified = MonRemoteLogs::maximum(
+            $maxUpModified = MonLogs::maximum(
                 [
                     "column" => "modified",
                     "conditions" => "mon_remote_jobs_id = ".$monJob->getId()." AND value = 1",
                 ]
             );
             if(empty($maxUpModified))$maxUpModified = 0;
-            $monJobWithHealJob = MonRemoteLogs::findFirst(
+            $monJobWithHealJob = MonLogs::findFirst(
                 [
                     "mon_remote_jobs_id = :id: AND value = 0 AND heal_job != '' AND modified > :maxupmodified:",
                     "order" => "modified DESC",   
@@ -183,12 +206,14 @@ class MonHealing extends \Phalcon\DI\Injectable
     * Executes a healjob.
     * 
     * @param string $healJobType
-    * @param MonRemoteJobs $monJob
+    * @param MonJobs $monJob
     * @param string $pending default ''
     * @return integer healJobId
     * @throws \Exception
     */
-    private function executeHealJob($healJobType, MonRemoteJobs $monJob, $pending = ''){
+    private function executeHealJob($healJobType, MonJobs $monJob, $pending = ''){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
+        
         $parent = $this->getParentOfMonServerInstance($monJob);
         if(!($parent instanceof \RNTForest\ovz\models\PhysicalServers)){
             throw new \Exception($this->translate("monitoring_parent_cannot_execute_jobs"));
@@ -205,7 +230,7 @@ class MonHealing extends \Phalcon\DI\Injectable
         $params['UUID'] = $monServer->getOvzUuid();
         try{
             // first, mark monlog to be healed to prevent loops
-            $monLog = MonRemoteLogs::findFirst(
+            $monLog = MonLogs::findFirst(
                 [
                 "mon_remote_jobs_id" => $monJob->getId(),
                 "order" => "id DESC",
@@ -251,10 +276,14 @@ class MonHealing extends \Phalcon\DI\Injectable
     
     /**
     * 
-    * @param MonRemoteJobs $monJob
+    * remote only
+    * 
+    * @param MonJobs $monJob
     * @return MonServerInterface
     */
-    private function getMonServerInstance(MonRemoteJobs $monJob){
+    private function getMonServerInstance(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
+        
         $server = $monJob->getServerClass()::findFirst($monJob->getServerId());
         if(!($server instanceof MonServerInterface)){
             throw new \Exception($this->translate("monitoring_mon_server_not_implements_interface"));    
@@ -264,10 +293,14 @@ class MonHealing extends \Phalcon\DI\Injectable
     
     /**
     * 
-    * @param MonRemoteJobs $monJob
+    * remote only
+    * 
+    * @param MonJobs $monJob
     * @retorn object
     */
-    private function getParentOfMonServerInstance(MonRemoteJobs $monJob){
+    private function getParentOfMonServerInstance(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
+        
         $server = $this->getMonServerInstance($monJob);
         return $server->getParentClass()::findFirst($server->getParentId());
     }
@@ -277,7 +310,7 @@ class MonHealing extends \Phalcon\DI\Injectable
     * @return \RNTForest\ovz\services\MonAlarm
     */
     private function getMonAlarm(){
-        return $this->getDI()['monAlarm'];
+        return $this->getDI()['monAlarmNew'];
     }
     
     /**

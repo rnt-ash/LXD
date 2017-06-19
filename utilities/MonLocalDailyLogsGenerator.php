@@ -19,8 +19,8 @@
 
 namespace RNTForest\ovz\utilities;
 
-use RNTForest\ovz\models\MonLocalJobs;
-use RNTForest\ovz\models\MonLocalLogs;
+use RNTForest\ovz\models\MonJobs;
+use RNTForest\ovz\models\MonLogs;
 use RNTForest\ovz\models\MonLocalDailyLogs;
 use RNTForest\core\libraries\Helpers;
 
@@ -30,25 +30,31 @@ class MonLocalDailyLogsGenerator{
     * Generates the MonLocalDailyLogs from old MonLocalLogs of a given MonLocalJobs.
     * Hereby the MonLocalLogs will be fold and cleaned.
     * 
-    * @param MonLocalJobs $monJob
+    * @param MonJobs $monJob
     */
-    public static function genLocalDailyLogs(MonLocalJobs $monJob){
+    public static function genLocalDailyLogs(MonJobs $monJob){
+        if($monJob->getMonType() != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
+        
         MonLocalDailyLogsGenerator::getLogger()->debug("start genLocalDailyLogs");
         
         // get all relevant MonLocalLogs and sort them
         $preMonthStart = date("Y-m-d H:i:s", strtotime("first day of last month midnight"));
-        $monLogs = MonLocalLogs::find(
+        $monLogs = MonLogs::find(
         [
-             "mon_local_jobs_id = :id: AND modified < :premonthstart:",
+             "mon_jobs_id = :id: AND modified < :premonthstart:",
              "bind" => [
                 "id" => $monJob->getId(),
                 "premonthstart" => $preMonthStart,
              ],    
         ]
         );
-
+       
+        MonLocalDailyLogsGenerator::getLogger()->debug("monlogs: ".json_encode($monLogs));
+        
         $splittedMonLogs = array();
         $splittedMonLogs = MonLocalDailyLogsGenerator::sortAndSplitMonLogsByDay($monLogs);
+        
+        MonLocalDailyLogsGenerator::getLogger()->debug("splittet: ".json_encode($splittedMonLogs));
         
         // compute daily average from the logs
         $dayAverages = array();
@@ -71,7 +77,7 @@ class MonLocalDailyLogsGenerator{
             // delete existing MonLocalDailyLogs of this $monJob with this day first
             $oldMonLocalDailyLog = MonLocalDailyLogs::findFirst(
             [
-                "mon_local_jobs_id = :id: and day = :day:",
+                "mon_jobs_id = :id: and day = :day:",
                 "bind" => [
                     "id" => $monJob->getId(),
                     "day" => $day,
@@ -88,7 +94,7 @@ class MonLocalDailyLogsGenerator{
             // create the new MonLocalDailyLog entry
             $monLocalDailyLog = new MonLocalDailyLogs();
             $monLocalDailyLog->create([
-                "mon_local_jobs_id" => $monJob->getId(),
+                "mon_jobs_id" => $monJob->getId(),
                 "day" => $day,
                 "value" => $average,  
             ]);
@@ -97,8 +103,8 @@ class MonLocalDailyLogsGenerator{
             // delete MonLocalLogs of this $monJob and $day
             $modelManager = MonLocalDailyLogsGenerator::getModelManager();
             $endLog = $modelManager->executeQuery(
-                "DELETE FROM \\RNTForest\\ovz\\models\\MonLocalLogs ".
-                    " WHERE mon_local_jobs_id = :id: ".
+                "DELETE FROM \\RNTForest\\ovz\\models\\MonLogs ".
+                    " WHERE mon_jobs_id = :id: ".
                     " AND modified BETWEEN :daystart: AND :dayend: ",
                 [
                     "id" => $monJob->getId(),
@@ -110,17 +116,17 @@ class MonLocalDailyLogsGenerator{
     }
     
     /**
-    * Sorts and splits up the MonRemoteLogs on days.
+    * Sorts and splits up the MonLogs on days.
     * Memoryintense part if a lot of logs.
     * 
-    * @param \RNTForest\ovz\models\MonRemoteLogs[] $monLogs
-    * @return \RNTForest\ovz\models\MonRemoteLogs[][] $monLogs
+    * @param \RNTForest\ovz\models\MonLogs[] $monLogs
+    * @return \RNTForest\ovz\models\MonLogs[][] $monLogs
     */
     private static function sortAndSplitMonLogsByDay($monLogs){
         // sort on modified
         $sortedMonLogs = array();
         foreach($monLogs as $monLog){
-            if($monLog instanceof MonLocalLogs){
+            if($monLog instanceof MonLogs){
                 $sortedMonLogs[$monLog->getModified()] = $monLog;
             }
         }

@@ -19,8 +19,8 @@
 
 namespace RNTForest\ovz\utilities;
 
-use RNTForest\ovz\models\MonRemoteJobs;
-use RNTForest\ovz\models\MonRemoteLogs;
+use RNTForest\ovz\models\MonJobs;
+use RNTForest\ovz\models\MonLogs;
 use RNTForest\ovz\models\MonUptimes;
 use RNTForest\ovz\datastructures\Uptime;
 use RNTForest\core\libraries\Helpers;
@@ -28,26 +28,30 @@ use RNTForest\core\libraries\Helpers;
 class MonUptimesGenerator{
     
     /**
-    * Generates the MonUptimes from old MonRemoteLogs of a given MonRemoteJobs.
-    * Hereby the MonRemoteLogs will be fold and cleaned.
+    * Generates the MonUptimes from old MonLogs of a given remote MonJobs object.
+    * Hereby the remote MonLogs will be fold and cleaned.
     * 
-    * @param MonRemoteJobs $monJob
+    * remote only
+    * 
+    * @param MonJobs $monJob
     */
-    public static function genMonUptime(MonRemoteJobs $monJob){
+    public static function genMonUptime(MonJobs $monJob){
+        if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
+        
         MonUptimesGenerator::getLogger()->debug("start genMonUptime");
         
         // get all relevant MonRemoteLogs and sort them
         $preMonthStart = date("Y-m-d H:i:s", strtotime("first day of last month midnight"));
-        $monLogs = MonRemoteLogs::find(
+        $monLogs = MonLogs::find(
         [
-             "mon_remote_jobs_id = :id: AND modified < :premonthstart:",
+             "mon_jobs_id = :id: AND modified < :premonthstart:",
              "bind" => [
                 "id" => $monJob->getId(),
                 "premonthstart" => $preMonthStart,
              ],    
         ]
         );
-
+        
         $splittedMonLogs = array();
         $splittedMonLogs = MonUptimesGenerator::sortAndSplitMonLogs($monLogs);
         
@@ -71,7 +75,7 @@ class MonUptimesGenerator{
             // delete existing MonUptimes of this $monJob with this $yearMonth first
             $oldMonUptime = MonUptimes::findFirst(
             [
-                "mon_remote_jobs_id = :id: and year_month = :yearmonth:",
+                "mon_jobs_id = :id: and year_month = :yearmonth:",
                 "bind" => [
                     "id" => $monJob->getId(),
                     "yearmonth" => $yearMonth,
@@ -87,7 +91,7 @@ class MonUptimesGenerator{
             // create the new MonUptime entry
             $monUptime = new MonUptimes();
             $monUptime->create([
-                "mon_remote_jobs_id" => $monJob->getId(),
+                "mon_jobs_id" => $monJob->getId(),
                 "year_month" => $yearMonth,
                 "max_seconds" => $uptime->getMaxSeconds(),
                 "up_seconds" => $uptime->getUpSeconds(),
@@ -95,14 +99,14 @@ class MonUptimesGenerator{
             ]);
             $monUptime->save();
             
-            // delete MonRemoteLogs of this $monJob and $yearMonth
+            // delete MonLogs of this $monJob and $yearMonth
             $monthStart = MonUptimesGenerator::genMonthStartByYearMonth($yearMonth);
             $monthEnd = MonUptimesGenerator::genMonthEndByYearMonth($yearMonth);
             
             $modelManager = MonUptimesGenerator::getModelManager();
             $endLog = $modelManager->executeQuery(
-                "DELETE FROM \\RNTForest\\ovz\\models\\MonRemoteLogs ".
-                    " WHERE mon_remote_jobs_id = :id: ".
+                "DELETE FROM \\RNTForest\\ovz\\models\\MonLogs ".
+                    " WHERE mon_jobs_id = :id: ".
                     " AND modified BETWEEN :monthstart: AND :monthend: ",
                 [
                     "id" => $monJob->getId(),
@@ -110,21 +114,21 @@ class MonUptimesGenerator{
                     "monthend" => $monthEnd,
                 ]
             );
-        }
+        }        
     }
     
     /**
-    * Sorts and splits up the MonRemoteLogs on YearMonths.
+    * Sorts and splits up the MonLogs on YearMonths.
     * Memoryintense part if a lot of logs.
     * 
-    * @param \RNTForest\ovz\models\MonRemoteLogs[] $monLogs
-    * @return \RNTForest\ovz\models\MonRemoteLogs[][] $monLogs
+    * @param MonLogs[] $monLogs
+    * @return MonLogs[][] $monLogs
     */
     private static function sortAndSplitMonLogs($monLogs){
         // sort on modified
         $sortedMonLogs = array();
         foreach($monLogs as $monLog){
-            if($monLog instanceof MonRemoteLogs){
+            if($monLog instanceof MonLogs){
                 $sortedMonLogs[$monLog->getModified()] = $monLog;
             }
         }
@@ -142,7 +146,7 @@ class MonUptimesGenerator{
     * Computes the uptime of a given YearMonth.
     * 
     * @param string $yearMonth
-    * @param \RNTForest\ovz\models\MonRemoteLogs[] $sortedMonLogs
+    * @param MonLogs[] $sortedMonLogs
     * @return Uptime
     */
     private static function computeUptime($yearMonth,$sortedMonLogs){
@@ -170,7 +174,7 @@ class MonUptimesGenerator{
     * Computes the downtime in seconds of a YearMonth.
     * 
     * @param string $yearMonth
-    * @param \RNTForest\ovz\models\MonRemoteLogs[] $sortedMonLogs
+    * @param MonLogs[] $sortedMonLogs
     * @return int
     */
     private static function computeDowntimeInSeconds($yearMonth,$sortedMonLogs){
@@ -184,7 +188,7 @@ class MonUptimesGenerator{
         $endDowntime = '';
         $downTimeInSeconds = 0;
         foreach($sortedMonLogs as $monLog){
-            if($monLog instanceof MonRemoteLogs){
+            if($monLog instanceof MonLogs){
                 $curValue = $monLog->getValue();
                 // Negative statuschange
                 if($curValue == 0 && $lastValue == 1){

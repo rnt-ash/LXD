@@ -33,7 +33,7 @@ class MonUptimes extends \RNTForest\core\models\ModelBase
     * 
     * @var integer
     */
-    protected $mon_jobs_remote_id;
+    protected $mon_jobs_id;
     
     /**
     * 
@@ -78,11 +78,11 @@ class MonUptimes extends \RNTForest\core\models\ModelBase
     /**
     * Remote MonJob
     *
-    * @param integer $mon_jobs_remote_id
+    * @param integer $mon_jobs_id
     */
-    public function setMonJobsRemoteId($mon_jobs_remote_id)
+    public function setMonJobsId($mon_jobs_id)
     {
-        $this->mon_jobs_remote_id = $mon_jobs_remote_id;
+        $this->mon_jobs_id = $mon_jobs_id;
     }
     
     /**
@@ -149,9 +149,9 @@ class MonUptimes extends \RNTForest\core\models\ModelBase
     *
     * @return integer
     */
-    public function getMonJobsRemoteId()
+    public function getMonJobsId()
     {
-        return $this->mon_jobs_remote_id;
+        return $this->mon_jobs_id;
     }
     
     /**
