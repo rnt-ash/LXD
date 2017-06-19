@@ -294,7 +294,7 @@ class Replica extends \Phalcon\DI\Injectable
     * @param string $date format Y-m-d
     * @throws \Exceptions
     */
-    public function tryGetStats($date){
+    public static function tryGetStats($date){
         $stats = array();
         $jobs = \RNTForest\core\models\Jobs::tryFind([
             "conditions"=>"type ='ovz_sync_replica' AND DATE(created) ='".$date."' AND done = 1",

@@ -32,7 +32,7 @@ return new \Phalcon\Config([
                     'colocations' => [
                         'index', 'search', 'create', 'new', 'edit', 'form',
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
-                        'save', 'delete', 'tabledata', 'slidedata', 'slideSlide', 'generateIpPdf', 'getCustomersAsJson',                
+                        'save', 'delete', 'tabledata', 'slidedata', 'slideSlide', 'generateIpPdf', 'getCustomersAsJson',
                     ]
                 ],
             ],
@@ -317,7 +317,7 @@ return new \Phalcon\Config([
                 'actions' => [
                     'virtual_servers' => [
                         'ovzReplicaActivate', 'ovzReplicaActivateExecute',
-                        'ovzReplicaRun', 'ovzReplicaFailover', 'ovzReplicaDelete'
+                        'ovzReplicaRun', 'ovzReplicaFailover', 'ovzReplicaDelete', 'ovzReplicaStatsPDF',
                     ]
                 ],
             ],

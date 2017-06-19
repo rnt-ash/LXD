@@ -371,6 +371,18 @@ return [
     "virtualservers_description" => "Beschreibung: ",
     "virtualservers_ip_adress" => "IP Adressen",
     "virtualservers_comment" => "Kommentar",
+    // Replica stats PDF
+    "virtualserver_replicapdf_placeholder" => "Replika Statistiken anhand Datum",
+    "virtualservers_replicapdf" => "Replika Statistiken",
+    "virtualserver_replicapdf_no_replicas_found" => "Keine Replikas für dieses Datum gefunden",
+    "virtualserver_replicapdf_no_permission" => "Keine Berechtigung",
+    "virtualserver_replicapdf_master" => "Master",
+    "virtualserver_replicapdf_slave" => "Slave",
+    "virtualserver_replicapdf_start" => "Startzeit",
+    "virtualserver_replicapdf_end" => "Endzeit",
+    "virtualserver_replicapdf_duration" => "Dauer",
+    "virtualserver_replicapdf_files" => "Anzahl Files",
+    "virtualserver_replicapdf_bytes" => "Übertragene Bytes",
 
     // Monitoring
     "monitoring_mon_behavior_not_implements_interface" => "MonBehavior implementiert nicht das MonBehaviorInterface.",
