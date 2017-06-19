@@ -33,7 +33,7 @@ class Monitoring{
     public static function getAllBehaviors($serverType){
         $cleanedBehaviors = [];
         
-        $behaviors = self::buildBehaviorArray();
+        $behaviors = self::buildBehaviorArray('Behavior');
 
         foreach($behaviors as $key=>$val){
             $classPath = $val['classpath'];
@@ -75,7 +75,7 @@ class Monitoring{
                         break;
                 }
                 
-                if(!emtpy($info)){
+                if(!empty($info)){
                     $info['classpath'] = $classPath;
                     $cleanedBehaviors[] = $info;
                 }
@@ -118,7 +118,7 @@ class Monitoring{
                         break;
                 }
                 
-                if(!emtpy($info)){
+                if(!empty($info)){
                     $info['classpath'] = $classPath;
                     $info['params'] = null;
                     $cleanedBehaviors[] = $info;
