@@ -1264,7 +1264,11 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         }
 
         // update MainIp from Server Object in case it has changed since last execute
-        $server = $this->getServer(); 
+        $server = $this->getServer();
+        
+        if(!($server instanceof \RNTForest\ovz\interfaces\MonServerInterface)){
+            throw new \Exception($this->translate("monitoring_mon_server_not_implements_interface"));        
+        } 
 
         if($this->mon_type == 'remote'){
             $ipaddress = $server->getMainIp();

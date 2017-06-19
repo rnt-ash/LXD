@@ -310,7 +310,7 @@ class MonHealing extends \Phalcon\DI\Injectable
     * @return \RNTForest\ovz\services\MonAlarm
     */
     private function getMonAlarm(){
-        return $this->getDI()['monAlarmNew'];
+        return $this->getDI()['monAlarm'];
     }
     
     /**

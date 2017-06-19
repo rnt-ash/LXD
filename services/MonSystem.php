@@ -54,11 +54,15 @@ class MonSystem extends \Phalcon\DI\Injectable
             );
             $this->logger->debug("runJobs ".count($monJobs)." MonRemoteJobs");
             foreach($monJobs as $monJob){
-                $monJob->execute();
+                try{
+                    $monJob->execute();
+                }catch(\Exception $e){
+                    $this->logger->error("runMonRemoteJobs: Exception execute Job-ID ".$monJob->getId().": ".$e->getMessage());    
+                }
             }
             
         }catch(\Exception $e){
-            $this->logger->debug("runMonRemoteJobs: ".$e->getMessage());
+            $this->logger->error("runMonRemoteJobs: ".$e->getMessage());
         }
         
     }
@@ -87,7 +91,7 @@ class MonSystem extends \Phalcon\DI\Injectable
                 try{
                     $monJob->execute();
                 }catch(\Exception $e){
-                    $this->logger->warning("runMonLocalJobs execute Job-ID ".$monJob->getId().": ".$e->getMessage());
+                    $this->logger->warning("runMonLocalJobs: Exception execute Job-ID ".$monJob->getId().": ".$e->getMessage());
                 }
                 if($monJob->getStatus() != 'normal'){
                     $this->logger->notice('Job will be alarmed: '.$monJob->getId());
@@ -125,9 +129,12 @@ class MonSystem extends \Phalcon\DI\Injectable
             );
             
             foreach($monJobs as $monJob){
-                $this->logger->debug("handle monjob id ".$monJob->getId());
-                
-                $monJob->recomputeUptime();
+                try{
+                    $this->logger->debug("handle monjob id ".$monJob->getId());
+                    $monJob->recomputeUptime();
+                }catch(\Exception $e){
+                    $this->logger->warning("recomputeUptimes: Exception recomputing Uptimes for Job-ID ".$monJob->getId().": ".$e->getMessage());
+                }
             }
         }catch(\Exception $e){
             $this->logger->debug("recomputeUptimes: ".$e->getMessage());
@@ -151,12 +158,16 @@ class MonSystem extends \Phalcon\DI\Injectable
             // collect all ids for cleanup logs with no monjob afterwards
             $monJobIds = array();
             foreach($monJobs as $monJob){
-                $this->logger->debug("handle monjob id ".$monJob->getId());
-                $monJobIds[] = $monJob->getId();
-                
-                $monJob->genMonUptimes();
-                
-                $monJob->recomputeUptime();
+                try{
+                    $this->logger->debug("handle monjob id ".$monJob->getId());
+                    $monJobIds[] = $monJob->getId();
+                    
+                    $monJob->genMonUptimes();
+                    
+                    $monJob->recomputeUptime();
+                }catch(\Exception $e){
+                    $this->logger->warning("genMonUptimes: Exception generating MonUptimes for Job-ID ".$monJob->getId().": ".$e->getMessage());
+                }
             }
             
             if(!empty($monJobIds)){
@@ -190,11 +201,14 @@ class MonSystem extends \Phalcon\DI\Injectable
             // collect all ids for cleanup logs with no monjob afterwards
             $monJobIds = array();
             foreach($monJobs as $monJob){
-                $this->logger->debug("handle monjob id ".$monJob->getId());
-                $monJobIds[] = $monJob->getId();
-            
-                // genMonUptime
-                $monJob->genMonLocalDailyLogs();
+                try{
+                    $this->logger->debug("handle monjob id ".$monJob->getId());
+                    $monJobIds[] = $monJob->getId();
+                
+                    $monJob->genMonLocalDailyLogs();
+                }catch(\Exception $e){
+                    $this->logger->warning("genMonLocalDailyLogs: Exception generating MonLocalDailyLogs for Job-ID ".$monJob->getId().": ".$e->getMessage());
+                }
             }
             
             if(!empty($monJobIds)){

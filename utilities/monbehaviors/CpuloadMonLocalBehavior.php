@@ -21,7 +21,7 @@ namespace RNTForest\ovz\utilities\monbehaviors;
 
 use RNTForest\ovz\interfaces\MonLocalBehaviorInterface;
 use RNTForest\ovz\datastructures\MonLocalValueStatus;
-use RNTForest\ovz\models\MonLocalJobs;
+use RNTForest\ovz\models\MonJobs;
 use RNTForest\core\libraries\Helpers;
 
 class CpuloadMonLocalBehavior implements MonLocalBehaviorInterface{
@@ -41,11 +41,11 @@ class CpuloadMonLocalBehavior implements MonLocalBehaviorInterface{
         $monBehaviorParams = json_decode($monBehaviorParams,true);
         try{
             $value = Helpers::getSubPartOfArray($monBehaviorParams,$ovzStatistics);    
-            $status = MonLocalJobs::$STATENORMAL;
+            $status = MonJobs::$LOCAL_STATENORMAL;
             if($value > $maxvalue){
-                $status = MonLocalJobs::$STATEMAXIMAL;
+                $status = MonJobs::$LOCAL_STATEMAXIMAL;
             }elseif($value > $warnvalue){
-                $status = MonLocalJobs::$STATEWARNING;
+                $status = MonJobs::$LOCAL_STATEWARNING;
             }
             $valuestatus = new MonLocalValueStatus($value,$status);            
 
