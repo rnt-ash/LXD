@@ -15,7 +15,7 @@
         </span>
     </div>
     <div id="snapshots{{item.id}}" class="panel-collapse collapse in">
-        <table class="table table-striped table-condensed">
+        <table class="table table-striped table-condensed table-hover">
             <tbody>
                 <tr>
                     <td id="snapshots">

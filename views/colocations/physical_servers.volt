@@ -7,7 +7,7 @@
         </span>
     </div>
     <div id="physicalServers{{item.id}}" class="panel-collapse collapse">
-        <table class="table table-condensed table-striped">
+        <table class="table table-condensed table-striped table-hover">
             <tbody>
             {% if item.physicalServers.count() == 0 %}
                 <tr colspan="3">

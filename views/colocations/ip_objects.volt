@@ -13,7 +13,7 @@
         </span>
     </div>
     <div id="ipObjects{{item.id}}" class="panel-collapse collapse in">
-        <table class="table table-condensed table-striped">
+        <table class="table table-condensed table-striped table-hover">
             <tbody>
             {% if item.IpObjects.count() == 0 %}
                 <tr colspan="4">
