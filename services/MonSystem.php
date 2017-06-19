@@ -19,8 +19,7 @@
   
 namespace RNTForest\ovz\services;
 
-use \RNTForest\ovz\models\MonRemoteJobs;
-use \RNTForest\ovz\models\MonLocalJobs;
+use \RNTForest\ovz\models\MonJobs;
 use \RNTForest\ovz\utilities\AllInfoUpdater;
 
 class MonSystem extends \Phalcon\DI\Injectable
@@ -42,31 +41,34 @@ class MonSystem extends \Phalcon\DI\Injectable
     }
     
     /**
-    * Runs the current open MonRemoteJobs.
+    * Runs the current open remote MonJobs.
     * Recommendation: every minute
     * 
     */
     public function runMonRemoteJobs(){
         try{
-            //$monJobs = $this->modelManager->executeQuery("SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteJobs WHERE active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-UNIX_TIMESTAMP(last_run)>period*60");
-            $monJobs = MonRemoteJobs::find(
+            $monJobs = MonJobs::find(
                 [
-                "active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
+                "mon_type = 'remote' AND active = 1 AND status != 'down' AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
                 ]
             );
             $this->logger->debug("runJobs ".count($monJobs)." MonRemoteJobs");
             foreach($monJobs as $monJob){
-                $monJob->execute();
+                try{
+                    $monJob->execute();
+                }catch(\Exception $e){
+                    $this->logger->error("runMonRemoteJobs: Exception execute Job-ID ".$monJob->getId().": ".$e->getMessage());    
+                }
             }
             
         }catch(\Exception $e){
-            $this->logger->debug("runMonRemoteJobs: ".$e->getMessage());
+            $this->logger->error("runMonRemoteJobs: ".$e->getMessage());
         }
         
     }
     
     /**
-    * Runs all MonLocalJobs.
+    * Runs all local MonJobs.
     * Recommendation: every minute
     * 
     */
@@ -78,9 +80,9 @@ class MonSystem extends \Phalcon\DI\Injectable
             // then do the monitoring
             $beforeLocalMonitoring = microtime(true);
             
-            $monJobs = MonLocalJobs::find(
+            $monJobs = MonJobs::find(
                 [
-                "active = 1 AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
+                "mon_type = 'local' AND active = 1 AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
                 ]
             );
             $this->logger->debug("runLocalJobs ".count($monJobs)." MonLocalJobs");
@@ -89,7 +91,7 @@ class MonSystem extends \Phalcon\DI\Injectable
                 try{
                     $monJob->execute();
                 }catch(\Exception $e){
-                    $this->logger->warning("runMonLocalJobs execute Job-ID ".$monJob->getId().": ".$e->getMessage());
+                    $this->logger->warning("runMonLocalJobs: Exception execute Job-ID ".$monJob->getId().": ".$e->getMessage());
                 }
                 if($monJob->getStatus() != 'normal'){
                     $this->logger->notice('Job will be alarmed: '.$monJob->getId());
@@ -113,19 +115,26 @@ class MonSystem extends \Phalcon\DI\Injectable
     }
     
     /**
-    * Recomputes the Field uptime of a MonRemoteJobs from the available MonRemoteLogs and MonUptimes.
+    * Recomputes the Field uptime of a remote MonJobs from the available MonLogs and MonUptimes.
     * Recommendation: every hour
     * 
     */
     public function recomputeUptimes(){
        try{
             $this->logger->debug("Start with recomputeUptimes");
-            $monJobs = MonRemoteJobs::find();
+            $monJobs = MonJobs::find(
+                [
+                    "mon_type = 'remote'",
+                ]
+            );
             
             foreach($monJobs as $monJob){
-                $this->logger->debug("handle monjob id ".$monJob->getId());
-                
-                $monJob->recomputeUptime();
+                try{
+                    $this->logger->debug("handle monjob id ".$monJob->getId());
+                    $monJob->recomputeUptime();
+                }catch(\Exception $e){
+                    $this->logger->warning("recomputeUptimes: Exception recomputing Uptimes for Job-ID ".$monJob->getId().": ".$e->getMessage());
+                }
             }
         }catch(\Exception $e){
             $this->logger->debug("recomputeUptimes: ".$e->getMessage());
@@ -133,32 +142,40 @@ class MonSystem extends \Phalcon\DI\Injectable
     }
     
     /**
-    * Generates the MonUptimes from old MonRemoteLogs.
+    * Generates the MonUptimes from old remote MonLogs.
     * Recommendation: every month
     * 
     */
     public function genMonUptimes(){
         try{
             $this->logger->debug("Start with genMonUptimes");
-            $monJobs = MonRemoteJobs::find();
+            $monJobs = MonJobs::find(
+                [
+                    "mon_type = 'remote'",
+                ]
+            );
             
             // collect all ids for cleanup logs with no monjob afterwards
             $monJobIds = array();
             foreach($monJobs as $monJob){
-                $this->logger->debug("handle monjob id ".$monJob->getId());
-                $monJobIds[] = $monJob->getId();
-                
-                $monJob->genMonUptimes();
-                
-                $monJob->recomputeUptime();
+                try{
+                    $this->logger->debug("handle monjob id ".$monJob->getId());
+                    $monJobIds[] = $monJob->getId();
+                    
+                    $monJob->genMonUptimes();
+                    
+                    $monJob->recomputeUptime();
+                }catch(\Exception $e){
+                    $this->logger->warning("genMonUptimes: Exception generating MonUptimes for Job-ID ".$monJob->getId().": ".$e->getMessage());
+                }
             }
             
             if(!empty($monJobIds)){
                 $ids = implode(',',$monJobIds);
-                // delete MonRemoteLogs with nonexisting MonRemoteJobs
-                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonRemoteLogs.mon_remote_jobs_id FROM \\RNTForest\\ovz\\models\\MonRemoteLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonRemoteJobs ON \\RNTForest\\ovz\\models\\MonRemoteLogs.mon_remote_jobs_id = \\RNTForest\\ovz\\models\\MonRemoteJobs.id WHERE \\RNTForest\\ovz\\models\\MonRemoteJobs.id IS NULL");
+                // delete MonLogs with nonexisting remote MonJobs
+                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id FROM \\RNTForest\\ovz\\models\\MonLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonJobs ON \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id = \\RNTForest\\ovz\\models\\MonJobs.id WHERE \\RNTForest\\ovz\\models\\MonJobs.id IS NULL");
                 foreach($rows as $row){
-                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonRemoteLogs WHERE mon_remote_jobs_id = (:id:)",['id'=>$row['mon_remote_jobs_id']]);
+                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonLogs WHERE mon_jobs_id = (:id:)",['id'=>$row['mon_jobs_id']]);
                 }
             }
 
@@ -168,31 +185,38 @@ class MonSystem extends \Phalcon\DI\Injectable
     }
     
     /**
-    * Generates the LocalDailyLogs from old MonLocalLogs.
+    * Generates the LocalDailyLogs from old local MonJobs.
     * Recommendatoin: every month
     * 
     */
     public function genMonLocalDailyLogs(){
         try{
             $this->logger->debug("Start with genMonLocalDailyLogs");
-            $monJobs = MonLocalJobs::find();
+            $monJobs = MonJobs::find(
+                [
+                    "mon_type = 'local'",
+                ]
+            );
             
             // collect all ids for cleanup logs with no monjob afterwards
             $monJobIds = array();
             foreach($monJobs as $monJob){
-                $this->logger->debug("handle monjob id ".$monJob->getId());
-                $monJobIds[] = $monJob->getId();
-            
-                // genMonUptime
-                $monJob->genMonLocalDailyLogs();
+                try{
+                    $this->logger->debug("handle monjob id ".$monJob->getId());
+                    $monJobIds[] = $monJob->getId();
+                
+                    $monJob->genMonLocalDailyLogs();
+                }catch(\Exception $e){
+                    $this->logger->warning("genMonLocalDailyLogs: Exception generating MonLocalDailyLogs for Job-ID ".$monJob->getId().": ".$e->getMessage());
+                }
             }
             
             if(!empty($monJobIds)){
                 $ids = implode(',',$monJobIds);
-                // delete MonLocalLogs with nonexisting MonLocalJobs
-                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonLocalLogs.mon_local_jobs_id FROM \\RNTForest\\ovz\\models\\MonLocalLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonLocalJobs ON \\RNTForest\\ovz\\models\\MonLocalLogs.mon_local_jobs_id = \\RNTForest\\ovz\\models\\MonLocalJobs.id WHERE \\RNTForest\\ovz\\models\\MonLocalJobs.id IS NULL");
+                // delete MonLogs with nonexisting local MonJobs
+                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id FROM \\RNTForest\\ovz\\models\\MonLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonJobs ON \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id = \\RNTForest\\ovz\\models\\MonJobs.id WHERE \\RNTForest\\ovz\\models\\MonJobs.id IS NULL");
                 foreach($rows as $row){
-                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonLocalLogs WHERE mon_local_jobs_id = (:id:)",['id'=>$row['mon_local_jobs_id']]);
+                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonLogs WHERE mon_jobs_id = (:id:)",['id'=>$row['mon_jobs_id']]);
                 }
             }
 
@@ -208,9 +232,9 @@ class MonSystem extends \Phalcon\DI\Injectable
             
             $beforeLocalMonitoring = microtime(true);
             
-            $monJobs = MonLocalJobs::find(
+            $monJobs = MonJobs::find(
                 [
-                "active = 1 AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
+                "mon_type = 'local' AND active = 1 AND UNIX_TIMESTAMP(NOW())-IFNULL(UNIX_TIMESTAMP(last_run),0)>period*60",
                 ]
             );
             $this->logger->debug("runLocalJobs ".count($monJobs)." MonLocalJobs");

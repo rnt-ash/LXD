@@ -709,9 +709,9 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     public function getMonRemoteJobs(){
         $reflection = new \ReflectionClass($this);
         
-        return MonRemoteJobs::find(
+        return MonJobs::find(
             [
-                "server_class = :class: AND server_id = :id:",
+                "mon_type = 'remote' AND server_class = :class: AND server_id = :id:",
                 "bind" => [
                     "class" => "\\".$reflection->getName(),
                     "id" => $this->getId(),
@@ -728,9 +728,9 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     public function getMonLocalJobs(){
         $reflection = new \ReflectionClass($this);
         
-        return MonLocalJobs::find(
+        return MonJobs::find(
             [
-                "server_class = :class: AND server_id = :id:",
+                "mon_type = 'local' AND server_class = :class: AND server_id = :id:",
                 "bind" => [
                     "class" => "\\".$reflection->getName(),
                     "id" => $this->getId(),

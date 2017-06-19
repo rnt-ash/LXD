@@ -21,11 +21,12 @@ namespace RNTForest\ovz\models;
 
 use RNTForest\ovz\interfaces\MonBehaviorInterface;
 use RNTForest\ovz\interfaces\MonLocalBehaviorInterface;
-use RNTForest\ovz\models\MonLogs as MonLogsRemote;
+use RNTForest\ovz\models\MonLogs;
 use RNTForest\ovz\models\MonUptimes;
 use RNTForest\core\libraries\Helpers;
 use RNTForest\ovz\datastructures\DowntimePeriod;
-use RNTForest\ovz\utilities\MonUptimesGeneratorNew as MonUptimesGenerator ;
+use RNTForest\ovz\utilities\MonUptimesGenerator;
+use RNTForest\ovz\utilities\MonLocalDailyLogsGenerator;
 
 class MonJobs extends \RNTForest\core\models\ModelBase
 {
@@ -736,7 +737,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         
         $monUptimes = MonUptimes::find(
             [
-                "mon_remote_jobs_id = :id:",
+                "mon_jobs_id = :id:",
                 "bind" => [
                     "id" => $this->getId(),
                 ],
@@ -760,7 +761,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         }
         
        
-        // add information from MonRemoteLogs
+        // add information from MonLogs
         $oldestMonLog = MonLogs::findFirst(
             [
                 "mon_jobs_id = :id:",
@@ -829,7 +830,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Creates an array of DownTimePeriods from MonRemoteLogs.
+    * Creates an array of DownTimePeriods from MonLogs.
     * 
     * remote only
     * 
@@ -838,9 +839,9 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     private function createDownTimePeriods(){
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $downTimes = array();
-        $monLogs = MonRemoteLogs::find(
+        $monLogs = MonLogs::find(
             [
-                "mon_remote_jobs_id = :id:",
+                "mon_jobs_id = :id:",
                 "order" => "modified ASC",
                 "bind" => [
                     "id" => $this->getId(),
@@ -876,7 +877,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             $curMonLog = $monLog;
         }
         
-        // if downtime never ends in the logs, say end < start, the modified of the last MonRemoteLogs is taken
+        // if downtime never ends in the logs, say end < start, the modified of the last MonLogs is taken
         if($end < $start){
             $lastMonLog = $curMonLog;
             $end = Helpers::createUnixTimestampFromDateTime($lastMonLog->getModified());
@@ -919,13 +920,13 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $modelManager = $this->getDI()['modelsManager'];
         $endLog = $modelManager->executeQuery(
-            "SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteLogs AS m1 ".
+            "SELECT * FROM \\RNTForest\\ovz\\models\\MonLogs AS m1 ".
                 " WHERE m1.value = 1 ".
-                " AND m1.mon_remote_jobs_id = :monJobId: ".
+                " AND m1.mon_jobs_id = :monJobId: ".
                 " AND m1.modified > (".
-                "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonRemoteLogs AS m2 ".
+                "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonLogs AS m2 ".
                 "       WHERE m2.value = 0 ".
-                "       AND m2.mon_remote_jobs_id = :monJobId:".
+                "       AND m2.mon_jobs_id = :monJobId:".
                 " )".
                 " ORDER BY m1.modified ASC LIMIT 1",
             ["monJobId" => $this->getId()]
@@ -934,13 +935,13 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $endModified = $endLog->getFirst()->getModified();
         
         $startLog = $modelManager->executeQuery(
-            "SELECT * FROM \\RNTForest\\ovz\\models\\MonRemoteLogs AS m1 ".
+            "SELECT * FROM \\RNTForest\\ovz\\models\\MonLogs AS m1 ".
                 " WHERE m1.value = 0 ".
-                " AND m1.mon_remote_jobs_id = :monJobId: ".
+                " AND m1.mon_jobs_id = :monJobId: ".
                 " AND m1.modified > (".
-                "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonRemoteLogs AS m2 ".
+                "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonLogs AS m2 ".
                 "       WHERE m2.value = 1 ".
-                "       AND m2.mon_remote_jobs_id = :monJobId:".
+                "       AND m2.mon_jobs_id = :monJobId:".
                 "       AND m2.modified < :endModified: ".
                 " )".
                 " ORDER BY m1.modified ASC LIMIT 1",
@@ -1263,7 +1264,11 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         }
 
         // update MainIp from Server Object in case it has changed since last execute
-        $server = $this->getServer(); 
+        $server = $this->getServer();
+        
+        if(!($server instanceof \RNTForest\ovz\interfaces\MonServerInterface)){
+            throw new \Exception($this->translate("monitoring_mon_server_not_implements_interface"));        
+        } 
 
         if($this->mon_type == 'remote'){
             $ipaddress = $server->getMainIp();
