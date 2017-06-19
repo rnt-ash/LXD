@@ -13,7 +13,7 @@
         </span>
     </div>
     <div id="monRemoteJobs{{item.id}}" class="panel-collapse collapse">
-        <table class="table table-striped table-condensed">
+        <table class="table table-striped table-condensed table-hover">
             <tbody>
             {% if item.getMonRemoteJobs().count() == 0 %}
                 <tr colspan="4">
