@@ -34,10 +34,7 @@ use RNTForest\ovz\forms\IpObjectsForm;
 use RNTForest\ovz\forms\SnapshotForm;
 use RNTForest\ovz\forms\ReplicaActivateForm;
 use RNTForest\ovz\forms\RootPasswordChangeForm;
-use RNTForest\ovz\models\MonLocalJobs;
-use RNTForest\ovz\models\MonRemoteJobs;
-use RNTForest\ovz\forms\MonLocalJobsForm;
-use RNTForest\ovz\forms\MonRemoteJobsForm;
+use RNTForest\ovz\models\MonJobs;
 use RNTForest\ovz\datastructures\ReplicaActivateFormFields;
 use RNTForest\ovz\datastructures\RootPasswordChangeFormFields;
 use RNTForest\ovz\datastructures\SnapshotFormFields;
@@ -1756,7 +1753,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * 
     * @param mixed $physicalServersId
     */
-    public function monLocalJobAddAction($virtualServersId){
+    /*public function monLocalJobAddAction($virtualServersId){
         // sanitize
         $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
 
@@ -1780,13 +1777,13 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // call view
         $this->view->form = new MonLocalJobsForm($monLocalJob); 
         $this->view->pick("virtual_servers/monLocalJobsForm");
-    }
+    }*/
     
     /**
     * Add new Local MonJob
     * 
     */
-    public function monLocalJobAddExecuteAction(){
+    /*public function monLocalJobAddExecuteAction(){
         try{
             // POST request?
             if (!$this->request->isPost()) 
@@ -1845,14 +1842,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->logger->error($e->getMessage());
         }
         $this->redirectToTableSlideDataAction();
-    }
+    }*/
     
     /**
     * Show mon remote jobs form
     * 
     * @param mixed $virtualServersId
     */
-    public function monRemoteJobAddAction($virtualServersId){
+    /*public function monRemoteJobAddAction($virtualServersId){
         // sanitize
         $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
 
@@ -1876,13 +1873,13 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // call view
         $this->view->form = new MonRemoteJobsForm($monRemoteJob);
         $this->view->pick("virtual_servers/monRemoteJobsForm");
-    }
+    }*/
     
     /**
     * Add new Remote MonJob
     * 
     */
-    public function monRemoteJobAddExecuteAction(){
+    /*public function monRemoteJobAddExecuteAction(){
         try{
             // POST request?
             if (!$this->request->isPost()) 
@@ -1941,6 +1938,96 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->logger->error($e->getMessage());
         }
         $this->redirectToTableSlideDataAction();
+    }*/
+    
+    /**
+    * Show form to add a mon job
+    * 
+    * @param mixed $virtualServersId
+    * @throws Exceptions
+    */
+    public function monJobsAddAction($virtualServersId){
+        // sanitize
+        $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
+
+        try{
+            // Validate
+            $virtualServer = VirtualServers::tryFindById($virtualServersId);
+            $this->tryCheckPermission("virtual_servesr", "mon_jobs", array('item' => $virtualServer));
+            
+            // Create new MonJob objet
+            $monJob = new MonJobs();
+            $monJob->setServerId($virtualServersId);
+            $monJob->setServerClass('\RNTForest\ovz\models\VirtualServers');
+            
+            // Call view
+            $this->view->form = new \RNTForest\ovz\forms\MonJobsForm($monJob);
+            $this->view->pick("virtual_servers/monJobsForm");
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+            $this->redirectToTableSlideDataAction();
+        }
+        return;
+    }
+    
+    
+    /**
+    * saves a new monjob
+    * 
+    * @throws Exceptions
+    */
+    public function monJobsAddExecuteAction(){
+        // POST request?
+        if (!$this->request->isPost()) 
+            return $this->redirectTo("virtual_servers/slidedata");
+        
+        try{
+            // get post data
+            $data = $this->request->getPost();
+            $virtualServersId = $this->filter->sanitize($data['server_id'],"int");
+            
+            // validate
+            $virtualServer = VirtualServers::tryFindById($virtualServersId);
+            $this->tryCheckPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer));
+            
+            // create new object
+            $monJob = new MonJobs();
+            $monJob->setServerId($virtualServersId);
+            $monJob->setServerClass('\RNTForest\ovz\models\VirtualServers');
+            
+            // validate form
+            $form = new \RNTForest\ovz\forms\MonJobsForm($monJob);
+            if (!$form->isValid($data, $monJob)) {
+                $this->view->form = $form; 
+                $this->view->pick("virtual_servers/monJobsForm");
+                return; 
+            }
+            
+            // validate model
+            if ($monJob->validation() === false) {
+                // fetch all messages from model
+                foreach($monJob->getMessages() as $message) {
+                    $form->appendMessage(new \Phalcon\Validation\Message($message->getMessage(),$message->getField()));
+                }
+                $this->view->form = $form; 
+                $this->view->pick("virtual_servers/monJobsForm");
+                return;
+            }
+            
+            // todo: create monjob
+            
+            // clean up
+            $form->clear();
+            $message = $this->translate("monitoring_monjobs_add_successful");
+            $this->flashSession->success($message);
+        }catch(\Exception $e){
+            $message = $this->translate("monitoring_monjobs_add_failed");
+            $this->flashSession->error($message.$e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        $this->redirectToTableSlideDataAction();
+        return;
     }
     
     /**

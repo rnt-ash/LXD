@@ -439,5 +439,10 @@ return [
     "monitoring_monremotejobs_add_successful" => "Remote MonJob wurde erfolgreich hinzugefügt",
     "monitoring_monremotejobs_add_failed" => "Remote MonJob konnte nicht hinzugefügt werden: ",
     "monitoring_monremotejobs_no_uptime" => "Keine Uptime verfügbar",
-
+    // MonJob
+    "monitoring_monjobs_title" => "MonJobs",
+    "monitoring_monjobs_add" => "MonJob hinzufügen",
+    "monitoring_monjobs_behavior" => "Monitoring behavior",
+    "monitoring_monjobs_add_successful" => "MonJob wurde erfolgreich hinzugefügt",
+    "monitoring_monjobs_add_failed" => "MonJob konnte nicht hinzugefügt werden: ",
 ];

@@ -28,6 +28,9 @@ use RNTForest\ovz\datastructures\DowntimePeriod;
 use RNTForest\ovz\utilities\MonUptimesGenerator;
 use RNTForest\ovz\utilities\MonLocalDailyLogsGenerator;
 
+use Phalcon\Mvc\Model\Message as Message;
+use Phalcon\Validation;
+
 class MonJobs extends \RNTForest\core\models\ModelBase
 {
     public static $LOCAL_STATENORMAL = 'normal';
@@ -1332,5 +1335,104 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     */
     private function getLogger(){
         return $this->getDI()['logger'];
+    }
+    
+    /**
+    * Initialize method for model.
+    */
+    public function initialize()
+    {
+        $this->setup(array('notNullValidations'=>false));
+        $this->setup(array('virtualForeignKeys'=>false));
+
+           
+    }
+    
+    public function onConstruct()
+    {
+        // Set Defaults
+        
+    }
+    
+    /**
+    * Validations and business logic
+    *
+    * @return boolean
+    */
+    public function validation()
+    {
+        // business logic
+        $config = $this->getDI()->get('config');
+                     
+        // check if default contacts are set in config and no other contacts are already selected
+        if(key_exists('contacts',$config->monitoring) && empty($this->mon_contacts_message && empty($this->mon_contacts_alarm))){
+            $contacts = json_decode($config->monitoring['contacts'],true);
+            if(key_exists('default',$contacts)){
+                // set contacts
+                $this->mon_contacts_alarm = implode($contacts['default']['alarm'],',');
+                $this->mon_contacts_message = implode($contacts['default']['message'],',');
+            }
+        }else{
+            $this->mon_contacts_alarm = implode($this->mon_contacts_alarm,',');
+            $this->mon_contacts_message = implode($this->mon_contacts_message,',');
+        }
+        
+        // todo: set defaults depending on behavior
+        $server = $this->server_class::findFirst($this->server_id);
+        
+        // Validator
+        $validator = $this->generateValidator();
+        if(!$this->validate($validator)) return false;
+        
+        // check if selected contacts are valid
+        $contactsMessage = explode(',',$this->mon_contacts_message);
+        foreach($contactsMessage as $monContactMessageId){
+            if(!$this->checkContacts($monContactMessageId)) return false;
+        }
+        $contactsAlarm = explode(',',$this->mon_contacts_alarm);
+        foreach($contactsAlarm as $monContactAlarmId){
+            if(!$this->checkContacts($monContactAlarmId)) return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+    * generates validator for VirtualServer model
+    * 
+    * return \Phalcon\Validation $validator
+    * 
+    */
+    public static function generateValidator(){
+        // validator
+        $validator = new Validation();
+        
+        // todo: validation
+        
+        return $validator;
+    }
+    
+    /**
+    * helper method to check if contact or login exists and if it belongs to the same customer as the server
+    * 
+    * @param mixed $monContactId
+    */
+    private function checkContacts($monContactId){
+        // throws Exception if login doesn't exist
+        $login = \RNTForest\core\models\Logins::findFirst($monContactId);
+        if(!$login){
+            $message = new Message($this->translate("monitoring_monjobs_login_not_exist"),"server_id");            
+            $this->appendMessage($message);
+            return false;
+        }
+        
+        // check if login has the same customer as the server
+        $server = $this->server_class::findFirst($this->server_id);
+        if($login->getCustomersId() != $server->getCustomersId()){
+            $message = new Message($this->translate("monitoring_monjobs_login_not_from_customer"),"server_id");            
+            $this->appendMessage($message);
+            return false;
+        }
+        return true;
     }
 }

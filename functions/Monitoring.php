@@ -3,24 +3,21 @@ namespace RNTForest\ovz\functions;
 
 class Monitoring{
 
-    private static function buildBehaviorArray($needle){
+    private static function buildBehaviorArray(){
         $behaviors = array();
         
         $directory = new \DirectoryIterator($_SERVER['DOCUMENT_ROOT'].'/../vendor/rnt-forest/ovz/utilities/monbehaviors');
         foreach($directory as $fileInfo){
             if($fileInfo->isDot()) continue;
             $fileName = $fileInfo->getFilename();
-            if(strpos($fileName,$needle) > 0){
-                $info = [];
-                $namespace = "\\RNTForest\\ovz\\utilities\\monbehaviors\\";
-                $class = str_replace('.php','',$fileName);
-                $classpath = $namespace.$class;
-                $shortname = substr($fileName,0,strpos($fileName,$needle));
-                $info['classpath'] = $classpath;
-                $info['classname'] = $shortname;
-                $info['params'] = '';
-                $behaviors[$classpath] = $info;        
-            }
+            $info = [];
+            $namespace = "\\RNTForest\\ovz\\utilities\\monbehaviors\\";
+            $class = str_replace('.php','',$fileName);
+            $classpath = $namespace.$class;
+            $info['classpath'] = $classpath;
+            $info['classname'] = $class;
+            $info['params'] = '';
+            $behaviors[$classpath] = $info;        
         }
         
         return $behaviors;
@@ -33,7 +30,7 @@ class Monitoring{
     public static function getAllBehaviors($serverType){
         $cleanedBehaviors = [];
         
-        $behaviors = self::buildBehaviorArray('Behavior');
+        $behaviors = self::buildBehaviorArray();
 
         foreach($behaviors as $key=>$val){
             $classPath = $val['classpath'];
@@ -43,6 +40,7 @@ class Monitoring{
             // if it is local behavior, params have to be set
             if(strpos($className,'MonLocal') !== false){
                 $info = [];
+                $key = $classPath;
                 
                 // set params
                 switch($className){
@@ -52,6 +50,7 @@ class Monitoring{
                             $info['params'] = '["FsInfo","/","free_gb"]';
                         }elseif($serverType == 'physical'){
                             $info['params'] = '["FsInfo","/","free_gb"]';
+                            $key = $classPath.'_root';
                         }
                         break;
                     case 'CpuloadMonLocalBehavior':
@@ -77,7 +76,7 @@ class Monitoring{
                 
                 if(!empty($info)){
                     $info['classpath'] = $classPath;
-                    $cleanedBehaviors[] = $info;
+                    $cleanedBehaviors[$key] = $info;
                 }
                 
                 // physical has additional diskspace possibility
@@ -86,10 +85,11 @@ class Monitoring{
                     $additional['classpath'] = $classPath;
                     $additional['shortname'] = 'Diskspace /vz';
                     $additional['params'] = '["FsInfo","/vz","free_gb"]';
-                    $cleanedBehaviors[] = $additional;
+                    $cleanedBehaviors[$classPath.'_vz'] = $additional;
                 }
             }else{
                 $info = [];
+                $key = $classPath;
                 
                 switch($className){
                     case 'DnsMonBehavior':
@@ -121,7 +121,7 @@ class Monitoring{
                 if(!empty($info)){
                     $info['classpath'] = $classPath;
                     $info['params'] = null;
-                    $cleanedBehaviors[] = $info;
+                    $cleanedBehaviors[$key] = $info;
                 }
             }
             

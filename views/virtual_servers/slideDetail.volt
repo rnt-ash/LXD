@@ -20,11 +20,8 @@
         </div>
     {% endif %}
     {% if permissions.checkPermission("virtual_servers", "mon_jobs") %}
-        <div class="col-md-6 col-xs-12 padding-small-right">
-        {{ partial("partials/ovz/virtual_servers/monLocalJobs.volt") }}
-        </div>
-        <div class="col-md-6 col-xs-12 padding-small-left">
-        {{ partial("partials/ovz/virtual_servers/monRemoteJobs.volt") }}
+        <div class="col-md-12">
+        {{ partial("partials/ovz/virtual_servers/monJobs.volt") }}
         </div>
     {% endif %}
     </div>

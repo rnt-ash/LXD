@@ -373,7 +373,7 @@ return new \Phalcon\Config([
                 ),
                 'actions' => [
                     'virtual_servers' => [
-                        'monLocalJobAdd', 'monLocalJobAddExecute', 'monRemoteJobAdd', 'monRemoteJobAddExecute',
+                        'monJobsAdd', 'monJobsAddExecute',
                     ]
                 ],
             ],
