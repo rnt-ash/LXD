@@ -266,7 +266,7 @@ class MonAlarm extends \Phalcon\DI\Injectable
     */
     public function notifyMonLocalJobs(MonJobs $monJob){
         if($monJob->getMonType() != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
-        if($monJob->getAlarm() && $this->checkAlarmPeriod($monJob->getAlarmPeriod(), $monJob->getLastAlarm())){
+        if($monJob->getAlarm() && !$monJob->getMuted() && $this->checkAlarmPeriod($monJob->getAlarmPeriod(), $monJob->getLastAlarm())){
             $mailaddresses = array();
             if($monJob->getStatus() == MonJobs::$LOCAL_STATEMAXIMAL){
                 $mailaddresses = $monJob->getMonContactsAlarmMailaddresses();
