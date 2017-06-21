@@ -121,7 +121,16 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
             $this->PrlctlCommands->umount($this->Params['SLAVEUUID'],$this->Params['SLAVEHOSTFQDN']);
             if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("Unmount snapshot failed. PRLCTL returncode: $exitstatus",$exitstatus));
 
-
+            // create snapshot for versioning
+            $exitstatus = $this->PrlctlCommands->listInfo($this->Params['SLAVEUUID'],$this->Params['SLAVEHOSTFQDN']);
+            if($exitstatus > 0) throw new \Exception("Fail",$this->commandFailed("List Info failed. VZCTL returncode: $exitstatus",$exitstatus));
+            $listInfo = json_decode($this->PrlctlCommands->getJson(),true)[0];
+            if(!is_array($listInfo) || !key_exists("Name", $listInfo)) throw new \Exception("Fail",$this->commandFailed("List Info failed. Does not have a Name in list info",$exitstatus));
+            // take the id of the name, there should be "replica" followed by a number, like: replica1234
+            $id = substr($listInfo["Name"],7);
+            $snapshotname = "REPLICA ".$id." ".date('Y-m-d H:i:s');
+            $snapshotdesc = "Replika-Snapshot für Backups";
+            $this->PrlctlCommands->createSnapshot($this->Params['SLAVEUUID'],$snapshotname,$snapshotdesc,$this->Params['SLAVEHOSTFQDN']);
         }catch(\Exception $e){
             // Cleanup (no error dedection)
             $this->VzctlCommands->umountSnapshot($this->uuid2ctid($this->Params['UUID']),$snapshotUUID);
