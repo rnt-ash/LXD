@@ -2260,25 +2260,34 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                     $masterName = $virtualServer->OvzReplicaId->getName();
                     $slaveName = $virtualServer->getName();
                 }
-                $this->PDF->Cell(55,$cellHeight,$masterName,1,0);
-                $this->PDF->Cell(40,$cellHeight,$slaveName,1,0);
+                $this->PDF->Cell(55,$cellHeight,$masterName,1,0,'',false,'',1);
+                $this->PDF->Cell(60,$cellHeight,$slaveName,1,0,'',false,'',1);
                 // get time without date from start
                 $start = date("H:i:s",strtotime($replicaStats['start']));
-                $this->PDF->Cell(30,$cellHeight,$start,1,0);
+                $this->PDF->Cell(25,$cellHeight,$start,1,0);
                 // get time without date from end
                 $end = date("H:i:s",strtotime($replicaStats['end']));
-                $this->PDF->Cell(30,$cellHeight,$end,1,0);
-                // calculate duration in minutes and seconds
-                $duration = date("i:s",strtotime($replicaStats['end'])-strtotime($replicaStats['start']));
-                // if duration is longer than 5min, mark as red, else mark as green
-                if($duration > "05:00"){
+                $this->PDF->Cell(25,$cellHeight,$end,1,0);
+                // calculate duration
+                $difference = strtotime($replicaStats['end'])-strtotime($replicaStats['start']);
+                if(gmdate("H",$difference) >= 1){
+                    $duration = gmdate("H:i:s",$difference);
+                }else{
+                    $duration = gmdate("i:s",$difference);
+                }
+                if($difference/60/60 > 1){
+                    // if it took more than 1hour, mark as dark red
+                    $this->PDF->SetFillColor(255,84,84);
+                }elseif($difference/60 > 5){
+                    // if duration is longer than 5min, mark as red
                     $this->PDF->SetFillColor(255,153,153);
                 }else{
+                    // else mark as green
                     $this->PDF->SetFillColor(181,255,181);
                 }
                 $this->PDF->Cell(30,$cellHeight,$duration." Min.",1,0,'',true);
                 // number of files
-                $this->PDF->Cell(40,$cellHeight,$replicaStats['stats_numbre_of_files'],1,0);
+                $this->PDF->Cell(30,$cellHeight,$replicaStats['stats_numbre_of_files'],1,0);
                 // format total transferred bytes
                 $this->PDF->Cell(40,$cellHeight,\RNTForest\core\libraries\Helpers::formatBytesHelper($replicaStats['stats_total_transferred_file_size']),1,1);
             }
@@ -2302,11 +2311,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // Print column header
         $this->PDF->SetFont('','B');
         $this->PDF->Cell(55,8,$this->translate("virtualserver_replicapdf_master"),1,0);
-        $this->PDF->Cell(40,8,$this->translate("virtualserver_replicapdf_slave"),1,0);
-        $this->PDF->Cell(30,8,$this->translate("virtualserver_replicapdf_start"),1,0);
-        $this->PDF->Cell(30,8,$this->translate("virtualserver_replicapdf_end"),1,0);
+        $this->PDF->Cell(60,8,$this->translate("virtualserver_replicapdf_slave"),1,0);
+        $this->PDF->Cell(25,8,$this->translate("virtualserver_replicapdf_start"),1,0);
+        $this->PDF->Cell(25,8,$this->translate("virtualserver_replicapdf_end"),1,0);
         $this->PDF->Cell(30,8,$this->translate("virtualserver_replicapdf_duration"),1,0);
-        $this->PDF->Cell(40,8,$this->translate("virtualserver_replicapdf_files"),1,0);
+        $this->PDF->Cell(30,8,$this->translate("virtualserver_replicapdf_files"),1,0);
         $this->PDF->Cell(40,8,$this->translate("virtualserver_replicapdf_bytes"),1,1);
         $this->PDF->SetFont('','');
     }
