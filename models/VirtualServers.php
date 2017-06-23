@@ -1059,13 +1059,16 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     /**
     * Adds a new MonRemoteJobs for this server.
     * 
-    * @param string $behavior
+    * @param string $behaviorName
     * @return MonJobs $monJob
     */
-    public function addMonRemoteJob($behavior){
+    public function addMonRemoteJob($behaviorName){
         // validate and clean parameters
-        if(!key_exists($behavior,Monitoring::getAllBehaviors('virtual'))){
-            throw new \Exception($this->translate("virtualservers_addmonremotejob_no_valid_behavior"));
+        $allBehaviors = Monitoring::getAllBehaviors('virtual');
+        if(key_exists($behaviorName,$allBehaviors)){
+            $behavior = $allBehaviors[$behaviorName]['classpath'];
+        }else{
+            throw new \Exception($this->translate("monitoring_monjobs_add_no_valid_behavior"));
         }
         
         $reflection = new \ReflectionClass($this);
@@ -1081,13 +1084,16 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     /**
     * Adds a new MonLocalJob for this server.
     * 
-    * @param string $behavior
+    * @param string $behaviorName
     * @return MonJobs $monJob
     */
-    public function addMonLocalJob($behavior){
+    public function addMonLocalJob($behaviorName){
         // validate and clean parameters
-        if(!key_exists($behavior,Monitoring::getAllBehaviors('virtual'))){
-            throw new \Exception($this->translate("virtualservers_addmonlocaljob_no_valid_behavior"));
+        $allBehaviors = Monitoring::getAllBehaviors('virtual');
+        if(key_exists($behaviorName,$allBehaviors)){
+            $behavior = $allBehaviors[$behaviorName]['classpath'];
+        }else{
+            throw new \Exception($this->translate("monitoring_monjobs_add_no_valid_behavior"));
         }
         
         // gen the warn and maximal value

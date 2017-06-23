@@ -743,69 +743,42 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
     /**
     * Adds a new MonRemoteJobs for this server.
     * 
-    * @param string $behavior
-    * @param int $period
-    * @param int $alarmPeriod
-    * @param int[] $messageContacts
-    * @param int[] $alarmContacts
+    * @param string $behaviorName
+    * @return MonJobs $monJob
     */
-    public function addMonRemoteJob($behavior, $period, $alarmPeriod, $messageContacts, $alarmContacts){
+    public function addMonRemoteJob($behaviorName){
         // validate and clean parameters
-        if(!key_exists($behavior,Monitoring::getRemoteBehaviors())){
-            throw new \Exception($this->translate("physicalservers_addmonremotejob_no_valid_behavior"));
-        }
-        $period = intval($period);
-        $alarmPeriod = intval($alarmPeriod);
-        $messageContacts = array_map('intval',$messageContacts);
-        $messageContactsString = implode(',',$messageContacts);
-        $alarmContacts = array_map('intval',$alarmContacts);
-        $alarmContactsString = implode(',',$alarmContacts);
-        
-        // set healing to 1 if HttpMonBehavior
-        if(strpos($behavior,'HttpMonBehavior') > 0){
-            $healing = 1;
+        $allBehaviors = Monitoring::getAllBehaviors('physical');
+        if(key_exists($behaviorName,$allBehaviors)){
+            $behavior = $allBehaviors[$behaviorName]['classpath'];
         }else{
-            $healing = 0;
+            throw new \Exception($this->translate("monitoring_monjobs_add_no_valid_behavior"));
         }
         
         $reflection = new \ReflectionClass($this);
         
         // and save the new job
-        $monJob = new MonRemoteJobs();
-        $monJob->save(
-            [
-                "server_id" => $this->getId(),
-                "server_class" => "\\".$reflection->getName(),
-                "mon_behavior_class" => $behavior,
-                "period" => $period,
-                "alarm_period" => $alarmPeriod,
-                "healing" => $healing,
-                "mon_contacts_message" => $messageContactsString,
-                "mon_contacts_alarm" => $alarmContactsString,
-            ]
-        );
+        $monJob = new MonJobs();
+        $monJob->setServerId($this->getId());
+        $monJob->setServerClass("\\".$reflection->getName());
+        $monJob->setMonBehaviorClass($behavior);
+        return $monJob;
     }
     
     /**
     * Adds a new MonLocalJob for this server.
     * 
-    * @param string $behavior
-    * @param int $period
-    * @param int $alarmPeriod
-    * @param int[] $messageContacts
-    * @param int[] $alarmContacts
+    * @param string $behaviorName
+    * @return MonJobs $monJob
     */
-    public function addMonLocalJob($behavior, $period, $alarmPeriod, $messageContacts, $alarmContacts){
+    public function addMonLocalJob($behaviorName){
         // validate and clean parameters
-        if(!key_exists($behavior,Monitoring::getLocalPhysicalBehaviors())){
-            throw new \Exception($this->translate("physicalservers_addmonlocaljob_no_valid_behavior"));
+        $allBehaviors = Monitoring::getAllBehaviors('physical');
+        if(key_exists($behaviorName,$allBehaviors)){
+            $behavior = $allBehaviors[$behaviorName]['classpath'];
+        }else{
+            throw new \Exception($this->translate("monitoring_monjobs_add_no_valid_behavior"));
         }
-        $period = intval($period);
-        $alarmPeriod = intval($alarmPeriod);
-        $messageContacts = array_map('intval',$messageContacts);
-        $messageContactsString = implode(',',$messageContacts);
-        $alarmContacts = array_map('intval',$alarmContacts);
-        $alarmContactsString = implode(',',$alarmContacts);
         
         // gen the warn and maximal value
         $warningValue = $maximalValue = 0;
@@ -826,7 +799,16 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         
             // set params
             $behaviorParams = '["memory_free_mb"]';
-        }elseif(strpos($behavior,'Diskspacefree')){
+        }elseif(strpos($behavior,'Diskspacefree') && strpos($behaviorName,'root')){
+            // warning at a 5
+            $warningValue = 5;
+            
+            // maximal at 3
+            $maximalValue = 3;
+            
+            // set params
+            $behaviorParams = '["FsInfo","/","free_gb"]';
+        }elseif(strpos($behavior,'Diskspacefree') && strpos($behaviorName,'vz')){
             // warning at a ten percent, minimal 10
             $warningValue = intval($this->getSpace()*0.1);
             if($warningValue < 10) $warningValue = 10;
@@ -836,26 +818,19 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             if($maximalValue < 5) $maximalValue = 5;
         
             // set params
-            $behaviorParams = '["FsInfo","/","free_gb"]';
+            $behaviorParams = '["FsInfo","/vz","free_gb"]';
         }
         
         $reflection = new \ReflectionClass($this);
         
         // and save the new job
-        $monJob = new MonLocalJobs();
-        $monJob->save(
-            [
-                "server_id" => $this->getId(),
-                "server_class" => "\\".$reflection->getName(),
-                "mon_behavior_class" => $behavior,
-                "mon_behavior_params" => $behaviorParams,
-                "period" => $period,
-                "alarm_period" => $alarmPeriod,
-                "warning_value" => $warningValue,
-                "maximal_value" => $maximalValue,
-                "mon_contacts_message" => $messageContactsString,
-                "mon_contacts_alarm" => $alarmContactsString,
-            ]
-        );
+        $monJob = new MonJobs();
+        $monJob->setServerId($this->getId());
+        $monJob->setServerClass("\\".$reflection->getName());
+        $monJob->setMonBehaviorClass($behavior);
+        $monJob->setMonBehaviorParams($behaviorParams);
+        $monJob->setWarningValue($warningValue);
+        $monJob->setMaximalValue($maximalValue);
+        return $monJob;
     }
 }

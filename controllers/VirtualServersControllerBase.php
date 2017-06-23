@@ -414,7 +414,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // delete MonJobs
-            $monJobs = MonJobs::find((array("server_class = '\RNTForest\ovz\models\VirtualServers' AND server_id = ".$virtualServer->getId())));
+            $monJobs = MonJobs::find((array("server_class LIKE '%VirtualServers%' AND server_id = ".$virtualServer->getId())));
             foreach($monJobs as $monJob){
                 if(!$monJob->delete()){
                     foreach ($monJob->getMessages() as $message) {
@@ -1775,7 +1775,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         try{
             // Validate
             $virtualServer = VirtualServers::tryFindById($virtualServersId);
-            $this->tryCheckPermission("virtual_servesr", "mon_jobs", array('item' => $virtualServer));
+            $this->tryCheckPermission("virtual_servers", "mon_jobs", array('item' => $virtualServer));
             
             // Create new MonJob objet
             $monJob = new MonJobs();
@@ -1808,7 +1808,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // get post data
             $data = $this->request->getPost();
             $virtualServersId = $this->filter->sanitize($data['server_id'],"int");
-            $monBehavior = $this->filter->sanitize($data['mon_behavior_class'],"string");
+            $monBehavior = $this->filter->sanitize($data['mon_behavior'],"string");
             
             // validate
             $virtualServer = VirtualServers::tryFindById($virtualServersId);
