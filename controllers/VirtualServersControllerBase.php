@@ -1773,7 +1773,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         try{
             // Validate
             $virtualServer = VirtualServers::tryFindById($virtualServersId);
-            $this->tryCheckPermission("virtual_servesr", "mon_jobs", array('item' => $virtualServer));
+            $this->tryCheckPermission("virtual_servers", "mon_jobs", array('item' => $virtualServer));
             
             // Create new MonJob objet
             $monJob = new MonJobs();
