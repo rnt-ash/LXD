@@ -414,7 +414,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // delete MonJobs
-            $monJobs = MonJobs::find((array("server_class = '\RNTForest\ovz\models\VirtualServers' AND server_id = ".$virtualServer->getId())));
+            $monJobs = MonJobs::find((array("server_class LIKE '%VirtualServers%' AND server_id = ".$virtualServer->getId())));
             foreach($monJobs as $monJob){
                 if(!$monJob->delete()){
                     foreach ($monJob->getMessages() as $message) {
