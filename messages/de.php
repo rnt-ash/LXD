@@ -397,6 +397,7 @@ return [
     "monitoring_mon_behavior_could_not_instantiate_valuestatus" => "Es konnte kein ValueStatus Objekt instanziert werden (evt. fehlen die Infos im Statistics Array)",
     "monitoring_allinfoupdater_mark_failed" => "Der Job wurde als fehlerhaft markiert weil er nicht unverzüglich vom Monitoring gesendet werden konnte.",
     // MonJobs
+    "monitoring_monjobs_add_no_valid_behavior" => "Ausgewähltes Behavior existiert nicht",
     "monitoring_monjobs_montype_remote_expected" => "Diese Methode funktioniert nur für mon_type 'remote'.",
     "monitoring_monjobs_montype_local_expected" => "Diese Methode funktioniert nur für mon_type 'local'.",
     "monitoring_monjobs_title" => "MonJobs",

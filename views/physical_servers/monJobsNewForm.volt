@@ -8,7 +8,7 @@
 
 <div class="well">
     <div class="row">
-        {{ form("virtual_servers/monJobsAddExecute", 'role': 'form') }}
+        {{ form("physical_servers/monJobsAddExecute", 'role': 'form') }}
 
         {{ form.get('server_id').render() }}
         
@@ -27,8 +27,8 @@
         </div>
         
         <div class="col-lg-12">
-            {{ submit_button( _("virtualserver_save") , "class": "btn btn-primary loadingScreen") }}
-            {{ link_to('/virtual_servers/slidedata', _("virtualserver_cancel"), 'class': 'btn btn-default pull-right') }}
+            {{ submit_button( _("physicalserver_save") , "class": "btn btn-primary loadingScreen") }}
+            {{ link_to('/physical_servers/slidedata', _("physicalserver_cancel"), 'class': 'btn btn-default pull-right') }}
         </div>
                 
         </form>

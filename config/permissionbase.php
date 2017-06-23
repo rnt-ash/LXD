@@ -121,6 +121,24 @@ return new \Phalcon\Config([
                     ]
                 ],
             ],
+            'mon_jobs' => [
+                'description' => 'create, edit and delete monjobs', 
+                'scopes' => [
+                    '1' => "edit monjobs on every server",
+                    'partners' => "edit monjobs from partners and own physical servers only", 
+                    'customers' => "edit monjobs for own physical servers only", 
+                    '0' => "edit no monjobs", 
+                ],
+                'functions' => array(
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
+                ),
+                'actions' => [
+                    'physical_servers' => [
+                        'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
+                    ]
+                ],
+            ],
         ],
         'virtual_servers' => [
             // general permission

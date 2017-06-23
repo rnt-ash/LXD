@@ -44,11 +44,11 @@ class MonJobsNewForm extends \RNTForest\core\forms\FormBase
         
         // create new array for select
         $allBehaviors = Monitoring::getAllBehaviors($serverType);
-        foreach($allBehaviors as $behavior){
-            $behaviorsSelect[$behavior['classpath']] = $behavior['shortname'];
+        foreach($allBehaviors as $key=>$behavior){
+            $behaviorsSelect[$key] = $behavior['shortname'];
         }
         $element = new Select(
-            "mon_behavior_class",
+            "mon_behavior",
             $behaviorsSelect,
             array("using"=>array("id","name"))
         );

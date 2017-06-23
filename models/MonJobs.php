@@ -737,6 +737,18 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     }
     
     /**
+    * Returns the downtimes periods of a MonJob
+    * 
+    * remote only
+    * 
+    * @return \EAT\monitoring\model\DownTimePeriod[] 
+    */
+    public function getDownTimeInformation(){
+        $downTimePeriods = $this->createDownTimePeriods();
+        return $downTimePeriods;
+    }
+    
+    /**
     * Recomputes the uptime out of MonLogs and MonUptimes.
     * 
     * remote only

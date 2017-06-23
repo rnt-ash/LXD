@@ -1808,7 +1808,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // get post data
             $data = $this->request->getPost();
             $virtualServersId = $this->filter->sanitize($data['server_id'],"int");
-            $monBehavior = $this->filter->sanitize($data['mon_behavior_class'],"string");
+            $monBehavior = $this->filter->sanitize($data['mon_behavior'],"string");
             
             // validate
             $virtualServer = VirtualServers::tryFindById($virtualServersId);
