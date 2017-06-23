@@ -27,9 +27,16 @@ use RNTForest\core\libraries\Helpers;
 use RNTForest\ovz\datastructures\DowntimePeriod;
 use RNTForest\ovz\utilities\MonUptimesGenerator;
 use RNTForest\ovz\utilities\MonLocalDailyLogsGenerator;
+use RNTForest\ovz\functions\Monitoring;
 
 use Phalcon\Mvc\Model\Message as Message;
+use Phalcon\Mvc\Model\Behavior\Timestampable;
 use Phalcon\Validation;
+use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
+use Phalcon\Validation\Validator\InclusionIn as InclusionInValidator;
+use Phalcon\Validation\Validator\Date as DateValidator;
+use Phalcon\Validation\Validator\Numericality as NumericalityValidator;
+use Phalcon\Validation\Validator\Regex as RegexValidator;
 
 class MonJobs extends \RNTForest\core\models\ModelBase
 {
@@ -1256,6 +1263,18 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         return $contactMailaddresses;
     }
     
+    /**
+    * Helper method to return the short name of a behavior
+    * 
+    * @param mixed $monBehaviorClass
+    * @param mixed $serverType 'virtual' or 'physical'
+    * @return string
+    */
+    public function getShortName($serverType){
+        $behaviors = Monitoring::getAllBehaviors($serverType);
+        return $behaviors[$this->mon_behavior_class]['shortname'];
+    }
+    
     public function execute(){
         $statusBefore = $this->getStatus();
         $executed = false;
@@ -1345,13 +1364,28 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $this->setup(array('notNullValidations'=>false));
         $this->setup(array('virtualForeignKeys'=>false));
 
-           
+        // Timestampable behavior
+        $this->addBehavior(new Timestampable(array(
+            'beforeUpdate' => array(
+                'field' => 'modified',
+                'format' => 'Y-m-d H:i:s'
+            )
+        )));
     }
     
     public function onConstruct()
     {
         // Set Defaults
-        
+        $this->period = 5;
+        $this->status = 'nostate';
+        $this->last_status_change = '0001-01-01 01:01:01';
+        $this->active = 1;
+        $this->alarm = 1;
+        $this->alarmed = 0;
+        $this->muted = 0;
+        $this->last_alarm = '0001-01-01 01:01:01';
+        $this->last_run = '0001-01-01 01:01:01';
+        $this->modified = date('Y-m-d H:i:s');
     }
     
     /**
@@ -1365,74 +1399,271 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $config = $this->getDI()->get('config');
                      
         // check if default contacts are set in config and no other contacts are already selected
-        if(key_exists('contacts',$config->monitoring) && empty($this->mon_contacts_message && empty($this->mon_contacts_alarm))){
+        if(key_exists('contacts',$config->monitoring) && empty($this->mon_contacts_message) && empty($this->mon_contacts_alarm)){
             $contacts = json_decode($config->monitoring['contacts'],true);
             if(key_exists('default',$contacts)){
                 // set contacts
-                $this->mon_contacts_alarm = implode($contacts['default']['alarm'],',');
-                $this->mon_contacts_message = implode($contacts['default']['message'],',');
+                $this->mon_contacts_alarm = $contacts['default']['alarm'];
+                $this->mon_contacts_message = $contacts['default']['message'];
             }
-        }else{
-            $this->mon_contacts_alarm = implode($this->mon_contacts_alarm,',');
-            $this->mon_contacts_message = implode($this->mon_contacts_message,',');
         }
         
-        // todo: set defaults depending on behavior
-        $server = $this->server_class::findFirst($this->server_id);
+        // if the contacts are in array format, convert to comma seperated string
+        if(is_array($this->mon_contacts_alarm)){
+            $this->mon_contacts_alarm = implode(',',$this->mon_contacts_alarm);
+        }
+        if(is_array($this->mon_contacts_message)){
+            $this->mon_contacts_message = implode(',',$this->mon_contacts_message);
+        }
+        
+        // set defaults depending on behavior
+        // set healing to 1 if HttpMonBehavior
+        if(strpos($this->mon_behavior_class,'HttpMonBehavior') > 0 && $this->healing !== 0){
+            $this->healing = 1;
+        }else{
+            $this->healing = 0;
+        }
+        // set alarmperiod on if it's empty
+        if(empty($this->alarm_period)){
+            if(strpos($this->mon_behavior_class,'Diskspace') > 0){
+                $this->alarm_period = 360;
+            }else{
+                $this->alarm_period = 15;
+            }
+        }
+        // local or remote monJob
+        if(strpos($this->mon_behavior_class,'MonLocalBehavior')){
+            $this->mon_type = 'local';
+        }else{
+            $this->mon_type = 'remote';
+        }
         
         // Validator
-        $validator = $this->generateValidator();
+        $validator = $this->generateValidator($this->mon_type);
         if(!$this->validate($validator)) return false;
-        
-        // check if selected contacts are valid
-        $contactsMessage = explode(',',$this->mon_contacts_message);
-        foreach($contactsMessage as $monContactMessageId){
-            if(!$this->checkContacts($monContactMessageId)) return false;
-        }
-        $contactsAlarm = explode(',',$this->mon_contacts_alarm);
-        foreach($contactsAlarm as $monContactAlarmId){
-            if(!$this->checkContacts($monContactAlarmId)) return false;
-        }
         
         return true;
     }
     
     /**
-    * generates validator for VirtualServer model
+    * generates validator for MonJobs model
     * 
     * return \Phalcon\Validation $validator
     * 
     */
-    public static function generateValidator(){
+    public static function generateValidator($monType){
         // validator
         $validator = new Validation();
         
-        // todo: validation
+        // server_id
+        $validator->add('server_id', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_server_id_required"),
+        ]));
+        $validator->add('server_id', new NumericalityValidator([
+            'message' => self::translate("monitoring_monjobs_server_id_numeric"), 
+        ]));
+        
+        // server_class
+        $validator->add('server_class', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_server_class_required"),
+        ]));
+        
+        // mon_type
+        if($monType == 'local'){
+            $validator->add('mon_type', new InclusionInValidator([
+                'domain' => ["local"],
+                'message' => self::translate("monitoring_monjobs_mon_type_local_valid"),
+            ]));
+        }elseif($monType == 'remote'){
+            $validator->add('mon_type', new InclusionInValidator([
+                'domain' => ["remote"],
+                'message' => self::translate("monitoring_monjobs_mon_type_remote_valid"),
+            ]));
+        }
+        
+        // main_ip
+        if($monType == 'remote'){
+            // Regex from IpObjects for value1; allows numbers and characters for IPv6 and IPv4
+            $validator->add('main_ip', new RegexValidator([
+                'pattern' => '/^[0-9a-f:.]*$/',
+                'message' => self::translate("monitoring_monjobs_main_ip_valid"),
+            ]));
+        }
+        
+        // mon_behavior_class
+        $validator->add('mon_behavior_class', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_mon_behavior_class_required"),
+        ]));
+        
+        // mon_behavior_params
+        if($monType == 'local'){
+            $validator->add('mon_behavior_params', new PresenceOfValidator([
+                'message' => self::translate("monitoring_monjobs_mon_behavior_params_required"),
+            ]));
+        }
+        
+        // period
+        $validator->add('period', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_period_required"),
+        ]));
+        $validator->add('period', new NumericalityValidator([
+            'message' => self::translate("monitoring_monjobs_period_numeric"), 
+        ]));
+        
+        // status
+        if($monType == 'local'){
+            $validator->add('status', new InclusionInValidator([
+                'domain' => ["normal", "warning", "maximal", "nostate"],
+                'message' => self::translate("monitoring_monjobs_status_local_valid"),
+            ]));
+        }elseif($monType == 'remote'){
+            $validator->add('status', new InclusionInValidator([
+                'domain' => ["up", "down", "nostate"],
+                'message' => self::translate("monitoring_monjobs_status_remote_valid"),
+            ]));
+        }
+        
+        // last_status_change
+        // Checking if date is set in format Year-month-day hours:minutes:seconds
+        $validator->add('last_status_change', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_last_status_change_required"),
+        ]));        
+        $validator->add('last_status_change', new DateValidator([
+            'format' => "Y-m-d H:i:s",
+            'message' => self::translate("monitoring_monjobs_last_status_change_format"),
+        ]));
+        
+        // uptime
+        // nothing to check
+        
+        if($monType == 'local'){
+            // warning_value
+            $validator->add('warning_value', new PresenceOfValidator([
+                'message' => self::translate("monitoring_monjobs_warning_value_required"),
+            ]));
+            $validator->add('warning_value', new NumericalityValidator([
+                'message' => self::translate("monitoring_monjobs_warning_value_numeric"), 
+            ]));
+            
+            // maximal_value
+            $validator->add('maximal_value', new PresenceOfValidator([
+                'message' => self::translate("monitoring_monjobs_maximal_value_required"),
+            ]));
+            $validator->add('maximal_value', new NumericalityValidator([
+                'message' => self::translate("monitoring_monjobs_maximal_value_numeric"), 
+            ]));
+        }
+        
+        // active 
+        $validator->add('active', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_active_required"),
+        ]));
+        $validator->add('active', new RegexValidator([
+            'pattern' => '/^[1 or 0]/',
+            'message' => self::translate("monitoring_monjobs_active_valid"),
+        ]));
+        
+        // healing
+        $validator->add('healing', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_healing_required"),
+        ]));
+        if($monType == 'local'){
+            $validator->add('healing', new RegexValidator([
+                'pattern' => '/^[0]/',
+                'message' => self::translate("monitoring_monjobs_healing_local_valid"),
+            ]));
+        }elseif($monType == 'remote'){
+            $validator->add('healing', new RegexValidator([
+                'pattern' => '/^[1 or 0]/',
+                'message' => self::translate("monitoring_monjobs_healing_remote_valid"),
+            ]));
+        }
+        
+        // alarm
+        $validator->add('alarm', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_alarm_required"),
+        ]));
+        $validator->add('alarm', new RegexValidator([
+            'pattern' => '/^[1 or 0]/',
+            'message' => self::translate("monitoring_monjobs_alarm_valid"),
+        ]));
+        
+        // alarmed
+        $validator->add('alarmed', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_alarmed_required"),
+        ]));
+        $validator->add('alarmed', new RegexValidator([
+            'pattern' => '/^[1 or 0]/',
+            'message' => self::translate("monitoring_monjobs_alarmed_valid"),
+        ]));
+        
+        // muted
+        $validator->add('muted', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_muted_required"),
+        ]));
+        $validator->add('muted', new RegexValidator([
+            'pattern' => '/^[1 or 0]/',
+            'message' => self::translate("monitoring_monjobs_muted_valid"),
+        ]));
+        
+        // last_alarm
+        // Checking if date is set in format Year-month-day hours:minutes:seconds
+        $validator->add('last_alarm', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_last_alarm_required"),
+        ]));        
+        $validator->add('last_alarm', new DateValidator([
+            'format' => "Y-m-d H:i:s",
+            'message' => self::translate("monitoring_monjobs_last_alarm_format"),
+        ]));
+        
+        // alarm_period
+        $validator->add('alarm_period', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_alarm_period_required"),
+        ]));
+        $validator->add('alarm_period', new NumericalityValidator([
+            'message' => self::translate("monitoring_monjobs_alarm_period_numeric"), 
+        ]));
+        
+        // mon_contacts_message
+        $validator->add('mon_contacts_message', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_mon_contacts_message_required"),
+        ]));
+        $validator->add('mon_contacts_message', new RegexValidator([
+            // only numbers and commas allowed
+            'pattern' => '/^[1-9\,]*/',
+            'message' => self::translate("monitoring_monjobs_mon_contacts_message_valid"),
+        ]));
+        
+        // mon_contacts_alarm
+        $validator->add('mon_contacts_alarm', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_mon_contacts_alarm_required"),
+        ]));
+        $validator->add('mon_contacts_alarm', new RegexValidator([
+            // only numbers and commas allowed
+            'pattern' => '/^[1-9\,]*/',
+            'message' => self::translate("monitoring_monjobs_mon_contacts_alarm_valid"),
+        ]));
+        
+        // last_run
+        // Checking if date is set in format Year-month-day hours:minutes:seconds
+        $validator->add('last_run', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_last_run_required"),
+        ]));        
+        $validator->add('last_run', new DateValidator([
+            'format' => "Y-m-d H:i:s",
+            'message' => self::translate("monitoring_monjobs_last_run_format"),
+        ]));
+        
+        // modified
+        // Checking if date is set in format Year-month-day hours:minutes:seconds
+        $validator->add('modified', new PresenceOfValidator([
+            'message' => self::translate("monitoring_monjobs_modified_required"),
+        ]));        
+        $validator->add('modified', new DateValidator([
+            'format' => "Y-m-d H:i:s",
+            'message' => self::translate("monitoring_monjobs_modified_format"),
+        ]));
         
         return $validator;
-    }
-    
-    /**
-    * helper method to check if contact or login exists and if it belongs to the same customer as the server
-    * 
-    * @param mixed $monContactId
-    */
-    private function checkContacts($monContactId){
-        // throws Exception if login doesn't exist
-        $login = \RNTForest\core\models\Logins::findFirst($monContactId);
-        if(!$login){
-            $message = new Message($this->translate("monitoring_monjobs_login_not_exist"),"server_id");            
-            $this->appendMessage($message);
-            return false;
-        }
-        
-        // check if login has the same customer as the server
-        $server = $this->server_class::findFirst($this->server_id);
-        if($login->getCustomersId() != $server->getCustomersId()){
-            $message = new Message($this->translate("monitoring_monjobs_login_not_from_customer"),"server_id");            
-            $this->appendMessage($message);
-            return false;
-        }
-        return true;
     }
 }

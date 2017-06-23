@@ -827,11 +827,11 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
             // set params
             $behaviorParams = '["memory_free_mb"]';
         }elseif(strpos($behavior,'Diskspacefree')){
-            // warning at a ten percent, minimal 2
+            // warning at a ten percent, minimal 10
             $warningValue = intval($this->getSpace()*0.1);
             if($warningValue < 10) $warningValue = 10;
             
-            // maximal at five percent, minimal 1 
+            // maximal at five percent, minimal 5 
             $maximalValue = intval($this->getSpace()*0.05);
             if($maximalValue < 5) $maximalValue = 5;
         

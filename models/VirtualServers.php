@@ -1060,68 +1060,35 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * Adds a new MonRemoteJobs for this server.
     * 
     * @param string $behavior
-    * @param int $period
-    * @param int $alarmPeriod
-    * @param int[] $messageContacts
-    * @param int[] $alarmContacts
+    * @return MonJobs $monJob
     */
-    public function addMonRemoteJob($behavior, $period, $alarmPeriod, $messageContacts, $alarmContacts){
+    public function addMonRemoteJob($behavior){
         // validate and clean parameters
-        if(!key_exists($behavior,Monitoring::getRemoteBehaviors())){
+        if(!key_exists($behavior,Monitoring::getAllBehaviors('virtual'))){
             throw new \Exception($this->translate("virtualservers_addmonremotejob_no_valid_behavior"));
-        }
-        $period = intval($period);
-        $alarmPeriod = intval($alarmPeriod);
-        $messageContacts = array_map('intval',$messageContacts);
-        $messageContactsString = implode(',',$messageContacts);
-        $alarmContacts = array_map('intval',$alarmContacts);
-        $alarmContactsString = implode(',',$alarmContacts);
-        
-        // set healing to 1 if HttpMonBehavior
-        if(strpos($behavior,'HttpMonBehavior') > 0){
-            $healing = 1;
-        }else{
-            $healing = 0;
         }
         
         $reflection = new \ReflectionClass($this);
         
         // and save the new job
-        $monJob = new MonRemoteJobs();
-        $monJob->save(
-            [
-                "server_id" => $this->getId(),
-                "server_class" => "\\".$reflection->getName(),
-                "mon_behavior_class" => $behavior,
-                "period" => $period,
-                "alarm_period" => $alarmPeriod,
-                "healing" => $healing,
-                "mon_contacts_message" => $messageContactsString,
-                "mon_contacts_alarm" => $alarmContactsString,
-            ]
-        );
+        $monJob = new MonJobs();
+        $monJob->setServerId($this->getId());
+        $monJob->setServerClass("\\".$reflection->getName());
+        $monJob->setMonBehaviorClass($behavior);
+        return $monJob;
     }
     
     /**
     * Adds a new MonLocalJob for this server.
     * 
     * @param string $behavior
-    * @param int $period
-    * @param int $alarmPeriod
-    * @param int[] $messageContacts
-    * @param int[] $alarmContacts
+    * @return MonJobs $monJob
     */
-    public function addMonLocalJob($behavior, $period, $alarmPeriod, $messageContacts, $alarmContacts){
+    public function addMonLocalJob($behavior){
         // validate and clean parameters
-        if(!key_exists($behavior,Monitoring::getLocalBehaviors())){
+        if(!key_exists($behavior,Monitoring::getAllBehaviors('virtual'))){
             throw new \Exception($this->translate("virtualservers_addmonlocaljob_no_valid_behavior"));
         }
-        $period = intval($period);
-        $alarmPeriod = intval($alarmPeriod);
-        $messageContacts = array_map('intval',$messageContacts);
-        $messageContactsString = implode(',',$messageContacts);
-        $alarmContacts = array_map('intval',$alarmContacts);
-        $alarmContactsString = implode(',',$alarmContacts);
         
         // gen the warn and maximal value
         $warningValue = $maximalValue = 0;
@@ -1158,20 +1125,13 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         $reflection = new \ReflectionClass($this);
         
         // and save the new job
-        $monJob = new MonLocalJobs();
-        $monJob->save(
-            [
-                "server_id" => $this->getId(),
-                "server_class" => "\\".$reflection->getName(),
-                "mon_behavior_class" => $behavior,
-                "mon_behavior_params" => $behaviorParams,
-                "period" => $period,
-                "alarm_period" => $alarmPeriod,
-                "warning_value" => $warningValue,
-                "maximal_value" => $maximalValue,
-                "mon_contacts_message" => $messageContactsString,
-                "mon_contacts_alarm" => $alarmContactsString,
-            ]
-        );
+        $monJob = new MonJobs();
+        $monJob->setServerId($this->getId());
+        $monJob->setServerClass("\\".$reflection->getName());
+        $monJob->setMonBehaviorClass($behavior);
+        $monJob->setMonBehaviorParams($behaviorParams);
+        $monJob->setWarningValue($warningValue);
+        $monJob->setMaximalValue($maximalValue);
+        return $monJob;
     }
 }
