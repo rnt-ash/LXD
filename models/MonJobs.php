@@ -1266,13 +1266,22 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     /**
     * Helper method to return the short name of a behavior
     * 
-    * @param mixed $monBehaviorClass
     * @param mixed $serverType 'virtual' or 'physical'
     * @return string
     */
     public function getShortName($serverType){
         $behaviors = Monitoring::getAllBehaviors($serverType);
-        return $behaviors[$this->mon_behavior_class]['shortname'];
+        // special case on diskspace behavior
+        if($serverType == 'physical' && $this->mon_behavior_class == '\RNTForest\ovz\utilities\monbehaviors\DiskspacefreeMonLocalBehavior'){
+            // check if the MonJob is about vz or root diskspace
+            if(in_array('/vz',json_decode($this->mon_behavior_params,true))){
+                return $behaviors[$this->mon_behavior_class."_vz"]['shortname'];
+            }elseif(in_array('/',json_decode($this->mon_behavior_params,true))){
+                return $behaviors[$this->mon_behavior_class."_root"]['shortname'];
+            }
+        }else{
+            return $behaviors[$this->mon_behavior_class]['shortname'];
+        }
     }
     
     public function execute(){
