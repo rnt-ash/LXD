@@ -1427,7 +1427,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $replicaSlave->assign($replicaMaster->toArray());
             $replicaSlave->setId(NULL);
             $replicaSlave->setOvzUuid(\RNTForest\core\libraries\Helpers::genUuid());
-            $replicaSlave->setName(substr("replica of ".$replicaMaster->getName(),0,50));
+            // replace whitespaces with underscores because of weak handling of names with whitespaces in potential
+            // further individual bash scripts 
+            $replicaSlave->setName(substr(str_replace(' ', '_', "replica of ".$replicaMaster->getName(),0,50)));
             $replicaSlave->setPhysicalServersId($replicaSlaveHost->getId());
             $replicaSlave->setOvzReplica(2);
             $replicaSlave->setOvzReplicaId($replicaMaster->getId());
