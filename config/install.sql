@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `mon_jobs` (
   `mon_behavior_params` varchar(100),
   `period` int(11) NOT NULL DEFAULT 5,
   `status` varchar(16) DEFAULT 'normal',
-  `last_status_change` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `last_status_change` datetime NOT NULL DEFAULT '0001-01-01 01:01:01',
   `uptime` text,
   `warning_value` varchar(32),
   `maximal_value` varchar(32),
@@ -91,12 +91,12 @@ CREATE TABLE IF NOT EXISTS `mon_jobs` (
   `alarm` tinyint(1) NOT NULL DEFAULT 1,
   `alarmed` tinyint(1) NOT NULL DEFAULT 0,
   `muted` tinyint(1) NOT NULL DEFAULT 0,
-  `last_alarm` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `last_alarm` datetime NOT NULL DEFAULT '0001-01-01 01:01:01',
   `alarm_period` int(11) NOT NULL DEFAULT 15,
   `mon_contacts_message` text NOT NULL COMMENT 'FK logins, comma separated value',
   `mon_contacts_alarm` text NOT NULL COMMENT 'FK logins, comma separated value',
-  `last_run` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
+  `last_run` datetime NOT NULL DEFAULT '0001-01-01 01:01:01',
+  `modified` datetime NOT NULL DEFAULT '0001-01-01 01:01:01'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `mon_logs` (
