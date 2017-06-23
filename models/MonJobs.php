@@ -897,6 +897,30 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         return $downTimes; 
     }
     
+    public function getLastHealJobOfMonLogsBetween($start, $end){
+        $monLogs = MonLogs::find(
+            [
+                "mon_jobs_id = :id: AND modified BETWEEN :start: AND :end:",
+                "order" => "modified ASC",
+                "bind" => [
+                    "id" => $this->getId(),
+                    "start" => $start,
+                    "end" => $end,
+                ],
+            ]
+        );
+        
+        $monLogs = $monLogs->toArray();
+        
+        $monLogs = array_reverse($monLogs);
+        foreach($monLogs as $monLog){
+            if($healJobId = $monLog->getHealJob()){
+                return \RNTForest\core\models\Jobs::findById(intval($healJobId));
+            }
+        }
+        return null;
+    }
+    
     /**
     * Gens the MonUptimes out of old MonLogs.
     * 
