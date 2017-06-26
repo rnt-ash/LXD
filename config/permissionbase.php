@@ -136,6 +136,7 @@ return new \Phalcon\Config([
                 'actions' => [
                     'physical_servers' => [
                         'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
+                        'monJobsDetails',
                     ]
                 ],
             ],
@@ -392,6 +393,7 @@ return new \Phalcon\Config([
                 'actions' => [
                     'virtual_servers' => [
                         'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
+                        'monJobsDetails', 
                     ]
                 ],
             ],

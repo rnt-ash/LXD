@@ -845,6 +845,51 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     }
     
     /**
+    * Show details of a MonJob
+    * 
+    * @param mixed $monJobId
+    * @return mixed
+    */
+    public function monJobsDetailsAction($monJobId){
+        // sanitize
+        $monJobId = $this->filter->sanitize($monJobId,"int");
+        
+        try{
+            // find MonJob
+            $monJob = MonJobs::tryFindById($monJobId);  
+            // find physical server and check permissions
+            $physicalServer = PhysicalServers::findFirst($monJob->getServerId());
+            $this->tryCheckPermission('physical_servers', 'mon_jobs', array('item' => $physicalServer));
+            
+            // check if the monJob has type remote
+            if($monJob->getMonType() != 'remote'){
+                $message = $this->translate("monitroing_monjobs_not_remote");
+                throw new Exception($message);
+            }
+            
+            $downtimes = $monJob->getDownTimeInformation();
+            foreach($downtimes as $downtime){
+                $healJob = $monJob->getLastHealJobOfMonLogsBetween($downtime->getStartString(),$downtime->getEndString());
+                if($healJob instanceof \RNTForest\core\models\Jobs){
+                    $downtime->setHealJob($healJob);
+                }
+            }
+            
+            $this->view->downtimes = $downtimes;
+            $this->view->serverName = $physicalServer->getName();
+            $this->view->monJob = $monJob;
+            $this->view->pick("physical_servers/monJobsDetails");
+            return; 
+        }catch(\Exception $e){
+            $message = $this->translate("monitoring_monjobs_show_details_failed");
+            $this->flashSession->error($message.$e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        $this->redirectToTableSlideDataAction();
+        return;
+    }
+    
+    /**
     * return customers according to the filter
     * 
     */

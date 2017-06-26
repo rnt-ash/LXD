@@ -913,7 +913,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $monLogs = MonLogs::find(
             [
                 "mon_jobs_id = :id: AND modified BETWEEN :start: AND :end:",
-                "order" => "modified ASC",
+                "order" => "modified DESC",
                 "bind" => [
                     "id" => $this->getId(),
                     "start" => $start,
@@ -921,13 +921,10 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 ],
             ]
         );
-        
-        $monLogs = $monLogs->toArray();
-        
-        $monLogs = array_reverse($monLogs);
+
         foreach($monLogs as $monLog){
             if($healJobId = $monLog->getHealJob()){
-                return \RNTForest\core\models\Jobs::findById(intval($healJobId));
+                return \RNTForest\core\models\Jobs::findFirst(intval($healJobId));
             }
         }
         return null;
@@ -1468,7 +1465,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         }else{
             $this->healing = 0;
         }
-        // set alarmperiod on if it's empty
+        // set alarmperiod if it's empty
         if(empty($this->alarm_period)){
             if(strpos($this->mon_behavior_class,'Diskspace') > 0){
                 $this->alarm_period = 360;
