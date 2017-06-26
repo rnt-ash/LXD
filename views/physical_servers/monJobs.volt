@@ -54,7 +54,7 @@
                                 {{ link_to("physical_servers/monJobsEdit/"~monLocalJob.id,'<i class="fa fa-pencil"></i>',
                                     'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monjobs_edit")) }}
                                 {{ link_to("physical_servers/monJobsDiagram/"~monLocalJob.id,'<i class="fa fa-pie-chart"></i>',
-                                    'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monjobs_diagram")) }}
+                                    'class': 'btn btn-default btn-xs pending disabled', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("monitoring_monjobs_diagram")) }}
                                 {% if monLocalJob.getMuted() == 0 %}
                                     <a href="#/" link="/physical_servers/monJobsMute/{{monLocalJob.id}}" text="{{ _("monitoring_monjobs_muteconf") }}"
                                         class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" title="{{ _("monitoring_monjobs_mute") }}"><i class="fa fa-volume-off"></i></a>

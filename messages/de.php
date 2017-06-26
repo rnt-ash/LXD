@@ -426,6 +426,9 @@ return [
     "monitoring_monjobs_delete_sucessful" => "MonJob wurde erfolgreich gelöscht",
     "monitoring_monjobs_delete_failed" => "MonJob konnte nicht gelöscht werden: ",
     "monitoring_monjobs_login_not_exist" => "Das ausgewählte Login als Kontakt existiert nicht",
+    "monitoring_monjobs_save" => "Speichern",
+    "monitoring_monjobs_cancel" => "Abbrechen",
+    "monitoring_monjobs_back" => "Zurück",
     // Validate
     "monitoring_monjobs_server_id_required" => "Server ID wird benötigt",
     "monitoring_monjobs_server_id_numeric" => "Server ID darf nur eine Zahl sein",
@@ -488,6 +491,7 @@ return [
     "monitoring_monjobs_details_actperiodup" => "Uptime (aktueller und letzter Monat)",
     "monitoring_monjobs_details_actyearup" => "Uptime (aktuelles Jahr)",
     "monitoring_monjobs_details_everup" => "Uptime (immer)",
+    "monitoring_monjobs_no_upime" => "Keine Uptime verfügbar",
     "monitoring_monjobs_details_active" => "Monitoring Aktiv",
     "monitoring_monjobs_details_healing" => "Heilung Aktiv",
     "monitoring_monjobs_details_alarm" => "Alarmierung Aktiv",

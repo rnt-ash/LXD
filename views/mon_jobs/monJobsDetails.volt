@@ -1,7 +1,7 @@
 {% set uptime = monJob.getUptime()|json_decode %}
 
 <div class="page-header">
-    <h2>{{ monJob.getShortName('virtual') }} Details <span class="small">({{ serverName }})</span></h2>
+    <h2>{{ monJob.getShortName(serverType) }} Details <span class="small">({{ serverName }})</span></h2>
 </div>
 
 <div class="row">
@@ -25,15 +25,27 @@
                     </tr>
                     <tr>
                         <th>{{ _("monitoring_monjobs_details_actperiodup") }}</th>
-                        <td>{{ uptime.actperioduppercentage*100 }}%</td>
+                        {% if uptime is not empty %}
+                            <td>{{ uptime.actperioduppercentage*100 }}%</td>
+                        {% else %}
+                            <td>{{ _("monitoring_monjobs_no_upime") }}</td>
+                        {% endif %}
                     </tr>
                     <tr>
                         <th>{{ _("monitoring_monjobs_details_actyearup") }}</th>
-                        <td>{{ uptime.actyearuppercentage*100 }}%</td>
+                        {% if uptime is not empty %}
+                            <td>{{ uptime.actyearuppercentage*100 }}%</td>
+                        {% else %}
+                            <td>{{ _("monitoring_monjobs_no_upime") }}</td>
+                        {% endif %}
                     </tr>
                     <tr>
                         <th>{{ _("monitoring_monjobs_details_everup") }}</th>
-                        <td>{{ uptime.everuppercentage*100 }}%</td>
+                        {% if uptime is not empty %}
+                            <td>{{ uptime.everuppercentage*100 }}%</td>
+                        {% else %}
+                            <td>{{ _("monitoring_monjobs_no_upime") }}</td>
+                        {% endif %}
                     </tr>
                     <tr>
                         <th>{{ _("monitoring_monjobs_details_active") }}</th>
@@ -57,11 +69,19 @@
                     </tr>
                     <tr>
                         <th>{{ _("monitoring_monjobs_details_contacts_messsage") }}</th>
-                        <td>{{ monJob.getActive() }}</td>
+                        <td>
+                            {% for messageContact in messageContacts %}
+                                {{ messageContact['name'] }}{% if not loop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
                     </tr>
                     <tr>
                         <th>{{ _("monitoring_monjobs_details_alarm_messsage") }}</th>
-                        <td>{{ monJob.getActive() }}</td>
+                        <td>
+                            {% for alarmContact in alarmContacts %}
+                                {{ alarmContact['name'] }}{% if not loop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -135,3 +155,6 @@
     </div>
     {% endif %}
 </div>
+
+{{ link_to('/mon_jobs/cancel', _("monitoring_monjobs_back"), 'class': 'btn btn-default') }}
+<br /><br />

@@ -1672,7 +1672,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         ]));
         $validator->add('mon_contacts_message', new RegexValidator([
             // only numbers and commas allowed
-            'pattern' => '/^[1-9\,]*/',
+            'pattern' => '/^[0-9\,]*/',
             'message' => self::translate("monitoring_monjobs_mon_contacts_message_valid"),
         ]));
         
@@ -1682,7 +1682,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         ]));
         $validator->add('mon_contacts_alarm', new RegexValidator([
             // only numbers and commas allowed
-            'pattern' => '/^[1-9\,]*/',
+            'pattern' => '/^[0-9\,]*/',
             'message' => self::translate("monitoring_monjobs_mon_contacts_alarm_valid"),
         ]));
         

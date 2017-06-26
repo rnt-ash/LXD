@@ -11,8 +11,10 @@
         <div class="col-xs-12">
         {{ partial("partials/ovz/physical_servers/ip_objects.volt") }}
         </div>
-        <div class="col-xs-12">
-        {{ partial("partials/ovz/physical_servers/monJobs.volt") }}
-        </div>
+        {% if permissions.checkPermission("mon_jobs", "general") %}
+            <div class="col-xs-12">
+            {{ partial("partials/ovz/physical_servers/monJobs.volt") }}
+            </div>
+        {% endif %}
     </div>
 </div>

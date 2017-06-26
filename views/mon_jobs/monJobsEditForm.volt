@@ -12,7 +12,7 @@
 
 <div class="well">
     <div class="row">
-        {{ form("physical_servers/monJobsEditExecute", 'role': 'form') }}
+        {{ form("mon_jobs/monJobsEditExecute", 'role': 'form') }}
 
         {{ form.get('id').render() }}
         
@@ -39,8 +39,8 @@
         {{ renderElement('mon_contacts_alarm',form,6,'bootstrap-select-live-search') }}
         
         <div class="col-lg-12">
-            {{ submit_button( _("physicalserver_save") , "class": "btn btn-primary loadingScreen") }}
-            {{ link_to('/physical_servers/slidedata', _("physicalserver_cancel"), 'class': 'btn btn-default pull-right') }}
+            {{ submit_button( _("monitoring_monjobs_save") , "class": "btn btn-primary loadingScreen") }}
+            {{ link_to('/mon_jobs/cancel', _("monitoring_monjobs_cancel"), 'class': 'btn btn-default pull-right') }}
         </div>
                 
         </form>

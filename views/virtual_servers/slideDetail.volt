@@ -19,7 +19,7 @@
         {{ partial("partials/ovz/virtual_servers/replica.volt") }}
         </div>
     {% endif %}
-    {% if permissions.checkPermission("virtual_servers", "mon_jobs") %}
+    {% if permissions.checkPermission("mon_jobs", "general") %}
         <div class="col-md-12">
         {{ partial("partials/ovz/virtual_servers/monJobs.volt") }}
         </div>

@@ -1763,366 +1763,123 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     }
     
     /**
-    * Show form to add a mon job
+    * Redirect to the MonJobs Form
     * 
-    * @param mixed $virtualServersId
-    * @throws Exceptions
+    * @param mixed $virtualServerId
     */
-    public function monJobsAddAction($virtualServersId){
-        // sanitize
-        $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
+    public function monJobsAddAction($virtualServerId){
+        // store in session
+        $this->session->set("MonJobsForm", array(
+            "op" => "new",
+            "server_class" => '\RNTForest\ovz\models\VirtualServers',
+            "server_id" => intval($virtualServerId),
+            "origin" => array(
+                'controller' => 'virtual_servers',
+                'action' => 'slidedata',
+            )
+        ));
 
-        try{
-            // Validate
-            $virtualServer = VirtualServers::tryFindById($virtualServersId);
-            $this->tryCheckPermission("virtual_servers", "mon_jobs", array('item' => $virtualServer));
-            
-            // Create new MonJob objet
-            $monJob = new MonJobs();
-            $monJob->setServerId($virtualServersId);
-            $monJob->setServerClass('\RNTForest\ovz\models\VirtualServers');
-            
-            // Call view
-            $this->view->form = new \RNTForest\ovz\forms\MonJobsNewForm($monJob);
-            $this->view->pick("virtual_servers/monJobsNewForm");
-        }catch(\Exception $e){
-            $this->flashSession->error($e->getMessage());
-            $this->logger->error($e->getMessage());
-            $this->redirectToTableSlideDataAction();
-        }
-        return;
-    }
-    
-    
-    /**
-    * saves a new monjob
-    * 
-    * @throws Exceptions
-    */
-    public function monJobsAddExecuteAction(){
-        // POST request?
-        if (!$this->request->isPost()) 
-            return $this->redirectTo("virtual_servers/slidedata");
-        
-        try{
-            // get post data
-            $data = $this->request->getPost();
-            $virtualServersId = $this->filter->sanitize($data['server_id'],"int");
-            $monBehavior = $this->filter->sanitize($data['mon_behavior'],"string");
-            
-            // validate
-            $virtualServer = VirtualServers::tryFindById($virtualServersId);
-            $this->tryCheckPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer));
-            
-            // create new MonJob object
-            if(strpos($monBehavior,'MonLocalBehavior')){
-                $monJob = $virtualServer->addMonLocalJob($monBehavior);
-            }else{
-                $monJob = $virtualServer->addMonRemoteJob($monBehavior);
-            }
-            
-            // validate form
-            $form = new \RNTForest\ovz\forms\MonJobsNewForm($monJob);
-            if(!$form->isValid($data, $monJob)) {
-                $this->view->form = $form; 
-                $this->view->pick("virtual_servers/monJobsNewForm");
-                return; 
-            }
-            
-            // validate model
-            if($monJob->validation() === false) {
-                // fetch all messages from model
-                foreach($monJob->getMessages() as $message) {
-                    $form->appendMessage(new \Phalcon\Validation\Message($message->getMessage(),$message->getField()));
-                }
-                $this->view->form = $form; 
-                $this->view->pick("virtual_servers/monJobsNewForm");
-                return;
-            }
-            
-            // business logic
-            $this->MonJobsCheckContacts($monJob);
-            
-            // save monJob
-            $monJob->save();
-            
-            // clean up
-            $form->clear();
-            $message = $this->translate("monitoring_monjobs_add_successful");
-            $this->flashSession->success($message);
-        }catch(\Exception $e){
-            $message = $this->translate("monitoring_monjobs_add_failed");
-            $this->flashSession->error($message.$e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        $this->redirectToTableSlideDataAction();
-        return;
-    }
-    
-    /**
-    * Calls form to edit a MonJob
-    * 
-    * @param mixed $monJobId
-    * @return mixed
-    * @throws Exceptions
-    */
-    public function monJobsEditAction($monJobId){
-        // sanitize
-        $monJobId = $this->filter->sanitize($monJobId,"int");
-        
-        try{
-            // find MonJob
-            $monJob = MonJobs::tryFindById($monJobId);  
-            // find virtual server and check permissions
-            $virtualServer = VirtualServers::findFirst($monJob->getServerId());
-            $this->tryCheckPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer));
-
-            // Call view
-            $this->view->monJobName = $monJob->getShortName('virtual');
-            $this->view->serverName = $virtualServer->getName();
-            $this->view->form = new \RNTForest\ovz\forms\MonJobsEditForm($monJob);
-            $this->view->pick("virtual_servers/monJobsEditForm");
-        }catch(\Exception $e){
-            $this->flashSession->error($e->getMessage());
-            $this->logger->error($e->getMessage());
-            $this->redirectToTableSlideDataAction();
-            return;
-        }
-    }
-    
-    /**
-    * Saves a MonJob
-    * 
-    * @throws Exceptions
-    */
-    public function monJobsEditExecuteAction(){
-        // POST request?
-        if (!$this->request->isPost()) 
-            return $this->redirectTo("virtual_servers/slidedata");
-        
-        try{
-            // get post data
-            $data = $this->request->getPost();
-            $monJobId = $this->filter->sanitize($data['id'],"int");
-            
-            // get MonJob
-            $monJob = MonJobs::tryFindById($monJobId);
-            // get Virtual Server and check permission
-            $virtualServer = VirtualServers::tryFindById($monJob->getServerId());
-            $this->tryCheckPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer));
-            
-            // validate form
-            $form = new \RNTForest\ovz\forms\MonJobsEditForm($monJob);
-            if (!$form->isValid($data, $monJob)) {
-                $this->view->monJobName = $monJob->getShortName('virtual');
-                $this->view->serverName = $virtualServer->getName();
-                $this->view->form = $form; 
-                $this->view->pick("virtual_servers/monJobsEditForm");
-                return; 
-            }
-            
-            // business logic
-            $monJob->setMonContactsMessage(implode(',',$monJob->getMonContactsMessage()));
-            $monJob->setMonContactsAlarm(implode(',',$monJob->getMonContactsAlarm()));
-            $this->MonJobsCheckContacts($monJob);
-            
-            // save MonJob
-            if($monJob->save() === false) {
-                // fetch all messages from model
-                foreach($monJob->getMessages() as $message) {
-                    $form->appendMessage(new \Phalcon\Validation\Message($message->getMessage(),$message->getField()));
-                }
-                $this->view->monJobName = $monJob->getShortName('virtual');
-                $this->view->serverName = $virtualServer->getName();
-                $this->view->form = $form; 
-                $this->view->pick("virtual_servers/monJobsEditForm");
-                return;
-            }
-            
-            // clean up
-            $form->clear();
-            $message = $this->translate("monitoring_monjobs_save_successful");
-            $this->flashSession->success($message);
-        }catch(\Exception $e){
-            $message = $this->translate("monitoring_monjobs_save_failed");
-            $this->flashSession->error($message.$e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        $this->redirectToTableSlideDataAction();
-        return;
-    }
-    
-    /**
-    * helper method to go through all contacts and validate them
-    * 
-    * @param mixed $monJob
-    */
-    private function MonJobsCheckContacts($monJob){
-        // check if selected contacts are valid (throws Exceptions)
-        $contactsMessage = explode(',',$monJob->getMonContactsMessage());
-        foreach($contactsMessage as $monContactMessageId){
-            $this->tryMonJobsCheckContact($monContactMessageId);
-        }
-        $contactsAlarm = explode(',',$monJob->getMonContactsAlarm());
-        foreach($contactsAlarm as $monContactAlarmId){
-            $this->tryMonJobsCheckContact($monContactAlarmId);
-        }
-    }
-    
-    /**
-    * helper method to check if contact or login exists and if it belongs to the same customer as the login
-    * 
-    * @param mixed $monContactId
-    * @throws Exceptions
-    */
-    private function tryMonJobsCheckContact($monContactId){
-        // check if login exists
-        $login = \RNTForest\core\models\Logins::findFirst($monContactId);
-        if(!$login){
-            $message = $this->translate("monitoring_monjobs_login_not_exist");
-            throw new \Exception($message);
-        }
-        
-        // check if contact has the same customer as the login
-        $loginCustomerId = $this->session->get('auth')['customers_id'];
-        if($login->getCustomersId() != $loginCustomerId){
-            $message = $this->translate("monitoring_monjobs_login_not_from_customer");
-            throw new \Exception($message);
-        }
-    }
-    
-    /**
-    * Mutes or unmutes a monjob based on the current state
-    * 
-    * @param mixed $monJobId
-    * @return mixed
-    * @throws Exceptions
-    */
-    public function monJobsMuteAction($monJobId){
-        // sanitize
-        $monJobId = $this->filter->sanitize($monJobId,"int");
-        
-        try{
-            // find MonJob
-            $monJob = MonJobs::tryFindById($monJobId);  
-            // find virtual server and check permissions
-            $virtualServer = VirtualServers::findFirst($monJob->getServerId());
-            $this->tryCheckPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer));
-            
-            // business logic
-            if($monJob->getMuted() == 0){
-                $monJob->setMuted(1);
-                $messageSuccess = $this->translate("monitoring_monjobs_mute_successful");
-                $messageError = $this->translate("monitoring_monjobs_mute_failed");
-            }else{
-                $monJob->setMuted(0);
-                $messageSuccess = $this->translate("monitoring_monjobs_unmute_successful");
-                $messageError = $this->translate("monitoring_monjobs_unmute_failed");
-            }
-            
-            // save MonJob
-            if($monJob->save() === false) {
-                // fetch all messages from model
-                foreach ($monJob->getMessages() as $message) {
-                    $this->flashSession->error($message->getMessage());
-                }
-                $this->redirectToTableSlideDataAction();
-                return;
-            }
-            
-            // success message
-            $this->flashSession->success($messageSuccess);
-        }catch(\Exception $e){
-            $this->flashSession->error($messageError.$e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        $this->redirectToTableSlideDataAction();
-        return;
+        return $this->dispatcher->forward([
+            "namespace"  => $this->getAppNs()."controllers",
+            'controller' => 'mon_jobs',
+            'action' => 'monJobsAdd',
+        ]);
     }
     
     /**
     * Deletes a MonJob
     * 
     * @param mixed $monJobId
-    * @return mixed
-    * @throws Exceptions
     */
     public function monJobsDeleteAction($monJobId){
-        // sanitize
-        $monJobId = $this->filter->sanitize($monJobId,"int");
-        
-        try{
-            // find MonJob
-            $monJob = MonJobs::tryFindById($monJobId);  
-            // find virtual server and check permissions
-            $virtualServer = VirtualServers::findFirst($monJob->getServerId());
-            $this->tryCheckPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer));
-            
-            // save MonJob
-            if($monJob->delete() === false) {
-                // fetch all messages from model
-                foreach ($monJob->getMessages() as $message) {
-                    $this->flashSession->error($message->getMessage());
-                }
-                $this->redirectToTableSlideDataAction();
-                return;
-            }
-            
-            // success message
-            $message = $this->translate("monitoring_monjobs_delete_sucessful");
-            $this->flashSession->success($message);
-        }catch(\Exception $e){
-            $message = $this->translate("monitoring_monjobs_delete_failed");
-            $this->flashSession->error($message.$e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        $this->redirectToTableSlideDataAction();
-        return;
+        // store in session
+        $this->session->set("MonJobsForm", array(
+            "op" => "delete",
+            "server_class" => '\RNTForest\ovz\models\VirtualServers',
+            "origin" => array(
+                'controller' => 'virtual_servers',
+                'action' => 'slidedata',
+            )
+        ));
+
+        return $this->dispatcher->forward([
+            "namespace"  => $this->getAppNs()."controllers",
+            'controller' => 'mon_jobs',
+            'action' => 'monJobsDelete',
+            'params' => [$monJobId],
+        ]);
     }
     
     /**
-    * Show details of a MonJob
+    * Redirect to edit Form
     * 
     * @param mixed $monJobId
-    * @return mixed
+    */
+    public function monJobsEditAction($monJobId){
+        // store in session
+        $this->session->set("MonJobsForm", array(
+            "op" => "edit",
+            "server_class" => '\RNTForest\ovz\models\VirtualServers',
+            "origin" => array(
+                'controller' => 'virtual_servers',
+                'action' => 'slidedata',
+            )
+        ));
+
+        return $this->dispatcher->forward([
+            "namespace"  => $this->getAppNs()."controllers",
+            'controller' => 'mon_jobs',
+            'action' => 'monJobsEdit',
+            'params' => [$monJobId],
+        ]);
+    }
+    
+    /**
+    * Mutes or unmutes a MonJob
+    * 
+    * @param mixed $monJobId
+    */
+    public function monJobsMuteAction($monJobId){
+        // store in session
+        $this->session->set("MonJobsForm", array(
+            "op" => "mute",
+            "server_class" => '\RNTForest\ovz\models\VirtualServers',
+            "origin" => array(
+                'controller' => 'virtual_servers',
+                'action' => 'slidedata',
+            )
+        ));
+
+        return $this->dispatcher->forward([
+            "namespace"  => $this->getAppNs()."controllers",
+            'controller' => 'mon_jobs',
+            'action' => 'monJobsMute',
+            'params' => [$monJobId],
+        ]);
+    }
+    
+    /**
+    * Shows the details of a remote MonJob
+    * 
+    * @param mixed $monJobId
     */
     public function monJobsDetailsAction($monJobId){
-        // sanitize
-        $monJobId = $this->filter->sanitize($monJobId,"int");
-        
-        try{
-            // find MonJob
-            $monJob = MonJobs::tryFindById($monJobId);  
-            // find virtual server and check permissions
-            $virtualServer = VirtualServers::findFirst($monJob->getServerId());
-            $this->tryCheckPermission('virtual_servers', 'mon_jobs', array('item' => $virtualServer));
-            
-            // check if the monJob has type remote
-            if($monJob->getMonType() != 'remote'){
-                $message = $this->translate("monitroing_monjobs_not_remote");
-                throw new Exception($message);
-            }
-            
-            $downtimes = $monJob->getDownTimeInformation();
-            foreach($downtimes as $downtime){
-                $healJob = $monJob->getLastHealJobOfMonLogsBetween($downtime->getStartString(),$downtime->getEndString());
-                if($healJob instanceof \RNTForest\core\models\Jobs){
-                    $downtime->setHealJob($healJob);
-                }
-            }
-            
-            $this->view->downtimes = $downtimes;
-            $this->view->serverName = $virtualServer->getName();
-            $this->view->monJob = $monJob;
-            $this->view->pick("virtual_servers/monJobsDetails");
-            return; 
-        }catch(\Exception $e){
-            $message = $this->translate("monitoring_monjobs_show_details_failed");
-            $this->flashSession->error($message.$e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        $this->redirectToTableSlideDataAction();
-        return;
+        // store in session
+        $this->session->set("MonJobsForm", array(
+            "op" => "details",
+            "server_class" => '\RNTForest\ovz\models\VirtualServers',
+            "origin" => array(
+                'controller' => 'virtual_servers',
+                'action' => 'slidedata',
+            )
+        ));
+
+        return $this->dispatcher->forward([
+            "namespace"  => $this->getAppNs()."controllers",
+            'controller' => 'mon_jobs',
+            'action' => 'monJobsDetails',
+            'params' => [$monJobId],
+        ]);
     }
     
     /**
