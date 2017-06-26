@@ -26,6 +26,7 @@ class DowntimePeriod
     private $start;
     private $end;
     private $duration;
+    private $healJob;
     
     /**
     * 
@@ -36,6 +37,7 @@ class DowntimePeriod
         $this->start = intval($start);
         $this->end = intval($end);
         $this->duration = $this->end - $this->start;
+        $this->healJob = null;
     }   
     
     /**
@@ -70,5 +72,21 @@ class DowntimePeriod
     */
     public function getDurationInSeconds(){
         return $this->duration;
+    }
+    
+    /**
+    * 
+    * @return \RNTForest\core\models\Jobs
+    */
+    public function getHealJob(){
+        return $this->healJob;
+    }
+    
+    /**
+    * 
+    * @param \RNTForest\core\models\Jobs $healJob
+    */
+    public function setHealJob(\RNTForest\core\models\Jobs $healJob){
+        $this->healJob = $healJob;
     }
 }
