@@ -1,6 +1,6 @@
 <div class="clearfix panel panel-default sub-panel">
     <div class="panel-heading">
-        <span role="button" data-target="#snapshots{{item.id}}" onclick="toggleIcon('#snapshotsToggleIcon'+{{item.id}})" data-toggle="collapse">
+        <span role="button" data-target="#snapshots{{item.id}}" onclick="toggleIcon('#snapshotsToggleIcon'+{{item.id}},this)" data-toggle="collapse">
             <h5 class="panel-title">
                 <i id="snapshotsToggleIcon{{item.id}}" class="fa fa-chevron-down"></i>&nbsp;{{ _("virtualserver_snapshot") }}
                 <div class="pull-right">

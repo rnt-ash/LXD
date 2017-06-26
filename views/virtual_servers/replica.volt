@@ -1,6 +1,6 @@
 <div class="clearfix panel panel-default sub-panel">
     <div class="panel-heading">
-        <span role="button" data-target="#replica{{item.id}}" onclick="toggleIcon('#replicaToggleIcon'+{{item.id}})" data-toggle="collapse">
+        <span role="button" data-target="#replica{{item.id}}" onclick="toggleIcon('#replicaToggleIcon'+{{item.id}},this)" data-toggle="collapse">
             <h5 class="panel-title">
                 <i id="replicaToggleIcon{{item.id}}" class="fa fa-chevron-right"></i>&nbsp;{{ _("virtualserver_replica") }}
                 <div class="pull-right">

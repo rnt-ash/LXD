@@ -1,6 +1,6 @@
 <div class="clearfix panel panel-default sub-panel">
     <div class="panel-heading">
-        <span role="button" data-target="#physicalServers{{item.id}}" onclick="toggleIcon('#physicalServersToggleIcon'+{{item.id}})" data-toggle="collapse">
+        <span role="button" data-target="#physicalServers{{item.id}}" onclick="toggleIcon('#physicalServersToggleIcon'+{{item.id}},this)" data-toggle="collapse">
             <h5 class="panel-title">
                 <i id="physicalServersToggleIcon{{item.id}}" class="fa fa-chevron-right"></i>&nbsp;{{ _("colocations_view_physicalserver") }}
             </h5>

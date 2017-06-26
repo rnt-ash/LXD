@@ -1,6 +1,6 @@
 <div class="clearfix panel panel-default sub-panel">
     <div class="panel-heading">
-        <span role="button" data-target="#hwSpecs{{item.id}}" onclick="toggleIcon('#hwSpecsToggleIcon'+{{item.id}})" data-toggle="collapse">
+        <span role="button" data-target="#hwSpecs{{item.id}}" onclick="toggleIcon('#hwSpecsToggleIcon'+{{item.id}},this)" data-toggle="collapse">
             <h5 class="panel-title">
                 <i id="hwSpecsToggleIcon{{item.id}}" class="fa fa-chevron-down"></i>&nbsp;{{ _("physicalserver_hw_title") }}
                 {#<div class="pull-right">

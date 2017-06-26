@@ -16,7 +16,7 @@
 
 <div class="clearfix panel panel-{% if ok == true %}default{% else %}warning{% endif %} sub-panel">
     <div class="panel-heading">
-        <span role="button" data-target="#monJobs{{item.id}}" onclick="toggleIcon('#monJobsToggleIcon'+{{item.id}})" data-toggle="collapse">
+        <span role="button" data-target="#monJobs{{item.id}}" onclick="toggleIcon('#monJobsToggleIcon'+{{item.id}},this)" data-toggle="collapse">
             <h5 class="panel-title">
                 <i id="monJobsToggleIcon{{item.id}}" class="fa fa-chevron-right"></i>&nbsp;{{ _("monitoring_monjobs_title") }} {% if ok == false %}<i class="fa fa-exclamation-circle"></i> <span class="small">{{ nokMonJobsCount }} {{ _("monitoring_monjobs_nok_title") }}</span>{% endif %}
                 <div class="pull-right">
