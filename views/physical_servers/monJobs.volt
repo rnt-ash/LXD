@@ -66,7 +66,9 @@
                                     class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("monitoring_monjobs_delete") }}"><i class="fa fa-trash-o"></i></a>
                             </td>
                             <td>
-                                {{ monLocalJob.getShortname('physical') }}
+                                <span title="ID: {{ monLocalJob.getId() }}" data-toggle="tooltip">
+                                    {{ monLocalJob.getShortname('physical') }}
+                                </span>
                             </td>
                             <td>
                                 {{ monLocalJob.getStatus() }}
@@ -112,7 +114,9 @@
                                     class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("monitoring_monjobs_delete") }}"><i class="fa fa-trash-o"></i></a>
                             </td>
                             <td>
-                                {{ monRemoteJob.getShortname('physical') }}
+                                <span title="ID: {{ monRemoteJob.getId() }}" data-toggle="tooltip">
+                                    {{ monRemoteJob.getShortname('physical') }}
+                                </span>
                             </td>
                             <td>
                                 {% if monRemoteJob.getUptime() != '' %}
