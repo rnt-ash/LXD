@@ -40,6 +40,14 @@ class OvzNewVsBgJob extends AbstractOvzJob{
 
         $warnings = array();
 
+        // try to set NAMESERVER
+        $exitstatus = $this->PrlctlCommands->setValue($this->Params['UUID'],'nameserver',$this->Params['NAMESERVER']);
+        if($exitstatus > 0) {
+            $warnings['NAMESERVER'] = "Setting Nameserver failed (Exit Code: ".$exitstatus."), Output:\n".implode("\n",$this->Context->getCli()->getOutput());
+            $this->Context->getLogger()->debug($warnings['NAMESERVER']);
+            // go on with work...
+        }
+        
         // try to set cpus
         $exitstatus = $this->PrlctlCommands->setCpu($this->Params['UUID'],$this->Params['CPUS']);
         if($exitstatus > 0) {

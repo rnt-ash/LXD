@@ -32,6 +32,7 @@ class OvzNewVsJob extends AbstractOvzJob{
                 "OSTEMPLATE" => "the wanted ostemplate, has to be available on server or official template repo",
                 "DISTRIBUTION" => "(VM only) The operating system distribution the virtual machine will be optimized for. For the full list of supported distributions, refer to the prlctl man pages.",
                 "HOSTNAME" => "FQDN",
+                "NAMESERVER" => "define the nameserver/s of the system in ip-address format (string 0-unlimited whitespace separated)",
                 "CPUS" => "Number of cores",
                 "RAM" => "Memory in MB",
                 "DISKSPACE" => "Diskspace in GB",
