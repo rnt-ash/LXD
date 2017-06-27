@@ -816,6 +816,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         
         // should not be NULL
         if(empty($this->ovz_replica)) $this->ovz_replica = 0;
+        
+        // linebreaks are not allowed in description
+        $this->description = str_replace(array("\r", "\n"), ' ', $this->description);
 
         return true;
     }
