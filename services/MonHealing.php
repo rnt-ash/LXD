@@ -170,13 +170,13 @@ class MonHealing extends \Phalcon\DI\Injectable
             $maxUpModified = MonLogs::maximum(
                 [
                     "column" => "modified",
-                    "conditions" => "mon_remote_jobs_id = ".$monJob->getId()." AND value = 1",
+                    "conditions" => "mon_jobs_id = ".$monJob->getId()." AND value = 1",
                 ]
             );
             if(empty($maxUpModified))$maxUpModified = 0;
             $monJobWithHealJob = MonLogs::findFirst(
                 [
-                    "mon_remote_jobs_id = :id: AND value = 0 AND heal_job != '' AND modified > :maxupmodified:",
+                    "mon_jobs_id = :id: AND value = 0 AND heal_job != '' AND modified > :maxupmodified:",
                     "order" => "modified DESC",   
                     "bind" => [
                         "id" => $monJob->getId(),
@@ -232,7 +232,7 @@ class MonHealing extends \Phalcon\DI\Injectable
             // first, mark monlog to be healed to prevent loops
             $monLog = MonLogs::findFirst(
                 [
-                "mon_remote_jobs_id" => $monJob->getId(),
+                "mon_jobs_id" => $monJob->getId(),
                 "order" => "id DESC",
                 ]
             );
@@ -241,21 +241,27 @@ class MonHealing extends \Phalcon\DI\Injectable
             
             // then heal
             $job = $push->executeJob($parent,$healJobType,$params,$pending);
-            $healJobId = $job->getId();
-
-            // only set the id of the job, when the job id is not null (prevent loops)
-            if($job->getId() != null){
-                $monLog->setHealJob($job->getId());
-                $monLog->save();
-                
-                if($job->getDone() == '1'){
-                    // wait some seconds if healjob was successful, so that the server has time to be up again for the next monitoring
-                    sleep(10);
-                }
             
-                if($job->getDone() != '1'){
-                    throw new \Exception($this->translate("monitoring_healjob_failed").$job->getError());    
-                }   
+            if($job->getId() === null && strpos($job->getError(),'pending') !== false){
+                // no id and something with pending in error means, that no job was created
+                // so no job can be saved but also no further job should be executed (prevent loops)
+            }else{
+                $healJobId = $job->getId();
+
+                // only set the id of the job, when the job id is not null (prevent loops)
+                if($job->getId() != null){
+                    $monLog->setHealJob($job->getId());
+                    $monLog->save();
+                    
+                    if($job->getDone() == '1'){
+                        // wait some seconds if healjob was successful, so that the server has time to be up again for the next monitoring
+                        sleep(10);
+                    }
+                
+                    if($job->getDone() != '1'){
+                        throw new \Exception($this->translate("monitoring_healjob_failed").$job->getError());    
+                    }   
+                }     
             }
             
         }catch(\Exception $e){
