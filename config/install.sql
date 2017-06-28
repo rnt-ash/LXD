@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS `mon_uptimes` (
   `up_seconds` int(11) NOT NULL,
   `up_percentage` decimal(9,8) NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY `mon_remote_jobs_id` (`mon_remote_jobs_id`)
+  KEY `mon_jobs_id` (`mon_jobs_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `mon_local_daily_logs` (
@@ -126,6 +126,6 @@ CREATE TABLE IF NOT EXISTS `mon_local_daily_logs` (
   `day` date NOT NULL,
   `value` text NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY `mon_local_jobs_id` (`mon_local_jobs_id`)
+  KEY `mon_jobs_id` (`mon_jobs_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
