@@ -80,9 +80,9 @@ class AllInfoUpdater{
         $job = $push->executeJob($physicalServer,'ovz_all_info',array());
         $durationJob = (microtime(true))-$beforeJob;
         if($durationJob > 5){
-            AllInfoUpdater::getLogger()->warning('duration of job (ID:'.$job->getId().', ServerID:'.$physicalServer->getId().') is '.$durationJob.' seconds. this seems to be very long.');
+            AllInfoUpdater::getLogger()->warning('duration of job (ID:'.$job->getId().', ServerID:'.$physicalServer->getName().') is '.$durationJob.' seconds. this seems to be very long.');
         }else{
-            AllInfoUpdater::getLogger()->debug('duration of job (ID:'.$job->getId().', ServerID:'.$physicalServer->getId().') is '.$durationJob.' seconds');
+            AllInfoUpdater::getLogger()->debug('duration of job (ID:'.$job->getId().', ServerID:'.$physicalServer->getName().') is '.$durationJob.' seconds');
         }
         
         $beforeUpdate = microtime(true);
@@ -114,8 +114,7 @@ class AllInfoUpdater{
             // find virtual server
             $virtualServer = VirtualServers::findFirst("ovz_uuid = '".$key."'");
             if (!$virtualServer){
-                $message = AllInfoUpdater::translate("virtualserver_does_not_exist");
-                AllInfoUpdater::getLogger()->warning($message . "UUID: " . $key);   
+                AllInfoUpdater::getLogger()->warning("Virtual server does not exists in database. (UUID: ".$key.", Physical server: ".$physicalServer->getName().")");   
             }else{
                 $virtualServer->setOvzSettings(json_encode($infos['GuestInfo'][$key]));
                 $virtualServer->setOvzStatistics(json_encode($infos['GuestStatistics'][$key]));
