@@ -383,6 +383,7 @@ return [
     "virtualserver_replicapdf_duration" => "Dauer",
     "virtualserver_replicapdf_files" => "Anzahl Files",
     "virtualserver_replicapdf_bytes" => "Übertragene Bytes",
+    "virtualserver_replicapdf_no_replica" => "Replika konnte nicht korrekt ausgeführt werden!",
 
     // Monitoring
     "monitoring_mon_behavior_not_implements_interface" => "MonBehavior implementiert nicht das MonBehaviorInterface.",

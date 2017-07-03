@@ -300,13 +300,183 @@ class Replica extends \Phalcon\DI\Injectable
             "conditions"=>"type ='ovz_sync_replica' AND DATE(created) ='".$date."' AND done = 1",
             "oder"=>"created",
         ]);
+        
+        // get all replica servers
+        $replicaServers = VirtualServers::tryFind([
+            "conditions"=>"ovz_replica = 1",
+            "columns"=>"ovz_uuid"
+        ]);
+        
+        // prepare array with uuid as key
+        $replicaServers = $replicaServers->toArray();
+        $emptyServers = array();
+        foreach($replicaServers as $replicaServer){
+            $emptyServers[$replicaServer['ovz_uuid']] = $replicaServer;
+        }
+        
         foreach($jobs as $job){
             $params = $job->getParams(true);
             $stat = $job->getRetval(true); 
             unset($stat['sync_stats']);
             $stat=array('server_uuid'=>$params['UUID'])+$stat;
             $stats[]=$stat;
+            
+            // if a job to this server exists, the replica was executed
+            // remove server from emptyServers Array
+            unset($emptyServers[$params['UUID']]);
         }
+        
+        $stats['empty_servers'] = $emptyServers;
         return $stats;
     }
+    
+    /**
+    * Print replica stats of a certain date
+    * 
+    * @param mixed $date
+    */
+    public function replicaStatsPDFPrint($date){
+        // convert date
+        $date = date("Y-m-d",strtotime($date));
+        
+        // Create PDF Object
+        $this->PDF = new \RNTForest\core\libraries\PDF;
+        
+        // Author and title 
+        $this->PDF->SetAuthor(BASE_PATH.$this->config->pdf['author']);
+        $this->PDF->SetTitle(self::translate("virtualservers_replicapdf"));
+        $this->PDF->SetAutoPageBreak(false);
+
+        // Creating page 
+        $this->PDF->AddPage('L','A4');
+
+        // Print Logo
+        if(file_exists(BASE_PATH.$this->config->pdf['logo'])) {
+            $this->PDF->Image(BASE_PATH.$this->config->pdf['logo'], 230, 12, 50, '', 'PNG', '', '', false, 300, '', false, false, 0, false, false, false);
+        }
+
+        // Title
+        $this->PDF->SetFont('' ,'B', 18);
+        $this->PDF->Cell(0,0,self::translate('virtualservers_replicapdf'),0,1);
+
+        // Date
+        $locale = '';
+        $sessionLocale = \Phalcon\Di::getDefault()->get("session")->get("auth")["locale"];
+        if($sessionLocale == 'de_DE.utf8') $locale = 'de_CH.utf8';
+        setlocale(LC_TIME,$sessionLocale,$locale);
+        $this->PDF->SetFont('' ,'', 12); 
+        $this->PDF->Cell(0,0,strftime('%d. %B %Y',strtotime($date)),0,1);
+        $this->PDF->Ln(10);
+
+        // Get stats of all replicas
+        $replicas = $this->tryGetStats($date);
+        if(!$replicas){
+            $message = self::translate("virtualserver_replicapdf_no_replicas_found");
+            throw new \Exception($message);
+        }
+        
+        // print column header
+        $this->replicaStatsPDFPrintHeader();
+        
+        // define cell height for the stats
+        $cellHeight = 7;
+        
+        // go through all replica stats
+        foreach($replicas as $key=>$replicaStats){
+            // check for pagebreak
+            $this->replicaStatsPDFCheckPageBreak();
+            
+            // list all replica servers without a replica jobs
+            if($key === 'empty_servers'){
+                foreach($replicaStats as $uuid=>$replicaServer){
+                    // check for pagebreak
+                    $this->replicaStatsPDFCheckPageBreak();
+                    
+                    // get virtual server
+                    $virtualServer = VirtualServers::findFirst(array("ovz_uuid = '".$uuid."'"));
+                    
+                    // print master and slave name
+                    $this->PDF->Cell(55,$cellHeight,$virtualServer->getName(),1,0,'',false,'',1);
+                    $this->PDF->Cell(60,$cellHeight,$virtualServer->OvzReplicaId->getName(),1,0,'',false,'',1);
+                    
+                    // print error message
+                    $this->PDF->Cell(150,$cellHeight,self::translate("virtualserver_replicapdf_no_replica"),1,1,'',false,'',1);
+                }
+            }else{
+                // get virtual server via uuid
+                $virtualServer = VirtualServers::findFirst(array("ovz_uuid = '".$replicaStats['server_uuid']."'"));
+            
+                // print master and slave name
+                $this->PDF->Cell(55,$cellHeight,$virtualServer->getName(),1,0,'',false,'',1);
+                $this->PDF->Cell(60,$cellHeight,$virtualServer->OvzReplicaId->getName(),1,0,'',false,'',1);
+                
+                // get time without date from start
+                $start = date("H:i:s",strtotime($replicaStats['start']));
+                $this->PDF->Cell(25,$cellHeight,$start,1,0);
+                // get time without date from end
+                $end = date("H:i:s",strtotime($replicaStats['end']));
+                $this->PDF->Cell(25,$cellHeight,$end,1,0);
+                // calculate duration
+                $difference = strtotime($replicaStats['end'])-strtotime($replicaStats['start']);
+                if(gmdate("H",$difference) >= 1){
+                    $duration = gmdate("H:i:s",$difference);
+                }else{
+                    $duration = gmdate("i:s",$difference);
+                }
+                if($difference/60/60 > 1){
+                    // if it took more than 1hour, mark as dark red
+                    $this->PDF->SetFillColor(255,84,84);
+                    $duration = $duration." Stdn.";
+                }elseif($difference/60 > 5){
+                    // if duration is longer than 5min, mark as red
+                    $this->PDF->SetFillColor(255,153,153);
+                    $duration = $duration." Min.";
+                }else{
+                    // else mark as green
+                    $this->PDF->SetFillColor(181,255,181);
+                    $duration = $duration." Min.";
+                }
+                $this->PDF->Cell(30,$cellHeight,$duration,1,0,'',true);
+                // number of files
+                $this->PDF->Cell(30,$cellHeight,$replicaStats['stats_numbre_of_files'],1,0);
+                // format total transferred bytes
+                $this->PDF->Cell(40,$cellHeight,\RNTForest\core\libraries\Helpers::formatBytesHelper($replicaStats['stats_total_transferred_file_size']),1,1);
+            }
+        }
+        
+        // Dispaly PDF
+        $this->PDF->Output('Replica_Stats.pdf', 'I');
+        die();
+    }
+    
+    /**
+    * helper method to print the columd header in the replica stats PDF
+    * 
+    */
+    private function replicaStatsPDFPrintHeader(){
+        // Print column header
+        $this->PDF->SetFont('','B');
+        $this->PDF->Cell(55,8,self::translate("virtualserver_replicapdf_master"),1,0);
+        $this->PDF->Cell(60,8,self::translate("virtualserver_replicapdf_slave"),1,0);
+        $this->PDF->Cell(25,8,self::translate("virtualserver_replicapdf_start"),1,0);
+        $this->PDF->Cell(25,8,self::translate("virtualserver_replicapdf_end"),1,0);
+        $this->PDF->Cell(30,8,self::translate("virtualserver_replicapdf_duration"),1,0);
+        $this->PDF->Cell(30,8,self::translate("virtualserver_replicapdf_files"),1,0);
+        $this->PDF->Cell(40,8,self::translate("virtualserver_replicapdf_bytes"),1,1);
+        $this->PDF->SetFont('','');
+    }
+    
+    /**
+    * helper method to check for an page break and print header
+    * 
+    */
+    private function replicaStatsPDFCheckPageBreak(){
+        // check for page break
+        if ($this->PDF->getY() > ($this->PDF->getPageHeight() - 35)) {
+            // add new page
+            $this->PDF->AddPage();
+            // print column heaader
+            $this->replicaStatsPDFPrintHeader();
+        }
+    }    
 }
