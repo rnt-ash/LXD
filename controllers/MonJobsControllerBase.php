@@ -399,6 +399,8 @@ class MonJobsControllerBase extends \RNTForest\core\controllers\ControllerBase
                     $downtime->setHealJob($healJob);
                 }
             }
+            // reverse array so the newest downtime is on top
+            $downtimes = array_reverse($downtimes);
             
             // check if it's a virtual or physical server
             if(strpos($session['server_class'],'Virtual') > 0){
