@@ -52,11 +52,13 @@
                     </div>
                     {% endif %}
                     <div id="searchFilter" class="input-group col-lg-6 col-sm-6 col-xs-12 pull-right">
-                        <span class="input-group-addon"><i class="fa fa-search" onclick="$('form#slidedatatoolbar').submit();"></i></span>
+                        <span class="input-group-addon" onclick="$('form#slidedatatoolbar').submit();">
+                            <i class="fa fa-search" title="{{ _("tableslide_filter_search") }}" data-toggle="tooltip"></i>
+                        </span>
                         {{ text_field("filterAll",'class':'form-control','placeholder':'Filter Virtual Servers') }}
                         <input type="submit" class="hideSubmit">
-                        <span class="input-group-addon" title="{{ _("tableslide_filter_clear") }}" data-toggle="tooltip">
-                            <i class="fa fa-times" onclick="$('#filterAll').val('');$('form#slidedatatoolbar').submit();"></i>
+                        <span class="input-group-addon" onclick="$('#filterAll').val('');$('form#slidedatatoolbar').submit();">
+                            <i class="fa fa-times" title="{{ _("tableslide_filter_clear") }}" data-toggle="tooltip"></i>
                         </span>
                     </div>
                 </div>
@@ -64,8 +66,8 @@
                 <div class="input-group col-xs-12 clearfix filterCustomer">
                     {{ hidden_field("filterCustomers_id","onchange":"$('form#slidedatatoolbar').submit();") }}
                     {{ text_field("filterCustomers",'class':'form-control autocomplete','placeholder':_("tableslide_filter_customer"))}}
-                    <span class="input-group-addon" title="{{ _("tableslide_filter_clear") }}" data-toggle="tooltip">
-                        <i class="fa fa-times" onclick="$('#filterCustomers').val('');$('#filterCustomers_id').val('');$('form#slidedatatoolbar').submit();"></i>
+                    <span class="input-group-addon" onclick="$('#filterCustomers').val('');$('#filterCustomers_id').val('');$('form#slidedatatoolbar').submit();">
+                        <i class="fa fa-times" title="{{ _("tableslide_filter_clear") }}" data-toggle="tooltip"></i>
                     </span>
                 </div>
                 {% endif %}
