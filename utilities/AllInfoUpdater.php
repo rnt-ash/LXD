@@ -80,9 +80,9 @@ class AllInfoUpdater{
         $job = $push->executeJob($physicalServer,'ovz_all_info',array());
         $durationJob = (microtime(true))-$beforeJob;
         if($durationJob > 5){
-            AllInfoUpdater::getLogger()->warning('duration of job (ID:'.$job->getId().') is '.$durationJob.' seconds. this seems to be very long.');
+            AllInfoUpdater::getLogger()->warning('duration of job (ID:'.$job->getId().', ServerID:'.$physicalServer->getId().') is '.$durationJob.' seconds. this seems to be very long.');
         }else{
-            AllInfoUpdater::getLogger()->debug('duration of job (ID:'.$job->getId().') is '.$durationJob.' seconds');
+            AllInfoUpdater::getLogger()->debug('duration of job (ID:'.$job->getId().', ServerID:'.$physicalServer->getId().') is '.$durationJob.' seconds');
         }
         
         $beforeUpdate = microtime(true);
@@ -126,7 +126,7 @@ class AllInfoUpdater{
             }
         }
         $durationUpdate = (microtime(true))-$beforeUpdate;
-        AllInfoUpdater::getLogger()->debug('duration of for update '.$durationUpdate.' seconds');
+        AllInfoUpdater::getLogger()->debug('duration of update '.$durationUpdate.' seconds');
         
         // delete Job if it was successful to cleanup db
         if($job->getDone() == 1){
