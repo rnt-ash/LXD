@@ -158,10 +158,10 @@ class VzctlCommands {
     */
     public function createSnapshot($CTID,$name,$description,$snapshotUUID,$host=""){
         
-        // OVZ7 CRIU Issue (stop Container for Snapshot)
+        // OVZ7 CRIU Issue (stop container for snapshot)
         // 15.6.2017 wird ab der neusten Version immer noch benötigt
         $running = false;
-        if ($CTID!=2000 || $CTID!=2001){
+        if ($CTID!=2000 && $CTID!=2001){
             $status = $this->getContainerStatus($CTID,$host);
             if($status['RUNNING']) $running = true;
             $this->Stop($CTID);
