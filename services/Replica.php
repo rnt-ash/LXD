@@ -170,6 +170,16 @@ class Replica extends \Phalcon\DI\Injectable
 
             foreach($replicaMasters as $replicaMaster){
                 $this->logger->info('dailyReplica for '.$replicaMaster->getName().' started...');
+                
+                // replica today succesfull finished? Then skip this replica...
+                $today = new \DateTime();
+                $today->setTime(0,0,0); 
+                $lastrun = \DateTime::createFromFormat( "Y-m-d H:i:s", $replicaMaster->getOvzReplicaLastrun());
+                $lastrun->setTime(0,0,0);
+                if($lastrun >= $today){
+                    $this->logger->info('dailyReplica for '.$replicaMaster->getName().' skipped...');
+                    continue;
+                }
 
                 try{
                     $job = $this->run($replicaMaster);
@@ -180,7 +190,7 @@ class Replica extends \Phalcon\DI\Injectable
                     
                 } catch (\Exception $e){
                     // something goes wrong: write log and go on...
-                    $this->logger->warning('dailyReplica for '.$replicaMaster->getName().' error:'.$e->getMessage());
+                    $this->logger->error('dailyReplica for '.$replicaMaster->getName().' error:'.$e->getMessage());
                 }               
             }
 
