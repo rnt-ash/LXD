@@ -1466,7 +1466,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             $this->healing = 0;
         }
         // set alarmperiod if it's empty
-        if(empty($this->alarm_period) && $this->alarm_period != 0){
+        if(empty($this->alarm_period) && $this->alarm_period !== "0"){
             if(strpos($this->mon_behavior_class,'Diskspace') > 0){
                 $this->alarm_period = 360;
             }else{
