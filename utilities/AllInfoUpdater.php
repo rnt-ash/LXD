@@ -102,11 +102,15 @@ class AllInfoUpdater{
         if(!is_array($infos)) throw new \Exception($message);
 
         // save host settings and statistics
-        $physicalServer->setOvzSettings(json_encode($infos['HostInfo']));
-        $physicalServer->setOvzStatistics(json_encode($infos['HostStatistics']));
-        if ($physicalServer->save() === false) {
-            $message = AllInfoUpdater::translate("physicalserver_update_failed");
-            throw new \Exception($message . $physicalServer->getName());
+        if(!(key_exists('HostInfo',$infos) && key_exists('HostStatistics',$infos))){
+            AllInfoUpdater::getLogger()->warning(AllInfoUpdater::translate('monitoring_allinfoupdater_key_missing').' Needed Keys HostInfo/HostStatistics for job id '.$job->getId().' for server id '.$physicalServer->getId());
+        }else{
+            $physicalServer->setOvzSettings(json_encode($infos['HostInfo']));
+            $physicalServer->setOvzStatistics(json_encode($infos['HostStatistics']));
+            if ($physicalServer->save() === false) {
+                $message = AllInfoUpdater::translate("physicalserver_update_failed");
+                throw new \Exception($message . $physicalServer->getName());
+            }
         }
 
         // save guest settings and statistics
@@ -116,11 +120,15 @@ class AllInfoUpdater{
             if (!$virtualServer){
                 AllInfoUpdater::getLogger()->warning("Virtual server does not exists in database. (UUID: ".$key.", Physical server: ".$physicalServer->getName().")");   
             }else{
-                $virtualServer->setOvzSettings(json_encode($infos['GuestInfo'][$key]));
-                $virtualServer->setOvzStatistics(json_encode($infos['GuestStatistics'][$key]));
-                if ($virtualServer->save() === false) {
-                    $message = AllInfoUpdater::translate("virtualserver_update_failed");
-                    throw new \Exception($message . $virtualServer->getName());
+                if(!(key_exists('GuestInfo',$infos) && key_exists('GuestStatistics',$infos))){
+                    AllInfoUpdater::getLogger()->warning(AllInfoUpdater::translate('monitoring_allinfoupdater_key_missing').' Needed Keys GuestInfo/GuestStatistics for job id '.$job->getId().' for server id '.$virtualServer->getId());
+                }else{
+                    $virtualServer->setOvzSettings(json_encode($infos['GuestInfo'][$key]));
+                    $virtualServer->setOvzStatistics(json_encode($infos['GuestStatistics'][$key]));
+                    if ($virtualServer->save() === false) {
+                        $message = AllInfoUpdater::translate("virtualserver_update_failed");
+                        throw new \Exception($message . $virtualServer->getName());
+                    }
                 }
             }
         }

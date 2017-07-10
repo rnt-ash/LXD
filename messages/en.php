@@ -395,6 +395,7 @@ return [
     "monitoring_monjobs_login_not_from_customer" => "Selected Login does not have the same customer as the physical server",
     "monitoring_mon_behavior_could_not_instantiate_valuestatus" => "A ValueStatus object could not be instantiated (maybe the needed infos are not available in the statistics)",
     "monitoring_allinfoupdater_mark_failed" => "The Job was marked as failed because it could not be sent immediately by the monitoring.",
+    "monitoring_allinfoupdater_key_missing" => "Needed Key does not exist in retval of ovz_all_info Job.",
     // MonJobs
     "monitoring_monjobs_montype_remote_expected" => "This method only works with mon_type 'remote'.",
     "monitoring_monjobs_montype_local_expected" => "This method only works with mon_type 'local'.",

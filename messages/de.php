@@ -397,6 +397,7 @@ return [
     "monitoring_monlocaldailylogsgenerator_delete_old_daily_log" => "Das alte Daily Log wurde gelöscht: ",
     "monitoring_mon_behavior_could_not_instantiate_valuestatus" => "Es konnte kein ValueStatus Objekt instanziert werden (evt. fehlen die Infos im Statistics Array)",
     "monitoring_allinfoupdater_mark_failed" => "Der Job wurde als fehlerhaft markiert weil er nicht unverzüglich vom Monitoring gesendet werden konnte.",
+    "monitoring_allinfoupdater_key_missing" => "Der benötigte Key existiert nicht im Retval des ovz_all_info Jobs.",
     // MonJobs
     "monitoring_monjobs_add_no_valid_behavior" => "Ausgewähltes Behavior existiert nicht",
     "monitoring_monjobs_montype_remote_expected" => "Diese Methode funktioniert nur für mon_type 'remote'.",
