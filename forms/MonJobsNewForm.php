@@ -43,10 +43,24 @@ class MonJobsNewForm extends \RNTForest\core\forms\FormBase
         }
         
         // create new array for select
+        $behaviorsSelect = array();
+        $server = $monJob->getServerClass()::findFirst($monJob->getServerId());
         $allBehaviors = Monitoring::getAllBehaviors($serverType);
         foreach($allBehaviors as $key=>$behavior){
+            // show MonLocal Jobs only if the physical server is ovz enabled 
+            // or if the host of virtual server is ovz enabled
+            if($server->getOvz() != 1 && strpos($key,'MonLocal')){
+                if($serverType == 'virtual'){
+                    if($server->PhysicalServers->getOvz() != 1) continue;
+                }else{
+                     continue;
+                }
+            }
+            
+            // save behavior in new array
             $behaviorsSelect[$key] = $behavior['shortname'];
         }
+        
         $element = new Select(
             "mon_behavior",
             $behaviorsSelect,
