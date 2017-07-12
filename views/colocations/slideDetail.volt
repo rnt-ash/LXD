@@ -1,3 +1,4 @@
+{% include "partials/core/partials/slideSectionState.volt" %}
 <div class="row">
     <div class="col-md-12">
     {{ partial("partials/ovz/colocations/general.volt") }}

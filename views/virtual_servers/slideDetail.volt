@@ -1,3 +1,4 @@
+{% include "partials/core/partials/slideSectionState.volt" %}
 <div class="panel-group">
     <div class="row">
         <div class="col-md-8 padding-small-right">

@@ -1,8 +1,10 @@
 <div class="clearfix panel panel-default sub-panel">
+    {% set defaultState = 'hide' %}
+    {% set state = slideSectionState(item.id,'VirtualServersController','replica',defaultState) %}
     <div class="panel-heading">
-        <span role="button" data-target="#replica{{item.id}}" onclick="toggleIcon('#replicaToggleIcon'+{{item.id}},this)" data-toggle="collapse">
+        <span role="button" data-target="#slide_section_replica_{{item.id}}" onclick="toggleSectionState('slide_section_replica_{{item.id}}','virtual_servers','{{defaultState}}',this)" data-toggle="collapse">
             <h5 class="panel-title">
-                <i id="replicaToggleIcon{{item.id}}" class="fa fa-chevron-right"></i>&nbsp;{{ _("virtualserver_replica") }}
+                <i id="slide_section_replica_{{item.id}}_icon" class="fa fa-chevron-{% if state == 'show' %}down{% else %}right{% endif %}"></i>&nbsp;{{ _("virtualserver_replica") }}
                 <div class="pull-right">
                     {% if item.ovz_replica <= 0 %}
                         {{ link_to("virtual_servers/ovzReplicaActivate/"~item.id,'<i class="fa fa-plus"></i>',
@@ -19,7 +21,7 @@
             </h5>
         </span>
     </div>
-    <div id="replica{{item.id}}" class="panel-collapse collapse">
+    <div id="slide_section_replica_{{item.id}}" class="panel-collapse collapse {% if state == 'show' %}in{% endif %}">
         <table class="table table-condensed">
             <tbody>
             {% if item.ovz_replica <= 0 %}
