@@ -216,7 +216,7 @@ class Replica extends \Phalcon\DI\Injectable
         try {
             $this->db->fetchOne('SELECT 1');
         } catch (\PDOException $e) {
-            $this->connect();
+            $this->db->connect();
         }
     }
     
