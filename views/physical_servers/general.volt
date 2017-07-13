@@ -1,8 +1,9 @@
 <div class="clearfix panel panel-default sub-panel">
+    {% set state = slideSectionState(item.id,'PhysicalServersController','general') %}
     <div class="panel-heading">
-        <span role="button" data-target="#general{{item.id}}" onclick="toggleIcon('#generalToggleIcon'+{{item.id}},this)" data-toggle="collapse">
+        <span role="button" data-target="#slide_section_general_{{item.id}}" onclick="toggleSectionState('slide_section_general_{{item.id}}','physical_servers','',this)" data-toggle="collapse">
             <h5 class="panel-title">
-                <i id="generalToggleIcon{{item.id}}" class="fa fa-chevron-down"></i>&nbsp;{{ _("physicalserver_general_title") }}
+                <i id="slide_section_general_{{item.id}}_icon" class="fa fa-chevron-{% if state == 'show' %}down{% else %}right{% endif %}"></i>&nbsp;{{ _("physicalserver_general_title") }}
                 <div class="pull-right">
                     {{ link_to("physical_servers/edit/"~item.id,'<i class="fa fa-pencil"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_editsettings") ) }}
@@ -20,7 +21,7 @@
             </h5>
         </span>
     </div>
-    <div id="general{{item.id}}" class="panel-collapse collapse in">
+    <div id="slide_section_general_{{item.id}}" class="panel-collapse collapse {% if state == 'show' %}in{% endif %}">
         <table class="table table-condensed">
             <tbody>
                 <tr>

@@ -1,8 +1,9 @@
 <div class="clearfix panel panel-default sub-panel">
+    {% set state = slideSectionState(item.id,'VirtualServersController','ipobjects') %}
     <div class="panel-heading">
-        <span role="button" data-target="#ipObjects{{item.id}}" onclick="toggleIcon('#ipObjectsToggleIcon'+{{item.id}},this)" data-toggle="collapse">
+        <span role="button" data-target="#slide_section_ipobjects_{{item.id}}" onclick="toggleSectionState('slide_section_ipobjects_{{item.id}}','virtual_servers','',this)" data-toggle="collapse">
             <h5 class="panel-title">
-                <i id="ipObjectsToggleIcon{{item.id}}" class="fa fa-chevron-down"></i>&nbsp;{{ _("virtualserver_ipobject") }}
+                <i id="slide_section_ipobjects_{{item.id}}_icon" class="fa fa-chevron-{% if state == 'show' %}down{% else %}right{% endif %}"></i>&nbsp;{{ _("virtualserver_ipobject") }}
                 <div class="pull-right">
                     <div class="btn-group">
                     {% if permissions.checkPermission("ip_objects", "general") %}
@@ -14,7 +15,7 @@
             </h5>
         </span>
     </div>
-    <div id="ipObjects{{item.id}}" class="panel-collapse collapse in">
+    <div id="slide_section_ipobjects_{{item.id}}" class="panel-collapse collapse {% if state == 'show' %}in{% endif %}">
         <table class="table table-striped table-condensed table-hover">
             <tbody>
             {% if item.ipobjects.count() == 0 %}

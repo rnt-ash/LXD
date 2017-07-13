@@ -30,7 +30,7 @@ return new \Phalcon\Config([
                 ],
                 'actions' => [
                     'colocations' => [
-                        'index', 'search', 'create', 'new', 'edit', 'form',
+                        'index', 'search', 'create', 'new', 'edit', 'form', 'toggleSectionState',
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
                         'save', 'delete', 'tabledata', 'slidedata', 'slideSlide', 'generateIpPdf', 'getCustomersAsJson',
                     ]
@@ -80,7 +80,7 @@ return new \Phalcon\Config([
                     'physical_servers' => [
                         'index', 'edit', 'form', 'save', 'delete', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
-                        'slidedata', 'slideSlide', 'ovzAllInfo', 'ovzConnector', 'ovzConnectorExecute',
+                        'slidedata', 'slideSlide', 'ovzAllInfo', 'ovzConnector', 'ovzConnectorExecute', 'toggleSectionState',
                         'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
                         'monJobsDetails', 
                     ]
@@ -141,7 +141,7 @@ return new \Phalcon\Config([
                     'virtual_servers' => [
                         'index', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
-                        'save', 'slidedata', 'slideSlide', 'ovzUpdateInfo', 'getCustomersAsJson', 'genPDF',
+                        'save', 'slidedata', 'slideSlide', 'ovzUpdateInfo', 'getCustomersAsJson', 'genPDF', 'toggleSectionState',
                         'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
                         'monJobsDetails', 
                     ]

@@ -15,10 +15,12 @@
 {% endfor %}
 
 <div class="clearfix panel panel-{% if ok == true %}default{% else %}warning{% endif %} sub-panel">
+    {% set defaultState = 'hide' %}
+    {% set state = slideSectionState(item.id,'VirtualServersController','monjobs',defaultState) %}
     <div class="panel-heading">
-        <span role="button" data-target="#monJobs{{item.id}}" onclick="toggleIcon('#monJobsToggleIcon'+{{item.id}},this);" data-toggle="collapse">
+        <span role="button" data-target="#slide_section_monjobs_{{item.id}}" onclick="toggleSectionState('slide_section_monjobs_{{item.id}}','virtual_servers','{{defaultState}}',this)" data-toggle="collapse">
             <h5 class="panel-title">
-                <i id="monJobsToggleIcon{{item.id}}" class="fa fa-chevron-right"></i>&nbsp;{{ _("monitoring_monjobs_title") }} {% if ok == false %}<i class="fa fa-exclamation-circle"></i> <span class="small">{{ nokMonJobsCount }} {{ _("monitoring_monjobs_nok_title") }}</span>{% endif %}
+                <i id="slide_section_monjobs_{{item.id}}_icon" class="fa fa-chevron-{% if state == 'show' %}down{% else %}right{% endif %}"></i>&nbsp;{{ _("monitoring_monjobs_title") }} {% if ok == false %}<i class="fa fa-exclamation-circle"></i> <span class="small">{{ nokMonJobsCount }} {{ _("monitoring_monjobs_nok_title") }}</span>{% endif %}
                 <div class="pull-right">
                     <div class="btn-group">
                     {{ link_to("virtual_servers/monJobsAdd/"~item.id,'<i class="fa fa-plus"></i>',
@@ -28,7 +30,7 @@
             </h5>
         </span>
     </div>
-    <div id="monJobs{{item.id}}" class="panel-collapse collapse">
+    <div id="slide_section_monjobs_{{item.id}}" class="panel-collapse collapse {% if state == 'show' %}in{% endif %}">
         <div class="col-md-6 col-xs-12 removePadding">
             <table class="table table-striped table-condensed table-hover panel-sub-table">
                 <tbody>
