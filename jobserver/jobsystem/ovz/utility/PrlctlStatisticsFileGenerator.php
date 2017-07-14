@@ -251,7 +251,18 @@ class PrlctlStatisticsFileGenerator {
     }
     
     private function isLocked(){
-        return file_exists($this->LockFile);
+        if(file_exists($this->LockFile)){
+            // remove lock if older than 1 hour (in case of a crash)
+            if(filemtime($this->LockFile)+3600 < time()){
+                $this->freeLock();
+                return false;
+            } else{
+                return true;
+            }
+        }else{
+            return false;
+        }
+        
     }
     
     private function lock(){
