@@ -61,6 +61,14 @@
                 </tr>
                 <tr>
                     <td>
+                        {{ _("virtualserver_replica_uuid") }}
+                    </td>
+                    <td>
+                        {{item.ovzReplicaId.ovz_uuid}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
                         {{ _("virtualserver_replica_host") }}
                     </td>
                     <td>
