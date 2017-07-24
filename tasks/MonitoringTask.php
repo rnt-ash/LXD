@@ -67,36 +67,6 @@ class MonitoringTask extends Task
         $system->genMonLocalDailyLogs();
     }
     
-    public function runJobsNewAction(){
-        $system = new MonSystemNew();
-        $system->runMonRemoteJobs();
-    }
-    
-    public function runCriticalJobsNewAction(){
-        $healing = new MonHealingNew();
-        $healing->healFailedMonRemoteJobs();
-    }
-    
-    public function runLocalJobsNewAction(){
-        $system = new MonSystemNew();
-        $system->runMonLocalJobs();
-    }
-    
-    public function recomputeUptimesNewAction(){
-        $system = new MonSystemNew();
-        $system->recomputeUptimes();
-    }
-    
-    public function genMonUptimesNewAction(){
-        $system = new MonSystemNew();
-        $system->genMonUptimes();
-    }
-    
-    public function genMonLocalDailyLogsNewAction(){
-        $system = new MonSystemNew();
-        $system->genMonLocalDailyLogs();
-    }
-    
     public function testAction(){
         $system = new MonSystem();
         $system->test();
