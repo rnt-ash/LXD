@@ -1445,7 +1445,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 throw new \Exception($allMessages);
             }
             $replicaSlave->refresh();
-
+            // sometimes there is no VSTYPE ?!
+            if(empty($replicaSlave->getOvzVstype()))
+                throw new \Exception("virtualserver_save_replica_has_no_type. ".json_encode($replicaSlave->toArray()));
+            
             $params = array(
                 "VSTYPE"=>$replicaSlave->getOvzVstype(),
                 "UUID"=>$replicaSlave->getOvzUuid(),
