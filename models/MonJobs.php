@@ -861,6 +861,8 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     private function createDownTimePeriods(){
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $downTimes = array();
+        
+        $startPreSQL = microtime(true);
         $monLogs = MonLogs::find(
             [
                 "mon_jobs_id = :id:",
@@ -870,6 +872,11 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 ],
             ]
         );
+        $timeElapsedSQLRead = microtime(true) - $startPreSQL;
+        $this->getLogger()->debug('timeElapsedSQLRead: '.$timeElapsedSQLRead);
+            
+        
+        $startPreComputation = microtime(true);
         
         $lastState = $curState = -1;
         $start = 0;
@@ -905,6 +912,9 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             $end = Helpers::createUnixTimestampFromDateTime($lastMonLog->getModified());
             $downTimes[] = new DownTimePeriod($start,$end);
         }
+        
+        $timeElapsedComputation = microtime(true) - $startPreComputation;
+        $this->getLogger()->debug('timeElapsedComputation: '.$timeElapsedComputation);
         
         return $downTimes; 
     }
