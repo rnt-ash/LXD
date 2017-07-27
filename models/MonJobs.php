@@ -43,11 +43,11 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     public static $LOCAL_STATENORMAL = 'normal';
     public static $LOCAL_STATEMAXIMAL = 'maximal';
     public static $LOCAL_STATEWARNING = 'warning';
-    
+
     public static $REMOTE_STATEUP = 'up';
     public static $REMOTE_STATEDOWN = 'down';
     public static $REMOTE_STATENOSTATE = 'nostate';
-    
+
     /**
     * 
     * @var integer
@@ -55,13 +55,13 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @Identity
     */
     protected $id;
-    
+
     /**
     * 
     * @var int
     */
     protected $server_id;
-    
+
     /**
     *
     * @var string
@@ -81,7 +81,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @var string
     */
     protected $main_ip;
-    
+
     /**
     * Defines the behavior the job has when executing.
     * 
@@ -96,14 +96,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @var string
     */
     protected $mon_behavior_params;    
-    
+
     /**
     * Minutes of how long the last run should be before monitoring again.
     * 
     * @var int
     */
     protected $period;
-    
+
     /**
     * Status which the MonJob has.
     * local and remote have different ones. Those are defined in this 
@@ -112,14 +112,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @var string
     */
     protected $status;   
-    
+
     /**
     * Timestamp of last status change (Y-m-d H:i:s) 
     * 
     * @var string
     */
     protected $last_status_change;
-    
+
     /**
     * Defines threshold when a message should be sent.
     * local only
@@ -127,7 +127,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @var string
     */
     protected $warning_value;
-    
+
     /**
     * Defines threshold when an alarm should be sent.
     * local only
@@ -135,7 +135,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @var string
     */
     protected $maximal_value;
-    
+
     /**
     * Holds an json-object of uptimes of this job, so that those has not to be recomputed every time.
     * remote only.
@@ -143,14 +143,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @var string
     */
     protected $uptime;
-    
+
     /**
     * Switch if active or not (1 or 0)
     * 
     * @var integer
     */
     protected $active;
-    
+
     /**
     * Switch if healing enabled or not (1 or 0)
     * remote only
@@ -158,21 +158,21 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @var integer
     */
     protected $healing;
-    
+
     /**
     * Switch if alarm enabled or not (1 or 0)
     * 
     * @var integer
     */
     protected $alarm;
-    
+
     /**
     * Switch if already alarmed for current state or not (1 or 0)
     * 
     * @var integer
     */
     protected $alarmed;
-    
+
     /**
     * Switch if muted or not (1 or 0)
     * muted means that e.g. for remote no alarm is sent AND no healing is executed
@@ -180,59 +180,59 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     * @var integer
     */
     protected $muted;
-    
+
     /**
     * Timestamp of last alarm (Y-m-d H:i:s) 
     * 
     * @var string
     */
     protected $last_alarm;
-    
+
     /**
     * Minutes of how long the last alarm should be before alarming again.
     * 
     * @var integer
     */
     protected $alarm_period;
-    
+
     /**
     * Commaseparated lists of ids to logins which should be notified for messages.
     * 
     * @var string
     */
     protected $mon_contacts_message;
-    
+
     /**
     * Commaseparated lists of ids to logins which should be notified for alarms.
     * 
     * @var string
     */
     protected $mon_contacts_alarm;
-    
+
     /**
     * Timestamp of last run (Y-m-d H:i:s) 
     * 
     * @var string
     */
     protected $last_run;
-    
+
     /**
     * 
     * @var string
     */
     protected $modified;
-    
+
     /**
     * Transient, will not be persisted.
     * 
     * @var integer
     */
     protected $recent_healjob_id = 0;
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // methods for local
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     /**
     * Unique ID
     *
@@ -242,7 +242,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->id = $id;
     }
-    
+
     /**
     * ID of the Server
     * 
@@ -252,7 +252,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->server_id = $serverId;
     }
-    
+
     /**
     * Namespace and Classname of the Server Object
     * 
@@ -262,7 +262,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->server_class = $serverClass;
     }
-       
+
     /**
     * Set type (local or remote).
     * 
@@ -272,7 +272,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->mon_type = $type;
     }
-       
+
     /**
     * Main IP
     * 
@@ -282,7 +282,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->main_ip = $mainIp;
     }
-    
+
     /**
     * Namespace and classname of the behavior class
     * 
@@ -292,7 +292,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->mon_behavior_class = $monBehaviorClass;
     }
-    
+
     /**
     * JSON encoded Array behavior params
     * 
@@ -302,7 +302,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->mon_behavior_params = $monBehaviorParams;
     }
-    
+
     /**
     * Period in minutes
     * 
@@ -312,7 +312,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->period = $period;
     }
-    
+
     /**
     * Status
     * 
@@ -322,7 +322,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->status = $status;
     }
-    
+
     /**
     * Last status change
     * 
@@ -332,7 +332,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->last_status_change = $lastStatusChange;
     }
-    
+
     /**
     * Warning value
     * 
@@ -342,7 +342,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->warning_value = $warningValue;
     }
-    
+
     /**
     * Maximal value
     * 
@@ -352,7 +352,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->maximal_value = $maximalValue;
     }
-    
+
     /**
     * Uptime
     * 
@@ -362,7 +362,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->uptime = $uptime;
     }
-    
+
     /**
     * Active
     *
@@ -372,7 +372,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->active = $active;
     }
-    
+
     /**
     * Healing
     *
@@ -382,7 +382,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->healing = $healing;
     }
-    
+
     /**
     * Alarm
     * 
@@ -392,7 +392,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->alarm = $alarm;
     }
-    
+
     /**
     * Alarmed
     * 
@@ -402,7 +402,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->alarmed = $alarmed;
     } 
-    
+
     /**
     * Muted
     * 
@@ -412,7 +412,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->muted = $muted;
     }
-    
+
     /**
     * Last alarm
     * 
@@ -422,7 +422,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->last_alarm = $lastAlarm;
     }
-    
+
     /**
     * Alarm period in minutes
     * 
@@ -432,7 +432,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->alarm_period = $alarmPeriod;
     }
-    
+
     /**
     * Message Contacts
     * 
@@ -442,7 +442,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->mon_contacts_message = $monContactsMessage;
     }
-    
+
     /**
     * Alarm Contacts
     * 
@@ -452,7 +452,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->mon_contacts_alarm = $monContactsAlarm;
     }
-    
+
     /**
     * Last run
     * 
@@ -462,7 +462,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->last_run = $lastRun;
     }
-    
+
     /**
     * Modified
     * 
@@ -472,7 +472,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->modified = $modified;
     }
-    
+
     /**
     * Set the transient recent healjob id
     * 
@@ -482,11 +482,11 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         $this->recent_healjob_id = $healJobId;
     }
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // methods for local
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     /**
     *
     * @return integer
@@ -495,7 +495,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->id;
     }
-    
+
     /**
     *
     * @return integer
@@ -504,7 +504,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->server_id;
     }
-    
+
     /**
     * returns the Namespace and Classname of the Server Object
     * 
@@ -514,7 +514,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->server_class;
     }
-    
+
     /**
     * returns monitoring type
     * 
@@ -524,7 +524,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->mon_type;
     }
-    
+
     /**
     *
     * @return string
@@ -533,7 +533,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->main_ip;
     }
-    
+
     /**
     * returns the Namespace and Classname of the mon behavior class
     * 
@@ -543,7 +543,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->mon_behavior_class;
     }
-    
+
     /**
     * returns mon behavior params
     * 
@@ -553,7 +553,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->mon_behavior_params;
     }
-    
+
     /**
     * Returns period in minutes
     * 
@@ -563,7 +563,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->period;
     }
-    
+
     /**
     *
     * @return string
@@ -572,7 +572,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->status;
     }
-    
+
     /**
     *
     * @return string
@@ -581,7 +581,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->last_status_change;
     }
-    
+
     /**
     *
     * @return string
@@ -590,7 +590,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->warning_value;
     }
-    
+
     /**
     *
     * @return string
@@ -599,7 +599,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->maximal_value;
     }
-    
+
     /**
     *
     * @return string
@@ -608,7 +608,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->uptime;
     }
-    
+
     /**
     *
     * @return integer
@@ -617,7 +617,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->active;
     }
-    
+
     /**
     *
     * @return integer
@@ -626,7 +626,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->healing;
     }
-    
+
     /**
     *
     * @return integer
@@ -635,7 +635,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->alarm;
     }
-    
+
     /**
     *
     * @return integer
@@ -644,7 +644,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->alarmed;
     }
-    
+
     /**
     *
     * @return integer
@@ -653,7 +653,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->muted;
     }
-    
+
     /**
     *
     * @return string
@@ -662,7 +662,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->last_alarm;
     }
-    
+
     /**
     * Return alarm period in minutes
     * 
@@ -672,7 +672,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->alarm_period;
     }
-    
+
     /**
     *
     * @return string commaseparated
@@ -681,7 +681,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->mon_contacts_message;
     }
-    
+
     /**
     *
     * @return string commaseparated
@@ -690,7 +690,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->mon_contacts_alarm;
     }
-    
+
     /**
     *
     * @return string
@@ -699,7 +699,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->last_run;
     }
-    
+
     /**
     *
     * @return string
@@ -708,7 +708,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->modified;
     }
-    
+
     /**
     * get the transient attribute recent heal job
     * 
@@ -718,12 +718,12 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         return $this->recent_healjob_id;
     }
-    
-    
+
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // methods for remote
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     /**
     * Returns true if this MonJob is in error state.
     * 
@@ -735,7 +735,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         return $this->Status == 'down';
     }
-    
+
     /**
     * Returns the downtimes periods of a MonJob
     * 
@@ -747,7 +747,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $downTimePeriods = $this->createDownTimePeriods();
         return $downTimePeriods;
     }
-    
+
     /**
     * Recomputes the uptime out of MonLogs and MonUptimes.
     * 
@@ -756,7 +756,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     */
     public function recomputeUptime(){
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
-        
+
         $monUptimes = MonUptimes::find(
             [
                 "mon_jobs_id = :id:",
@@ -765,7 +765,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 ],
             ]
         );
-        
+
         $actYear = date('Y');
         $firstDayOfActYear = strtotime('first day of January '.$actYear);
         $everUpSeconds = $everMaxSeconds = $everUpPercentage = 0;
@@ -775,14 +775,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         foreach($monUptimes as $monUptime){
             $everUpSeconds += $monUptime->getUpSeconds();
             $everMaxSeconds += $monUptime->getMaxSeconds(); 
-            
+
             if($monUptime->getYear() == $actYear){
                 $actYearUpSeconds += $monUptime->getUpSeconds();
                 $actYearMaxSeconds += $monUptime->getMaxSeconds();
             }           
         }
-        
-       
+
+
         // add information from MonLogs
         $oldestMonLog = MonLogs::findFirst(
             [
@@ -802,14 +802,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 ],
             ]
         );
-        
+
         // add up downtime periods
         $downTimePeriods = $this->createDownTimePeriods();
         $logDownTimeInSeconds = 0;
         foreach($downTimePeriods as $downTimePeriod){
             $logDownTimeInSeconds += $downTimePeriod->getDurationInSeconds();         
         }
-        
+
         if($newestMonLog != null && $oldestMonLog != null){
             $logTimeMaxSeconds = Helpers::createUnixTimestampFromDateTime($newestMonLog->getModified()) - Helpers::createUnixTimestampFromDateTime($oldestMonLog->getModified());    
         }
@@ -817,40 +817,40 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         if($logTimeMaxSeconds > 0){
             $logTimeUpPercentage = $logTimeUpSeconds / $logTimeMaxSeconds;    
         }
-        
+
         // add log times to ever and actYear
         $everMaxSeconds += $logTimeMaxSeconds;
         $everUpSeconds += $logTimeUpSeconds;
         $actYearMaxSeconds += $logTimeMaxSeconds;
         $actYearUpSeconds += $logTimeUpSeconds;
-        
+
         if($everMaxSeconds > 0){
             $everUpPercentage = $everUpSeconds / $everMaxSeconds;    
         }
         if($actYearMaxSeconds > 0){
             $actYearUpPercentage = $actYearUpSeconds / $actYearMaxSeconds;    
         }
-        
+
         $uptime = [
-        'actperioduppercentage' => $logTimeUpPercentage,
-        'actperiodmaxseconds' => $logTimeMaxSeconds,
-        'actperiodupseconds' => $logTimeUpSeconds,
-        'actyearuppercentage' => $actYearUpPercentage,
-        'actyearmaxseconds' => $actYearMaxSeconds,
-        'actyearupseconds' => $actYearUpSeconds,
-        'everuppercentage' => $everUpPercentage,
-        'evermaxseconds' => $everMaxSeconds,
-        'everupseconds' => $everUpSeconds
+            'actperioduppercentage' => $logTimeUpPercentage,
+            'actperiodmaxseconds' => $logTimeMaxSeconds,
+            'actperiodupseconds' => $logTimeUpSeconds,
+            'actyearuppercentage' => $actYearUpPercentage,
+            'actyearmaxseconds' => $actYearMaxSeconds,
+            'actyearupseconds' => $actYearUpSeconds,
+            'everuppercentage' => $everUpPercentage,
+            'evermaxseconds' => $everMaxSeconds,
+            'everupseconds' => $everUpSeconds
         ];
-        
+
         $this->setUptime(json_encode($uptime));
-        
+
         if($this->save() !== true){
             $messages = $this->getMessages();
             $this->getLogger()->error('could not save job '.$this->id.' Messages: '.implode(' ',$messages));
         }
     }
-    
+
     /**
     * Creates an array of DownTimePeriods from MonLogs.
     * 
@@ -861,64 +861,66 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     private function createDownTimePeriods(){
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $downTimes = array();
+        $modelManager = $this->getDI()['modelsManager'];
         
         $startPreSQL = microtime(true);
-        $monLogs = MonLogs::find(
+        $rows = $modelManager->executeQuery(
+            "SELECT \\RNTForest\\ovz\\models\\MonLogs.modified, \\RNTForest\\ovz\\models\\MonLogs.value ".
+            "FROM \\RNTForest\\ovz\\models\\MonLogs ".
+            "WHERE \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id = :id: ".
+            "ORDER BY \\RNTForest\\ovz\\models\\MonLogs.modified ASC",
             [
-                "mon_jobs_id = :id:",
-                "order" => "modified ASC",
-                "bind" => [
-                    "id" => $this->getId(),
-                ],
+                "id" => $this->getId()
             ]
         );
+
         $timeElapsedSQLRead = microtime(true) - $startPreSQL;
         $this->getLogger()->debug('timeElapsedSQLRead: '.$timeElapsedSQLRead);
-            
-        
+
+
         $startPreComputation = microtime(true);
-        
+
         $lastState = $curState = -1;
         $start = 0;
         $end = 0;
-        $curMonLog = null;
-        
-        foreach($monLogs as $monLog){
-            $curState = $monLog->getValue();
-            
+        $curRow = null;
+
+        foreach($rows as $row){
+            $curState = $row['value'];
+
             // if already down in first log
             if($lastState == -1 && $curState == 0){
-                $start = Helpers::createUnixTimestampFromDateTime($monLog->getModified());
+                $start = Helpers::createUnixTimestampFromDateTime($row['modified']);
             }
-            
+
             // negative statuschange       
             if($lastState == 1 && $curState == 0){
-                $start = Helpers::createUnixTimestampFromDateTime($monLog->getModified());
+                $start = Helpers::createUnixTimestampFromDateTime($row['modified']);
             }
-            
+
             // positive statuschange
             if($lastState == 0 && $curState == 1){
-                $end = Helpers::createUnixTimestampFromDateTime($monLog->getModified());
+                $end = Helpers::createUnixTimestampFromDateTime($row['modified']);
                 $downTimes[] = new DownTimePeriod($start,$end);    
             }
-            
+
             $lastState = $curState;
-            $curMonLog = $monLog;
+            $curRow = $row;
         }
-        
+
         // if downtime never ends in the logs, say end < start, the modified of the last MonLogs is taken
         if($end < $start){
-            $lastMonLog = $curMonLog;
-            $end = Helpers::createUnixTimestampFromDateTime($lastMonLog->getModified());
+            $lastRow = $curRow;
+            $end = Helpers::createUnixTimestampFromDateTime($lastRow['modified']);
             $downTimes[] = new DownTimePeriod($start,$end);
         }
-        
+
         $timeElapsedComputation = microtime(true) - $startPreComputation;
         $this->getLogger()->debug('timeElapsedComputation: '.$timeElapsedComputation);
-        
+
         return $downTimes; 
     }
-    
+
     public function getLastHealJobOfMonLogsBetween($start, $end){
         $monLogs = MonLogs::find(
             [
@@ -939,7 +941,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         }
         return null;
     }
-    
+
     /**
     * Gens the MonUptimes out of old MonLogs.
     * 
@@ -950,7 +952,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         MonUptimesGenerator::genMonUptime($this);
     }
-    
+
     /**
     * Checks if there was a Healjob in the current period.
     * 
@@ -961,7 +963,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         return $this->recent_healjob_id > 0;
     }
-    
+
     /**
     * Gives the last DowntimePeriod.
     * 
@@ -974,34 +976,34 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $modelManager = $this->getDI()['modelsManager'];
         $endLog = $modelManager->executeQuery(
             "SELECT * FROM \\RNTForest\\ovz\\models\\MonLogs AS m1 ".
-                " WHERE m1.value = 1 ".
-                " AND m1.mon_jobs_id = :monJobId: ".
-                " AND m1.modified > (".
-                "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonLogs AS m2 ".
-                "       WHERE m2.value = 0 ".
-                "       AND m2.mon_jobs_id = :monJobId:".
-                " )".
-                " ORDER BY m1.modified ASC LIMIT 1",
+            " WHERE m1.value = 1 ".
+            " AND m1.mon_jobs_id = :monJobId: ".
+            " AND m1.modified > (".
+            "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonLogs AS m2 ".
+            "       WHERE m2.value = 0 ".
+            "       AND m2.mon_jobs_id = :monJobId:".
+            " )".
+            " ORDER BY m1.modified ASC LIMIT 1",
             ["monJobId" => $this->getId()]
         );
-        
+
         $endModified = $endLog->getFirst()->getModified();
-        
+
         $startLog = $modelManager->executeQuery(
             "SELECT * FROM \\RNTForest\\ovz\\models\\MonLogs AS m1 ".
-                " WHERE m1.value = 0 ".
-                " AND m1.mon_jobs_id = :monJobId: ".
-                " AND m1.modified > (".
-                "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonLogs AS m2 ".
-                "       WHERE m2.value = 1 ".
-                "       AND m2.mon_jobs_id = :monJobId:".
-                "       AND m2.modified < :endModified: ".
-                " )".
-                " ORDER BY m1.modified ASC LIMIT 1",
+            " WHERE m1.value = 0 ".
+            " AND m1.mon_jobs_id = :monJobId: ".
+            " AND m1.modified > (".
+            "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonLogs AS m2 ".
+            "       WHERE m2.value = 1 ".
+            "       AND m2.mon_jobs_id = :monJobId:".
+            "       AND m2.modified < :endModified: ".
+            " )".
+            " ORDER BY m1.modified ASC LIMIT 1",
             ["monJobId" => $this->getId(),"endModified" => $endModified]
         );                                                             
         $startModified = $startLog->getFirst()->getModified();
-        
+
         $start = Helpers::createUnixTimestampFromDateTime($startModified);
         $end = Helpers::createUnixTimestampFromDateTime($endModified);
         return new DowntimePeriod($start,$end);   
@@ -1009,7 +1011,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // methods for local
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     /**
     * Get
     * 
@@ -1020,7 +1022,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         if($this->mon_type != 'local') throw new \Exception($this->translate('monitoring_monjobs_montype_local_expected'));
         MonLocalDailyLogsGenerator::genLocalDailyLogs($this);    
     }
-    
+
     /**
     * Get the MonLocalLogs of this week in hour interval.
     * Convenience method which wraps getMonLogs.
@@ -1037,7 +1039,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $end->setTimestamp(strtotime("now"));
         return $this->getMonLogs($start,$end,"hourly");
     }
-    
+
     /**
     * Get the MonLocalLogs of this month in hour interval.
     * Convenience method which wraps getMonLogs.
@@ -1054,7 +1056,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $end->setTimestamp(strtotime("now"));
         return $this->getMonLogs($start,$end,"hourly");
     }
-    
+
     /**
     * Get the MonLocalLogs of this month in day interval.
     * Convenience method which wraps getMonLogs.
@@ -1071,7 +1073,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $end->setTimestamp(strtotime("now"));
         return $this->getMonLogs($start,$end,"daily");
     }
-    
+
     /**
     * Get the MonLocalLogs of this year in day interval.
     * Convenience method which wraps getMonLogs.
@@ -1088,7 +1090,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $end->setTimestamp(strtotime("now"));
         return $this->getMonLogs($start,$end,"daily");
     }
-    
+
     /**
     * Get MonLocalLogs between start and end datetime in a specific interval/unit.
     * Especially for unit all and hourly it is only possible to get Logs wich are in MonLocalLogs (not older than last month).
@@ -1109,9 +1111,9 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         if($start->getTimestamp() > $end->getTimestamp()){
             throw new \Exception($this->translate("monitoring_monlocaljobs_end_before_start"));
         }
-        
+
         $neededMonLogs = array();
-        
+
         // search only in MonLocalLogs if all or hourly 
         if($unit == 'all' || $unit == 'hourly'){
             // BETWEEN is equivalent to the expression (min <= expr AND expr <= max) (see mysql doc)
@@ -1176,7 +1178,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         else{
             if($unit == 'daily'){
                 $dailyLogs = array();
-                
+
                 $dayStart = new \DateTime($start->format('Y-m-d'));
                 $dayEnd = new \DateTime($end->format('Y-m-d'));
 
@@ -1186,7 +1188,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                     // DateInterval explained: Period Interval 1 Day
                     $dayStart->add(new \DateInterval('P1D'));
                 }
-               
+
                 // BETWEEN is equivalent to the expression (min <= expr AND expr <= max) (see mysql doc)
                 $monDailyLogs = MonLocalDailyLogs::find(
                     [
@@ -1199,12 +1201,12 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                         ],
                     ]
                 );
-                
+
                 // MonLocalDailyLogs can be directly inserted to the representative keys
                 foreach($monDailyLogs as $monDailyLog){
                     $dailyLogs[$monDailyLog->getDay()] = $monDailyLog->getValue();       
                 }
-                
+
                 // BETWEEN is equivalent to the expression (min <= expr AND expr <= max) (see mysql doc)
                 $monLogs = MonLocalLogs::find(
                     [
@@ -1217,7 +1219,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                         ],
                     ]
                 );
-                
+
                 // for the rest the average of this day is calculated
                 $sum = $count = 0;
                 $lastDay = $thisDay = '0000-00-00';
@@ -1248,14 +1250,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 $neededMonLogs = $dailyLogs;
             }    
         }        
-        
+
         return $neededMonLogs;
     }
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // other methods for both types
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     /**
     * set linked server
     * 
@@ -1264,7 +1266,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $this->server_class = get_class($server);
         $this->server_id = $server->getId();
     }
-    
+
     /**
     * returns linked server
     * 
@@ -1277,7 +1279,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         }
         return $server;
     }
-    
+
     /**
     * 
     * @return string[]
@@ -1291,7 +1293,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         }
         return $contactMailaddresses;
     }
-    
+
     /**
     * 
     * @return string[]
@@ -1305,7 +1307,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         }
         return $contactMailaddresses;
     }
-    
+
     /**
     * Helper method to return the short name of a behavior
     * 
@@ -1326,7 +1328,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             return $behaviors[$this->mon_behavior_class]['shortname'];
         }
     }
-    
+
     public function execute(){
         $statusBefore = $this->getStatus();
         $executed = false;
@@ -1339,7 +1341,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
 
         // update MainIp from Server Object in case it has changed since last execute
         $server = $this->getServer();
-        
+
         if(!($server instanceof \RNTForest\ovz\interfaces\MonServerInterface)){
             throw new \Exception($this->translate("monitoring_mon_server_not_implements_interface"));        
         } 
@@ -1366,7 +1368,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             }
         }elseif($this->mon_type == 'local'){
             $ovzStatistics = $server->getOvzStatistics();
-        
+
             $decodedOvzStatistics = json_decode($ovzStatistics,true);
             $timestamp = '';
             if(is_array($decodedOvzStatistics) && key_exists('Timestamp',$decodedOvzStatistics)){
@@ -1377,7 +1379,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 $this->getLogger()->notice($this->translate("monitoring_monlocaljobs_statistics_timestamp_to_old").'(MonLocalJob '.$this->getId().', Timestamp: '.$timestamp.')');
             }else{
                 $value = '';        
-                
+
                 $valuestatus = $behavior->execute($ovzStatistics,$this->mon_behavior_params,$this->warning_value,$this->maximal_value);
                 if($valuestatus == null){
                     throw new \Exception($this->translate("monitoring_mon_behavior_could_not_instantiate_valuestatus"));
@@ -1385,13 +1387,13 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 $monLog = new MonLogs();
                 $monLog->create(["mon_jobs_id" => $this->id, "value" => $valuestatus->getValue(), "modified" => date('Y-m-d H:i:s')]);
                 $monLog->save();
-                
+
                 $this->status = $statusAfter = $valuestatus->getStatus();
-            
+
                 $executed = true;
             }
         }
-        
+
         if($executed){
             if($statusBefore != $this->status){
                 $this->setLastStatusChange(date('Y-m-d H:i:s'));    
@@ -1400,14 +1402,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             $this->save();
         }
     }
-    
+
     /**
     * @return \Phalcon\Logger\AdapterInterface
     */
     private function getLogger(){
         return $this->getDI()['logger'];
     }
-    
+
     /**
     * Initialize method for model.
     */
@@ -1424,7 +1426,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             )
         )));
     }
-    
+
     public function onConstruct()
     {
         // Set Defaults
@@ -1439,7 +1441,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $this->last_run = '0001-01-01 01:01:01';
         $this->modified = date('Y-m-d H:i:s');
     }
-    
+
     /**
     * Validations and business logic
     *
@@ -1449,7 +1451,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         // business logic
         $config = $this->getDI()->get('config');
-                     
+
         // check if default contacts are set in config and no other contacts are already selected
         if(key_exists('contacts',$config->monitoring) && empty($this->mon_contacts_message) && empty($this->mon_contacts_alarm)){
             $contacts = json_decode($config->monitoring['contacts'],true);
@@ -1459,7 +1461,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 $this->mon_contacts_message = $contacts['default']['message'];
             }
         }
-        
+
         // if the contacts are in array format, convert to comma seperated string
         if(is_array($this->mon_contacts_alarm)){
             $this->mon_contacts_alarm = implode(',',$this->mon_contacts_alarm);
@@ -1467,7 +1469,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         if(is_array($this->mon_contacts_message)){
             $this->mon_contacts_message = implode(',',$this->mon_contacts_message);
         }
-        
+
         // set defaults depending on behavior
         // set healing to 1 if HttpMonBehavior
         if(strpos($this->mon_behavior_class,'HttpMonBehavior') > 0 && $this->healing !== 0){
@@ -1489,14 +1491,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         }else{
             $this->mon_type = 'remote';
         }
-        
+
         // Validator
         $validator = $this->generateValidator($this->mon_type);
         if(!$this->validate($validator)) return false;
-        
+
         return true;
     }
-    
+
     /**
     * generates validator for MonJobs model
     * 
@@ -1506,7 +1508,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     public static function generateValidator($monType){
         // validator
         $validator = new Validation();
-        
+
         // server_id
         $validator->add('server_id', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_server_id_required"),
@@ -1514,12 +1516,12 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $validator->add('server_id', new NumericalityValidator([
             'message' => self::translate("monitoring_monjobs_server_id_numeric"), 
         ]));
-        
+
         // server_class
         $validator->add('server_class', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_server_class_required"),
         ]));
-        
+
         // mon_type
         if($monType == 'local'){
             $validator->add('mon_type', new InclusionInValidator([
@@ -1532,7 +1534,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 'message' => self::translate("monitoring_monjobs_mon_type_remote_valid"),
             ]));
         }
-        
+
         // main_ip
         if($monType == 'remote'){
             // Regex from IpObjects for value1; allows numbers and characters for IPv6 and IPv4
@@ -1541,19 +1543,19 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 'message' => self::translate("monitoring_monjobs_main_ip_valid"),
             ]));
         }
-        
+
         // mon_behavior_class
         $validator->add('mon_behavior_class', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_mon_behavior_class_required"),
         ]));
-        
+
         // mon_behavior_params
         if($monType == 'local'){
             $validator->add('mon_behavior_params', new PresenceOfValidator([
                 'message' => self::translate("monitoring_monjobs_mon_behavior_params_required"),
             ]));
         }
-        
+
         // period
         $validator->add('period', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_period_required"),
@@ -1561,7 +1563,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $validator->add('period', new NumericalityValidator([
             'message' => self::translate("monitoring_monjobs_period_numeric"), 
         ]));
-        
+
         // status
         if($monType == 'local'){
             $validator->add('status', new InclusionInValidator([
@@ -1574,7 +1576,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 'message' => self::translate("monitoring_monjobs_status_remote_valid"),
             ]));
         }
-        
+
         // last_status_change
         // Checking if date is set in format Year-month-day hours:minutes:seconds
         $validator->add('last_status_change', new PresenceOfValidator([
@@ -1584,10 +1586,10 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'format' => "Y-m-d H:i:s",
             'message' => self::translate("monitoring_monjobs_last_status_change_format"),
         ]));
-        
+
         // uptime
         // nothing to check
-        
+
         if($monType == 'local'){
             // warning_value
             $validator->add('warning_value', new PresenceOfValidator([
@@ -1596,7 +1598,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             $validator->add('warning_value', new NumericalityValidator([
                 'message' => self::translate("monitoring_monjobs_warning_value_numeric"), 
             ]));
-            
+
             // maximal_value
             $validator->add('maximal_value', new PresenceOfValidator([
                 'message' => self::translate("monitoring_monjobs_maximal_value_required"),
@@ -1605,7 +1607,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 'message' => self::translate("monitoring_monjobs_maximal_value_numeric"), 
             ]));
         }
-        
+
         // active 
         $validator->add('active', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_active_required"),
@@ -1614,7 +1616,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'pattern' => '/^[1 or 0]/',
             'message' => self::translate("monitoring_monjobs_active_valid"),
         ]));
-        
+
         // healing
         $validator->add('healing', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_healing_required"),
@@ -1630,7 +1632,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
                 'message' => self::translate("monitoring_monjobs_healing_remote_valid"),
             ]));
         }
-        
+
         // alarm
         $validator->add('alarm', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_alarm_required"),
@@ -1639,7 +1641,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'pattern' => '/^[1 or 0]/',
             'message' => self::translate("monitoring_monjobs_alarm_valid"),
         ]));
-        
+
         // alarmed
         $validator->add('alarmed', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_alarmed_required"),
@@ -1648,7 +1650,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'pattern' => '/^[1 or 0]/',
             'message' => self::translate("monitoring_monjobs_alarmed_valid"),
         ]));
-        
+
         // muted
         $validator->add('muted', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_muted_required"),
@@ -1657,7 +1659,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'pattern' => '/^[1 or 0]/',
             'message' => self::translate("monitoring_monjobs_muted_valid"),
         ]));
-        
+
         // last_alarm
         // Checking if date is set in format Year-month-day hours:minutes:seconds
         $validator->add('last_alarm', new PresenceOfValidator([
@@ -1667,7 +1669,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'format' => "Y-m-d H:i:s",
             'message' => self::translate("monitoring_monjobs_last_alarm_format"),
         ]));
-        
+
         // alarm_period
         $validator->add('alarm_period', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_alarm_period_required"),
@@ -1675,7 +1677,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
         $validator->add('alarm_period', new NumericalityValidator([
             'message' => self::translate("monitoring_monjobs_alarm_period_numeric"), 
         ]));
-        
+
         // mon_contacts_message
         $validator->add('mon_contacts_message', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_mon_contacts_message_required"),
@@ -1685,7 +1687,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'pattern' => '/^[0-9\,]*/',
             'message' => self::translate("monitoring_monjobs_mon_contacts_message_valid"),
         ]));
-        
+
         // mon_contacts_alarm
         $validator->add('mon_contacts_alarm', new PresenceOfValidator([
             'message' => self::translate("monitoring_monjobs_mon_contacts_alarm_required"),
@@ -1695,7 +1697,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'pattern' => '/^[0-9\,]*/',
             'message' => self::translate("monitoring_monjobs_mon_contacts_alarm_valid"),
         ]));
-        
+
         // last_run
         // Checking if date is set in format Year-month-day hours:minutes:seconds
         $validator->add('last_run', new PresenceOfValidator([
@@ -1705,7 +1707,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'format' => "Y-m-d H:i:s",
             'message' => self::translate("monitoring_monjobs_last_run_format"),
         ]));
-        
+
         // modified
         // Checking if date is set in format Year-month-day hours:minutes:seconds
         $validator->add('modified', new PresenceOfValidator([
@@ -1715,7 +1717,7 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             'format' => "Y-m-d H:i:s",
             'message' => self::translate("monitoring_monjobs_modified_format"),
         ]));
-        
+
         return $validator;
     }
 }
