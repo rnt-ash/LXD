@@ -1081,6 +1081,12 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         $monJob->setServerId($this->getId());
         $monJob->setServerClass("\\".$reflection->getName());
         $monJob->setMonBehaviorClass($behavior);
+        
+        // set healing to 1 if HttpMonBehavior
+        if(strpos($monJob->getMonBehaviorClass(),'HttpMonBehavior') > 0){
+            $monJob->healing = 1;
+        }
+        
         return $monJob;
     }
     
@@ -1141,6 +1147,11 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         $monJob->setMonBehaviorParams($behaviorParams);
         $monJob->setWarningValue($warningValue);
         $monJob->setMaximalValue($maximalValue);
+        
+        if(strpos($monJob->getMonBehaviorClass(),'Diskspace') > 0){
+            $monJob->alarm_period = 360;
+        }
+        
         return $monJob;
     }
 }

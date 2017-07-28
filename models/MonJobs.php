@@ -1431,12 +1431,14 @@ class MonJobs extends \RNTForest\core\models\ModelBase
     {
         // Set Defaults
         $this->period = 5;
+        $this->alarm_period = 15;
         $this->status = 'nostate';
         $this->last_status_change = '0001-01-01 01:01:01';
         $this->active = 1;
         $this->alarm = 1;
         $this->alarmed = 0;
         $this->muted = 0;
+        $this->healing = 0;
         $this->last_alarm = '0001-01-01 01:01:01';
         $this->last_run = '0001-01-01 01:01:01';
         $this->modified = date('Y-m-d H:i:s');
@@ -1470,21 +1472,6 @@ class MonJobs extends \RNTForest\core\models\ModelBase
             $this->mon_contacts_message = implode(',',$this->mon_contacts_message);
         }
 
-        // set defaults depending on behavior
-        // set healing to 1 if HttpMonBehavior
-        if(strpos($this->mon_behavior_class,'HttpMonBehavior') > 0 && $this->healing !== 0){
-            $this->healing = 1;
-        }else{
-            $this->healing = 0;
-        }
-        // set alarmperiod if it's empty
-        if(empty($this->alarm_period) && $this->alarm_period !== "0"){
-            if(strpos($this->mon_behavior_class,'Diskspace') > 0){
-                $this->alarm_period = 360;
-            }else{
-                $this->alarm_period = 15;
-            }
-        }
         // local or remote monJob
         if(strpos($this->mon_behavior_class,'MonLocalBehavior')){
             $this->mon_type = 'local';

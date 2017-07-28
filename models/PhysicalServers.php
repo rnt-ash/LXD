@@ -762,6 +762,12 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         $monJob->setServerId($this->getId());
         $monJob->setServerClass("\\".$reflection->getName());
         $monJob->setMonBehaviorClass($behavior);
+        
+        // set healing to 1 if HttpMonBehavior
+        if(strpos($monJob->getMonBehaviorClass(),'HttpMonBehavior') > 0){
+            $monJob->healing = 1;
+        }
+        
         return $monJob;
     }
     
@@ -831,6 +837,11 @@ class PhysicalServers extends \RNTForest\core\models\ModelBase implements JobSer
         $monJob->setMonBehaviorParams($behaviorParams);
         $monJob->setWarningValue($warningValue);
         $monJob->setMaximalValue($maximalValue);
+        
+        if(strpos($monJob->getMonBehaviorClass(),'Diskspace') > 0){
+            $monJob->alarm_period = 360;
+        }
+        
         return $monJob;
     }
 }
