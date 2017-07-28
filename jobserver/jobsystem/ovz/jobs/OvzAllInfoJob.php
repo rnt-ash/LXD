@@ -155,10 +155,11 @@ class OvzAllInfoJob extends AbstractOvzJob {
         $output = file_get_contents('/proc/loadavg');
         $splits = explode(' ',$output);
 
-        if(!is_array($splits) || !key_exists(1,$splits)){
+        // array on key 2 contains the avg value of the last 15 mins 
+        if(!is_array($splits) || !key_exists(2,$splits)){
             throw new \Exception("Could not get cpu load");
         }
-        $loadavgTotal = $splits[1];
+        $loadavgTotal = $splits[2];
 
         // divide the total load to the number of cores
         $loadavg = round($loadavgTotal / intval(exec('nproc')),2)*100;
