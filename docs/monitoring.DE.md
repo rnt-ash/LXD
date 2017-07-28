@@ -74,6 +74,10 @@ Message:
 
 Pro MonJob kann eine alarmperiod definiert werden. Durch dies wird konfiguriert, wie oft eine erneute Warnmeldung geschickt werden
 soll.
+
+Ein MonJob kann auf muted = 1 gesetzt werden. Damit wird Alarmierung UND Healing übersteuert, also nicht ausgeführt. 
+Dies kann im GUI geklickt oder über die DB konfiguriert werden.
+
 ### Remote-Monitoring Ergänzungen
 Monitoring vom zentralen ControlPanel Server auf über Netzwerk angebotene Services entfernter Server, 
 z.B. http, ftp, ping oder ssh.
@@ -88,6 +92,10 @@ In remote MonJobs werden die periodisch auszuführenden Jobs definiert. Die von 
 MonLogs abgelegt. Das remote Monitoring kennt nur den Status up oder down. Deren Logs beinhalten also im Value 
 lediglich 1 oder 0. Wird aufgrund einer Downtime ein Healjob ausgeführt, wird die ID des Jobs im entsprechenden 
 MonLogs-Eintrag vermerkt.
+
+Lediglich die Remote-MonJobs können geheilt werden. Standardmässig ist Healing nur beim HttpMonBehavior eingeschaltet. 
+Es macht keinen Sinn für verschiedene MonJobs des gleichen Servers mehrere MonJobs mit aktiviertem Healing zu haben.
+Im schlechtesten Fall würden mehrere HealJobs geschickt, die sich gegenseitig negativ beeinflussen.
 
 #### MonUptimes
 MonLogs welche älter als vom letzten Monat sind werden durch den [MonUptimesGenerator](../utilities/MonUptimesGenerator.php) 
