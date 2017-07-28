@@ -39,28 +39,28 @@ class PrlctlStatisticsFileGenerator {
     * @var string
     */
     private $LockFile;
-    
+
     /**
     * Directory in which statistiscs files are stored
     * 
     * @var string
     */
     private $StatisticsFilesDirectory;
-    
+
     /**
     * @var \RNTForest\jobsystem\general\psrlogger\FileLogger
     */
     private $Logger;
-    
+
     /**
     * @var \RNTForest\jobsystem\general\cli\ExecCli
     */
     private $Cli;
-    
+
     private $AllVs;
-    
+
     private $Warning;
-    
+
     public function __construct(){
         $this->LockFile = __DIR__.'/../../../../prlctlstatistics.lock';
         $this->StatisticsFilesDirectory = __DIR__.'/../../../statistics/';
@@ -68,13 +68,13 @@ class PrlctlStatisticsFileGenerator {
         $this->Logger->setLogLevel(LOG_LEVEL);
         $this->Cli = new ExecCli($this->Logger);
     }
-    
+
     public function genAll(){
         if($this->isLocked()){
             // do nothing...
         }else{
             $this->lock();
-            
+
             $cmd = "prlctl list -ajo uuid,name,type,status";
             $exitstatus = $this->Cli->execute($cmd);
             if ($exitstatus != 0) {
@@ -82,30 +82,33 @@ class PrlctlStatisticsFileGenerator {
             }
             $json = implode("\n",$this->Cli->getOutput());
             $this->AllVs = json_decode($json,true);
-            
+
             foreach($this->AllVs as $vs){
                 $this->genForUuid($vs['uuid']);    
             }
-            
+
             $this->cleanUpFilesOfNonexistentUuids();
-            
+
             $this->freeLock();
         }
     }
-    
+
     private function genForUuid($uuid){
         // get info
         $statistic = $this->statisticsInfo($uuid);
-        
+
         // add timestamp and compute FsInfo
         $this->array_unshift_assoc($statistic,'FsInfo',$this->genGuestFsInfo($statistic));
         $this->array_unshift_assoc($statistic,'Timestamp',date("Y-m-d H:i:s"));
-        
+
+        // try to get cpu load from proc loadavg 
+        $statistic = $this->setCpuLoadFromProcLoadAvgIfPossible($statistic, $uuid);
+
         // directory already exists?
         if(!file_exists($this->StatisticsFilesDirectory)){
             mkdir($this->StatisticsFilesDirectory,0770,true);
         }        
-        
+
         // write to file
         $file = $this->StatisticsFilesDirectory.$uuid;
         if(!file_exists($file)){
@@ -136,15 +139,15 @@ class PrlctlStatisticsFileGenerator {
                 ){
                     throw new \Exception('needed keys in fs0 do not exist in '.json_encode($subArray));
                 }
-                
+
                 $temp['source'] = $subArray['name'];
                 $temp['target'] = '/';
                 $temp['size_gb'] = $subArray['total']/1024/1024;
                 $temp['used_gb'] = null;
                 $temp['free_gb'] = $subArray['free']/1024/1024;
-                
+
                 $temp['used_gb'] = $temp['size_gb']-$temp['free_gb'];
-                
+
                 $disk[$temp['target']] = $temp;
             }else{
                 throw new \Exception('needed keys for access to fs0 dont exist in '.json_encode($virtualArray)); 
@@ -152,17 +155,70 @@ class PrlctlStatisticsFileGenerator {
         }catch(\Exception $e){
             $this->Warning .= "Prooblem generate GuestFsInfo: ".$e->getMessage()."\n"; 
         }
-        
+
         return $disk;
     }
-    
+
     private function array_unshift_assoc(&$arr, $key, $val) { 
         $arr = array_reverse($arr, true); 
         $arr[$key] = $val; 
         $arr = array_reverse($arr, true); 
         return $arr;
+    }
+
+    /**
+    * Tries to get the cpu load average from /proc/loadavg if the system is a container and running.
+    * This value is more reliable then the one from prlctl statistics.
+    * 
+    * @param array $statistic
+    * @param string $uuid
+    */
+    private function setCpuLoadFromProcLoadAvgIfPossible($statistic, $uuid){
+        $this->Cli->execute('prlctl list -ij '.$uuid);
+        $output = implode("\n",$this->Cli->getOutput());
+        $listinfo = json_decode($output, true);
+        
+        if(
+        is_array($listinfo) 
+        && !empty($listinfo) 
+        && is_array($listinfo[0]) 
+        && key_exists('Type', $listinfo[0]) 
+        && $listinfo[0]['Type'] == 'CT'
+        && key_exists('State', $listinfo[0]) 
+        && $listinfo[0]['State'] == 'running'
+        ){
+            try{
+                $loadAvg = $this->getCpuLoadFromProcLoadAvg($uuid);
+                $statistic["guest"]["cpu"]["usage"] = $loadAvg;
+            }catch(\Exception $e){
+                $this->Logger->debug('could not get CpuLoadFromProcLoadAvg, so no value in statistic is changed');
+            }
+        }
+
+        return $statistic;
+    }
+
+    private function getCpuLoadFromProcLoadAvg($uuid){
+        $cmd = "prlctl exec ".$uuid." 'cat /proc/loadavg'";
+        $this->Cli->execute($cmd);
+        $output = $this->Cli->getOutput();
+        $splits = explode(' ',$output[0]);
+
+        // array on key 2 contains the avg value of the last 15 mins 
+        if(!is_array($splits) || !key_exists(2,$splits)){
+            throw new \Exception("Could not get cpu load");
+        }
+        $loadavgTotal = floatval($splits[2]);
+        
+        // divide the total load to the number of cores
+        $this->Cli->execute("prlctl exec ".$uuid." 'nproc'");
+        $nproc = $this->Cli->getOutput();
+        
+        $loadavg = round($loadavgTotal / intval($nproc[0]),2)*100;
+        
+        return $loadavg;
     }    
-    
+
     /**
     * get statistics of a VS
     * 
@@ -180,15 +236,15 @@ class PrlctlStatisticsFileGenerator {
         foreach($lines as $line){
             $parts = explode(':',$line);
             $parts = array_map(function($p){return trim($p);},$parts);
-            
+
             $keys = $parts[0];
-            
+
             $this->Logger->debug($keys);
             // ignore some statistics who start with net.classfull...
             if(preg_match('`(net\.classful).*`',$keys)) continue;
 
             $val = $parts[1];
-            
+
             // build the multidimensional array from the point-separated string as keys 
             $keys = explode('.', $keys);
             $arr = &$statistics;
@@ -214,7 +270,7 @@ class PrlctlStatisticsFileGenerator {
                 // already in MB per default in statistics
                 $statistics['guest']['ram']['memory_free_mb'] = $memoryFreeMb;
             }
-            
+
             // convert diskspace to gb and add to array at new key
             if(is_array($statistics) 
             && key_exists('guest',$statistics)
@@ -231,7 +287,7 @@ class PrlctlStatisticsFileGenerator {
         } 
         return $statistics;
     }
-    
+
     private function cleanUpFilesOfNonexistentUuids(){
         $allUuids = [];
         foreach($this->AllVs as $vs){
@@ -249,7 +305,7 @@ class PrlctlStatisticsFileGenerator {
             closedir($handle);
         }   
     }
-    
+
     private function isLocked(){
         if(file_exists($this->LockFile)){
             // remove lock if older than 1 hour (in case of a crash)
@@ -262,17 +318,17 @@ class PrlctlStatisticsFileGenerator {
         }else{
             return false;
         }
-        
+
     }
-    
+
     private function lock(){
         $this->Cli->execute('touch '.$this->LockFile);
     }
-    
+
     private function freeLock(){
         $this->Cli->execute('rm -f '.$this->LockFile);
     }
-    
+
 }
 
 $generator = new PrlctlStatisticsFileGenerator();
