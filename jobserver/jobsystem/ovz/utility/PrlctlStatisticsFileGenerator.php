@@ -189,7 +189,7 @@ class PrlctlStatisticsFileGenerator {
         ){
             try{
                 $loadAvg = $this->getCpuLoadFromProcLoadAvg($uuid);
-                $statistic["guest"]["cpu"]["usage"] = $loadAvg;
+                if ($loadAvg !== false) $statistic["guest"]["cpu"]["usage"] = $loadAvg;
             }catch(\Exception $e){
                 $this->Logger->debug('could not get CpuLoadFromProcLoadAvg, so no value in statistic is changed');
             }
@@ -211,11 +211,11 @@ class PrlctlStatisticsFileGenerator {
         $loadavgTotal = floatval($splits[2]);
         
         // divide the total load to the number of cores
-        $this->Cli->execute("prlctl exec ".$uuid." 'nproc'");
+        $exitstatus = $this->Cli->execute("prlctl exec ".$uuid." 'nproc'");
+        if ($exitstatus > 0) return false;
         $nproc = $this->Cli->getOutput();
         
         $loadavg = round($loadavgTotal / intval($nproc[0]),2)*100;
-        
         return $loadavg;
     }    
 
