@@ -836,11 +836,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         foreach($snapshots as $key=>$snapshot){
             if(key_exists('Parent', $snapshot) && $snapshot['Parent']===$parent) {
                 // is the snapshot allowed to be deleted? not if it's mounted or if it's an replica
-                $name = explode(" ",$snapshot['Name']);
-                if(strcasecmp($name[0],"Replica")){
-                    $snapshot['Removable'] = 1; 
+                if(stripos($snapshot['Name'],"Replica")){
+                    $snapshot['Removable'] = 0; 
                 }else {
-                    $snapshot['Removable'] = 0;
+                    $snapshot['Removable'] = 1;
                 }
 
                 // convert the date
@@ -849,7 +848,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 // get all child snapshots
                 $snapshot['Childs'] = $this->ovzSnapshotGetChilds($snapshot['UUID'],$snapshots);
 
-                // ist a childsnapshot mounted?
+                // is a childsnapshot mounted?
                 foreach($snapshot['Childs'] as $childSnapshot){
                     if ($childSnapshot['Removable']==0) $snapshot['Removable'] = 0;
                 }
