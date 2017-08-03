@@ -124,7 +124,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
     protected function isValidSlideFilterItem($virtualServer,$level){
         if(!empty($this->slideDataInfo['filters']['filterAll'])){ 
-            if(strpos(strtolower($virtualServer->name),strtolower($this->slideDataInfo['filters']['filterAll']))===false)            
+            if(strpos(strtolower($virtualServer->name),strtolower($this->slideDataInfo['filters']['filterAll']))===false
+                && strpos(strtolower($virtualServer->getOvzUuid()),strtolower($this->slideDataInfo['filters']['filterAll']))===false)            
                 return false;
         }
         if(!empty($this->slideDataInfo['filters']['filterCustomers_id'])){ 
