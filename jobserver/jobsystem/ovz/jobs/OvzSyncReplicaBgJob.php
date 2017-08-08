@@ -137,12 +137,20 @@ class OvzSyncReplicaBgJob extends AbstractOvzJob{
             exec('rm -rf /vz/mnt/'.$this->Params['UUID']);
             $this->PrlctlCommands->deleteSnapshot($this->Params['UUID'],$snapshotUUID);
             $this->PrlctlCommands->umount($this->Params['SLAVEUUID'],$this->Params['SLAVEHOSTFQDN']);
+            
+            // Update job with Error state
+            $this->Done = 2;
+            $this->Error = "Sync Replica background failed! Error:".$e->getMessage();
+            $this->Context->getLogger()->debug($this->Error);
+            return 1;
+
         }
 
         // set end flag
         $retval['end'] = date('Y-m-d H:i:s');
+        $this->Done = 1;
         $this->Retval = json_encode($retval);
-
         $this->Context->getLogger()->debug("Sync Replica background done");
+        return 0;
     }
 }
