@@ -24,6 +24,7 @@ use RNTForest\jobsystem\general\utility\Context;
 
 use RNTForest\jobsystem\ovz\utility\PrlctlCommands;
 use RNTForest\jobsystem\ovz\utility\VzctlCommands;
+use RNTForest\jobsystem\ovz\utility\PloopCommands;
 use RNTForest\jobsystem\ovz\utility\PrlsrvctlCommands;
 
 abstract class AbstractOvzJob extends AbstractJob{
@@ -39,6 +40,11 @@ abstract class AbstractOvzJob extends AbstractJob{
     protected $VzctlCommands;
 
     /**
+    * @var PloopCommands
+    */
+    protected $PloopCommands;
+
+    /**
     * @var PrlsrvctlCommands
     */
     protected $PrlsrvctlCommands;
@@ -47,6 +53,7 @@ abstract class AbstractOvzJob extends AbstractJob{
         parent::__construct($context);
         $this->PrlctlCommands = new PrlctlCommands($context);
         $this->VzctlCommands = new VzctlCommands($context);
+        $this->PloopCommands = new PloopCommands($context);
         $this->PrlsrvctlCommands = new PrlsrvctlCommands($context);
     }
 
