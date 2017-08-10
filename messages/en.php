@@ -350,6 +350,7 @@ return [
     "virtualserver_replica_host" => "Host: ",
     "virtualserver_replica_lastrun" => "Last run: ",
     "virtualserver_replica_nextrun" => "Next run: ",
+    "virtualserver_replica_running_in_background" => "Replication started and running in background",
     "virtualserver_cancel" => "Cancel",
     "virtualserver_replica_" => "Start replication",
     "virtualservers_show_pdf" => "Generate PDF",

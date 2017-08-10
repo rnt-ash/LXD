@@ -353,6 +353,7 @@ return [
     "virtualserver_replica_host" => "Host: ",
     "virtualserver_replica_lastrun" => "Letzte Laufzeit: ",
     "virtualserver_replica_nextrun" => "Nächste Laufzeit: ",
+    "virtualserver_replica_running_in_background" => "Replikation gestartet und läuft im Hintergrund.",
     "virtualserver_cancel" => "Abbrechen",
     "virtualserver_replica_" => "Replikation starten",
     "virtualservers_show_pdf" => "PDF generieren",
