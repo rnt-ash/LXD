@@ -198,7 +198,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         try{
             // Validate (throws exceptions)
             $colocation = Colocations::tryFindById($colocationsId);
-            $this->tryCheckPermission('colocation', 'general', array('item' => $colocation));
+            $this->tryCheckPermission('colocations', 'general', array('item' => $colocation));
 
             // Create PDF Object
             $this->PDF = new PDF();
