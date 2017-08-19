@@ -29,7 +29,7 @@ use Phalcon\Mvc\Model\Message as Message;
 use RNTForest\ovz\models\IpObjects;
 use RNTForest\core\models\Customers;
 
-class Colocations extends \RNTForest\core\models\ModelBase implements \RNTForest\ovz\interfaces\IpServerInterface
+class ColocationsBase extends \RNTForest\core\models\ModelBase implements \RNTForest\ovz\interfaces\IpServerInterface
 {
 
     /**

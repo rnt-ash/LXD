@@ -19,7 +19,7 @@
 
 namespace RNTForest\ovz\models;
 
-class MonLocalDailyLogs extends \RNTForest\core\models\ModelBase
+class MonLocalDailyLogsBase extends \RNTForest\core\models\ModelBase
 {
     /**
     * 

@@ -26,7 +26,7 @@ use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Validation\Validator\Between as BetweenValidator;
 use Phalcon\Mvc\Model\Message as Message;
 
-class IpObjects extends \RNTForest\core\models\ModelBase
+class IpObjectsBase extends \RNTForest\core\models\ModelBase
 {
 
     // IP Versions

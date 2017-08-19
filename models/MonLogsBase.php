@@ -19,7 +19,7 @@
 
 namespace RNTForest\ovz\models;
 
-class MonLogs extends \RNTForest\core\models\ModelBase
+class MonLogsBase extends \RNTForest\core\models\ModelBase
 {
     /**
     * 

@@ -23,7 +23,6 @@ use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
-use Phalcon\Validation\Validator\Confirmation as ConfirmationValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 use Phalcon\Mvc\Model\Message as Message;
 
@@ -35,16 +34,7 @@ use RNTForest\core\libraries\PendingHelpers;
 use RNTForest\ovz\functions\Monitoring;
 use RNTForest\core\models\Customers;
 
-
-/**
-* @property \RNTForest\core\models\Customers $Customer
-* @property \RNTForest\ovz\models\PhysicalServers $VirtualServers
-* @property \RNTForest\ovz\models\VirtualServers $OvzReplicaId
-* @property \RNTForest\ovz\models\PhysicalServers $OvzReplicaHost
-* @property \RNTForest\ovz\models\PhysicalServersHws $VirtualServersHws
-* 
-*/
-class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface, IpServerInterface
+class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface, IpServerInterface
 {
 
     /**
@@ -77,7 +67,13 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     *
     * @var integer
     */
-    protected $physical_servers_id;
+    protected $colocations_id;
+    
+    /**
+    *
+    * @var string
+    */
+    protected $root_public_key;
 
     /**
     *
@@ -95,74 +91,14 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     *
     * @var string
     */
-    protected $ovz_uuid;
-    
-    /**
-    * 
-    * @var string
-    */
-    protected $ovz_vstype;
-
-    /**
-    *
-    * @var string
-    */
     protected $ovz_settings;
-
+    
     /**
     *
     * @var string
     */
     protected $ovz_statistics;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_snapshots;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica_id;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica_host;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_replica_cron;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_replica_lastrun;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_replica_nextrun;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica_status;
-
+    
     /**
     *
     * @var string
@@ -197,19 +133,18 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     *
     * @var string
     */
-    protected $pending;
-
-    /**
-    *
-    * @var string
-    */
     protected $modified;
 
     /**
-    * Unique ID
+    * 
+    * @var string
+    */
+    protected $pending;
+    
+    /**
+    * Method to set the value of field id
     *
     * @param integer $id
-    * @return $this
     */
     public function setId($id)
     {
@@ -217,7 +152,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Name of the virtual server
+    * Method to set the value of field name
     *
     * @param string $name
     */
@@ -227,7 +162,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Description
+    * Method to set the value of field description
     *
     * @param string $description
     */
@@ -237,7 +172,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Foreign key: Customers
+    * Method to set the value of field customers_id
     *
     * @param integer $customers_id
     */
@@ -247,19 +182,29 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Foreign key: PhysicalServers
+    * Method to set the value of field colocations_id
     *
-    * @param integer $physical_servers_id
+    * @param integer $colocations_id
     */
-    public function setPhysicalServersId($physical_servers_id)
+    public function setColocationsId($colocations_id)
     {
-        $this->physical_servers_id = $physical_servers_id;
+        $this->colocations_id = $colocations_id;
     }
 
     /**
-    * Public key (OpenSSL)
+    * Method to set the value of field root_public_key
     *
-    * @param string $job_public_key
+    * @param string $root_public_key
+    */
+    public function setRootPublicKey($root_public_key)
+    {
+        $this->root_public_key = $root_public_key;
+    }
+
+    /**
+    * Method to set the value of field job_public_key
+    *
+    * @param string $jobpublic_key
     */
     public function setJobPublicKey($job_public_key)
     {
@@ -267,9 +212,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Virtual server is OpenVZ guest
+    * Method to set the value of field ovz
     *
-    * @param int $ovz
+    * @param integer $ovz
     */
     public function setOvz($ovz)
     {
@@ -277,27 +222,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * UUID of the virtual server
-    *
-    * @param string $ovz_uuid
-    */
-    public function setOvzUuid($ovz_uuid)
-    {
-        $this->ovz_uuid = $ovz_uuid;
-    }
-    
-    /**
-    * VS Type of the virtual server
-    *
-    * @param string $ovz_vstyp CT or VM
-    */
-    public function setOvzVstype($ovz_vstyp)
-    {
-        $this->ovz_vstype = $ovz_vstyp;
-    }
-
-    /**
-    * OpenVZ settings as JSON
+    * Method to set the value of field ovz_settings
     *
     * @param string $ovz_settings
     */
@@ -317,90 +242,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * OpenVZ snapshots as JSON
-    *
-    * @param string $ovz_snapshots
-    */
-    public function setOvzSnapshots($ovz_snapshots)
-    {
-        $this->ovz_snapshots = $ovz_snapshots;
-    }
-
-    /**
-    * OpenVZ guest has replica
-    *
-    * @param integer $ovz_replica 0=off, 1=master, 2=slave
-    */
-    public function setOvzReplica($ovz_replica)
-    {
-        $this->ovz_replica = $ovz_replica;
-    }
-
-    /**
-    * Foreign key to replica slave/master
-    *
-    * @param integer $ovz_replica_id
-    */
-    public function setOvzReplicaId($ovz_replica_id)
-    {
-        $this->ovz_replica_id = $ovz_replica_id;
-    }
-
-    /**
-    * Foreign key to replica host
-    *
-    * @param integer $ovz_replica_host
-    */
-    public function setOvzReplicaHost($ovz_replica_host)
-    {
-        $this->ovz_replica_host = $ovz_replica_host;
-    }
-
-    /**
-    * cron entries to start teh replica preiodical
-    *
-    * @param string $ovz_replica_cron
-    */
-    public function setOvzReplicaCron($ovz_replica_cron)
-    {
-        $this->ovz_replica_cron = $ovz_replica_cron;
-    }
-
-    /**
-    * date of the replica last run
-    *
-    * @param string $ovz_replica_lastrun
-    */
-    public function setOvzReplicaLastrun($ovz_replica_lastrun)
-    {
-        $this->ovz_replica_lastrun = $ovz_replica_lastrun;
-    }
-
-    /**
-    * date of the claculated next run of the replica
-    *
-    * @param string $ovz_replica_nextrun
-    */
-    public function setOvzReplicaNextrun($ovz_replica_nextrun)
-    {
-        $this->ovz_replica_nextrun = $ovz_replica_nextrun;
-    }
-
-    /**
-    * replica status
-    *
-    * @param integer $ovz_replica_status 0:off, 1:idle, 2:sync, 3:initial, 9:error
-    */
-    public function setOvzReplicaStatus($ovz_replica_status)
-    {
-        $this->ovz_replica_status = $ovz_replica_status;
-    }
-
-    /**
-    * FQDN
+    * Method to set the value of field fqdn
     *
     * @param string $fqdn
-    * @return $this
     */
     public function setFqdn($fqdn)
     {
@@ -408,10 +252,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * CPU cores
+    * Method to set the value of field core
     *
     * @param integer $core
-    * @return $this
     */
     public function setCore($core)
     {
@@ -419,10 +262,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Memory
+    * Method to set the value of field memory
     *
-    * @param integer $memory in MB
-    * @return $this
+    * @param integer $memory
     */
     public function setMemory($memory)
     {
@@ -430,10 +272,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Diskspace
+    * Method to set the value of field space
     *
-    * @param integer $space in GB
-    * @return $this
+    * @param integer $space
     */
     public function setSpace($space)
     {
@@ -441,10 +282,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Activation date
+    * Method to set the value of field activation_date
     *
     * @param string $activation_date
-    * @return $this
     */
     public function setActivationDate($activation_date)
     {
@@ -452,10 +292,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * last modified time
+    * Method to set the value of field modified
     *
     * @param string $modified
-    * @return $this
     */
     public function setModified($modified)
     {
@@ -513,13 +352,23 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Returns the value of field physical_servers_id
+    * Returns the value of field colocations_id
     *
     * @return integer
     */
-    public function getPhysicalServersId()
+    public function getColocationsId()
     {
-        return $this->physical_servers_id;
+        return $this->colocations_id;
+    }
+
+    /**
+    * Returns the value of field root_public_key
+    *
+    * @return string
+    */
+    public function getRootPublicKey()
+    {
+        return $this->root_public_key;
     }
 
     /**
@@ -543,26 +392,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Returns the value of field ovz_uuid
-    *
-    * @return string
-    */
-    public function getOvzUuid()
-    {
-        return $this->ovz_uuid;
-    }
-
-    /**
-    * Returns the value of field ovz_vstype
-    *
-    * @return string
-    */
-    public function getOvzVstype()
-    {
-        return $this->ovz_vstype;
-    }
-
-    /**
     * Returns the value of field ovz_settings
     *
     * @return string
@@ -573,16 +402,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * Returns the value of field ovz_settings
-    *
-    * @return array
-    */
-    public function getOvzSettingsArray()
-    {
-        return json_decode($this->ovz_settings,true);
-    }
-
-    /**
     * Returns the value of field ovz_statistics
     *
     * @return string
@@ -590,98 +409,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     public function getOvzStatistics()
     {
         return $this->ovz_statistics;
-    }
-
-    /**
-    * Returns the value of field ovz_statistics
-    *
-    * @return array
-    */
-    public function getOvzStatisticsArray()
-    {
-        return json_decode($this->ovz_statistics,true);
-    }
-
-
-
-    /**
-    * Returns the value of field ovz_snapshots
-    *
-    * @return string
-    */
-    public function getOvzSnapshots()
-    {
-        return $this->ovz_snapshots;
-    }
-
-    /**
-    * Returns the value of field ovz_replica
-    *
-    * @return integer
-    */
-    public function getOvzReplica()
-    {
-        return $this->ovz_replica;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_id
-    *
-    * @return integer
-    */
-    public function getOvzReplicaId()
-    {
-        return $this->ovz_replica_id;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_host
-    *
-    * @return integer
-    */
-    public function getOvzReplicaHost()
-    {
-        return $this->ovz_replica_host;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_cron
-    *
-    * @return string
-    */
-    public function getOvzReplicaCron()
-    {
-        return $this->ovz_replica_cron;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_lastrun
-    *
-    * @return string
-    */
-    public function getOvzReplicaLastrun()
-    {
-        return $this->ovz_replica_lastrun;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_nextrun
-    *
-    * @return string
-    */
-    public function getOvzReplicaNextrun()
-    {
-        return $this->ovz_replica_nextrun;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_status
-    *
-    * @return integer
-    */
-    public function getOvzReplicaStatus()
-    {
-        return $this->ovz_replica_status;
     }
 
     /**
@@ -743,7 +470,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     {
         return $this->modified;
     }
-    
+
     /**
     * Returns the value of field pending
     *
@@ -753,7 +480,6 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     {
         return $this->pending;
     }
-    
     /**
     * Initialize method for model.
     */
@@ -763,14 +489,9 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         $this->setup(array('virtualForeignKeys'=>false));
 
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customer", "foreignKey"=>true));
-        $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
-        $this->hasOne("ovz_replica_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"OvzReplicaId", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasOne("ovz_replica_host",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"OvzReplicaHost", "foreignKey"=>array("allowNulls"=>true)));
+        $this->belongsTo("colocations_id",'RNTForest\ovz\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>true));
+        $this->hasMany("id",'RNTForest\ovz\models\VirtualServers',"physical_servers_id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
 
-        if(in_array('module_hws',$this->getDI()->get('config')->modules->toArray())){
-            $this->hasOne("id",'RNTForest\hws\models\VirtualServersHws',"virtual_servers_id",array("alias"=>"VirtualServersHws", "foreignKey"=>true));
-        }
-        
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(
             'beforeUpdate' => array(
@@ -781,13 +502,13 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     }
 
     /**
-    * get all IpObjects of this virtual server
+    * get all IpObjects of this physical Server
     * 
     * @return \RNTForest\ovz\models\IpObjects
     *     
     */
     public function getIpObjects(){
-        $server_class = addslashes('\RNTForest\ovz\models\VirtualServers');
+        $server_class = addslashes('\RNTForest\ovz\models\PhysicalServers');
         $resultset = IpObjects::find(["conditions"=>"server_class = '".$server_class."' AND server_id = '".$this->id."'"]);
         return $resultset;
     }
@@ -799,133 +520,111 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     */
     public function validation()
     {
-        // get params from session
-        $session = $this->getDI()->get("session")->get("VirtualServersValidator");
-        $op = $session['op'];
-        $vstype = $session['vstype'];
-
         // check if selected customer exists
         if(!Customers::findFirst($this->customers_id) OR empty($this->customers_id)){
-            $message = new Message($this->translate("virtualserver_customer_not_exist"),"customers");            
+            $message = new Message($this->translate("physicalserver_customer_not_exist"),"customers");            
             $this->appendMessage($message);
             return false;
         }
         
-        $validator = $this->generateValidator($op,$vstype);
+        // check if selected colocation exists
+        if(!Colocations::findFirst($this->colocations_id)){
+            $message = new Message($this->translate("physicalserver_colocation_not_exist"),"colocations_id");
+            $this->appendMessage($message);
+            return false;
+        }
+        
+        $validator = $this->generateValidator();
         if(!$this->validate($validator)) return false;
-        
-        // should not be NULL
-        if(empty($this->ovz_replica)) $this->ovz_replica = 0;
-        
-        // linebreaks are not allowed in description
-        $this->description = str_replace(array("\r", "\n"), ' ', $this->description);
 
         return true;
     }
 
-    
     /**
-    * generates validator for VirtualServer model
+    * generates validator for PhysicalServer model
     * 
     * return \Phalcon\Validation $validator
     * 
     */
-    public static function generateValidator($op,$vstype){
-        
+    public function generateValidator(){
+
         // validator
         $validator = new Validation();
 
         // name
-        /**
-        * Container name that can be used to refer to said container in commands.
-        * The virtual machine name must not exceed 40 characters
-        * Names must be alphanumeric and may contain the characters \, -, _. Names
-        * with white spaces must be enclosed in quotation marks.
-        * Link: https://docs.openvz.org/openvz_command_line_reference.webhelp/_miscellaneous_parameters.html 
-        * 
-        * Due to the need of points in the name and no known downside, we allow the usage of points! 
-        */
-        $message = self::translate("virtualserver_name_required");
+        $message = self::translate("physicalserver_name_required");
         $validator->add('name', new PresenceOfValidator([
             'message' => $message
         ]));        
-
-        $messagemax = self::translate("virtualserver_namemax");
-        $messagemin = self::translate("virtualserver_namemin");
+        
+        $messagemax = self::translate("physicalserver_messagemax");
+        $messagemin = self::translate("physicalserver_messagemin");
         $validator->add('name', new StringLengthValitator([
-            'max' => 40,
+            'max' => 50,
             'min' => 3,
             'messageMaximum' => $messagemax,
             'messageMinimum' => $messagemin,
         ]));
 
-        $message = self::translate("virtualserver_name_valid");
-        $validator->add('name', new RegexValidator([
-            'pattern' => '/^[a-zA-Z0-9\-_\s\.]*$/',
+        $message = self::translate("physicalserver_fqdn_required");
+        // fqdn
+        $validator->add('fqdn', new PresenceOfValidator([
             'message' => $message
         ]));        
-
-        // fqdn
-        $message = self::translate("virtualserver_fqdn_valid");
+        
+        $message = self::translate("physicalserver_fqdn_valid");
         $validator->add('fqdn', new RegexValidator([
             'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-            'message' => $message,
-            'allowEmpty' => true,
+            'message' => $message
         ]));        
-
-        // customer
-        $message = self::translate("virtualserver_customer_required");
+        
+        $message = self::translate("physicalserver_customer_required");
+        // customers_id
         $validator->add('customers_id', new PresenceOfValidator([
             'message' => $message
-        ]));        
-
-        // physical server
-        $message = self::translate("virtualserver_physicalserver_required");
-        $validator->add('physical_servers_id', new PresenceOfValidator([
-            'message' => $message
-        ]));        
-
+        ]));
+        
+        $message = self::translate("physicalserver_colocation_required");
+        // colocation
+        $validator->add('colocations_id', new PresenceOfValidator([
+            'message' => $message,
+        ]));
+        
+        $message = self::translate("physicalserver_core_required");
         // core
-        $message = self::translate("virtualserver_core_required");
         $validator->add('core', new PresenceOfValidator([
             'message' => $message
         ]));        
-
+        
+        $message = self::translate("physicalserver_memory_required");
         // memory
-        $message = self::translate("virtualserver_memory_required");
         $validator->add('memory', new PresenceOfValidator([
             'message' => $message
         ]));        
-
+        
+        $message = self::translate("physicalserver_space_required");
         // space
-        $message = self::translate("virtualserver_space_required");
         $validator->add('space', new PresenceOfValidator([
             'message' => $message
         ]));        
 
-        if($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')){
-            // password
-            $message = self::translate("virtualserver_password_required"); 
-            $validator->add('password', new PresenceOfValidator([
-                'message' => $message
-            ]));        
 
-            $message = self::translate("virtualserver_passwordmin");
-            $validator->add('password', new StringLengthValitator([
-                'min' => 8,
-                'messageMinimum' => $message
-            ]));        
-        }
-
-        if($op == 'new' && $vstype == 'CT'){
-            // ostemplate
-            $message = self::translate("virtualserver_ostemplate_required");
-            $validator->add('ostemplate', new PresenceOfValidator([
-                'message' => $message
-            ]));        
-        }        
-        
         return $validator;
+    }
+
+    /**
+    * generate an array for an select element, considered the permission scope
+    * 
+    * @param string $scope
+    */
+    public static function generateArrayForSelectElement($scope){
+        $findParameters = array("columns"=>"id, name","order"=>"name");
+        $resultset = self::findFromScope($scope,$findParameters);
+        $physicalServers = array(0 => self::translate("physicalserver_all_physicalservers"));
+        foreach($resultset as $physicalServer){
+            $physicalServers[$physicalServer->id] = $physicalServer->name;
+        }
+        return $physicalServers;
     }
     
     /**
@@ -964,33 +663,14 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         $pendingArray = json_decode($this->pending,true);
         return PendingHelpers::checkForPendingTokenInPendingArray($pendingToken,$pendingArray);
     }
-    
-    /**
-    * generate an array for an select element, considered the permission scope
-    * 
-    * @param string $scope
-    */
-    public static function generateArrayForSelectElement($scope){
-        $findParameters = array("columns"=>"id, name","order"=>"name");
-        $resultset = self::findFromScope($scope,$findParameters);
-        $virtualServers = array(0 => self::translate("virtualserver_all_virtualservers"));
-        foreach($resultset as $virtualServer){
-            $virtualServers[$virtualServer->id] = $virtualServer->name;
-        }
-        return $virtualServers;
-    }
 
-    public function getOvzState(){
-        return json_decode($this->ovz_settings,true)['State'];
-    }
-    
     /**
     * Getter for parent class.
     * needed because of MonServer Interface so that monitoring can instantiate a parent object.
     * 
     */
     public function getParentClass(){
-        return '\RNTForest\ovz\models\PhysicalServers';
+        return '\RNTForest\ovz\models\Colocations';
     }
     
     /**
@@ -999,7 +679,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     * 
     */
     public function getParentId(){
-        return $this->physical_servers_id;
+        return $this->colocations_id;
     }
     
     /**
@@ -1059,6 +739,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
         );
     }
     
+        
     /**
     * Adds a new MonRemoteJobs for this server.
     * 
@@ -1067,7 +748,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     */
     public function addMonRemoteJob($behaviorName){
         // validate and clean parameters
-        $allBehaviors = Monitoring::getAllBehaviors('virtual');
+        $allBehaviors = Monitoring::getAllBehaviors('physical');
         if(key_exists($behaviorName,$allBehaviors)){
             $behavior = $allBehaviors[$behaviorName]['classpath'];
         }else{
@@ -1098,7 +779,7 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
     */
     public function addMonLocalJob($behaviorName){
         // validate and clean parameters
-        $allBehaviors = Monitoring::getAllBehaviors('virtual');
+        $allBehaviors = Monitoring::getAllBehaviors('physical');
         if(key_exists($behaviorName,$allBehaviors)){
             $behavior = $allBehaviors[$behaviorName]['classpath'];
         }else{
@@ -1112,29 +793,38 @@ class VirtualServers extends \RNTForest\core\models\ModelBase implements JobServ
             $maximalValue = 80;
         
             // set params
-            $behaviorParams = '["guest","cpu","usage"]';
+            $behaviorParams = '["cpu_load"]';
         }elseif(strpos($behavior,'Memoryfree')){
             // warning at a quarter, minimal 512
             $warningValue = intval($this->getMemory()*0.25);
-            if($warningValue < 512) $warningValue = 512;
+            if($warningValue < 1024) $warningValue = 1024;
             
             // maximal at ten percent, minimal 256
             $maximalValue = intval($this->getMemory()*0.1);
-            if($maximalValue < 256) $maximalValue = 256;
-            
+            if($maximalValue < 512) $maximalValue = 512;
+        
             // set params
-            $behaviorParams = '["guest","ram","memory_free_mb"]';
-        }elseif(strpos($behavior,'Diskspacefree')){
-            // warning at a ten percent, minimal 2
-            $warningValue = intval($this->getSpace()*0.1);
-            if($warningValue < 2) $warningValue = 2;
+            $behaviorParams = '["memory_free_mb"]';
+        }elseif(strpos($behavior,'Diskspacefree') && strpos($behaviorName,'root')){
+            // warning at a 5
+            $warningValue = 5;
             
-            // maximal at five percent, minimal 1 
-            $maximalValue = intval($this->getSpace()*0.05);
-            if($maximalValue < 1) $maximalValue = 1;
+            // maximal at 3
+            $maximalValue = 3;
             
             // set params
             $behaviorParams = '["FsInfo","/","free_gb"]';
+        }elseif(strpos($behavior,'Diskspacefree') && strpos($behaviorName,'vz')){
+            // warning at a ten percent, minimal 10
+            $warningValue = intval($this->getSpace()*0.1);
+            if($warningValue < 10) $warningValue = 10;
+            
+            // maximal at five percent, minimal 5 
+            $maximalValue = intval($this->getSpace()*0.05);
+            if($maximalValue < 5) $maximalValue = 5;
+        
+            // set params
+            $behaviorParams = '["FsInfo","/vz","free_gb"]';
         }
         
         $reflection = new \ReflectionClass($this);

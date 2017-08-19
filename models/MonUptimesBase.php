@@ -19,7 +19,7 @@
 
 namespace RNTForest\ovz\models;
 
-class MonUptimes extends \RNTForest\core\models\ModelBase
+class MonUptimesBase extends \RNTForest\core\models\ModelBase
 {
     /**
     * 

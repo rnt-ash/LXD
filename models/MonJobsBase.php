@@ -38,7 +38,7 @@ use Phalcon\Validation\Validator\Date as DateValidator;
 use Phalcon\Validation\Validator\Numericality as NumericalityValidator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 
-class MonJobs extends \RNTForest\core\models\ModelBase
+class MonJobsBase extends \RNTForest\core\models\ModelBase
 {
     public static $LOCAL_STATENORMAL = 'normal';
     public static $LOCAL_STATEMAXIMAL = 'maximal';
