@@ -25,5 +25,8 @@
         {{ partial("partials/ovz/virtual_servers/monJobs.volt") }}
         </div>
     {% endif %}
+        <div class="col-md-12">
+            {{ partial("partials/bil/bil_periodic_infos/general.volt") }}
+        </div>
     </div>
 </div>
