@@ -5,6 +5,7 @@
         {{ partial("partials/ovz/virtual_servers/general.volt") }}
         </div>
         <div class="col-md-4 padding-small-left">
+        {{ partial("partials/bil/bil_periodic_infos/general.volt") }}
         {{ partial("partials/ovz/virtual_servers/hwspecs.volt") }}
         </div>
         <div class="col-md-12">
@@ -25,8 +26,5 @@
         {{ partial("partials/ovz/virtual_servers/monJobs.volt") }}
         </div>
     {% endif %}
-        <div class="col-md-12">
-            {{ partial("partials/bil/bil_periodic_infos/general.volt") }}
-        </div>
     </div>
 </div>
