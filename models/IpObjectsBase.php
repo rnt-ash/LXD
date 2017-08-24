@@ -102,6 +102,12 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
     * @var string
     */
     protected $comment;
+    
+    /**
+    * 
+    * @var string
+    */
+    protected $modified;
 
     /**
     * Method to set the value of field id
@@ -205,6 +211,16 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
     {
         $this->comment = $comment;
     }
+    
+    /**
+    * Modified
+    *
+    * @param string $modified
+    */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+    }
 
     /**
     * Returns the value of field id
@@ -304,6 +320,16 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
     public function getComment()
     {
         return $this->comment;
+    }
+    
+    /**
+    * Returns Modified
+    *
+    * @return string
+    */
+    public function getModified()
+    {
+        return $this->modified;
     }
     
     /**

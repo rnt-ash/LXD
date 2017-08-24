@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `ip_objects` (
   `allocated` tinyint(1) NOT NULL COMMENT '1:reserved IP, 2:allocated IP, 3:allocated IP automatic',
   `main` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Main IP (for monitoring)',
   `comment` varchar(50) DEFAULT NULL
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `physical_servers` (
