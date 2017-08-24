@@ -103,7 +103,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         $content = "";
 
         $this->simpleview->item = $item;
-        $content .= $this->simpleview->render("partials/ovz/colocations/slideDetail.volt");
+        $content .= $this->simpleview->render("colocations/slideDetail.volt");
         return $content;
     }
 

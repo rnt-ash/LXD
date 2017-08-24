@@ -196,7 +196,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         $content = "";
         $this->simpleview->item = $item;
         $this->simpleview->ovzSetting = json_decode($item->getOvzSettings(),true);
-        $content .= $this->simpleview->render("partials/ovz/physical_servers/slideDetail.volt");
+        $content .= $this->simpleview->render("physical_servers/slideDetail.volt");
         return $content;
     }
 

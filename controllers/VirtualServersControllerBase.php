@@ -155,7 +155,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $content = "";
         $this->simpleview->item = $item;
         $this->simpleview->snapshots = $this->ovzSnapshotRenderList($item);
-        $content .= $this->simpleview->render("partials/ovz/virtual_servers/slideDetail.volt");
+        $content .= $this->simpleview->render("virtual_servers/slideDetail.volt");
         return $content;
     }
 
