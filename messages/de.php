@@ -1,7 +1,9 @@
 <?php
 
 return [
-
+    "modelbase_rntforest_ovz_models_virtualservers" => "Virtual Servers",
+    "modelbase_rntforest_ovz_models_physicalservers" => "Physical Servers",
+    
     // Colocations
     "colocation_all_colocations" => "Alle Colocations",
     "colocations_invalid_level" => "ungültiger Level!",
