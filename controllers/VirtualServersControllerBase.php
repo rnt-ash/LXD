@@ -1301,7 +1301,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         $retval = $job->getRetval(true);
         $uuid = $virtualServer->getOvzUuid();
 
-        $virtualServer->setOvzStatistics($retval['GuestStatistics'][$uuid]);
+        $virtualServer->setOvzStatistics(json_encode($retval['GuestStatistics'][$uuid]));
         $settings = $retval['GuestInfo'][$uuid];
         $virtualServer->setOvzSettings(json_encode($settings));
         self::virtualServerSettingsAssign($virtualServer,$settings);
