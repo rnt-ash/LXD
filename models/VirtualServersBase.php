@@ -767,10 +767,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         $this->hasOne("ovz_replica_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"OvzReplicaId", "foreignKey"=>array("allowNulls"=>true)));
         $this->hasOne("ovz_replica_host",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"OvzReplicaHost", "foreignKey"=>array("allowNulls"=>true)));
 
-        if(in_array('module_hws',$this->getDI()->get('config')->modules->toArray())){
-            $this->hasOne("id",'RNTForest\hws\models\VirtualServersHws',"virtual_servers_id",array("alias"=>"VirtualServersHws", "foreignKey"=>true));
-        }
-        
         // Timestampable behavior
         $this->addBehavior(new Timestampable(array(
             'beforeUpdate' => array(
