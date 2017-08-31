@@ -28,11 +28,15 @@ return new \Phalcon\Config([
                     'customers' => "Show own colocations only", 
                     '0' => "Show no colocations", 
                 ],
+                'functions' => array(
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
+                ),
                 'actions' => [
                     'colocations' => [
-                        'index', 'search', 'create', 'new', 'edit', 'form', 'toggleSectionState',
+                        'index', 'form', 'toggleSectionState',
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
-                        'save', 'delete', 'tabledata', 'slidedata', 'slideSlide', 'generateIpPdf', 'getCustomersAsJson',
+                        'tabledata', 'slidedata', 'slideSlide', 'generateIpPdf', 'getCustomersAsJson',
                     ]
                 ],
             ],
@@ -46,6 +50,73 @@ return new \Phalcon\Config([
                 ],
                 'functions' => [],
                 'actions' => [],
+            ],
+            'new' => [
+                'description' => 'Create colocations', 
+                'scopes' => [
+                    '1' => "Create colos", 
+                    '0' => "Can't create colos", 
+                ],
+                'functions' => array(),
+                'actions' => [
+                    'colocations' => [
+                        'new',
+                    ]
+                ],
+            ],
+            'edit' => [
+                'description' => 'Edit a colocation', 
+                'scopes' => [
+                    '1' => "Edit all colocations", 
+                    'partners' => 'Edit colocations from partners and own only',
+                    'customers' => 'Edit own colocations only',
+                    '0' => "Edit no colocations", 
+                ],
+                'functions' => array(
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
+                ),
+                'actions' => [
+                    'colocations' => [
+                        'edit',
+                    ]
+                ],
+            ],
+            'save' => [
+                'description' => 'Save a colocation', 
+                'scopes' => [
+                    '1' => "Save all colocations", 
+                    'partners' => 'Save colocations from partners and own only',
+                    'customers' => 'Save own colocations only',
+                    '0' => "Save no colocations", 
+                ],
+                'functions' => array(
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
+                ),
+                'actions' => [
+                    'colocations' => [
+                        'save',
+                    ]
+                ],
+            ],
+            'delete' => [
+                'description' => 'Delete a colocation', 
+                'scopes' => [
+                    '1' => "Delete all colocations", 
+                    'partners' => 'Delete colocations from partners and own only',
+                    'customers' => 'Delete own colocations only',
+                    '0' => "Delete no colocations", 
+                ],
+                'functions' => array(
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
+                ),
+                'actions' => [
+                    'colocations' => [
+                        'delete',
+                    ]
+                ],
             ],
         ],
         'ip_objects' => [
@@ -78,11 +149,9 @@ return new \Phalcon\Config([
                 ),
                 'actions' => [
                     'physical_servers' => [
-                        'index', 'edit', 'form', 'save', 'delete', 
+                        'index', 'form', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
                         'slidedata', 'slideSlide', 'ovzAllInfo', 'ovzConnector', 'ovzConnectorExecute', 'toggleSectionState',
-                        'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
-                        'monJobsDetails', 
                     ]
                 ],
             ],
@@ -122,6 +191,60 @@ return new \Phalcon\Config([
                     ]
                 ],
             ],
+            'edit' => [
+                'description' => 'Edit a physical server', 
+                'scopes' => [
+                    '1' => "Edit all physical servers", 
+                    'partners' => 'Edit physical servers from partners and own only',
+                    'customers' => 'Edit own physical servers only',
+                    '0' => "Edit no physical servers", 
+                ],
+                'functions' => array(
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
+                ),
+                'actions' => [
+                    'physical_servers' => [
+                        'edit',
+                    ]
+                ],
+            ],
+            'save' => [
+                'description' => 'Save a physical server', 
+                'scopes' => [
+                    '1' => "Save all physical servers", 
+                    'partners' => 'Save physical servers from partners and own only',
+                    'customers' => 'Save own physical servers only',
+                    '0' => "Save no physical servers", 
+                ],
+                'functions' => array(
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
+                ),
+                'actions' => [
+                    'physical_servers' => [
+                        'save',
+                    ]
+                ],
+            ],
+            'delete' => [
+                'description' => 'Delete a physical server', 
+                'scopes' => [
+                    '1' => "Delete all physical servers", 
+                    'partners' => 'Delete physical servers from partners and own only',
+                    'customers' => 'Delete own physical servers only',
+                    '0' => "Delete no physical servers", 
+                ],
+                'functions' => array(
+                    'partners' => $config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::partners',
+                    'customers' =>$config->application['appBaseNamespaceName'].'libraries\PermissionFunctions::customers',
+                ),
+                'actions' => [
+                    'physical_servers' => [
+                        'delete',
+                    ]
+                ],
+            ],
         ],
         'virtual_servers' => [
             // general permission
@@ -142,8 +265,6 @@ return new \Phalcon\Config([
                         'index', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
                         'save', 'slidedata', 'slideSlide', 'ovzUpdateInfo', 'getCustomersAsJson', 'genPDF', 'toggleSectionState',
-                        'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
-                        'monJobsDetails', 
                     ]
                 ],
             ],

@@ -303,6 +303,9 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
                 $physicalServer->setMemory(Helpers::convertBytesToMibiBytes(Helpers::convertToBytes($physicalServer->getMemory())));    
             }
             
+            // check permissions on colocation
+            $this->tryCheckPermission("colocations","general",array("item"=>$physicalServer->Colocations));
+            
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
@@ -317,6 +320,9 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     * @param PhysicalServers $physicalServer
     */
     public function preDelete($physicalServer){
+        // check permissions on colocation
+        $this->tryCheckPermission("colocations","general",array("item"=>$physicalServer->Colocations));
+        
         // search for virtual servers
         if($physicalServer->virtualServers->count() >= 1){
             $message = $this->translate("physicalserver_remove_server_first");

@@ -537,6 +537,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $virtualServer->setMemory(Helpers::convertBytesToMibiBytes(Helpers::convertToBytes($virtualServer->getMemory())));    
             }
             
+            // validate physical server and check permissions
+            $physicalServer = PhysicalServers::tryFindById($virtualServer->getPhysicalServersId());
+            $this->tryCheckPermission('physical_servers','general',array('item' => $physicalServer));
+            $this->tryCheckOvzEnabled($physicalServer);
+            
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
@@ -579,15 +584,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                     throw new \Exception($message);
                 }
 
-                // validate physical server
-                $physicalServer = PhysicalServers::tryFindById($form->getValue('physical_servers_id'));
-                $this->tryCheckPermission('physical_servers','save',array('item' => $physicalServer));
-                $this->tryCheckOvzEnabled($physicalServer);
-
                 // execute ovz_new_vs job        
                 // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
                 $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId();
-                $job = $this->getPushService()->executeJob($physicalServer,'ovz_new_vs',$params,$pending);
+                $job = $this->getPushService()->executeJob($virtualServer->PhysicalServers,'ovz_new_vs',$params,$pending);
                 if($job->getDone() == 2){
                     $message = $this->translate("virtualserver_job_create_failed");
                     throw new \Exception($message);
