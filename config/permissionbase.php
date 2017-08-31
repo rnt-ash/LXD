@@ -149,7 +149,7 @@ return new \Phalcon\Config([
                 ),
                 'actions' => [
                     'physical_servers' => [
-                        'index', 'form', 
+                        'index', 'form', 'getCustomersAsJson',
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
                         'slidedata', 'slideSlide', 'ovzAllInfo', 'ovzConnector', 'ovzConnectorExecute', 'toggleSectionState',
                     ]
