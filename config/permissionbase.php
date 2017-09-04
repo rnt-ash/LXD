@@ -152,6 +152,8 @@ return new \Phalcon\Config([
                         'index', 'form', 'getCustomersAsJson',
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
                         'slidedata', 'slideSlide', 'ovzAllInfo', 'ovzConnector', 'ovzConnectorExecute', 'toggleSectionState',
+                        'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
+                        'monJobsDetails', 
                     ]
                 ],
             ],
@@ -265,6 +267,8 @@ return new \Phalcon\Config([
                         'index', 
                         'ipObjectAdd', 'ipObjectEdit', 'ipObjectDelete', 'ipObjectMakeMain',
                         'save', 'slidedata', 'slideSlide', 'ovzUpdateInfo', 'getCustomersAsJson', 'genPDF', 'toggleSectionState',
+                        'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
+                        'monJobsDetails',
                     ]
                 ],
             ],
