@@ -254,27 +254,29 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             }
 
             // save guest settings and statistics
-            foreach($infos['GuestInfo'] as $key=>$info){
-                // find virtual server
-                $virtualServer = VirtualServers::findFirst("ovz_uuid = '".$key."'");
-                if (!$virtualServer) {
-                    $message = $this->translate("virtualserver_does_not_exist");
-                    $this->flashSession->warning($message . "UUID: " . $key);
-                    continue;
-                }
-                
-                $virtualServer->setOvzSettings(json_encode($infos['GuestInfo'][$key]));
-                $virtualServer->setOvzStatistics(json_encode($infos['GuestStatistics'][$key]));
-                if ($virtualServer->save() === false) {
-                    $messages = $virtualServer->getMessages();
-                    foreach ($messages as $message) {
-                        $this->flashSession->warning($message);
+            if(isset($infos['GuestInfo'])){
+                foreach($infos['GuestInfo'] as $key=>$info){
+                    // find virtual server
+                    $virtualServer = VirtualServers::findFirst("ovz_uuid = '".$key."'");
+                    if (!$virtualServer) {
+                        $message = $this->translate("virtualserver_does_not_exist");
+                        $this->flashSession->warning($message . "UUID: " . $key);
+                        continue;
                     }
-                    $message = $this->translate("virtualserver_update_failed");
-                    throw new \Exception($message . $virtualServer->getName());
+
+                    $virtualServer->setOvzSettings(json_encode($infos['GuestInfo'][$key]));
+                    $virtualServer->setOvzStatistics(json_encode($infos['GuestStatistics'][$key]));
+                    if ($virtualServer->save() === false) {
+                        $messages = $virtualServer->getMessages();
+                        foreach ($messages as $message) {
+                            $this->flashSession->warning($message);
+                        }
+                        $message = $this->translate("virtualserver_update_failed");
+                        throw new \Exception($message . $virtualServer->getName());
+                    }
                 }
             }
-            
+
             // success
             $message = $this->translate("physicalserver_update_success");
             $this->flashSession->success($message);
