@@ -68,8 +68,10 @@ class VirtualServersConfigureForm extends \RNTForest\core\forms\FormBase
             new PresenceOfValidator([
                 'message' => $message,
             ]),
+            /* allows numbers (first number can't be 0), then an optional dot, then numbers after the dot, 
+            an optional whitespace and at last it has to be either MB or GB (not case sensitive)*/
             new RegexValidator([
-                'pattern' => '/^[1-9][0-9]*.?\d*[mMgG][bB]$/',
+                'pattern' => '/^[1-9][0-9]*[\.]?\d*\s?[mMgG][bB]$/',
                 'message' => $message1,
                 'allowEmpty' => true,
             ])
@@ -88,8 +90,10 @@ class VirtualServersConfigureForm extends \RNTForest\core\forms\FormBase
             new PresenceOfValidator([
                 'message' => $message,
             ]),
+            /* allows numbers (first number can't be 0), then an optional dot, then numbers after the dot, 
+            an optional whitespace and at last it has to be either MB, GB or TB (not case sensitive)*/
             new RegexValidator([
-                'pattern' => '/^[1-9][0-9]*.?\d*[mMgGtT][bB]$/',
+                'pattern' => '/^[1-9][0-9]*[\.]?\d*\s?[mMgGtT][bB]$/',
                 'message' => $message1,
                 'allowEmpty' => true,
             ])

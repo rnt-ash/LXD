@@ -540,7 +540,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // validate physical server and check permissions
             $physicalServer = PhysicalServers::tryFindById($virtualServer->getPhysicalServersId());
             $this->tryCheckPermission('physical_servers','general',array('item' => $physicalServer));
-            $this->tryCheckOvzEnabled($physicalServer);
+            
+            // only check if physical server is ovz enabled if a CT or VM is about to be created
+            $vstype = $this->session->get("VirtualServersForm")['vstype'];
+            if($vstype == 'CT' || $vstype == 'VM') $this->tryCheckOvzEnabled($physicalServer);
+            
             
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
@@ -1204,7 +1208,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // chech if memory is minmum 512 MB
-            if(gmp_cmp($memory,Helpers::convertToBytes('512MB'))<0){
+            if($memory < Helpers::convertToBytes('512MB')){
                 $message1 = $this->translate("virtualserver_min_ram");
                 $message = $message1;
                 return $this->redirectErrorToVirtualServersConfigure($message,'memory',$form);
@@ -1212,7 +1216,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // check if memory of host is exceeded
             $hostRam = Helpers::convertToBytes($virtualServer->PhysicalServers->getMemory().'MB');
-            if(gmp_cmp($memory,$hostRam)>0){
+            if($memory > $hostRam){
                 $message1 = $this->translate("virtualserver_max_ram");
                 $message = $message1.$virtualServer->PhysicalServers->getMemory().' MB)';
                 return $this->redirectErrorToVirtualServersConfigure($message,'memory',$form);
@@ -1232,14 +1236,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // check if diskspace is min
-            if(gmp_cmp($diskspace,Helpers::convertToBytes('20GB'))<0){
+            if($diskspace < Helpers::convertToBytes('20GB')){
                 $message1 = $this->translate("virtualserver_min_space");
                 $message = $message1;
                 return $this->redirectErrorToVirtualServersConfigure($message,'diskspace',$form);
             }
             // check if diskspace of host is exceeded
             $hostDiskspace = Helpers::convertToBytes($virtualServer->PhysicalServers->getSpace().'GB');
-            if(gmp_cmp($diskspace,$hostDiskspace)>0){
+            if($diskspace > $hostDiskspace){
                 $message1 = $this->translate("virtualserver_max_space");
                 $message = $message1.$virtualServer->PhysicalServers->getSpace().' GB)';
                 return $this->redirectErrorToVirtualServersConfigure($message,'diskspace',$form);
