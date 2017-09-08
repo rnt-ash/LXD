@@ -20,8 +20,8 @@
             {{ renderElement('fqdn',form,6) }}
         </div>
         <div class="clearfix">
-            {{ renderElement('customers_id',form,6) }}
-            {{ renderElement('activation_date',form,6) }}
+            {{ renderElement('customers',form,6,'autocomplete') }}
+            {{ renderElement('activation_date',form,6,'datepicker','','bottom') }}
         </div>
         {{ renderElement('description',form )}}
 

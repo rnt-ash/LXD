@@ -1,4 +1,4 @@
-{# Edit virtial server form #}
+{# Create virtual server form #}
 
 {{ partial("partials/core/partials/renderFormElement") }}
 
@@ -24,9 +24,8 @@
         {{ renderElement('distribution',form,6) }}
         {{ renderElement('core',form,6) }}
         {{ renderElement('memory',form,6) }}
-        {{ renderElement('memory_in_mb',form,6) }}
         {{ renderElement('space',form,6) }}
-        {{ renderElement('activation_date',form,6) }}
+        {{ renderElement('activation_date',form,6,'datepicker') }}
         {{ renderElement('description',form) }}
 
         <div class="col-lg-12">
