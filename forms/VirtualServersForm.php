@@ -79,7 +79,6 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         // customer
         $this->add(new Hidden("customers_id"));
         
-        $message = $this->translate("virtualserver_choose_customer");
         $element = new Text("customers");
         $message = $this->translate("virtualserver_customer");
         $element->setLabel($message);
@@ -103,6 +102,8 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $findParameters = array("order"=>"name");
         $physicalServers = PhysicalServers::findFromScope($scope,$findParameters);
         foreach($physicalServers as $physicalServer){
+            // show only ovz servers for CT's and VM's
+            if(($vstype == 'CT' || $vstype == 'VM') && $physicalServer->getOvz() != 1) continue;
             $physicalServersSelect[$physicalServer->getId()] = $physicalServer->getName()." ";
             $physicalServersSelect[$physicalServer->getId()] .= " [".count(VirtualServers::find("physical_servers_id = ".$physicalServer->getId()))."]";
         }
@@ -114,7 +115,7 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
             array("using"=>array("id","name",),
                 "useEmpty"   => true,
                 "emptyText"  => $message,
-                "emptyValue" => "",            
+                "emptyValue" => 0,            
             )
         );
         $message = $this->translate("virtualserver_physicalserver");
@@ -154,7 +155,7 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $this->add($element);
 
         // activation_date
-        $element = new Date("activation_date");
+        $element = new Text("activation_date");
         $message = $this->translate("virtualserver_activdate");
         $element->setLabel($message);
         $element->setDefault(date("Y-m-d"));

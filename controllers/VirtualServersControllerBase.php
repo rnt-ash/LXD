@@ -397,7 +397,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $job = $this->getPushService()->executeJob($virtualServer->physicalServers,'ovz_destroy_vs',$params,$pending);
                 if($job->getDone() == 2){
                     $message = $this->translate("virtualserver_job_destroy_failed");
-                    throw new \Exception($message);
+                    throw new \Exception($message.$job->getError());
                 }elseif(!empty($job->getWarning())){
                     $this->flashSession->warning($job->getRetval());
                 }
@@ -480,7 +480,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             "distribution" => "",
         ));
 
-        $virtualServerForm = new VirtualServersForm(new VirtualServers());
+        $form = $this->getFormClass();
+        $virtualServerForm = new $form(new VirtualServers());
         $this->forwardToFormAction($virtualServerForm);
 
     }
@@ -499,7 +500,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             "distribution" => "debian",
         ));
 
-        $virtualServerForm = new VirtualServersForm(new VirtualServers());
+        $form = $this->getFormClass();
+        $virtualServerForm = new $form(new VirtualServers());
         $this->forwardToFormAction($virtualServerForm);
 
     }
@@ -516,7 +518,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             "vstype" => "VS",
         ));
 
-        $virtualServerForm = new VirtualServersForm(new VirtualServers());
+        $form = $this->getFormClass();
+        $virtualServerForm = new $form(new VirtualServers());
         $this->forwardToFormAction($virtualServerForm);
 
     }
@@ -540,7 +543,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // validate physical server and check permissions
             $physicalServer = PhysicalServers::tryFindById($virtualServer->getPhysicalServersId());
             $this->tryCheckPermission('physical_servers','general',array('item' => $physicalServer));
-            $this->tryCheckOvzEnabled($physicalServer);
+            
+            // only check if physical server is ovz enabled if a CT or VM is about to be created
+            $vstype = $this->session->get("VirtualServersForm")['vstype'];
+            if($vstype == 'CT' || $vstype == 'VM') $this->tryCheckOvzEnabled($physicalServer);
             
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
@@ -590,7 +596,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $job = $this->getPushService()->executeJob($virtualServer->PhysicalServers,'ovz_new_vs',$params,$pending);
                 if($job->getDone() == 2){
                     $message = $this->translate("virtualserver_job_create_failed");
-                    throw new \Exception($message);
+                    throw new \Exception($message.$job->getError());
                 }
             }
         }catch(\Exception $e){
@@ -599,8 +605,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             return false;
         }
 
-        // cleanup
-        $session = $this->session->remove($this->getFormClassName());
         return true; 
     }
 
