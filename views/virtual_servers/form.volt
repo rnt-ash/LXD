@@ -19,7 +19,7 @@
         {{ renderElement('fqdn',form,6) }}
         {{ renderElement('customers',form,6,'autocomplete') }}
         {{ renderElement('physical_servers_id',form,6,'bootstrap-select-live-search') }}
-        {{ renderElement('ostemplate',form,6) }}
+        {{ renderElement('ostemplate',form,6,'bootstrap-select-live-search') }}
         {{ renderElement('password',form,6,'genPW') }}
         {{ renderElement('distribution',form,6) }}
         {{ renderElement('core',form,6) }}
