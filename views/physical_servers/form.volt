@@ -29,7 +29,7 @@
         </div>
         <div class="clearfix">
             {{ renderElement('space',form,6) }}
-            {{ renderElement('activation_date',form,6) }}
+            {{ renderElement('activation_date',form,6,'datepicker') }}
         </div>
         {{ renderElement('description',form) }}
 

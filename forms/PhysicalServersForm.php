@@ -131,7 +131,7 @@ class PhysicalServersForm extends \RNTForest\core\forms\FormBase
         $this->add($element);
         
         // activation_date
-        $element = new Date("activation_date");
+        $element = new Text("activation_date");
         $message = $this->translate("physicalserver_activ_date");
         $element->setLabel($message);
         $element->setDefault(date("Y-m-d"));
