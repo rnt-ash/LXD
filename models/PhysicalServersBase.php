@@ -39,14 +39,6 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
 
     /**
     *
-    * @var integer
-    * @Primary
-    * @Identity
-    */
-    protected $id;
-
-    /**
-    *
     * @var string
     */
     protected $name;
@@ -130,27 +122,11 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     protected $activation_date;
 
     /**
-    *
-    * @var string
-    */
-    protected $modified;
-
-    /**
     * 
     * @var string
     */
     protected $pending;
     
-    /**
-    * Method to set the value of field id
-    *
-    * @param integer $id
-    */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
     /**
     * Method to set the value of field name
     *
@@ -292,16 +268,6 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     }
 
     /**
-    * Method to set the value of field modified
-    *
-    * @param string $modified
-    */
-    public function setModified($modified)
-    {
-        $this->modified = $modified;
-    }
-
-    /**
     * Pending
     *
     * @param string $pending
@@ -311,16 +277,6 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
         $this->pending = $pending;
     }
     
-    /**
-    * Returns the value of field id
-    *
-    * @return integer
-    */
-    public function getId()
-    {
-        return $this->id;
-    }
-
     /**
     * Returns the value of field name
     *
@@ -462,16 +418,6 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     }
 
     /**
-    * Returns the value of field modified
-    *
-    * @return string
-    */
-    public function getModified()
-    {
-        return $this->modified;
-    }
-
-    /**
     * Returns the value of field pending
     *
     * @return string
@@ -480,25 +426,19 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     {
         return $this->pending;
     }
+    
     /**
     * Initialize method for model.
     */
     public function initialize()
     {
-        $this->setup(array('notNullValidations'=>false));
-        $this->setup(array('virtualForeignKeys'=>false));
-
+        // inherit from parent
+        parent::initialize();
+        
+        // relations
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customer", "foreignKey"=>true));
         $this->belongsTo("colocations_id",'RNTForest\ovz\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>true));
         $this->hasMany("id",'RNTForest\ovz\models\VirtualServers',"physical_servers_id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
-
-        // Timestampable behavior
-        $this->addBehavior(new Timestampable(array(
-            'beforeUpdate' => array(
-                'field' => 'modified',
-                'format' => 'Y-m-d H:i:s'
-            )
-        )));   
     }
 
     /**

@@ -49,14 +49,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
 
     /**
     *
-    * @var integer
-    * @Primary
-    * @Identity
-    */
-    protected $id;
-
-    /**
-    *
     * @var string
     */
     protected $name;
@@ -198,23 +190,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     * @var string
     */
     protected $pending;
-
-    /**
-    *
-    * @var string
-    */
-    protected $modified;
-
-    /**
-    * Unique ID
-    *
-    * @param integer $id
-    * @return $this
-    */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
 
     /**
     * Name of the virtual server
@@ -452,17 +427,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     }
 
     /**
-    * last modified time
-    *
-    * @param string $modified
-    * @return $this
-    */
-    public function setModified($modified)
-    {
-        $this->modified = $modified;
-    }
-
-    /**
     * Pending
     *
     * @param string $pending
@@ -472,16 +436,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         $this->pending = $pending;
     }
     
-    /**
-    * Returns the value of field id
-    *
-    * @return integer
-    */
-    public function getId()
-    {
-        return $this->id;
-    }
-
     /**
     * Returns the value of field name
     *
@@ -735,16 +689,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     }
 
     /**
-    * Returns the value of field modified
-    *
-    * @return string
-    */
-    public function getModified()
-    {
-        return $this->modified;
-    }
-    
-    /**
     * Returns the value of field pending
     *
     * @return string
@@ -754,28 +698,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         return $this->pending;
     }
     
-    /**
-    * Initialize method for model.
-    */
-    public function initialize()
-    {
-        $this->setup(array('notNullValidations'=>false));
-        $this->setup(array('virtualForeignKeys'=>false));
-
-        $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customer", "foreignKey"=>true));
-        $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
-        $this->hasOne("ovz_replica_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"OvzReplicaId", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasOne("ovz_replica_host",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"OvzReplicaHost", "foreignKey"=>array("allowNulls"=>true)));
-
-        // Timestampable behavior
-        $this->addBehavior(new Timestampable(array(
-            'beforeUpdate' => array(
-                'field' => 'modified',
-                'format' => 'Y-m-d H:i:s'
-            )
-        )));   
-    }
-
     /**
     * get all IpObjects of this virtual server
     * 
@@ -788,6 +710,21 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         return $resultset;
     }
     
+    /**
+    * Initialize method for model.
+    */
+    public function initialize()
+    {
+        // inherit from parent
+        parent::initialize();
+        
+        // relations
+        $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customer", "foreignKey"=>true));
+        $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
+        $this->hasOne("ovz_replica_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"OvzReplicaId", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasOne("ovz_replica_host",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"OvzReplicaHost", "foreignKey"=>array("allowNulls"=>true)));
+    }
+
     /**
     * Validations and business logic
     *

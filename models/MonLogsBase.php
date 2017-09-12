@@ -29,14 +29,6 @@ class MonLogsBase extends \RNTForest\core\models\ModelBase
     /**
     * 
     * @var integer
-    * @Primary
-    * @Identity
-    */
-    protected $id;
-    
-    /**
-    * 
-    * @var integer
     */
     protected $mon_jobs_id;
     
@@ -51,22 +43,6 @@ class MonLogsBase extends \RNTForest\core\models\ModelBase
     * @var integer
     */
     protected $heal_job;
-    
-    /**
-    * 
-    * @var string
-    */
-    protected $modified;
-    
-    /**
-    * Unique ID
-    *
-    * @param integer $id
-    */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
     
     /**
     * ID of the monjob
@@ -98,25 +74,6 @@ class MonLogsBase extends \RNTForest\core\models\ModelBase
         $this->heal_job = $healJob;
     }
     
-    /**
-    * Modified
-    * 
-    * @param string $modified
-    */
-    public function setModified($modified)
-    {
-        $this->modified = $modified;
-    }
-    
-    /**
-    *
-    * @return integer
-    */
-    public function getId()
-    {
-        return $this->id;
-    }
-    
     /**              
     * 
     * @return integer
@@ -143,15 +100,6 @@ class MonLogsBase extends \RNTForest\core\models\ModelBase
         return $this->heal_job;
     }
     
-    /**
-    * 
-    * @return string
-    */
-    public function getModified()
-    {
-        return $this->modified;
-    }
-
     public function onConstruct(){
         // Default Values
         $this->modified = date("Y-m-d H:i:s");
@@ -162,7 +110,7 @@ class MonLogsBase extends \RNTForest\core\models\ModelBase
     */
     public function initialize()
     {
-        // do not inherit from ModelBase because of Timestampable behavior ist not used here
+        // do not inherit from ModelBase because of timestampable behavior ist not allowed here !!!
 
         // relations    
         $this->hasOne("virtual_servers_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"VirtualServer", "foreignKey"=>true));
