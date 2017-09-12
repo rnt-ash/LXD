@@ -1357,7 +1357,13 @@ class MonJobsBase extends \RNTForest\core\models\ModelBase
                 $statusAfter = $behavior->execute($this->getMainIp());
                 $monLog = new MonLogs();
                 $monLog->create(["mon_jobs_id" => $this->id, "value" => $statusAfter, "modified" => date('Y-m-d H:i:s')]);
-                $monLog->save();
+                if($monLog->save() === false){
+                    $allMessages = "MonLog save failed: ";
+                    foreach ($monLog->getMessages() as $message) {
+                        $allMessages .= $message;
+                    }
+                    $this->getLogger()->error($allMessages);
+                }
 
                 if($statusAfter == "1"){
                     $this->status = "up";
@@ -1386,7 +1392,13 @@ class MonJobsBase extends \RNTForest\core\models\ModelBase
                 }
                 $monLog = new MonLogs();
                 $monLog->create(["mon_jobs_id" => $this->id, "value" => $valuestatus->getValue(), "modified" => date('Y-m-d H:i:s')]);
-                $monLog->save();
+                if($monLog->save() === false){
+                    $allMessages = "MonLog save failed: ";
+                    foreach ($monLog->getMessages() as $message) {
+                        $allMessages .= $message;
+                    }
+                    $this->getLogger()->error($allMessages);
+                }
 
                 $this->status = $statusAfter = $valuestatus->getStatus();
 
