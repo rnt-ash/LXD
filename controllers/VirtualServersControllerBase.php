@@ -389,6 +389,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->tryCheckPermission('virtual_servers','delete',array("item"=>$virtualServer));
             $this->tryCheckPermission('physical_servers','general',array("item"=>$virtualServer->physicalServers));
 
+            // hook pre delete
+            if (!$this->preDelete($virtualServer))
+                return $this->forwardToTableSlideDataAction();
+            
             // execute ovz_destroy_vs job   
             if($virtualServer->getOvz()){     
                 // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
