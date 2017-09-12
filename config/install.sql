@@ -2,13 +2,13 @@
 
 CREATE TABLE IF NOT EXISTS `colocations` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `customers_id` int(11) NOT NULL,
+  `customers_id` int(11) unsigned NOT NULL,
   `name` varchar(50) NOT NULL,
   `description` text,
   `location` varchar(50),
   `activation_date` date NOT NULL,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `ip_objects` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `ip_objects` (
   `main` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Main IP (for monitoring)',
   `comment` varchar(50) DEFAULT NULL
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `physical_servers` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS `physical_servers` (
   `space` int(11) unsigned NOT NULL DEFAULT '100' COMMENT 'Speicherplatz in GB',
   `activation_date` date NOT NULL,
   `pending` text,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `virtual_servers` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -70,12 +70,12 @@ CREATE TABLE IF NOT EXISTS `virtual_servers` (
   `space` int(11) unsigned NOT NULL DEFAULT '100' COMMENT 'Speicherplatz in GB',
   `activation_date` date NOT NULL,
   `pending` text,
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `mon_jobs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `server_id` int(11) NOT NULL,
+  `server_id` int(11) unsigned NOT NULL,
   `server_class` varchar(100) NOT NULL,
   `mon_type` varchar(10) NOT NULL COMMENT 'local or remote',
   `main_ip` varchar(39),
@@ -97,22 +97,22 @@ CREATE TABLE IF NOT EXISTS `mon_jobs` (
   `mon_contacts_message` text NOT NULL COMMENT 'FK logins, comma separated value',
   `mon_contacts_alarm` text NOT NULL COMMENT 'FK logins, comma separated value',
   `last_run` datetime NOT NULL DEFAULT '0001-01-01 01:01:01',
-  `modified` datetime NOT NULL DEFAULT '0001-01-01 01:01:01'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `mon_logs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `mon_jobs_id` int(11) NOT NULL COMMENT 'FK mon_jobs_id',
+  `mon_jobs_id` int(11) unsigned NOT NULL COMMENT 'FK mon_jobs_id',
   `value` text NOT NULL,
-  `heal_job` int(11) DEFAULT NULL COMMENT 'FK jobs',
-  `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `heal_job` int(11) unsigned DEFAULT NULL COMMENT 'FK jobs',
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP 'modified-field update by model',
   KEY `mon_jobs_id` (`mon_jobs_id`),
   KEY `modified` (`modified`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `mon_uptimes` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `mon_jobs_id` int(11) NOT NULL COMMENT 'FK mon_remote_jobs_id',
+  `mon_jobs_id` int(11) unsigned NOT NULL COMMENT 'FK mon_remote_jobs_id',
   `year_month` char(6) NOT NULL COMMENT 'YYYYMM',
   `max_seconds` int(11) NOT NULL,
   `up_seconds` int(11) NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS `mon_uptimes` (
 
 CREATE TABLE IF NOT EXISTS `mon_local_daily_logs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `mon_jobs_id` int(11) NOT NULL COMMENT 'FK mon_local_jobs_id',
+  `mon_jobs_id` int(11) unsigned NOT NULL COMMENT 'FK mon_local_jobs_id',
   `day` date NOT NULL,
   `value` text NOT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
