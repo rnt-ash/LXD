@@ -19,6 +19,11 @@
 
 namespace RNTForest\ovz\models;
 
+use Phalcon\Validation;
+use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
+use Phalcon\Validation\Validator\Date as DateValidator;
+
+
 class MonLogsBase extends \RNTForest\core\models\ModelBase
 {
     /**
@@ -145,5 +150,68 @@ class MonLogsBase extends \RNTForest\core\models\ModelBase
     public function getModified()
     {
         return $this->modified;
+    }
+
+    public function onConstruct(){
+        // Default Values
+        $this->modified = date("Y-m-d H:i:s");
+    }
+    
+    /**
+    * Initialize method for model.
+    */
+    public function initialize()
+    {
+        // do not inherit from ModelBase because of Timestampable behavior ist not used here
+
+        // relations    
+        $this->hasOne("virtual_servers_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"VirtualServer", "foreignKey"=>true));
+    }
+    
+    /**
+    * Validations and business logic
+    *
+    * @return boolean
+    */
+    public function validation()
+    {
+        $validator = $this->generateValidator();
+        if(!$this->validate($validator)) return false;
+        
+        // business logic
+        // no business logic until now
+        
+        return true;
+    }
+    
+    /**
+    * generates validator for MonLog model
+    * 
+    * return \Phalcon\Validation $validator
+    * 
+    */
+    public static function generateValidator($session){
+        // validator
+        $validator = new Validation();
+
+        // mon_jobs_id
+        $validator->add('mon_jobs_id', new PresenceOfValidator([
+            'message' => self::translate("monlogs_monjobsid_required")
+        ]));
+               
+        // value
+        
+        // heal_job
+        
+        // modified
+        $validator->add('modified', new PresenceOfValidator([
+            'message' => self::translate("monlogs_modified_required"),
+        ]));
+        $validator->add('modified', new DateValidator([
+            'format' => "Y-m-d H:i:s",
+            'message' => self::translate("monlogs_modified_format"), 
+        ]));
+
+        return $validator;
     }
 }
