@@ -1,13 +1,15 @@
-/* used by installer for createing tables in database */
-
+-- -----------------------------------------------------
+-- Tables
+-- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `colocations` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `customers_id` int(11) unsigned NOT NULL,
+  `customers_id` int(11) unsigned NOT NULL COMMENT 'FK customers',
   `name` varchar(50) NOT NULL,
   `description` text,
   `location` varchar(50),
   `activation_date` date NOT NULL,
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY `customers_id` (`customers_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `ip_objects` (
@@ -20,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `ip_objects` (
   `value2` varchar(39) DEFAULT NULL COMMENT 'netmask(IpAddress), end-IpAddress(IpRange) or IpNet prefix(IpNet)',
   `allocated` tinyint(1) NOT NULL COMMENT '1:reserved IP, 2:allocated IP, 3:allocated IP automatic',
   `main` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Main IP (for monitoring)',
-  `comment` varchar(50) DEFAULT NULL
+  `comment` varchar(50) DEFAULT NULL,
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -28,8 +30,8 @@ CREATE TABLE IF NOT EXISTS `physical_servers` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(40) NOT NULL COMMENT 'Beschreibender Name',
   `description` text DEFAULT NULL,
-  `customers_id` int(11) unsigned NOT NULL,
-  `colocations_id` int(11) unsigned NOT NULL,
+  `customers_id` int(11) unsigned NOT NULL COMMENT 'FK customers',
+  `colocations_id` int(11) unsigned NOT NULL COMMENT 'FK colocations',
   `root_public_key` text DEFAULT NULL,
   `job_public_key` text DEFAULT NULL,
   `ovz` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'ist OpenVZ-Host',
@@ -41,15 +43,17 @@ CREATE TABLE IF NOT EXISTS `physical_servers` (
   `space` int(11) unsigned NOT NULL DEFAULT '100' COMMENT 'Speicherplatz in GB',
   `activation_date` date NOT NULL,
   `pending` text,
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY `customers_id` (`customers_id`),
+  KEY `colocations_id` (`colocations_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `virtual_servers` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(40) NOT NULL COMMENT 'Beschreibender Name, früher FQDN!',
   `description` text,
-  `customers_id` int(11) unsigned NOT NULL,
-  `physical_servers_id` int(11) unsigned NOT NULL,
+  `customers_id`  int(11) unsigned NOT NULL COMMENT 'FK customers',
+  `physical_servers_id` int(11) unsigned NOT NULL COMMENT 'FK physical_servers',
   `job_public_key` text DEFAULT NULL,
   `ovz` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'ist OpenVZ-Guest',
   `ovz_uuid` varchar(50),
@@ -70,7 +74,9 @@ CREATE TABLE IF NOT EXISTS `virtual_servers` (
   `space` int(11) unsigned NOT NULL DEFAULT '100' COMMENT 'Speicherplatz in GB',
   `activation_date` date NOT NULL,
   `pending` text,
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY `customers_id` (`customers_id`),
+  KEY `physical_servers_id` (`physical_servers_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `mon_jobs` (
@@ -104,10 +110,11 @@ CREATE TABLE IF NOT EXISTS `mon_logs` (
   `id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `mon_jobs_id` int(11) unsigned NOT NULL COMMENT 'FK mon_jobs_id',
   `value` text NOT NULL,
-  `heal_job` int(11) unsigned DEFAULT NULL COMMENT 'FK jobs',
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP 'modified-field update by model',
+  `heal_job` int(11) unsigned DEFAULT NULL COMMENT 'FK jobs if set',
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'modified-field update by model',
   KEY `mon_jobs_id` (`mon_jobs_id`),
-  KEY `modified` (`modified`)
+  KEY `modified` (`modified`),
+  KEY `heal_job` (`heal_job`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `mon_uptimes` (
@@ -130,3 +137,14 @@ CREATE TABLE IF NOT EXISTS `mon_local_daily_logs` (
   KEY `mon_jobs_id` (`mon_jobs_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- -----------------------------------------------------
+-- Constraints
+-- -----------------------------------------------------
+ALTER TABLE `virtual_servers` CHANGE `physical_servers_id` `physical_servers_id` INT(11) UNSIGNED NOT NULL;
+ALTER TABLE `virtual_servers` ADD CONSTRAINT `Constraint_Customers_VirtualServer` FOREIGN KEY (`customers_id`) REFERENCES `customers`(`id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
+ALTER TABLE `virtual_servers` ADD CONSTRAINT `Constraint_PhysicalServer_CirtualServer` FOREIGN KEY (`physical_servers_id`) REFERENCES `physical_servers`(`id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
+ALTER TABLE `physical_servers` ADD CONSTRAINT `Constraint_Customers_PhysicalServers` FOREIGN KEY (`customers_id`) REFERENCES `customers`(`id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
+ALTER TABLE `physical_servers` ADD CONSTRAINT `Constraint_Colocation_PhysicalServer` FOREIGN KEY (`colocations_id`) REFERENCES `colocations`(`id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
+ALTER TABLE `colocations` ADD CONSTRAINT `Constraint_Customers_Colocations` FOREIGN KEY (`customers_id`) REFERENCES `customers`(`id`) ON DELETE RESTRICT ON UPDATE NO ACTION;
+ALTER TABLE `mon_logs` ADD CONSTRAINT `Constraint_monjobs_monlogs` FOREIGN KEY (`mon_jobs_id`) REFERENCES `mon_jobs`(`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+ALTER TABLE `mon_logs` ADD CONSTRAINT `Constraint_jobs_healjobs` FOREIGN KEY (`heal_job`) REFERENCES `jobs`(`id`) ON DELETE SET NULL ON UPDATE NO ACTION;
