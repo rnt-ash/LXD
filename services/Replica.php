@@ -413,44 +413,60 @@ class Replica extends \Phalcon\DI\Injectable
                     $this->PDF->Cell(150,$cellHeight,self::translate("virtualserver_replicapdf_no_replica"),1,1,'',false,'',1);
                 }
             }else{
-                // get virtual server via uuid
-                $virtualServer = VirtualServers::findFirst(array("ovz_uuid = '".$replicaStats['server_uuid']."'"));
-            
-                // print master and slave name
-                $this->PDF->Cell(55,$cellHeight,$virtualServer->getName(),1,0,'',false,'',1);
-                $this->PDF->Cell(60,$cellHeight,$virtualServer->OvzReplicaId->getName(),1,0,'',false,'',1);
-                
-                // get time without date from start
-                $start = date("H:i:s",strtotime($replicaStats['start']));
-                $this->PDF->Cell(25,$cellHeight,$start,1,0);
-                // get time without date from end
-                $end = date("H:i:s",strtotime($replicaStats['end']));
-                $this->PDF->Cell(25,$cellHeight,$end,1,0);
-                // calculate duration
-                $difference = strtotime($replicaStats['end'])-strtotime($replicaStats['start']);
-                if(gmdate("H",$difference) >= 1){
-                    $duration = gmdate("H:i:s",$difference);
-                }else{
-                    $duration = gmdate("i:s",$difference);
+                // check if server_uuid exists in replicaStats array
+                if(array_key_exists('server_uuid',$replicaStats)){
+                    // get virtual server via uuid
+                    $virtualServer = VirtualServers::findFirst(array("ovz_uuid = '".$replicaStats['server_uuid']."'"));
+                    
+                    // check if the stats key exist in the array
+                    if(array_key_exists('start',$replicaStats) && 
+                        array_key_exists('end',$replicaStats) && array_key_exists('stats_numbre_of_files',$replicaStats) &&
+                        array_key_exists('stats_total_transferred_file_size',$replicaStats)){
+                    
+                        // print master and slave name
+                        $this->PDF->Cell(55,$cellHeight,$virtualServer->getName(),1,0,'',false,'',1);
+                        $this->PDF->Cell(60,$cellHeight,$virtualServer->OvzReplicaId->getName(),1,0,'',false,'',1);
+                        
+                        // get time without date from start
+                        $start = date("H:i:s",strtotime($replicaStats['start']));
+                        $this->PDF->Cell(25,$cellHeight,$start,1,0);
+                        // get time without date from end
+                        $end = date("H:i:s",strtotime($replicaStats['end']));
+                        $this->PDF->Cell(25,$cellHeight,$end,1,0);
+                        // calculate duration
+                        $difference = strtotime($replicaStats['end'])-strtotime($replicaStats['start']);
+                        if(gmdate("H",$difference) >= 1){
+                            $duration = gmdate("H:i:s",$difference);
+                        }else{
+                            $duration = gmdate("i:s",$difference);
+                        }
+                        if($difference/60/60 > 1){
+                            // if it took more than 1hour, mark as dark red
+                            $this->PDF->SetFillColor(255,84,84);
+                            $duration = $duration." Stdn.";
+                        }elseif($difference/60 > 5){
+                            // if duration is longer than 5min, mark as red
+                            $this->PDF->SetFillColor(255,153,153);
+                            $duration = $duration." Min.";
+                        }else{
+                            // else mark as green
+                            $this->PDF->SetFillColor(181,255,181);
+                            $duration = $duration." Min.";
+                        }
+                        $this->PDF->Cell(30,$cellHeight,$duration,1,0,'',true);
+                        // number of files
+                        $this->PDF->Cell(30,$cellHeight,$replicaStats['stats_numbre_of_files'],1,0);
+                        // format total transferred bytes
+                        $this->PDF->Cell(40,$cellHeight,\RNTForest\core\libraries\Helpers::formatBytesHelper($replicaStats['stats_total_transferred_file_size']),1,1);
+                    }else{
+                        // print master and slave name
+                        $this->PDF->Cell(55,$cellHeight,$virtualServer->getName(),1,0,'',false,'',1);
+                        $this->PDF->Cell(60,$cellHeight,$virtualServer->OvzReplicaId->getName(),1,0,'',false,'',1);
+                        
+                        // print error message
+                        $this->PDF->Cell(150,$cellHeight,self::translate("virtualserver_replicapdf_no_stats"),1,1,'',false,'',1);
+                    }
                 }
-                if($difference/60/60 > 1){
-                    // if it took more than 1hour, mark as dark red
-                    $this->PDF->SetFillColor(255,84,84);
-                    $duration = $duration." Stdn.";
-                }elseif($difference/60 > 5){
-                    // if duration is longer than 5min, mark as red
-                    $this->PDF->SetFillColor(255,153,153);
-                    $duration = $duration." Min.";
-                }else{
-                    // else mark as green
-                    $this->PDF->SetFillColor(181,255,181);
-                    $duration = $duration." Min.";
-                }
-                $this->PDF->Cell(30,$cellHeight,$duration,1,0,'',true);
-                // number of files
-                $this->PDF->Cell(30,$cellHeight,$replicaStats['stats_numbre_of_files'],1,0);
-                // format total transferred bytes
-                $this->PDF->Cell(40,$cellHeight,\RNTForest\core\libraries\Helpers::formatBytesHelper($replicaStats['stats_total_transferred_file_size']),1,1);
             }
         }
         

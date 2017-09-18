@@ -385,6 +385,7 @@ return [
     "virtualserver_replicapdf_files" => "Number of files",
     "virtualserver_replicapdf_bytes" => "Transferred Bytes",
     "virtualserver_replicapdf_no_replica" => "Replica could not be executed!",
+    "virtualserver_replicapdf_no_stats" => "Statistics for this server not found",
     
     // Monitoring
     "monitoring_mon_behavior_not_implements_interface" => "MonBehavior does not implement MonBehaviorInterface.",
