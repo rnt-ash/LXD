@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `physical_servers` (
   `ovz` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'ist OpenVZ-Host',
   `ovz_settings` text DEFAULT NULL,
   `ovz_statistics` text DEFAULT NULL,
+  `ovz_ostemplates` text DEFAULT NULL,
   `fqdn` varchar(50) NOT NULL COMMENT 'Funktionaler FQDN',
   `core` tinyint(2) unsigned NOT NULL DEFAULT '1',
   `memory` int(11) unsigned NOT NULL DEFAULT '1024' COMMENT 'Arbeitsspeicher in MB',

@@ -71,6 +71,10 @@ class OvzAllInfoJob extends AbstractOvzJob {
             $hoststats['diskspace_free_gb'] = $this->checkDiskspaceFree();
             $info['HostStatistics'] = $hoststats;
 
+            // Ostemplates
+            $exitstatus = $this->PrlctlCommands->ostemplatesList();
+            if($exitstatus > 0) return $this->commandFailed("Getting ostemplates failed",$exitstatus);
+            $info['OsTemplates']= json_decode($this->PrlctlCommands->getJson(),true);
             
             // everything seems ok            
             $this->Done = 1;    

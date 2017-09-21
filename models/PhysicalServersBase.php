@@ -95,6 +95,12 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     *
     * @var string
     */
+    protected $ovz_ostemplates;
+    
+    /**
+    *
+    * @var string
+    */
     protected $fqdn;
 
     /**
@@ -215,6 +221,16 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     public function setOvzStatistics($ovz_statistics)
     {
         $this->ovz_statistics = $ovz_statistics;
+    }
+
+    /**
+    * OpenVZ ostemplates as JSON
+    *
+    * @param string $ovz_ostemplates
+    */
+    public function setOvzOstemplates($ovz_ostemplates)
+    {
+        $this->ovz_ostemplates = $ovz_ostemplates;
     }
 
     /**
@@ -366,6 +382,16 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     {
         return $this->ovz_statistics;
     }
+    
+    /**
+    * Returns the value of field ovz_ostemplates
+    *
+    * @return string
+    */
+    public function getOvzOstemplates()
+    {
+        return $this->ovz_ostemplates;
+    }
 
     /**
     * Returns the value of field fqdn
@@ -506,8 +532,8 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
             'messageMinimum' => $messagemin,
         ]));
 
-        $message = self::translate("physicalserver_fqdn_required");
         // fqdn
+        $message = self::translate("physicalserver_fqdn_required");
         $validator->add('fqdn', new PresenceOfValidator([
             'message' => $message
         ]));        
@@ -518,32 +544,32 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
             'message' => $message
         ]));        
         
-        $message = self::translate("physicalserver_customer_required");
         // customers_id
+        $message = self::translate("physicalserver_customer_required");
         $validator->add('customers_id', new PresenceOfValidator([
             'message' => $message
         ]));
         
-        $message = self::translate("physicalserver_colocation_required");
         // colocation
+        $message = self::translate("physicalserver_colocation_required");
         $validator->add('colocations_id', new PresenceOfValidator([
             'message' => $message,
         ]));
         
-        $message = self::translate("physicalserver_core_required");
         // core
+        $message = self::translate("physicalserver_core_required");
         $validator->add('core', new PresenceOfValidator([
             'message' => $message
         ]));        
         
-        $message = self::translate("physicalserver_memory_required");
         // memory
+        $message = self::translate("physicalserver_memory_required");
         $validator->add('memory', new PresenceOfValidator([
             'message' => $message
         ]));        
         
-        $message = self::translate("physicalserver_space_required");
         // space
+        $message = self::translate("physicalserver_space_required");
         $validator->add('space', new PresenceOfValidator([
             'message' => $message
         ]));        

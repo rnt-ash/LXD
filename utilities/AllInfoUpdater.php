@@ -101,12 +101,13 @@ class AllInfoUpdater{
         $message = AllInfoUpdater::translate("physicalserver_info_not_valid_array");
         if(!is_array($infos)) throw new \Exception($message);
 
-        // save host settings and statistics
-        if(!(key_exists('HostInfo',$infos) && key_exists('HostStatistics',$infos))){
-            AllInfoUpdater::getLogger()->warning(AllInfoUpdater::translate('monitoring_allinfoupdater_key_missing').' Needed Keys HostInfo/HostStatistics for job id '.$job->getId().' for server id '.$physicalServer->getId());
+        // save host settings, statistics and ostemplates
+        if(!(key_exists('HostInfo',$infos) && key_exists('HostStatistics',$infos) && key_exists('OsTemplates',$infos))){
+            AllInfoUpdater::getLogger()->warning(AllInfoUpdater::translate('monitoring_allinfoupdater_key_missing').' Needed Keys HostInfo/HostStatistics/OsTemplates for job id '.$job->getId().' for server id '.$physicalServer->getId());
         }else{
             $physicalServer->setOvzSettings(json_encode($infos['HostInfo']));
             $physicalServer->setOvzStatistics(json_encode($infos['HostStatistics']));
+            $physicalServer->setOvzOstemplates(json_encode($infos['OsTemplates']));
             if ($physicalServer->save() === false) {
                 $message = AllInfoUpdater::translate("physicalserver_update_failed");
                 throw new \Exception($message . $physicalServer->getName());
