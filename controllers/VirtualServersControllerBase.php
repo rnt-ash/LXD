@@ -524,12 +524,17 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
             
             // validate physical server and check permissions
-            $physicalServer = PhysicalServers::tryFindById($virtualServer->getPhysicalServersId());
+            $physicalServer = PhysicalServers::findFirst($virtualServer->getPhysicalServersId());
+            if(!$physicalServer){
+                $message = $this->translate("virtualserver_physicalserver_required");
+                $form->appendMessage(new \Phalcon\Validation\Message($message,'physical_servers_id'));
+                return false;
+            }
             $this->tryCheckPermission('physical_servers','general',array('item' => $physicalServer));
             
             // only check if physical server is ovz enabled if a CT or VM is about to be created
             $vstype = $this->session->get("VirtualServersForm")['vstype'];
-            if($vstype == 'CT' || $vstype == 'VM') $this->tryCheckOvzEnabled($physicalServer);       
+            if($vstype == 'CT' || $vstype == 'VM') $this->tryCheckOvzEnabled($physicalServer);
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
