@@ -271,6 +271,8 @@ return [
     "virtualserver_change_root_password_failed" => "The root password could not be changed: ",
     "virtualserver_view_support_job_message" => "Are you sure you want to execute the support job on all virtual servers?",
     "virtualserver_support_task_successful" => "Support Job executed successfully",
+    "virtualserver_ostemplate_not_valid" => "The selected OS template doesn't exist on this physical server",
+    "virtualserver_no_ostemplates_found" => "On this server are no OS templates available",
     //View
     "virtualserver_title" => "Virtual Servers",
     "virtualserver_view_new" => "New",

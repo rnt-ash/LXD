@@ -456,31 +456,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * 
     */
     public function newCTAction(){
-
-        // get OS templates from server
-        $push = $this->getPushService();
-        $params = array();
-        if(!$physicalServer = PhysicalServers::findFirst("ovz = 1")){
-            $message = $this->translate("virtualserver_no_physicalserver_found");
-            $this->flashSession->error($message);
-            return $this->forwardToTableSlideDataAction();
-        }
-
-        // no pending needed because job does only read
-        $job = $push->executeJob($physicalServer,'ovz_get_ostemplates',$params);
-        $message = $this->translate("virtualserver_job_ostemplates_failed");
-        if(!$job || $job->getDone()==2) throw new \Exception($message);
-        $retval = $job->getRetval(true);
-        $ostemplates = array();
-        foreach($retval as $template){
-            $ostemplates[$template['name']] = $template['name']." (".$template['lastupdate'].")";
-        }
-
         // store in session
         $this->session->set($this->getFormClassName(), array(
             "op" => "new",
             "vstype" => "CT",
-            "ostemplates" => $ostemplates,
             "distribution" => "",
         ));
 
@@ -550,8 +529,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             
             // only check if physical server is ovz enabled if a CT or VM is about to be created
             $vstype = $this->session->get("VirtualServersForm")['vstype'];
-            if($vstype == 'CT' || $vstype == 'VM') $this->tryCheckOvzEnabled($physicalServer);
-            
+            if($vstype == 'CT' || $vstype == 'VM') $this->tryCheckOvzEnabled($physicalServer);       
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
@@ -2068,5 +2046,5 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->redirectToTableSlideDataAction();
             return;
         }
-    }
+    } 
 }

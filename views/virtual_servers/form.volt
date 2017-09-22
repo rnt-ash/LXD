@@ -8,7 +8,7 @@
 
 <div class="well">
     <div class="row">
-        {{ form("virtual_servers/save", 'role': 'form') }}
+        {{ form("virtual_servers/save",'role': 'form','id': 'virtualServersForm') }}
         {{ form.get('id').render() }}
 
         {% if form.hasMessagesFor('id') %}
@@ -19,7 +19,7 @@
         {{ renderElement('fqdn',form,6) }}
         {{ renderElement('customers',form,6,'autocomplete') }}
         {{ renderElement('physical_servers_id',form,6,'bootstrap-select-live-search') }}
-        {{ renderElement('ostemplate',form,6,'bootstrap-select-live-search') }}
+        {{ renderElement('ostemplate',form,6) }}
         {{ renderElement('password',form,6,'genPW') }}
         {{ renderElement('distribution',form,6) }}
         {{ renderElement('core',form,6) }}

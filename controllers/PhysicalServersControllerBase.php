@@ -669,4 +669,35 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         $customers = \RNTForest\core\models\Customers::getCustomersAsJson($filterString,$scope);
         return $customers;
     }
+    
+    /**
+    * helper method to get the ovz templates of a physicalServer in the virtual servers form
+    * 
+    * @param int $physicalServerId
+    * @return string
+    */
+    public function getOvzOstemplatesAction($physicalServerId){
+        // Sanitize Parameters
+        $physicalServerId = $this->filter->sanitize($physicalServerId,"int");
+        
+        try{
+            // Validate (throws exceptions)
+            $physicalServer = PhysicalServers::tryFindById($physicalServerId);
+            $this->tryCheckPermission('physical_servers', 'general', array('item' => $physicalServer));
+            
+            // create array to sort it
+            $ostemplates = '';
+            if(!empty($physicalServer->getOvzOstemplates())){
+                $ostemplates = json_decode($physicalServer->getOvzOstemplates(),true);
+                sort($ostemplates);
+                $ostemplates = json_encode($ostemplates);
+            }
+            
+            // go back to json, to pass it to the jquery
+            return $ostemplates;
+        }catch(\Exception $e){
+            // simply return message so it can be processed in jquery
+            return $e->getMessage();
+        }
+    }
 }

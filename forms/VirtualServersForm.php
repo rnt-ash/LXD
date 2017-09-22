@@ -174,18 +174,17 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $message = $this->translate("virtualserver_choose_ostemplate");
         if ($op == 'new' && $vstype == 'CT') {
             // OS templates
-            
-            $ostemplates = $session['ostemplates'];
             $element = new Select(
                 "ostemplate",
-                $ostemplates,
-                array("using"=>array("id","name",),
+                array(),
+                array(
+                    "using"      => array("id","name"),
                     "useEmpty"   => true,
                     "emptyText"  => $message,
-                    "emptyValue" => "",            
+                    "emptyValue" => "0",            
                 )
             );
-            $element->setLabel("ostemplate");
+            $element->setLabel("OS Template");
             $element->setFilters(array('striptags', 'string'));
             $this->add($element);
         }

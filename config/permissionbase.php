@@ -154,6 +154,7 @@ return new \Phalcon\Config([
                         'slidedata', 'slideSlide', 'ovzAllInfo', 'ovzConnector', 'ovzConnectorExecute', 'toggleSectionState',
                         'monJobsAdd', 'monJobsAddExecute', 'monJobsEdit', 'monJobsEditExecute', 'monJobsMute', 'monJobsDelete',
                         'monJobsDetails', 
+                        'getOvzOstemplates',
                     ]
                 ],
             ],

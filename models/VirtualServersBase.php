@@ -733,7 +733,7 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     public function validation()
     {
         // get params from session
-        $session = $this->getDI()->get("session")->get("VirtualServersValidator");
+        $session = $this->getDI()->get("session")->get("VirtualServersForm");
         $op = $session['op'];
         $vstype = $session['vstype'];
 
@@ -746,6 +746,23 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         
         $validator = $this->generateValidator($op,$vstype);
         if(!$this->validate($validator)) return false;
+        
+        // check if selected ostemplate exists on selected PS
+        if($op == 'new' && $vstype == 'CT'){
+            // get available ostemplates from physical server
+            $ostemplates = json_decode($this->PhysicalServers->getOvzOstemplates(),true);
+            if(empty($ostemplates)){
+                $message = new Message($this->translate("virtualserver_no_ostemplates_found"),"ostemplate");            
+                $this->appendMessage($message);
+                return false;
+            }else{
+                if(!array_search($this->ostemplate,array_column($ostemplates,'name'))){
+                    $message = new Message($this->translate("virtualserver_ostemplate_not_valid"),"ostemplate");            
+                    $this->appendMessage($message);
+                    return false;
+                }
+            }
+        }
         
         // should not be NULL
         if(empty($this->ovz_replica)) $this->ovz_replica = 0;
