@@ -169,6 +169,15 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
             $element->setLabel($message);
             $element->setAttribute("placeholder","1234");
             $element->setFilters(array('striptags', 'string'));
+            $element->addValidators(array(
+                new \Phalcon\Validation\Validator\PresenceOf([
+                    'message' => $this->translate("virtualserver_password_required")
+                ]),
+                new \Phalcon\Validation\Validator\StringLength([
+                    'min' => 8,
+                    'messageMinimum' => $this->translate("virtualserver_passwordmin")
+                ])
+            ));
             $this->add($element);
         }
         $message = $this->translate("virtualserver_choose_ostemplate");
@@ -186,6 +195,11 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
             );
             $element->setLabel("OS Template");
             $element->setFilters(array('striptags', 'string'));
+            $element->addValidators(array(
+                new \Phalcon\Validation\Validator\PresenceOf([
+                    'message' => $this->translate("virtualserver_ostemplate_required")
+                ])
+            ));
             $this->add($element);
         }
         
@@ -196,5 +210,4 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
     }
-
 }

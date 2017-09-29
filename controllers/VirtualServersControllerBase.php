@@ -534,7 +534,25 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             
             // only check if physical server is ovz enabled if a CT or VM is about to be created
             $vstype = $this->session->get("VirtualServersForm")['vstype'];
+            $op = $this->session->get("VirtualServersForm")['op'];
             if($vstype == 'CT' || $vstype == 'VM') $this->tryCheckOvzEnabled($physicalServer);
+            
+            // check if selected ostemplate exists on selected PS
+            if($op == 'new' && $vstype == 'CT'){
+                // get available ostemplates from physical server
+                $ostemplates = json_decode($virtualServer->PhysicalServers->getOvzOstemplates(),true);
+                if(empty($ostemplates)){
+                    $message = new \Phalcon\Validation\Message($this->translate("virtualserver_no_ostemplates_found"),"ostemplate");            
+                    $form->appendMessage($message);
+                    return false;
+                }else{
+                    if(!array_search($virtualServer->ostemplate,array_column($ostemplates,'name'))){
+                        $message = new \Phalcon\Validation\Message($this->translate("virtualserver_ostemplate_not_valid"),"ostemplate");            
+                        $form->appendMessage($message);
+                        return false;
+                    }
+                }
+            }
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
@@ -579,7 +597,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
                 // execute ovz_new_vs job        
                 // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
-                $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId();
+                $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:2';
                 $job = $this->getPushService()->executeJob($virtualServer->PhysicalServers,'ovz_new_vs',$params,$pending);
                 if($job->getDone() == 2){
                     $message = $this->translate("virtualserver_job_create_failed");
@@ -990,6 +1008,11 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $virtualServer = VirtualServers::tryFindById($serverId);
             $this->tryCheckPermission('virtual_servers','changestate',array("item"=>$virtualServer));
             $this->tryCheckOvzEnabled($virtualServer);
+        
+            // store in session
+            $this->session->set($this->getFormClassName(), array(
+                "op" => "edit",
+            ));
         
             // call view
             $this->view->form = new VirtualServersModifyForm($virtualServer); 

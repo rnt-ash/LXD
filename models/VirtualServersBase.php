@@ -747,23 +747,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         $validator = $this->generateValidator($op,$vstype);
         if(!$this->validate($validator)) return false;
         
-        // check if selected ostemplate exists on selected PS
-        if($op == 'new' && $vstype == 'CT'){
-            // get available ostemplates from physical server
-            $ostemplates = json_decode($this->PhysicalServers->getOvzOstemplates(),true);
-            if(empty($ostemplates)){
-                $message = new Message($this->translate("virtualserver_no_ostemplates_found"),"ostemplate");            
-                $this->appendMessage($message);
-                return false;
-            }else{
-                if(!array_search($this->ostemplate,array_column($ostemplates,'name'))){
-                    $message = new Message($this->translate("virtualserver_ostemplate_not_valid"),"ostemplate");            
-                    $this->appendMessage($message);
-                    return false;
-                }
-            }
-        }
-        
         // should not be NULL
         if(empty($this->ovz_replica)) $this->ovz_replica = 0;
         
@@ -853,28 +836,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
             'message' => $message
         ]));        
 
-        if($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')){
-            // password
-            $message = self::translate("virtualserver_password_required"); 
-            $validator->add('password', new PresenceOfValidator([
-                'message' => $message
-            ]));        
-
-            $message = self::translate("virtualserver_passwordmin");
-            $validator->add('password', new StringLengthValitator([
-                'min' => 8,
-                'messageMinimum' => $message
-            ]));        
-        }
-
-        if($op == 'new' && $vstype == 'CT'){
-            // ostemplate
-            $message = self::translate("virtualserver_ostemplate_required");
-            $validator->add('ostemplate', new PresenceOfValidator([
-                'message' => $message
-            ]));        
-        }        
-        
         return $validator;
     }
     

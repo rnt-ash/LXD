@@ -14,7 +14,7 @@
                             {% elseif item.ovzSettingsArray['State'] == 'stopped' %}
                                 {% set buttonstate = "btn-danger" %}
                             {% endif %}
-                            <button type="button" class="btn {{buttonstate}} dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button type="button" class="btn {{buttonstate}} dropdown-toggle btn-xs pending" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-lightbulb-o text-default"></i>&nbsp;<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
