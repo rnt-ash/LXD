@@ -221,15 +221,20 @@ class Replica extends \Phalcon\DI\Injectable
     }
     
     public function cleanUpReplicaSnapshots(){
+        // workaround because session is not started yet?!
+        !$this->session->isStarted() && $this->session->start();
+
         try{
             // calculate last possible date
             $lastDate = new \DateTime(NULL,new \DateTimeZone('Europe/Zurich'));
             $lastDate->sub(new \DateInterval('P'.$this->config->replica["snapshotsKeepDays"].'D'));
             
-            print_r($lastDate);
-
-            $replicaMasters = VirtualServers::tryFind(["conditions"=>"ovz_replica=1","limit"=>"2"]);
+            $replicaMasters = VirtualServers::tryFind(["conditions"=>"ovz_replica=1"]);
             foreach($replicaMasters as $replicaMaster){
+                
+                // print info message
+                echo "Check snapshots to ".$replicaMaster->getName()."\n";
+                
                 // get all snapshots of this replica slave
                 // execute ovz_list_snapshots job 
                 // no pending needed because job is readonly       
