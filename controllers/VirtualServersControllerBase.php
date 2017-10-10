@@ -2037,7 +2037,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->PDF->SetTextColor(0,0,0);
             $this->PDF->SetFont('','');
             $this->PDF->Ln(1);
-            $this->PDF->Cell(0,0,$virtualServer->getDescription(), 0, 2, '',false);    
+            $this->PDF->MultiCell(0,0,$virtualServer->getDescription(),0,'L');
             
             // Dispaly the PDF on the monitor
             $this->PDF->Output($virtualServer->getName().'.pdf', 'I');
