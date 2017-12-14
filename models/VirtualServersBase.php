@@ -724,6 +724,11 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         $this->hasOne("ovz_replica_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"OvzReplicaId", "foreignKey"=>array("allowNulls"=>true)));
         $this->hasOne("ovz_replica_host",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"OvzReplicaHost", "foreignKey"=>array("allowNulls"=>true)));
     }
+    
+    public function onConstruct(){
+        // inherit from parent
+        parent::onConstruct();
+    }
 
     /**
     * Validations and business logic

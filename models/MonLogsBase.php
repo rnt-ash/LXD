@@ -102,7 +102,7 @@ class MonLogsBase extends \RNTForest\core\models\ModelBase
     
     public function onConstruct(){
         // Default Values
-        $this->modified = date("Y-m-d H:i:s");
+        parent::onConstruct();
     }
     
     /**

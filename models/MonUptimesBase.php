@@ -20,15 +20,7 @@
 namespace RNTForest\ovz\models;
 
 class MonUptimesBase extends \RNTForest\core\models\ModelBase
-{
-    /**
-    * 
-    * @var integer
-    * @Primary
-    * @Identity
-    */
-    protected $id;
-    
+{   
     /**
     * 
     * @var integer
@@ -58,22 +50,6 @@ class MonUptimesBase extends \RNTForest\core\models\ModelBase
     * @var int
     */
     protected $up_percentage;
-    
-    /**
-    * 
-    * @var string
-    */
-    protected $modified;
-    
-    /**
-    * Unique ID
-    *
-    * @param integer $id
-    */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
     
     /**
     * Remote MonJob
@@ -126,26 +102,6 @@ class MonUptimesBase extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Modified
-    *
-    * @param integer $modified
-    */
-    public function setModified($modified)
-    {
-        $this->modified = $modified;
-    }
-    
-    
-    /**
-    *
-    * @return integer
-    */
-    public function getId()
-    {
-        return $this->id;
-    }
-    
-    /**
     *
     * @return integer
     */
@@ -189,17 +145,7 @@ class MonUptimesBase extends \RNTForest\core\models\ModelBase
     {
         return $this->up_percentage;
     }
-    
-    /**
-    *
-    * @return integer
-    */
-    public function getModified()
-    {
-        return $this->modified;
-    }
-    
-        
+            
     public function getYear(){
         return substr($this->YearMonth,0,4);
     }

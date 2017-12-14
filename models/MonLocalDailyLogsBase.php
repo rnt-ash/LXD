@@ -20,15 +20,7 @@
 namespace RNTForest\ovz\models;
 
 class MonLocalDailyLogsBase extends \RNTForest\core\models\ModelBase
-{
-    /**
-    * 
-    * @var integer
-    * @Primary
-    * @Identity
-    */
-    protected $id;
-    
+{   
     /**
     * 
     * @var integer
@@ -46,22 +38,6 @@ class MonLocalDailyLogsBase extends \RNTForest\core\models\ModelBase
     * @var string
     */
     protected $value;
-    
-    /**
-    * 
-    * @var string
-    */
-    protected $modified;
-    
-    /**
-    * Unique ID
-    *
-    * @param integer $id
-    */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
     
     /**
     * Set id of local MonJob
@@ -93,27 +69,7 @@ class MonLocalDailyLogsBase extends \RNTForest\core\models\ModelBase
     {
         $this->value = $value;
     }
-    
-    /**
-    * Modified
-    *
-    * @param integer $modified
-    */
-    public function setModified($modified)
-    {
-        $this->modified = $modified;
-    }
-    
-    
-    /**
-    *
-    * @return integer
-    */
-    public function getId()
-    {
-        return $this->id;
-    }
-    
+   
     /**
     *
     * @return integer
@@ -140,14 +96,4 @@ class MonLocalDailyLogsBase extends \RNTForest\core\models\ModelBase
     {
         return $this->value;
     }
-    
-    /**
-    *
-    * @return integer
-    */
-    public function getModified()
-    {
-        return $this->modified;
-    }
-    
 }

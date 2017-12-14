@@ -45,14 +45,6 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
 
     /**
     *
-    * @var integer
-    * @Primary
-    * @Identity
-    */
-    protected $id;
-
-    /**
-    *
     * @var string
     */
     protected $server_class;
@@ -103,22 +95,6 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
     */
     protected $comment;
     
-    /**
-    * 
-    * @var string
-    */
-    protected $modified;
-
-    /**
-    * Method to set the value of field id
-    *
-    * @param integer $id
-    */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
     /**
     * Namespace and Classname of the Server Object
     * 
@@ -213,26 +189,6 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Modified
-    *
-    * @param string $modified
-    */
-    public function setModified($modified)
-    {
-        $this->modified = $modified;
-    }
-
-    /**
-    * Returns the value of field id
-    *
-    * @return integer
-    */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
     * returns the Namespace and Classname of the Server Object
     * 
     * @return string
@@ -323,16 +279,6 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
     }
     
     /**
-    * Returns Modified
-    *
-    * @return string
-    */
-    public function getModified()
-    {
-        return $this->modified;
-    }
-    
-    /**
     * helper method: set linked DC Object
     * 
     */
@@ -356,8 +302,13 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
     */
     public function initialize()
     {
-        $this->setup(array('notNullValidations'=>false));
-        $this->setup(array('virtualForeignKeys'=>false));
+        // inherit from parent
+        parent::initialize();
+    }
+    
+    public function onConstruct(){
+        // inherit from parent
+        parent::onConstruct();
     }
 
     /**

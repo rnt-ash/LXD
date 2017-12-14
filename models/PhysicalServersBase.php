@@ -466,6 +466,11 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
         $this->belongsTo("colocations_id",'RNTForest\ovz\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>true));
         $this->hasMany("id",'RNTForest\ovz\models\VirtualServers',"physical_servers_id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
     }
+    
+    public function onConstruct(){
+        // inherit from parent
+        parent::onConstruct();
+    }
 
     /**
     * get all IpObjects of this physical Server
