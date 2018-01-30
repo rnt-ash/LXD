@@ -28,7 +28,7 @@ use RNTForest\core\libraries\RemoteSshConnection;
 * Connector will be called from the Phalcon App in a wizard like manier.
 * 
 * The Connector does the following to the OpenVZ 7 Server:
-* - checks the hostsystem (openvz 7 system?, php >= 5.4?)
+* - checks the hostsystem
 * - makes general configurations (postfix, ntp, ssh)
 * - generates asymmetrical keypair, saves it locally on the host and saves the public key in the central db in phalcon app
 * - puts the public key of the adminserver (where the phalcon app runs) as a file on the host
@@ -39,8 +39,6 @@ use RNTForest\core\libraries\RemoteSshConnection;
 * - sets file permissions
 * - configures sudoers, so that the job-component can be started with root permissions
 * - configures %prefix%jobsystem.service (systemd)
-* - checks OpenVZ 7 kernel, prlctl command, ploop and directories
-* - configures OpenVZ 7
 * - writes the local.config.php
 * - sends a test job (general_test_sendmail to the specified rootalias)
 * - sets the physical server to OVZ=1 if successfully connected
@@ -129,8 +127,6 @@ class OvzConnector extends \Phalcon\DI\Injectable
         $this->cleanPermissionsInJobsystemDirectories();
         $this->configureSudoers();
         $this->configureJobsystemService();
-        $this->configureOvz();
-        $this->addOvzCronjobs();
         
         $this->postInstallation();
         $this->testJobSystem();
@@ -138,29 +134,11 @@ class OvzConnector extends \Phalcon\DI\Injectable
     
     private function checkEnvironment(){
         try{
-            $output = $this->RemoteSshConnection->exec('cat /etc/system-release');    
-            if(!preg_match('`^(OpenVZ release 7.0).*$`',$output)){
-                throw new \Exception("Wrong linux distribution. Accepted: OpenVZ 7.0.x");       
-            }
-            
-            unset($output);
-            $output = $this->RemoteSshConnection->exec('php -v');
-            if(!preg_match('`^(PHP 5.4).*`',$output)){
-                throw new \Exception("No accepted PHP version found. Accepted: PHP 5.4.x (yum install php-cli)");
-            }
-            
             unset($output);
             $output = $this->RemoteSshConnection->exec('php -m');
             if(!preg_match('`PDO`',$output)){
                 throw new \Exception("PHP PDO Extension not found. (yum install php-pdo)");
             }
-            
-            unset($output);
-            $output = $this->RemoteSshConnection->exec('rpm -qa | grep mailx');
-            if(!preg_match('`mailx`',$output)){
-                throw new \Exception("Mailx not found. (yum install mailx)");
-            }
-            
         }catch(\Exception $e){
             $error = 'System is not supported: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
@@ -377,10 +355,10 @@ class OvzConnector extends \Phalcon\DI\Injectable
     
     private function configureJobsystemService(){
         try{
-            $serviceFile = '/usr/lib/systemd/system/'.$this->Servicename.'.service';
+            $serviceFile = '/etc/systemd/system/'.$this->Servicename.'.service';
             $jobsystemServiceFileConfig = 
                 "[Unit]\n".
-                "Description=OpenVZ Control Panel Remoteserver Service\n".
+                "Description=LXD Control Panel Remoteserver Service\n".
                 "After=network.target\n".
                 "\n".
                 "[Service]\n".
@@ -416,63 +394,6 @@ class OvzConnector extends \Phalcon\DI\Injectable
         } 
     }
     
-    private function configureOvz(){
-        try{
-            // check kernel
-            $output = $this->RemoteSshConnection->exec('uname -r');
-            // kernel should be 3.10 with keyword vz7 in it
-            if(!preg_match('`^(3.10).*(vz7).*`',$output)){
-                throw new \Exception("Wrong linux kernel. Accepted: 3.10");       
-            }
-            
-            //  check prlctl
-            $output = $this->RemoteSshConnection->exec('whereis prlctl');
-            // whereis output is searched binary followed with a : and the location
-            // if the output string is not longer than "prlctl:" it was not found and will be missing
-            if(!(strlen($output) > strlen("prlctl:"))){
-                throw new \Exception("prlctl not found/installed. there may be not a proper openvz installation. please consider the official openvz installation guide.");  
-            }
-            
-            // check ploop
-            $output = $this->RemoteSshConnection->exec('whereis ploop');
-            if(!(strlen($output) > strlen("ploop:"))){
-                throw new \Exception("ploop not found/installed. there may be not a proper openvz installation. please consider the official openvz installation guide.");  
-            } 
-            
-            $this->createOvzDirAndFilesIfNotExists();
-            $this->modifyVzConfFile();
-            
-            // temporary not needed
-            // $this->RemoteSshConnection->exec('systemctl restart vz');
-                  
-        }catch(\Exception $e){
-            $error = 'Problem while configuring OpenVz: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
-            throw new \Exception($error);
-        }    
-    } 
-    
-    private function createOvzDirAndFilesIfNotExists(){
-        $folders = array(
-            '/vz',
-            '/vz/private',
-            '/vz/root',
-            '/vz/template',
-            '/vz/mnt',
-            '/etc/vz',
-            '/etc/vz/conf',
-        );
-        foreach($folders as $folder) {
-            $this->createDirectoryIfNotExists($folder);
-        }
-    }
-    
-    private function modifyVzConfFile(){
-        // Define default os template -> debian stretch
-        $this->RemoteSshConnection->exec('sed -i -r '.
-            '\'s/^#?DEF_OSTEMPLATE.*/DEF_OSTEMPLATE="debian-8.0-x86_64-minimal"/\' /etc/vz/vz.conf'); 
-    }
-    
     private function writeLocalConfig(){
         try{
             $config = ''.
@@ -506,44 +427,6 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->RemoteSshConnection->exec('chmod 640 '.$configFilepath);
         }catch(\Exception $e){
             $error = 'Problem while writing '.$this->Servicename.' local config: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
-            throw new \Exception($error);
-        }    
-    }
-    
-    private function addOvzCronjobs(){
-        try{
-            $cronjobs = "*/5 * * * * root php ".$this->ConfigOvzJobsystemRootDir."jobsystem/ovz/utility/PrlctlStatisticsFileGenerator.php\n";
-
-            $filename = $this->PhysicalServer->getName().'.crontab.tmp';
-            $this->RemoteSshConnection->receiveFile('/etc/crontab',__DIR__.'/'.$filename);
-            $file = file(__DIR__.'/'.$filename);
-
-            if(!($ziel = fopen(__DIR__.'/'.$filename,"w"))) throw new \Exception("Crontab file could not be written: ".$filename);
-            $replace = false;
-            $written = false;
-            // write file line by line new
-            foreach ($file as $line){
-                if(trim($line) == "###EAT CONFIG###") {
-                    $replace = !$replace;
-                    if($replace) fwrite($ziel,"###EAT CONFIG###\n".$cronjobs);
-                    $written = true;
-                }
-                if (!$replace) fwrite($ziel,$line);
-            }
-            if(!$written){
-                // if no EAT CONFIG marker ar there (e.g. first run)
-                fwrite($ziel,"###EAT CONFIG###\n".$cronjobs."###EAT CONFIG###\n");
-            }
-            fclose($ziel); 
-
-
-            // /etc/crontab send and remove local temp file
-            $this->RemoteSshConnection->sendFile(__DIR__.'/'.$filename,'/etc/crontab');               
-            $this->RemoteSshConnection->exec('chmod 644 /etc/crontab');
-            exec('rm '.__DIR__.'/'.$filename);
-        }catch(\Exception $e){
-            $error = 'Problem while adding Cronjobs: '.$this->MakePrettyException($e);
             $this->Logger->error('OvzConnector: '.$error);
             throw new \Exception($error);
         }    
