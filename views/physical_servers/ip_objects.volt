@@ -29,17 +29,17 @@
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("physicalserver_ip_editobject")) }}
                         <a href="#" link="/physical_servers/ipObjectDelete/{{ip.id}}" text="{{ _("physicalserver_ip_deleteconf") }}"
                             class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("physicalserver_ip_delete") }}"><i class="fa fa-trash-o"></i></a>
-                        {% if ip.main == 0 AND ip.allocated != constant('\RNTForest\ovz\models\IpObjects::ALLOC_RESERVED') %}
+                        {% if ip.main == 0 AND ip.allocated != constant('\RNTForest\lxd\models\IpObjects::ALLOC_RESERVED') %}
                             {{ link_to("physical_servers/ipObjectMakeMain/"~ip.id,'<i class="fa fa-bolt"></i>',
                                 'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("physicalserver_ip_primary")) }}
                         {% endif %}
                     </td>
                     <td>
-                        {% if ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_RESERVED') %}
+                        {% if ip.allocated == constant('\RNTForest\lxd\models\IpObjects::ALLOC_RESERVED') %}
                             Reserved
-                        {% elseif ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_ASSIGNED') %}
+                        {% elseif ip.allocated == constant('\RNTForest\lxd\models\IpObjects::ALLOC_ASSIGNED') %}
                             Assigned
-                        {% elseif ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_AUTOASSIGNED') %}
+                        {% elseif ip.allocated == constant('\RNTForest\lxd\models\IpObjects::ALLOC_AUTOASSIGNED') %}
                             Auto Assigned
                         {% endif %}   
                     </td>

@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Text;
@@ -29,7 +29,7 @@ use Phalcon\Validation;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
 use RNTForest\core\models\Customers;
-use RNTForest\ovz\models\VirtualServers;
+use RNTForest\lxd\models\VirtualServers;
 
 class VirtualServersModifyForm extends \RNTForest\core\forms\FormBase
 {

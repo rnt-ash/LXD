@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\interfaces;
+namespace RNTForest\lxd\interfaces;
 
 interface MonServerInterface
 {
@@ -37,7 +37,7 @@ interface MonServerInterface
     public function getName();
     
     /**
-    * @return \RNTForest\ovz\models\IpObjects
+    * @return \RNTForest\lxd\models\IpObjects
     */
     public function getMainIp();
     

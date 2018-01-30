@@ -17,10 +17,10 @@
 *
 */
   
-namespace RNTForest\ovz\services;
+namespace RNTForest\lxd\services;
 
-use \RNTForest\ovz\models\MonJobs;
-use \RNTForest\ovz\utilities\AllInfoUpdater;
+use \RNTForest\lxd\models\MonJobs;
+use \RNTForest\lxd\utilities\AllInfoUpdater;
 
 class MonSystem extends \Phalcon\DI\Injectable
 {
@@ -108,7 +108,7 @@ class MonSystem extends \Phalcon\DI\Injectable
     
     /**
     * 
-    * @return \RNTForest\ovz\services\MonAlarm
+    * @return \RNTForest\lxd\services\MonAlarm
     */
     private function getMonAlarm(){
         return $this->getDI()['monAlarm'];
@@ -173,9 +173,9 @@ class MonSystem extends \Phalcon\DI\Injectable
             if(!empty($monJobIds)){
                 $ids = implode(',',$monJobIds);
                 // delete MonLogs with nonexisting remote MonJobs
-                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id FROM \\RNTForest\\ovz\\models\\MonLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonJobs ON \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id = \\RNTForest\\ovz\\models\\MonJobs.id WHERE \\RNTForest\\ovz\\models\\MonJobs.id IS NULL");
+                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\lxd\\models\\MonLogs.mon_jobs_id FROM \\RNTForest\\lxd\\models\\MonLogs LEFT OUTER JOIN \\RNTForest\\lxd\\models\\MonJobs ON \\RNTForest\\lxd\\models\\MonLogs.mon_jobs_id = \\RNTForest\\lxd\\models\\MonJobs.id WHERE \\RNTForest\\lxd\\models\\MonJobs.id IS NULL");
                 foreach($rows as $row){
-                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonLogs WHERE mon_jobs_id = (:id:)",['id'=>$row['mon_jobs_id']]);
+                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\lxd\\models\\MonLogs WHERE mon_jobs_id = (:id:)",['id'=>$row['mon_jobs_id']]);
                 }
             }
 
@@ -214,9 +214,9 @@ class MonSystem extends \Phalcon\DI\Injectable
             if(!empty($monJobIds)){
                 $ids = implode(',',$monJobIds);
                 // delete MonLogs with nonexisting local MonJobs
-                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id FROM \\RNTForest\\ovz\\models\\MonLogs LEFT OUTER JOIN \\RNTForest\\ovz\\models\\MonJobs ON \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id = \\RNTForest\\ovz\\models\\MonJobs.id WHERE \\RNTForest\\ovz\\models\\MonJobs.id IS NULL");
+                $rows = $this->modelManager->executeQuery("SELECT \\RNTForest\\lxd\\models\\MonLogs.mon_jobs_id FROM \\RNTForest\\lxd\\models\\MonLogs LEFT OUTER JOIN \\RNTForest\\lxd\\models\\MonJobs ON \\RNTForest\\lxd\\models\\MonLogs.mon_jobs_id = \\RNTForest\\lxd\\models\\MonJobs.id WHERE \\RNTForest\\lxd\\models\\MonJobs.id IS NULL");
                 foreach($rows as $row){
-                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\ovz\\models\\MonLogs WHERE mon_jobs_id = (:id:)",['id'=>$row['mon_jobs_id']]);
+                    $this->modelManager->executeQuery("DELETE FROM \\RNTForest\\lxd\\models\\MonLogs WHERE mon_jobs_id = (:id:)",['id'=>$row['mon_jobs_id']]);
                 }
             }
 

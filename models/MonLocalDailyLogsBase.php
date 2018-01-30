@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\models;
+namespace RNTForest\lxd\models;
 
 class MonLocalDailyLogsBase extends \RNTForest\core\models\ModelBase
 {   

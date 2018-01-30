@@ -1,2 +1,2 @@
-# OVZ
-Base functionality for OpenVZ projects
+# LXD
+Base functionality for LXDCP projects

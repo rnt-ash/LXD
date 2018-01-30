@@ -17,9 +17,9 @@
 *
 */
   
-namespace RNTForest\ovz\utilities;
+namespace RNTForest\lxd\utilities;
 
-use RNTForest\ovz\interfaces\MonBehaviorInterface;
+use RNTForest\lxd\interfaces\MonBehaviorInterface;
 
 class PortChecker{
     public static function isUp($port,$target,$timeout = 6){

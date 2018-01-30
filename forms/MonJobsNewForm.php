@@ -17,15 +17,15 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Hidden;
 use Phalcon\Validation;
 
-use RNTForest\ovz\models\MonJobs;
-use RNTForest\ovz\functions\Monitoring;
+use RNTForest\lxd\models\MonJobs;
+use RNTForest\lxd\functions\Monitoring;
 
 class MonJobsNewForm extends \RNTForest\core\forms\FormBase
 {
@@ -36,9 +36,9 @@ class MonJobsNewForm extends \RNTForest\core\forms\FormBase
 
         // behaviors
         // get behaviors depending on server class
-        if($monJob->getServerClass() == '\RNTForest\ovz\models\VirtualServers'){
+        if($monJob->getServerClass() == '\RNTForest\lxd\models\VirtualServers'){
             $serverType = 'virtual';
-        }elseif($monJob->getServerClass() == '\RNTForest\ovz\models\PhysicalServers'){
+        }elseif($monJob->getServerClass() == '\RNTForest\lxd\models\PhysicalServers'){
             $serverType = 'physical';
         }
         

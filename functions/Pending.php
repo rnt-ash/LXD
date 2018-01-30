@@ -16,9 +16,9 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>
 *
 */
-namespace RNTForest\ovz\functions;
+namespace RNTForest\lxd\functions;
 
-use \RNTForest\ovz\models\VirtualServers;
+use \RNTForest\lxd\models\VirtualServers;
 
 class Pending{
 

@@ -12,14 +12,14 @@
     <br />
         
     <code>
-        <p>yum -y update<br />
-        yum -y install mc ntp wget mailx nano php-cli php-pdo</p>
+        <p>apt-get update<br />
+        apt-get install mc ntp wget bsd-mailx nano php7.0-cli php-pdo</p>
     </code>
 </div>
 
 <div class="well">
     <div class="row">
-        {{ form("physical_servers/ovzConnectorExecute", 'role': 'form') }}
+        {{ form("physical_servers/lxdConnectorExecute", 'role': 'form') }}
 
         {{ form.get('physical_servers_id').render() }}
         

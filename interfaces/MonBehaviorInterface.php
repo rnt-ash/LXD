@@ -17,7 +17,7 @@
 *
 */
   
-namespace RNTForest\ovz\interfaces;
+namespace RNTForest\lxd\interfaces;
 
 interface MonBehaviorInterface {
     public function execute($target);

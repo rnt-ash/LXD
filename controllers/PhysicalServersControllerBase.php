@@ -17,18 +17,18 @@
 *
 */
 
-namespace RNTForest\ovz\controllers;
+namespace RNTForest\lxd\controllers;
 
-use RNTForest\ovz\models\PhysicalServers;
-use RNTForest\ovz\models\VirtualServers;
-use RNTForest\ovz\models\Colocations;
-use RNTForest\ovz\forms\OvzConnectorForm;
-use RNTForest\ovz\connectors\OvzConnector;
-use RNTForest\ovz\models\IpObjects;
-use RNTForest\ovz\forms\IpObjectsForm;
-use RNTForest\ovz\models\MonJobs;
+use RNTForest\lxd\models\PhysicalServers;
+use RNTForest\lxd\models\VirtualServers;
+use RNTForest\lxd\models\Colocations;
+use RNTForest\lxd\forms\LxdConnectorForm;
+use RNTForest\lxd\connectors\LxdConnector;
+use RNTForest\lxd\models\IpObjects;
+use RNTForest\lxd\forms\IpObjectsForm;
+use RNTForest\lxd\models\MonJobs;
 use RNTForest\core\models\Logins;
-use RNTForest\ovz\datastructures\OvzConnectorFormFields;
+use RNTForest\lxd\datastructures\LxdConnectorFormFields;
 use RNTForest\core\libraries\Helpers;
 
 
@@ -41,17 +41,17 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         if ($scope == 'customers'){
             $scopeQuery = "customers_id = ".$this->session->get('auth')['customers_id'];
         } else if($scope == 'partners'){
-            $scopeQuery = 'RNTForest\ovz\models\PhysicalServers.customers_id = '.$this->session->get('auth')['customers_id'];
+            $scopeQuery = 'RNTForest\lxd\models\PhysicalServers.customers_id = '.$this->session->get('auth')['customers_id'];
             $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'];
             $joinQuery = array('model'=>'RNTForest\core\models\CustomersPartners',
-                'conditions'=>'RNTForest\ovz\models\PhysicalServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
+                'conditions'=>'RNTForest\lxd\models\PhysicalServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
                 'type'=>'LEFT');
         }
 
         return array(
             "type" => "slideData",
-            "model" => '\RNTForest\ovz\models\PhysicalServers',
-            "form" => '\RNTForest\ovz\forms\PhysicalServersForm',
+            "model" => '\RNTForest\lxd\models\PhysicalServers',
+            "form" => '\RNTForest\lxd\forms\PhysicalServersForm',
             "controller" => "physical_servers",
             "action" => "slidedata",
             "slidenamefield" => "name",
@@ -108,7 +108,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             return array();
         }
 
-        $resultset = \RNTForest\ovz\models\Colocations::find(["conditions" => $conditions, "order" => "name"]);
+        $resultset = \RNTForest\lxd\models\Colocations::find(["conditions" => $conditions, "order" => "name"]);
         $message = self::translate("physicalserver_filter_all_colocations");
         $colocations = array(0 => $message);
         foreach($resultset as $colocation){
@@ -195,7 +195,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
 
         $content = "";
         $this->simpleview->item = $item;
-        $this->simpleview->ovzSetting = json_decode($item->getOvzSettings(),true);
+        
         $content .= $this->simpleview->render("physical_servers/slideDetail.volt");
         return $content;
     }
@@ -208,86 +208,6 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     protected function getPushService(){
         return $this->di['push'];
     }
-
-    
-    /**
-    * Update OVZ settings and statistics of host and all guests
-    * 
-    * @param int $serverId
-    */
-    public function ovzAllInfoAction($serverId){
-        // get VirtualServer
-        try{
-            // sanitize parameters
-            $serverId = $this->filter->sanitize($serverId, "int");
-            
-            // find physical server
-            $physicalServer = PhysicalServers::findFirst($serverId);
-            $message = $this->translate("physicalserver_does_not_exist");
-            if (!$physicalServer) throw new \Exception($message . $serverId);
-
-            // not ovz enabled
-            $message = $this->translate("physicalserver_not_ovz_enabled");
-            if(!$physicalServer->getOvz()) throw new \Exception($message);
-
-            // execute ovz_all_info job        
-            $push = $this->getPushService();
-            $job = $push->executeJob($physicalServer,'ovz_all_info',array());
-            $message =  $this->translate("physicalserver_job_failed");
-            if(!$job || $job->getDone()==2) throw new \Exception($message."(ovz_all_info) !");
-
-            // get infos as array
-            $infos = $job->getRetval(true);
-            $message =  $this->translate("physicalserver_info_not_valid_array");
-            if(!is_array($infos)) throw new \Exception($message);
-
-            // save host settings and statistics
-            $physicalServer->setOvzSettings(json_encode($infos['HostInfo']));
-            $physicalServer->setOvzStatistics(json_encode($infos['HostStatistics']));
-            if ($physicalServer->save() === false) {
-                $messages = $physicalServer->getMessages();
-                foreach ($messages as $message) {
-                    $this->flashSession->warning($message);
-                }
-                $message = $this->translate("physicalserver_update_failed");
-                throw new \Exception($message . $physicalServer->getName());
-            }
-
-            // save guest settings and statistics
-            if(isset($infos['GuestInfo'])){
-                foreach($infos['GuestInfo'] as $key=>$info){
-                    // find virtual server
-                    $virtualServer = VirtualServers::findFirst("ovz_uuid = '".$key."'");
-                    if (!$virtualServer) {
-                        $message = $this->translate("virtualserver_does_not_exist");
-                        $this->flashSession->warning($message . "UUID: " . $key);
-                        continue;
-                    }
-
-                    $virtualServer->setOvzSettings(json_encode($infos['GuestInfo'][$key]));
-                    $virtualServer->setOvzStatistics(json_encode($infos['GuestStatistics'][$key]));
-                    if ($virtualServer->save() === false) {
-                        $messages = $virtualServer->getMessages();
-                        foreach ($messages as $message) {
-                            $this->flashSession->warning($message);
-                        }
-                        $message = $this->translate("virtualserver_update_failed");
-                        throw new \Exception($message . $virtualServer->getName());
-                    }
-                }
-            }
-
-            // success
-            $message = $this->translate("physicalserver_update_success");
-            $this->flashSession->success($message);
-            
-        }catch(\Exception $e){
-            $this->flashSession->error($e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        // go back to slidedata view
-        $this->redirectTo("physical_servers/slidedata");
-    }    
     
     /**
     * Does some preSave configurations like convert the bytestrings to MB for memory or GB for diskspace.
@@ -345,11 +265,11 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
     }
 
     /**
-    * Show form for ovz connector    
+    * Show form for lxd connector    
     * 
     * @param integer $physicalServersId
     */
-    public function ovzConnectorAction($physicalServersId){
+    public function lxdConnectorAction($physicalServersId){
         // sanitize
         $physicalServersId = $this->filter->sanitize($physicalServersId,"int");
 
@@ -367,31 +287,31 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         }   
         
         // prepare form fields
-        $connectorFormFields = new OvzConnectorFormFields();
+        $connectorFormFields = new LxdConnectorFormFields();
         $connectorFormFields->physical_servers_id = $physicalServersId;
         
         // call view
-        $this->view->form = new OvzConnectorForm($connectorFormFields); 
-        $this->view->pick("physical_servers/ovzConnectorForm");
+        $this->view->form = new LxdConnectorForm($connectorFormFields); 
+        $this->view->pick("physical_servers/lxdConnectorForm");
     }
 
     /**
-    * Connect OVZ Server
+    * Connect LXD Server
     * 
     */
-    public function ovzConnectorExecuteAction(){
+    public function lxdConnectorExecuteAction(){
         try{
             // POST request?
             if (!$this->request->isPost()) 
                 return $this->redirectTo("physical_servers/slidedata");
 
             // validate FORM
-            $form = new OvzConnectorForm;
-            $item = new OvzConnectorFormFields();
+            $form = new LxdConnectorForm;
+            $item = new LxdConnectorFormFields();
             $data = $this->request->getPost();
             if (!$form->isValid($data, $item)) {
                 $this->view->form = $form; 
-                $this->view->pick("physical_servers/ovzConnectorForm");
+                $this->view->pick("physical_servers/lxdConnectorForm");
                 return; 
             }
             
@@ -404,7 +324,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
                 $message = $this->translate("physicalserver_does_not_exist");
                 $this->flashSession->error($message);
                 $this->view->form = $form; 
-                $this->view->pick("physical_servers/ovzConnectorForm");
+                $this->view->pick("physical_servers/lxdConnectorForm");
                 return;
             }
             
@@ -414,7 +334,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
             }
             
             // connect
-            $connector = new OvzConnector($physicalServer,$data['username'],$data['password']);
+            $connector = new lxdConnector($physicalServer,$data['username'],$data['password']);
             $connector->go();
 
             // success message
@@ -443,7 +363,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         // store in session
         $this->session->set("IpObjectsForm", array(
             "op" => "new",
-            "server_class" => '\RNTForest\ovz\models\PhysicalServers',
+            "server_class" => '\RNTForest\lxd\models\PhysicalServers',
             "server_id" => intval($id),
             "origin" => array(
                 'controller' => 'physical_servers',
@@ -543,7 +463,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         // store in session
         $this->session->set("MonJobsForm", array(
             "op" => "new",
-            "server_class" => '\RNTForest\ovz\models\PhysicalServers',
+            "server_class" => '\RNTForest\lxd\models\PhysicalServers',
             "server_id" => intval($physicalServerId),
             "origin" => array(
                 'controller' => 'physical_servers',
@@ -567,7 +487,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         // store in session
         $this->session->set("MonJobsForm", array(
             "op" => "delete",
-            "server_class" => '\RNTForest\ovz\models\PhysicalServers',
+            "server_class" => '\RNTForest\lxd\models\PhysicalServers',
             "origin" => array(
                 'controller' => 'physical_servers',
                 'action' => 'slidedata',
@@ -591,7 +511,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         // store in session
         $this->session->set("MonJobsForm", array(
             "op" => "edit",
-            "server_class" => '\RNTForest\ovz\models\PhysicalServers',
+            "server_class" => '\RNTForest\lxd\models\PhysicalServers',
             "origin" => array(
                 'controller' => 'physical_servers',
                 'action' => 'slidedata',
@@ -615,7 +535,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         // store in session
         $this->session->set("MonJobsForm", array(
             "op" => "mute",
-            "server_class" => '\RNTForest\ovz\models\PhysicalServers',
+            "server_class" => '\RNTForest\lxd\models\PhysicalServers',
             "origin" => array(
                 'controller' => 'physical_servers',
                 'action' => 'slidedata',
@@ -639,7 +559,7 @@ class PhysicalServersControllerBase extends \RNTForest\core\controllers\TableSli
         // store in session
         $this->session->set("MonJobsForm", array(
             "op" => "details",
-            "server_class" => '\RNTForest\ovz\models\PhysicalServers',
+            "server_class" => '\RNTForest\lxd\models\PhysicalServers',
             "origin" => array(
                 'controller' => 'physical_servers',
                 'action' => 'slidedata',

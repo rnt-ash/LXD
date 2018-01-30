@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\models;
+namespace RNTForest\lxd\models;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
@@ -28,13 +28,13 @@ use Phalcon\Mvc\Model\Message as Message;
 
 use RNTForest\core\interfaces\JobServerInterface;
 use RNTForest\core\interfaces\PendingInterface;
-use RNTForest\ovz\interfaces\MonServerInterface;
-use RNTForest\ovz\interfaces\IpServerInterface;
+use RNTForest\lxd\interfaces\MonServerInterface;
+use RNTForest\lxd\interfaces\IpServerInterface;
 use RNTForest\core\libraries\PendingHelpers;
-use RNTForest\ovz\functions\Monitoring;
+use RNTForest\lxd\functions\Monitoring;
 use RNTForest\core\models\Customers;
 
-class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface, IpServerInterface
+class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, IpServerInterface
 {
 
     /**
@@ -77,25 +77,14 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     *
     * @var integer
     */
-    protected $ovz;
+    protected $lxd;
 
     /**
-    *
-    * @var string
+    * @var text
+    * 
+    * @var mixed
     */
-    protected $ovz_settings;
-    
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_statistics;
-    
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_ostemplates;
+    protected $lxd_images;
     
     /**
     *
@@ -194,43 +183,23 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     }
 
     /**
-    * Method to set the value of field ovz
+    * Method to set the value of field lxd
     *
-    * @param integer $ovz
+    * @param integer $lxd
     */
-    public function setOvz($ovz)
+    public function setLxd($lxd)
     {
-        $this->ovz = $ovz;
+        $this->lxd = $lxd;
     }
 
     /**
-    * Method to set the value of field ovz_settings
+    * LXD images as JSON
     *
-    * @param string $ovz_settings
+    * @param string $lxd_images
     */
-    public function setOvzSettings($ovz_settings)
+    public function setLxdImages($lxd_images)
     {
-        $this->ovz_settings = $ovz_settings;
-    }
-
-    /**
-    * OpenVZ statistics as JSON
-    *
-    * @param string $ovz_statistics
-    */
-    public function setOvzStatistics($ovz_statistics)
-    {
-        $this->ovz_statistics = $ovz_statistics;
-    }
-
-    /**
-    * OpenVZ ostemplates as JSON
-    *
-    * @param string $ovz_ostemplates
-    */
-    public function setOvzOstemplates($ovz_ostemplates)
-    {
-        $this->ovz_ostemplates = $ovz_ostemplates;
+        $this->lxd_images = $lxd_images;
     }
 
     /**
@@ -354,43 +323,23 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     }
 
     /**
-    * Returns the value of field ovz
+    * Returns the value of field lxd
     *
     * @return integer
     */
-    public function getOvz()
+    public function getLxd()
     {
-        return $this->ovz;
+        return $this->lxd;
     }
 
     /**
-    * Returns the value of field ovz_settings
+    * Returns the value of field lxd_images
     *
     * @return string
     */
-    public function getOvzSettings()
+    public function getLxdImages()
     {
-        return $this->ovz_settings;
-    }
-
-    /**
-    * Returns the value of field ovz_statistics
-    *
-    * @return string
-    */
-    public function getOvzStatistics()
-    {
-        return $this->ovz_statistics;
-    }
-    
-    /**
-    * Returns the value of field ovz_ostemplates
-    *
-    * @return string
-    */
-    public function getOvzOstemplates()
-    {
-        return $this->ovz_ostemplates;
+        return $this->lxd_images;
     }
 
     /**
@@ -463,8 +412,8 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
         
         // relations
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customer", "foreignKey"=>true));
-        $this->belongsTo("colocations_id",'RNTForest\ovz\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>true));
-        $this->hasMany("id",'RNTForest\ovz\models\VirtualServers',"physical_servers_id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
+        $this->belongsTo("colocations_id",'RNTForest\lxd\models\Colocations',"id",array("alias"=>"Colocations", "foreignKey"=>true));
+        $this->hasMany("id",'RNTForest\lxd\models\VirtualServers',"physical_servers_id",array("alias"=>"VirtualServers", "foreignKey"=>array("allowNulls"=>true)));
     }
     
     public function onConstruct(){
@@ -475,11 +424,11 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     /**
     * get all IpObjects of this physical Server
     * 
-    * @return \RNTForest\ovz\models\IpObjects
+    * @return \RNTForest\lxd\models\IpObjects
     *     
     */
     public function getIpObjects(){
-        $server_class = addslashes('\RNTForest\ovz\models\PhysicalServers');
+        $server_class = addslashes('\RNTForest\lxd\models\PhysicalServers');
         $resultset = IpObjects::find(["conditions"=>"server_class = '".$server_class."' AND server_id = '".$this->id."'"]);
         return $resultset;
     }
@@ -641,7 +590,7 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     * 
     */
     public function getParentClass(){
-        return '\RNTForest\ovz\models\Colocations';
+        return '\RNTForest\lxd\models\Colocations';
     }
     
     /**
@@ -656,7 +605,7 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
     /**
     * Get the main IpObjects of this Server.
     * 
-    * @return \RNTForest\ovz\models\IpObjects
+    * @return \RNTForest\lxd\models\IpObjects
     */
     public function getMainIp(){
         $reflection = new \ReflectionClass($this);
@@ -670,149 +619,5 @@ class PhysicalServersBase extends \RNTForest\core\models\ModelBase implements Jo
                 ],
             ]
         );
-    }
-    
-    /**
-    * Get all MonRemoteJobs instances of this server.
-    *
-    * @return \Phalcon\Mvc\Model\ResultsetInterface 
-    */
-    public function getMonRemoteJobs(){
-        $reflection = new \ReflectionClass($this);
-        
-        return MonJobs::find(
-            [
-                "mon_type = 'remote' AND server_class = :class: AND server_id = :id:",
-                "bind" => [
-                    "class" => "\\".$reflection->getName(),
-                    "id" => $this->getId(),
-                ],
-            ]
-        );
-    }
-    
-    /**
-    * Get all MonLocalJobs instances of this server.
-    *
-    * @return \Phalcon\Mvc\Model\ResultsetInterface 
-    */
-    public function getMonLocalJobs(){
-        $reflection = new \ReflectionClass($this);
-        
-        return MonJobs::find(
-            [
-                "mon_type = 'local' AND server_class = :class: AND server_id = :id:",
-                "bind" => [
-                    "class" => "\\".$reflection->getName(),
-                    "id" => $this->getId(),
-                ],
-            ]
-        );
-    }
-    
-        
-    /**
-    * Adds a new MonRemoteJobs for this server.
-    * 
-    * @param string $behaviorName
-    * @return MonJobs $monJob
-    */
-    public function addMonRemoteJob($behaviorName){
-        // validate and clean parameters
-        $allBehaviors = Monitoring::getAllBehaviors('physical');
-        if(key_exists($behaviorName,$allBehaviors)){
-            $behavior = $allBehaviors[$behaviorName]['classpath'];
-        }else{
-            throw new \Exception($this->translate("monitoring_monjobs_add_no_valid_behavior"));
-        }
-        
-        $reflection = new \ReflectionClass($this);
-        
-        // and save the new job
-        $monJob = new MonJobs();
-        $monJob->setServerId($this->getId());
-        $monJob->setServerClass("\\".$reflection->getName());
-        $monJob->setMonBehaviorClass($behavior);
-        
-        // set healing to 1 if HttpMonBehavior
-        if(strpos($monJob->getMonBehaviorClass(),'HttpMonBehavior') > 0){
-            $monJob->healing = 1;
-        }
-        
-        return $monJob;
-    }
-    
-    /**
-    * Adds a new MonLocalJob for this server.
-    * 
-    * @param string $behaviorName
-    * @return MonJobs $monJob
-    */
-    public function addMonLocalJob($behaviorName){
-        // validate and clean parameters
-        $allBehaviors = Monitoring::getAllBehaviors('physical');
-        if(key_exists($behaviorName,$allBehaviors)){
-            $behavior = $allBehaviors[$behaviorName]['classpath'];
-        }else{
-            throw new \Exception($this->translate("monitoring_monjobs_add_no_valid_behavior"));
-        }
-        
-        // gen the warn and maximal value
-        $warningValue = $maximalValue = 0;
-        if(strpos($behavior,'Cpu')){
-            $warningValue = 50;
-            $maximalValue = 80;
-        
-            // set params
-            $behaviorParams = '["cpu_load"]';
-        }elseif(strpos($behavior,'Memoryfree')){
-            // warning at a quarter, minimal 512
-            $warningValue = intval($this->getMemory()*0.25);
-            if($warningValue < 1024) $warningValue = 1024;
-            
-            // maximal at ten percent, minimal 256
-            $maximalValue = intval($this->getMemory()*0.1);
-            if($maximalValue < 512) $maximalValue = 512;
-        
-            // set params
-            $behaviorParams = '["memory_free_mb"]';
-        }elseif(strpos($behavior,'Diskspacefree') && strpos($behaviorName,'root')){
-            // warning at a 5
-            $warningValue = 5;
-            
-            // maximal at 3
-            $maximalValue = 3;
-            
-            // set params
-            $behaviorParams = '["FsInfo","/","free_gb"]';
-        }elseif(strpos($behavior,'Diskspacefree') && strpos($behaviorName,'vz')){
-            // warning at a ten percent, minimal 10
-            $warningValue = intval($this->getSpace()*0.1);
-            if($warningValue < 10) $warningValue = 10;
-            
-            // maximal at five percent, minimal 5 
-            $maximalValue = intval($this->getSpace()*0.05);
-            if($maximalValue < 5) $maximalValue = 5;
-        
-            // set params
-            $behaviorParams = '["FsInfo","/vz","free_gb"]';
-        }
-        
-        $reflection = new \ReflectionClass($this);
-        
-        // and save the new job
-        $monJob = new MonJobs();
-        $monJob->setServerId($this->getId());
-        $monJob->setServerClass("\\".$reflection->getName());
-        $monJob->setMonBehaviorClass($behavior);
-        $monJob->setMonBehaviorParams($behaviorParams);
-        $monJob->setWarningValue($warningValue);
-        $monJob->setMaximalValue($maximalValue);
-        
-        if(strpos($monJob->getMonBehaviorClass(),'Diskspace') > 0){
-            $monJob->alarm_period = 360;
-        }
-        
-        return $monJob;
     }
 }

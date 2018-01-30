@@ -17,12 +17,12 @@
 *
 */
 
-namespace RNTForest\ovz\utilities;
+namespace RNTForest\lxd\utilities;
 
-use RNTForest\ovz\models\MonJobs;
-use RNTForest\ovz\models\MonLogs;
-use RNTForest\ovz\models\MonUptimes;
-use RNTForest\ovz\datastructures\Uptime;
+use RNTForest\lxd\models\MonJobs;
+use RNTForest\lxd\models\MonLogs;
+use RNTForest\lxd\models\MonUptimes;
+use RNTForest\lxd\datastructures\Uptime;
 use RNTForest\core\libraries\Helpers;
 
 class MonUptimesGenerator{
@@ -105,7 +105,7 @@ class MonUptimesGenerator{
             
             $modelManager = MonUptimesGenerator::getModelManager();
             $endLog = $modelManager->executeQuery(
-                "DELETE FROM \\RNTForest\\ovz\\models\\MonLogs ".
+                "DELETE FROM \\RNTForest\\lxd\\models\\MonLogs ".
                     " WHERE mon_jobs_id = :id: ".
                     " AND modified BETWEEN :monthstart: AND :monthend: ",
                 [

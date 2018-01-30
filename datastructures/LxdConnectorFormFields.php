@@ -17,13 +17,13 @@
 *
 */
 
-namespace RNTForest\ovz\datastructures;
+namespace RNTForest\lxd\datastructures;
 
 /**
-* Helperclass for the ovz connector
+* Helperclass for the lxd connector
 * 
 */
-class OvzConnectorFormFields{
+class LxdConnectorFormFields{
     public $physical_servers_id = 0;
     public $username = "";
     public $password = "";

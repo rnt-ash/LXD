@@ -17,11 +17,11 @@
 *
 */
 
-namespace RNTForest\ovz\utilities;
+namespace RNTForest\lxd\utilities;
 
-use RNTForest\ovz\models\MonJobs;
-use RNTForest\ovz\models\MonLogs;
-use RNTForest\ovz\models\MonLocalDailyLogs;
+use RNTForest\lxd\models\MonJobs;
+use RNTForest\lxd\models\MonLogs;
+use RNTForest\lxd\models\MonLocalDailyLogs;
 use RNTForest\core\libraries\Helpers;
 
 class MonLocalDailyLogsGenerator{
@@ -103,7 +103,7 @@ class MonLocalDailyLogsGenerator{
             // delete MonLocalLogs of this $monJob and $day
             $modelManager = MonLocalDailyLogsGenerator::getModelManager();
             $endLog = $modelManager->executeQuery(
-                "DELETE FROM \\RNTForest\\ovz\\models\\MonLogs ".
+                "DELETE FROM \\RNTForest\\lxd\\models\\MonLogs ".
                     " WHERE mon_jobs_id = :id: ".
                     " AND modified BETWEEN :daystart: AND :dayend: ",
                 [
@@ -119,8 +119,8 @@ class MonLocalDailyLogsGenerator{
     * Sorts and splits up the MonLogs on days.
     * Memoryintense part if a lot of logs.
     * 
-    * @param \RNTForest\ovz\models\MonLogs[] $monLogs
-    * @return \RNTForest\ovz\models\MonLogs[][] $monLogs
+    * @param \RNTForest\lxd\models\MonLogs[] $monLogs
+    * @return \RNTForest\lxd\models\MonLogs[][] $monLogs
     */
     private static function sortAndSplitMonLogsByDay($monLogs){
         // sort on modified
@@ -144,7 +144,7 @@ class MonLocalDailyLogsGenerator{
     * Computes the average of a given day.
     * 
     * @param string $day
-    * @param \RNTForest\ovz\models\MonRemoteLogs[] $sortedMonLogs
+    * @param \RNTForest\lxd\models\MonRemoteLogs[] $sortedMonLogs
     * @return Uptime
     */
     private static function computeAverage($day,$sortedMonLogs){

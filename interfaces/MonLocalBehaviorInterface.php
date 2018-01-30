@@ -17,7 +17,7 @@
 *
 */
   
-namespace RNTForest\ovz\interfaces;
+namespace RNTForest\lxd\interfaces;
 
 interface MonLocalBehaviorInterface {
     /**
@@ -27,7 +27,7 @@ interface MonLocalBehaviorInterface {
     * @param string $monBehaviorParams JSON
     * @param numeric $warnvalue
     * @param numeric $maxvalue
-    * @return \RNTForest\ovz\utilities\MonLocalValueStatus
+    * @return \RNTForest\lxd\utilities\MonLocalValueStatus
     */
     public function execute($ovzStatistics,$monBehaviorParams,$warnvalue,$maxvalue);
     

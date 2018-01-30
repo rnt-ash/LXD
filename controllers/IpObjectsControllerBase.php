@@ -17,11 +17,11 @@
 *
 */
 
-namespace RNTForest\ovz\controllers;
+namespace RNTForest\lxd\controllers;
 
-use RNTForest\ovz\models\IpObjects;
-use RNTForest\ovz\forms\IpObjectsForm;
-use RNTForest\ovz\models\VirtualServers;
+use RNTForest\lxd\models\IpObjects;
+use RNTForest\lxd\forms\IpObjectsForm;
+use RNTForest\lxd\models\VirtualServers;
 
 class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
 {
@@ -55,7 +55,7 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
     */
     public function editAction($item)
     {
-        if(is_a($item,'\RNTForest\ovz\forms\IpObjectsForm')){
+        if(is_a($item,'\RNTForest\lxd\forms\IpObjectsForm')){
             // Get item from form
             $this->view->form = $item;
         } else {
@@ -94,7 +94,7 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
         // Edit or new Record
         $id = $this->request->getPost("id", "int");
         if(empty($id)){
-            $ipobject = new \RNTForest\ovz\models\IpObjects();
+            $ipobject = new \RNTForest\lxd\models\IpObjects();
         }else{
             $ipobject = IpObjects::findFirstById($id);
             if (!$ipobject) {
@@ -105,7 +105,7 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
         }
         
         // validate FORM
-        $form = new \RNTForest\ovz\forms\IpObjectsForm();
+        $form = new \RNTForest\lxd\forms\IpObjectsForm();
 
         $data = $this->request->getPost();
         if (!$form->isValid($data, $ipobject)) {
@@ -127,7 +127,7 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
             $this->setMainIP($ipobject);
             
         // configure ip on virtual servers
-        if($ipobject->getServerClass() == '\RNTForest\ovz\models\VirtualServers' && $ipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
+        if($ipobject->getServerClass() == '\RNTForest\lxd\models\VirtualServers' && $ipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
             $error = $this->configureAllocatedIpOnVirtualServer($ipobject, 'add');
             if(!empty($error))
                 $message = $this->translate("ipobjects_ip_conf_failed");
@@ -158,7 +158,7 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
         }
 
         // configure ip on virtual servers
-        if($ipobject->getServerClass() == '\RNTForest\ovz\models\VirtualServers' && $ipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
+        if($ipobject->getServerClass() == '\RNTForest\lxd\models\VirtualServers' && $ipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
             $error = $this->configureAllocatedIpOnVirtualServer($ipobject, 'del');
             if(!empty($error))
                 $message = $this->translate("ipobjects_ip_conf_failed");
@@ -230,7 +230,7 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
         }
 
         // all other IPs to not main  
-        $phql="UPDATE \\RNTForest\\ovz\\models\\IpObjects SET main = 0 ".
+        $phql="UPDATE \\RNTForest\\lxd\\models\\IpObjects SET main = 0 ".
                 "WHERE allocated >= 2 ".
                 "AND id != ".$ip->getId()." ".
                 "AND server_id = ".$ip->getServerId()." ".
@@ -251,11 +251,11 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
         try {
             // validate
             $virtualServer = VirtualServers::tryFindById($ip->getServerID());  
-            VirtualServersControllerBase::tryCheckOvzEnabled($virtualServer);
+            VirtualServersControllerBase::tryCheckLxdEnabled($virtualServer);
 
             // execute ovz_modify_vs job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
             if($op == 'add'){
                 $config = array("ipadd"=>$ip->getValue1());
             }else{

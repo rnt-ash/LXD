@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Text;
@@ -32,7 +32,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-use RNTForest\ovz\models\IpObjects;
+use RNTForest\lxd\models\IpObjects;
 
 class IpObjectsForm extends \RNTForest\core\forms\FormBase
 {

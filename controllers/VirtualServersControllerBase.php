@@ -17,28 +17,28 @@
 *
 */
 
-namespace RNTForest\ovz\controllers;
+namespace RNTForest\lxd\controllers;
 
 use Phalcon\Http\Client\Request;
 
 use RNTForest\core\libraries\PDF;
-use RNTForest\ovz\models\VirtualServers;
-use RNTForest\ovz\models\PhysicalServers;
-use RNTForest\ovz\models\IpObjects;
+use RNTForest\lxd\models\VirtualServers;
+use RNTForest\lxd\models\PhysicalServers;
+use RNTForest\lxd\models\IpObjects;
 use RNTForest\core\models\Customers;
 use RNTForest\core\models\Logins;
-use RNTForest\ovz\forms\VirtualServersForm;
-use RNTForest\ovz\forms\VirtualServersConfigureForm;
-use RNTForest\ovz\forms\VirtualServersModifyForm;
-use RNTForest\ovz\forms\IpObjectsForm;
-use RNTForest\ovz\forms\SnapshotForm;
-use RNTForest\ovz\forms\ReplicaActivateForm;
-use RNTForest\ovz\forms\RootPasswordChangeForm;
-use RNTForest\ovz\models\MonJobs;
-use RNTForest\ovz\datastructures\ReplicaActivateFormFields;
-use RNTForest\ovz\datastructures\RootPasswordChangeFormFields;
-use RNTForest\ovz\datastructures\SnapshotFormFields;
-use RNTForest\ovz\datastructures\VirtualServersConfigureFormFields;
+use RNTForest\lxd\forms\VirtualServersForm;
+use RNTForest\lxd\forms\VirtualServersConfigureForm;
+use RNTForest\lxd\forms\VirtualServersModifyForm;
+use RNTForest\lxd\forms\IpObjectsForm;
+use RNTForest\lxd\forms\SnapshotForm;
+use RNTForest\lxd\forms\ReplicaActivateForm;
+use RNTForest\lxd\forms\RootPasswordChangeForm;
+use RNTForest\lxd\models\MonJobs;
+use RNTForest\lxd\datastructures\ReplicaActivateFormFields;
+use RNTForest\lxd\datastructures\RootPasswordChangeFormFields;
+use RNTForest\lxd\datastructures\SnapshotFormFields;
+use RNTForest\lxd\datastructures\VirtualServersConfigureFormFields;
 
 use \RNTForest\core\libraries\Helpers;
 
@@ -46,22 +46,21 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 {
     protected function getSlideDataInfo() {
         $scope = $this->permissions->getScope('virtual_servers','general');
-        $scopeQuery = 'RNTForest\ovz\models\VirtualServers.ovz_replica < 2';
         $joinQuery = NULL;
         if ($scope == 'customers'){
             $scopeQuery .= " AND customers_id = ".$this->session->get('auth')['customers_id'];
         } else if($scope == 'partners'){
-            $scopeQuery .= ' AND (RNTForest\ovz\models\VirtualServers.customers_id = '.$this->session->get('auth')['customers_id'];
+            $scopeQuery .= ' AND (RNTForest\lxd\models\VirtualServers.customers_id = '.$this->session->get('auth')['customers_id'];
             $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'].")";
             $joinQuery = array('model'=>'RNTForest\core\models\CustomersPartners',
-                'conditions'=>'RNTForest\ovz\models\VirtualServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
+                'conditions'=>'RNTForest\lxd\models\VirtualServers.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
                 'type'=>'LEFT');
         }
 
         return array(
             "type" => "slideData",
-            "model" => '\RNTForest\ovz\models\VirtualServers',
-            "form" => '\RNTForest\ovz\forms\VirtualServersForm',
+            "model" => '\RNTForest\lxd\models\VirtualServers',
+            "form" => '\RNTForest\lxd\forms\VirtualServersForm',
             "controller" => "virtual_servers",
             "action" => "slidedata",
             "slidenamefield" => "name",
@@ -110,7 +109,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $physicalServers[0]['count'] = '';
             foreach($resultset as $physicalServer){
                 $physicalServers[$physicalServer->id]['name'] = $physicalServer->name;
-                $findParameters = array("conditions"=>"physical_servers_id = ".$physicalServer->id." AND ovz_replica < 2");
+                $findParameters = array("conditions"=>"physical_servers_id = ".$physicalServer->id);
                 $physicalServers[$physicalServer->id]['count'] = count(VirtualServers::findFromScope($scope,$findParameters))." VS";
                 if(!empty($this->slideDataInfo['filters']['filterPhysicalServers'])){
                     if($this->slideDataInfo['filters']['filterPhysicalServers'] == $physicalServer->id){
@@ -124,8 +123,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
     protected function isValidSlideFilterItem($virtualServer,$level){
         if(!empty($this->slideDataInfo['filters']['filterAll'])){ 
-            if(strpos(strtolower($virtualServer->name),strtolower($this->slideDataInfo['filters']['filterAll']))===false
-                && strpos(strtolower($virtualServer->getOvzUuid()),strtolower($this->slideDataInfo['filters']['filterAll']))===false)            
+            if(strpos(strtolower($virtualServer->name),strtolower($this->slideDataInfo['filters']['filterAll']))===false)            
                 return false;
         }
         if(!empty($this->slideDataInfo['filters']['filterCustomers_id'])){ 
@@ -154,83 +152,35 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // Slidelevel ignored because there is only one level
         $content = "";
         $this->simpleview->item = $item;
-        $this->simpleview->snapshots = $this->ovzSnapshotRenderList($item);
         $content .= $this->simpleview->render("virtual_servers/slideDetail.volt");
         return $content;
     }
 
     /**
-    * check if Virtual or Physical Server is OVZ enabled. Otherwise it throws an exception
+    * check if Virtual or Physical Server is LXD enabled. Otherwise it throws an exception
     * 
     * @param server $server
     * @throws Exceptions
     */
-    public static function tryCheckOvzEnabled($server) {
-        // check if server is ovz enabled   
-        if($server->getOvz() == 0){
-            $message = self::translate("virtualserver_server_not_ovz_enabled");
+    public static function tryCheckLxdEnabled($server) {
+        // check if server is lxd enabled   
+        if($server->getLxd() == 0){
+            $message = self::translate("virtualserver_server_not_lxd_enabled");
             throw new \Exception($message);
         }
-    }
-
-    /**
-    * updates OVZ settings and statistics
-    * 
-    * @param int $serverId
-    */
-    public function ovzUpdateInfoAction($serverId){
-
-        // sanitize parameters
-        $serverId = $this->filter->sanitize($serverId, "int");
-
-        try{
-            // validating
-            $virtualServer = VirtualServers::tryFindById($serverId);
-            $this->tryCheckPermission('virtual_servers','general',array('item' => $virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
-
-            // execute ovz_all_info job 
-            $this->tryGetOvzAllInfo($virtualServer);
-
-            // success
-            $message = $this->translate("virtualserver_info_success");
-            $this->flashSession->success($message);
-
-        }catch(\Exception $e){
-            $this->flashSession->error($e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        // go back to slidedata view
-        $this->redirectTo("virtual_servers/slidedata");
-    }
-    
-    protected function tryGetOvzAllInfo($virtualServer){
-        // check if update is realy needed
-        if(!empty($virtualServer->getOvzSettingsArray()['Timestamp'])){
-            $lastupdate = new \DateTime($virtualServer->getOvzSettingsArray()['Timestamp']);
-            if ($lastupdate->diff(new \DateTime())->format('%s') <= 10) return true;
-        }
-
-        // no pending needed because job reads only    
-        $params = array('UUID'=>$virtualServer->getOvzUuid());
-        $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_all_info',$params);
-        
-        // save settings to virtual server
-        $this->trySaveAllInfo($job,$virtualServer);
-        
-    }    
+    }   
 
     /**
     * execute ovz_start_vs job
     * 
-    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
+    * @param \RNTForest\lxd\models\VirtualServers $virtualServer
     * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
     * @throws \Exceptions
     */
     protected function tryStartVS($virtualServer){
 
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
         $params = array('UUID'=>$virtualServer->getOvzUuid());
         $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_start_vs',$params,$pending);
         
@@ -247,7 +197,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     protected function tryStopVS($virtualServer){
 
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
         $params = array('UUID'=>$virtualServer->getOvzUuid());
         $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_stop_vs',$params,$pending);
         
@@ -264,7 +214,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     protected function tryRestartVS($virtualServer){
 
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+        $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
         $params = array('UUID'=>$virtualServer->getOvzUuid());
         $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params,$pending);
         
@@ -396,7 +346,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // execute ovz_destroy_vs job   
             if($virtualServer->getOvz()){     
                 // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
-                $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId();
+                $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId();
                 $params = array("UUID"=>$virtualServer->getOvzUuid());
                 $job = $this->getPushService()->executeJob($virtualServer->physicalServers,'ovz_destroy_vs',$params,$pending);
                 if($job->getDone() == 2){

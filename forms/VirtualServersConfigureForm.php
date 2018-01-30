@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Hidden;
@@ -32,7 +32,7 @@ use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Validation\Validator\Between as BetweenValidator;
 
-use RNTForest\ovz\models\VirtualServers;
+use RNTForest\lxd\models\VirtualServers;
 
 class VirtualServersConfigureForm extends \RNTForest\core\forms\FormBase
 {

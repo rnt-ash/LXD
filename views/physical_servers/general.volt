@@ -7,12 +7,8 @@
                 <div class="pull-right">
                     {{ link_to("physical_servers/edit/"~item.id,'<i class="fa fa-pencil"></i>',
                             'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_editsettings") ) }}
-                    {% if item.ovz %}
-                        {{ link_to("physical_servers/ovzAllInfo/"~item.id,'<i class="fa fa-refresh"></i>',
-                            'class': 'btn btn-default btn-xs loadingScreen', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_update_infos") ) }}
-                    {% endif %}
-                    {{ link_to("physical_servers/ovzConnector/"~item.id,'<i class="fa fa-link"></i>',
-                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_connectovz") ) }}
+                    {{ link_to("physical_servers/lxdConnector/"~item.id,'<i class="fa fa-link"></i>',
+                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title': _("physicalserver_general_connectlxd") ) }}
                     <a href="#" link="/physical_servers/delete/{{item.id}}" text="{{ _("physicalserver_confirm_removeserver") }}"
                         class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("physicalserver_tooltip_removeserver") }}">
                         <i class="fa fa-trash-o"></i>
@@ -45,7 +41,7 @@
                         {{ _("physicalserver_general_hosttype") }}
                     </td>
                     <td>
-                        {% if item.ovz %}OpenVZ ({{ovzSetting['Version']}}){% else %}Not connected{% endif %}
+                        {% if item.lxd %}LXD Host{% else %}Not connected{% endif %}
                     </td>
                 </tr>
                 <tr>

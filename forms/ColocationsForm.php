@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Element\Text;
 use Phalcon\Forms\Element\TextArea;
@@ -26,7 +26,7 @@ use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Date;
 
 use RNTForest\core\models\Customers;
-use RNTForest\ovz\models\Colocations;
+use RNTForest\lxd\models\Colocations;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;

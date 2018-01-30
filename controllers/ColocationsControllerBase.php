@@ -17,11 +17,11 @@
 *
 */
 
-namespace RNTForest\ovz\controllers;
+namespace RNTForest\lxd\controllers;
 
-use RNTForest\ovz\models\Colocations;
-use RNTForest\ovz\models\IpObjects;
-use RNTForest\ovz\forms\IpObjectsForm;
+use RNTForest\lxd\models\Colocations;
+use RNTForest\lxd\models\IpObjects;
+use RNTForest\lxd\forms\IpObjectsForm;
 use RNTForest\core\libraries\PDF;
 
 class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBase
@@ -33,17 +33,17 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         if ($scope == 'customers'){
             $scopeQuery = "customers_id = ".$this->session->get('auth')['customers_id'];
         } else if($scope == 'partners'){
-            $scopeQuery = 'RNTForest\ovz\models\Colocations.customers_id = '.$this->session->get('auth')['customers_id'];
+            $scopeQuery = 'RNTForest\lxd\models\Colocations.customers_id = '.$this->session->get('auth')['customers_id'];
             $scopeQuery .= ' OR RNTForest\core\models\CustomersPartners.partners_id = '.$this->session->get('auth')['customers_id'];
             $joinQuery = array('model'=>'RNTForest\core\models\CustomersPartners',
-                                'conditions'=>'RNTForest\ovz\models\Colocations.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
+                                'conditions'=>'RNTForest\lxd\models\Colocations.customers_id = RNTForest\core\models\CustomersPartners.customers_id',
                                 'type'=>'LEFT');
         }
 
         return array(
             "type" => "slideData",
-            "model" => '\RNTForest\ovz\models\Colocations',
-            "form" => '\RNTForest\ovz\forms\ColocationsForm',
+            "model" => '\RNTForest\lxd\models\Colocations',
+            "form" => '\RNTForest\lxd\forms\ColocationsForm',
             "controller" => "colocations",
             "action" => "slidedata",
             "slidenamefield" => "name",
@@ -118,7 +118,7 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
         // store in session
         $this->session->set("IpObjectsForm", array(
             "op" => "new",
-            "server_class" => '\RNTForest\ovz\models\Colocations',
+            "server_class" => '\RNTForest\lxd\models\Colocations',
             "server_id" => intval($id),
             "origin" => array(
                 'controller' => 'colocations',
@@ -266,9 +266,9 @@ class ColocationsControllerBase extends \RNTForest\core\controllers\TableSlideBa
             }
             
             // Sorting IPs in the arrays
-            usort($ipReserved, array('RNTForest\ovz\models\IpObjects', 'cmp'));
-            usort($ipAllocated, array('RNTForest\ovz\models\IpObjects', 'cmp'));
-            usort($ipReservedNet, array('RNTForest\ovz\models\IpObjects', 'cmp'));
+            usort($ipReserved, array('RNTForest\lxd\models\IpObjects', 'cmp'));
+            usort($ipAllocated, array('RNTForest\lxd\models\IpObjects', 'cmp'));
+            usort($ipReservedNet, array('RNTForest\lxd\models\IpObjects', 'cmp'));
 
             // Print all the Information given in the arrays
             // If there is no reservations, then print message

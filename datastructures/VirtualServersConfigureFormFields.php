@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\datastructures;
+namespace RNTForest\lxd\datastructures;
 
 /**
 * Helperclass for the configure virtual server form

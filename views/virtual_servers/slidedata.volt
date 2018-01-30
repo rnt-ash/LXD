@@ -19,7 +19,6 @@
                     <ul class="dropdown-menu">
                         <li><a href="/{{controller}}/newVS">{{ _("virtualserver_view_independentsys") }}</a></li>
                         <li><a href="/{{controller}}/newCT">{{ _("virtualserver_view_container") }}</a></li>
-                        <li><a href="/{{controller}}/newVM">{{ _("virtualserver_view_vm") }}<br />{{ _("virtualserver_view_vm_beta") }}</a></li>
                     </ul>
                 </div>  
                 {% endif %}  

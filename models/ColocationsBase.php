@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\models;
+namespace RNTForest\lxd\models;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
@@ -26,10 +26,10 @@ use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
 use Phalcon\Mvc\Model\Message as Message;
 
-use RNTForest\ovz\models\IpObjects;
+use RNTForest\lxd\models\IpObjects;
 use RNTForest\core\models\Customers;
 
-class ColocationsBase extends \RNTForest\core\models\ModelBase implements \RNTForest\ovz\interfaces\IpServerInterface
+class ColocationsBase extends \RNTForest\core\models\ModelBase implements \RNTForest\lxd\interfaces\IpServerInterface
 {
 
     /**
@@ -170,7 +170,7 @@ class ColocationsBase extends \RNTForest\core\models\ModelBase implements \RNTFo
         parent::initialize();
 
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customer", "foreignKey"=>true));
-        $this->hasMany("id",'RNTForest\ovz\models\PhysicalServers',"colocations_id",array("alias"=>"PhysicalServers", "foreignKey"=>array("allowNulls"=>true)));
+        $this->hasMany("id",'RNTForest\lxd\models\PhysicalServers',"colocations_id",array("alias"=>"PhysicalServers", "foreignKey"=>array("allowNulls"=>true)));
            
     }
     
@@ -182,11 +182,11 @@ class ColocationsBase extends \RNTForest\core\models\ModelBase implements \RNTFo
     /**
     * get all IpObjects of this colocation
     * 
-    * @return \RNTForest\ovz\models\IpObjects
+    * @return \RNTForest\lxd\models\IpObjects
     *     
     */
     public function getIpObjects(){
-        $server_class = addslashes('\RNTForest\ovz\models\Colocations');
+        $server_class = addslashes('\RNTForest\lxd\models\Colocations');
         $resultset = IpObjects::find(["conditions"=>"server_class = '".$server_class."' AND server_id = '".$this->id."'"]);
         return $resultset;
     }

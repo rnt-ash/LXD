@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\models;
+namespace RNTForest\lxd\models;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
@@ -29,22 +29,20 @@ use Phalcon\Mvc\Model\Message as Message;
 
 use RNTForest\core\interfaces\JobServerInterface;
 use RNTForest\core\interfaces\PendingInterface;
-use RNTForest\ovz\interfaces\MonServerInterface;
-use RNTForest\ovz\interfaces\IpServerInterface;
+use RNTForest\lxd\interfaces\MonServerInterface;
+use RNTForest\lxd\interfaces\IpServerInterface;
 use RNTForest\core\libraries\PendingHelpers;
-use RNTForest\ovz\functions\Monitoring;
+use RNTForest\lxd\functions\Monitoring;
 use RNTForest\core\models\Customers;
 
 
 /**
 * @property \RNTForest\core\models\Customers $Customer
-* @property \RNTForest\ovz\models\PhysicalServers $VirtualServers
-* @property \RNTForest\ovz\models\VirtualServers $OvzReplicaId
-* @property \RNTForest\ovz\models\PhysicalServers $OvzReplicaHost
-* @property \RNTForest\ovz\models\PhysicalServersHws $VirtualServersHws
+* @property \RNTForest\lxd\models\PhysicalServers $VirtualServers
+* @property \RNTForest\lxd\models\PhysicalServersHws $VirtualServersHws
 * 
 */
-class VirtualServersBase extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, MonServerInterface, IpServerInterface
+class VirtualServersBase extends \RNTForest\core\models\ModelBase implements JobServerInterface, PendingInterface, IpServerInterface
 {
 
     /**
@@ -81,79 +79,13 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     *
     * @var integer
     */
-    protected $ovz;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_uuid;
+    protected $lxd; 
     
     /**
-    * 
-    * @var string
-    */
-    protected $ovz_vstype;
-
-    /**
     *
     * @var string
     */
-    protected $ovz_settings;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_statistics;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_snapshots;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica_id;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica_host;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_replica_cron;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_replica_lastrun;
-
-    /**
-    *
-    * @var string
-    */
-    protected $ovz_replica_nextrun;
-
-    /**
-    *
-    * @var integer
-    */
-    protected $ovz_replica_status;
+    protected $lxd_snapshots;
 
     /**
     *
@@ -242,133 +174,23 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     }
 
     /**
-    * Virtual server is OpenVZ guest
+    * Virtual server is LXD guest
     *
-    * @param int $ovz
+    * @param int $lxd
     */
-    public function setOvz($ovz)
+    public function setLxd($lxd)
     {
-        $this->ovz = $ovz;
-    }
-
-    /**
-    * UUID of the virtual server
-    *
-    * @param string $ovz_uuid
-    */
-    public function setOvzUuid($ovz_uuid)
-    {
-        $this->ovz_uuid = $ovz_uuid;
+        $this->lxd = $lxd;
     }
     
     /**
-    * VS Type of the virtual server
+    * LXD snapshots as JSON
     *
-    * @param string $ovz_vstyp CT or VM
+    * @param string $lxd_snapshots
     */
-    public function setOvzVstype($ovz_vstyp)
+    public function setLxdSnapshots($lxd_snapshots)
     {
-        $this->ovz_vstype = $ovz_vstyp;
-    }
-
-    /**
-    * OpenVZ settings as JSON
-    *
-    * @param string $ovz_settings
-    */
-    public function setOvzSettings($ovz_settings)
-    {
-        $this->ovz_settings = $ovz_settings;
-    }
-
-    /**
-    * OpenVZ statistics as JSON
-    *
-    * @param string $ovz_statistics
-    */
-    public function setOvzStatistics($ovz_statistics)
-    {
-        $this->ovz_statistics = $ovz_statistics;
-    }
-
-    /**
-    * OpenVZ snapshots as JSON
-    *
-    * @param string $ovz_snapshots
-    */
-    public function setOvzSnapshots($ovz_snapshots)
-    {
-        $this->ovz_snapshots = $ovz_snapshots;
-    }
-
-    /**
-    * OpenVZ guest has replica
-    *
-    * @param integer $ovz_replica 0=off, 1=master, 2=slave
-    */
-    public function setOvzReplica($ovz_replica)
-    {
-        $this->ovz_replica = $ovz_replica;
-    }
-
-    /**
-    * Foreign key to replica slave/master
-    *
-    * @param integer $ovz_replica_id
-    */
-    public function setOvzReplicaId($ovz_replica_id)
-    {
-        $this->ovz_replica_id = $ovz_replica_id;
-    }
-
-    /**
-    * Foreign key to replica host
-    *
-    * @param integer $ovz_replica_host
-    */
-    public function setOvzReplicaHost($ovz_replica_host)
-    {
-        $this->ovz_replica_host = $ovz_replica_host;
-    }
-
-    /**
-    * cron entries to start teh replica preiodical
-    *
-    * @param string $ovz_replica_cron
-    */
-    public function setOvzReplicaCron($ovz_replica_cron)
-    {
-        $this->ovz_replica_cron = $ovz_replica_cron;
-    }
-
-    /**
-    * date of the replica last run
-    *
-    * @param string $ovz_replica_lastrun
-    */
-    public function setOvzReplicaLastrun($ovz_replica_lastrun)
-    {
-        $this->ovz_replica_lastrun = $ovz_replica_lastrun;
-    }
-
-    /**
-    * date of the claculated next run of the replica
-    *
-    * @param string $ovz_replica_nextrun
-    */
-    public function setOvzReplicaNextrun($ovz_replica_nextrun)
-    {
-        $this->ovz_replica_nextrun = $ovz_replica_nextrun;
-    }
-
-    /**
-    * replica status
-    *
-    * @param integer $ovz_replica_status 0:off, 1:idle, 2:sync, 3:initial, 9:error
-    */
-    public function setOvzReplicaStatus($ovz_replica_status)
-    {
-        $this->ovz_replica_status = $ovz_replica_status;
+        $this->lxd_snapshots = $lxd_snapshots;
     }
 
     /**
@@ -487,155 +309,23 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     }
 
     /**
-    * Returns the value of field ovz
+    * Returns the value of field lxd
     *
     * @return integer
     */
-    public function getOvz()
+    public function getLxd()
     {
-        return $this->ovz;
+        return $this->lxd;
     }
-
+    
     /**
-    * Returns the value of field ovz_uuid
+    * Returns the value of field lxd_snapshots
     *
     * @return string
     */
-    public function getOvzUuid()
+    public function getLxdSnapshots()
     {
-        return $this->ovz_uuid;
-    }
-
-    /**
-    * Returns the value of field ovz_vstype
-    *
-    * @return string
-    */
-    public function getOvzVstype()
-    {
-        return $this->ovz_vstype;
-    }
-
-    /**
-    * Returns the value of field ovz_settings
-    *
-    * @return string
-    */
-    public function getOvzSettings()
-    {
-        return $this->ovz_settings;
-    }
-
-    /**
-    * Returns the value of field ovz_settings
-    *
-    * @return array
-    */
-    public function getOvzSettingsArray()
-    {
-        return json_decode($this->ovz_settings,true);
-    }
-
-    /**
-    * Returns the value of field ovz_statistics
-    *
-    * @return string
-    */
-    public function getOvzStatistics()
-    {
-        return $this->ovz_statistics;
-    }
-
-    /**
-    * Returns the value of field ovz_statistics
-    *
-    * @return array
-    */
-    public function getOvzStatisticsArray()
-    {
-        return json_decode($this->ovz_statistics,true);
-    }
-
-
-
-    /**
-    * Returns the value of field ovz_snapshots
-    *
-    * @return string
-    */
-    public function getOvzSnapshots()
-    {
-        return $this->ovz_snapshots;
-    }
-
-    /**
-    * Returns the value of field ovz_replica
-    *
-    * @return integer
-    */
-    public function getOvzReplica()
-    {
-        return $this->ovz_replica;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_id
-    *
-    * @return integer
-    */
-    public function getOvzReplicaId()
-    {
-        return $this->ovz_replica_id;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_host
-    *
-    * @return integer
-    */
-    public function getOvzReplicaHost()
-    {
-        return $this->ovz_replica_host;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_cron
-    *
-    * @return string
-    */
-    public function getOvzReplicaCron()
-    {
-        return $this->ovz_replica_cron;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_lastrun
-    *
-    * @return string
-    */
-    public function getOvzReplicaLastrun()
-    {
-        return $this->ovz_replica_lastrun;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_nextrun
-    *
-    * @return string
-    */
-    public function getOvzReplicaNextrun()
-    {
-        return $this->ovz_replica_nextrun;
-    }
-
-    /**
-    * Returns the value of field ovz_replica_status
-    *
-    * @return integer
-    */
-    public function getOvzReplicaStatus()
-    {
-        return $this->ovz_replica_status;
+        return $this->lxd_snapshots;
     }
 
     /**
@@ -701,11 +391,11 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     /**
     * get all IpObjects of this virtual server
     * 
-    * @return \RNTForest\ovz\models\IpObjects
+    * @return \RNTForest\lxd\models\IpObjects
     *     
     */
     public function getIpObjects(){
-        $server_class = addslashes('\RNTForest\ovz\models\VirtualServers');
+        $server_class = addslashes('\RNTForest\lxd\models\VirtualServers');
         $resultset = IpObjects::find(["conditions"=>"server_class = '".$server_class."' AND server_id = '".$this->id."'"]);
         return $resultset;
     }
@@ -720,9 +410,7 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         
         // relations
         $this->belongsTo("customers_id",'RNTForest\core\models\Customers',"id",array("alias"=>"Customer", "foreignKey"=>true));
-        $this->belongsTo("physical_servers_id",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
-        $this->hasOne("ovz_replica_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"OvzReplicaId", "foreignKey"=>array("allowNulls"=>true)));
-        $this->hasOne("ovz_replica_host",'RNTForest\ovz\models\PhysicalServers',"id",array("alias"=>"OvzReplicaHost", "foreignKey"=>array("allowNulls"=>true)));
+        $this->belongsTo("physical_servers_id",'RNTForest\lxd\models\PhysicalServers',"id",array("alias"=>"PhysicalServers", "foreignKey"=>true));
     }
     
     public function onConstruct(){
@@ -751,9 +439,6 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         
         $validator = $this->generateValidator($op,$vstype);
         if(!$this->validate($validator)) return false;
-        
-        // should not be NULL
-        if(empty($this->ovz_replica)) $this->ovz_replica = 0;
         
         // linebreaks are not allowed in description
         $this->description = str_replace(array("\r", "\n"), ' ', $this->description);
@@ -896,17 +581,13 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         return $virtualServers;
     }
 
-    public function getOvzState(){
-        return json_decode($this->ovz_settings,true)['State'];
-    }
-    
     /**
     * Getter for parent class.
     * needed because of MonServer Interface so that monitoring can instantiate a parent object.
     * 
     */
     public function getParentClass(){
-        return '\RNTForest\ovz\models\PhysicalServers';
+        return '\RNTForest\lxd\models\PhysicalServers';
     }
     
     /**
@@ -921,7 +602,7 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     /**
     * Get the main IpObjects of this Server.
     * 
-    * @return \RNTForest\ovz\models\IpObjects
+    * @return \RNTForest\lxd\models\IpObjects
     */
     public function getMainIp(){
         $reflection = new \ReflectionClass($this);

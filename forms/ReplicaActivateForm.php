@@ -17,15 +17,15 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Hidden;
 use Phalcon\Forms\Element\Select;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-use RNTForest\ovz\controllers\VirtualServersControllerBase;
-use RNTForest\ovz\models\PhysicalServers;
+use RNTForest\lxd\controllers\VirtualServersControllerBase;
+use RNTForest\lxd\models\PhysicalServers;
 
 class ReplicaActivateForm extends \RNTForest\core\forms\FormBase
 {

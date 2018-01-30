@@ -17,13 +17,13 @@
 *
 */
 
-namespace RNTForest\ovz\connectors;
+namespace RNTForest\lxd\connectors;
 
-use RNTForest\ovz\models\PhysicalServers;
+use RNTForest\lxd\models\PhysicalServers;
 use RNTForest\core\libraries\RemoteSshConnection;
 
 /**
-* The OvzConnector is used to connect a preinstalled OpenVZ 7 server to the ECP.
+* The LxdConnector is used to connect a preinstalled Ubuntu 16.04 server to the LXDCP.
 * Consult the INSTALL-OVZ7LEMP.md to read about the correct usage.
 * Connector will be called from the Phalcon App in a wizard like manier.
 * 
@@ -41,20 +41,20 @@ use RNTForest\core\libraries\RemoteSshConnection;
 * - configures %prefix%jobsystem.service (systemd)
 * - writes the local.config.php
 * - sends a test job (general_test_sendmail to the specified rootalias)
-* - sets the physical server to OVZ=1 if successfully connected
+* - sets the physical server to LXD=1 if successfully connected
 * 
 * Can be executed more than once.
 */
-class OvzConnector extends \Phalcon\DI\Injectable
+class LxdConnector extends \Phalcon\DI\Injectable
 {
-    private $ConfigOvzJobsystemRootDir = '/srv/jobsystem/';
+    private $ConfigLxdJobsystemRootDir = '/srv/jobsystem/';
     private $ConfigMyPublicKeyFilePath = '/srv/jobsystem/keys/public.pem';
     private $ConfigMyPrivateKeyFilePath = '/srv/jobsystem/keys/private.key';
     private $ConfigAdminPublicKeyFilePath = '/srv/jobsystem/keys/adminpublic.key';
     
     private $PathsToJobsystemDirectoriesOnAdminServer = [
         BASE_PATH.'/vendor/rnt-forest/core/jobserver/',
-        BASE_PATH.'/vendor/rnt-forest/ovz/jobserver/',
+        BASE_PATH.'/vendor/rnt-forest/lxd/jobserver/',
     ];
 
     /**
@@ -141,7 +141,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             }
         }catch(\Exception $e){
             $error = 'System is not supported: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);
         }
     }
@@ -179,14 +179,14 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 
         }catch (\Exception $e) {                                                                                 
             $error = 'Error while preInstallation: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);
         }
     }
     
     private function createAsymmetricKeys(){
         try{
-            $this->createDirectoryIfNotExists($this->ConfigOvzJobsystemRootDir.'keys');
+            $this->createDirectoryIfNotExists($this->ConfigLxdJobsystemRootDir.'keys');
             
             // keys are generated each time because it is cheap and more reliable
             $config = array(
@@ -213,7 +213,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->PhysicalServer->save();
         }catch(\Exception $e){
             $error = 'Problem while creating asymmetric keypair: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         }
     }
@@ -224,7 +224,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->PhysicalServer->setRootPublicKey($output);
         }catch(\Exception $e){               
             $error = 'Problem while receiving root public key: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         }
     }
@@ -239,7 +239,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->RemoteSshConnection->sendFile($source, $destination);
         }catch(\Exception $e){               
             $error = 'Problem while sending admin public key: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         }
     }
@@ -251,7 +251,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->RemoteSshConnection->exec('useradd --system --user-group '.$this->Servicename);
         }catch(\Exception $e){
             $error = 'Problem while creating linux user and group: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         }
     }
@@ -268,9 +268,9 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 $directories = array();
                 foreach ($iterator as $info) {
                     $localFilepath = $info->getPathname();
-                    $destinationFilepath = str_replace($pathToJobsystemDirectoryOnAdminServer,$this->ConfigOvzJobsystemRootDir,$localFilepath);
+                    $destinationFilepath = str_replace($pathToJobsystemDirectoryOnAdminServer,$this->ConfigLxdJobsystemRootDir,$localFilepath);
                     $files[$localFilepath] = $destinationFilepath;
-                    $destinationDirectory = str_replace($pathToJobsystemDirectoryOnAdminServer,$this->ConfigOvzJobsystemRootDir,$info->getPath().'/');
+                    $destinationDirectory = str_replace($pathToJobsystemDirectoryOnAdminServer,$this->ConfigLxdJobsystemRootDir,$info->getPath().'/');
                     $directories[$destinationDirectory] = true;
                 }
 
@@ -284,7 +284,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             }
         }catch(\Exception $e){
             $error = 'Problem while sending jobsystem source code files: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         }        
     }
@@ -292,16 +292,16 @@ class OvzConnector extends \Phalcon\DI\Injectable
     private function prepareFurtherJobsystemDirectories(){
         try{
             $folders = array(
-                $this->ConfigOvzJobsystemRootDir.'db',
-                $this->ConfigOvzJobsystemRootDir.'log',
-                $this->ConfigOvzJobsystemRootDir.'statistics',
+                $this->ConfigLxdJobsystemRootDir.'db',
+                $this->ConfigLxdJobsystemRootDir.'log',
+                $this->ConfigLxdJobsystemRootDir.'statistics',
             );
             foreach($folders as $folder) {
                 $this->createDirectoryIfNotExists($folder);
             }
         }catch(\Exception $e){
             $error = 'Problem while creating further jobsystem directories: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         }
     }
@@ -312,28 +312,28 @@ class OvzConnector extends \Phalcon\DI\Injectable
             if($this->RemoteSshConnection->getLastExitStatus() != 0){
                 throw new \Exception('Could not install composer. Got exitcode '.$exitCode.' and output: "'.$output.'"');
             }
-            $output = $this->RemoteSshConnection->exec('(cd '.$this->ConfigOvzJobsystemRootDir.'; composer update 2>&1)');
+            $output = $this->RemoteSshConnection->exec('(cd '.$this->ConfigLxdJobsystemRootDir.'; composer update 2>&1)');
             if($this->RemoteSshConnection->getLastExitStatus() != 0){
                 throw new \Exception('Could not update composer. Got exitcode '.$exitCode.' and output: "'.$output.'"');
             }
         }catch(\Exception $e){
             $error = 'Problem while configuring composer: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         }
     }
     
     private function cleanPermissionsInJobsystemDirectories(){
         try{
-            $this->RemoteSshConnection->exec('chown -R  '.$this->Servicename.':'.$this->Servicename.' '.$this->ConfigOvzJobsystemRootDir.'*');
-            $this->RemoteSshConnection->exec('chmod -R 640 '.$this->ConfigOvzJobsystemRootDir.'*');
-            $this->RemoteSshConnection->exec('chmod -R 660 '.$this->ConfigOvzJobsystemRootDir.'log');
-            $this->RemoteSshConnection->exec('chmod -R 660 '.$this->ConfigOvzJobsystemRootDir.'db');
-            $this->RemoteSshConnection->exec('chmod -R u+X,g+X '.$this->ConfigOvzJobsystemRootDir.'*');
-            $this->RemoteSshConnection->exec('chmod 750 '.$this->ConfigOvzJobsystemRootDir.'JobSystemStarter.php');
+            $this->RemoteSshConnection->exec('chown -R  '.$this->Servicename.':'.$this->Servicename.' '.$this->ConfigLxdJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chmod -R 640 '.$this->ConfigLxdJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chmod -R 660 '.$this->ConfigLxdJobsystemRootDir.'log');
+            $this->RemoteSshConnection->exec('chmod -R 660 '.$this->ConfigLxdJobsystemRootDir.'db');
+            $this->RemoteSshConnection->exec('chmod -R u+X,g+X '.$this->ConfigLxdJobsystemRootDir.'*');
+            $this->RemoteSshConnection->exec('chmod 750 '.$this->ConfigLxdJobsystemRootDir.'JobSystemStarter.php');
         }catch(\Exception $e){
             $error = 'Problem while cleaning permissions in jobsystem directories: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         }
     }
@@ -348,7 +348,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             }         
         }catch(\Exception $e){
             $error = 'Problem while configuring sudoers: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         }
     }
@@ -389,7 +389,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
             
         }catch(\Exception $e){
             $error = 'Problem while configuring '.$this->Servicename.'.service: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);  
         } 
     }
@@ -406,11 +406,8 @@ class OvzConnector extends \Phalcon\DI\Injectable
                 "\t"."define('POOLSERVER','".$this->di['config']->jobsystem['poolserver']."');"."\n".
                 "\t".""."\n".
                 "\t"."// FileLogger"."\n".
-                "\t"."define('LOG_FILE','".$this->ConfigOvzJobsystemRootDir."log/filelogger.log');"."\n".
+                "\t"."define('LOG_FILE','".$this->ConfigLxdJobsystemRootDir."log/filelogger.log');"."\n".
                 "\t"."define('LOG_LEVEL','NOTICE');"."\n".
-                "\t".""."\n".
-                "\t"."// OVZ"."\n".
-                "\t"."define('OVZ_PRIVATE_PATH','/vz/private');"."\n".
                 "\t".""."\n".
                 "\t"."// Security"."\n".
                 "\t"."define('PUBLIC_KEY_FILE','".$this->ConfigMyPublicKeyFilePath."');"."\n".
@@ -427,18 +424,18 @@ class OvzConnector extends \Phalcon\DI\Injectable
             $this->RemoteSshConnection->exec('chmod 640 '.$configFilepath);
         }catch(\Exception $e){
             $error = 'Problem while writing '.$this->Servicename.' local config: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error);
         }    
     }
     
     private function postInstallation(){
         try{
-            $this->PhysicalServer->setOvz(1);
+            $this->PhysicalServer->setLxd(1);
             $this->PhysicalServer->save(); 
         }catch(\Exception $e){
             $error = 'Problem in post installation: '.$this->MakePrettyException($e);
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error); 
         }
     }
@@ -450,7 +447,7 @@ class OvzConnector extends \Phalcon\DI\Injectable
 
         if($job->getDone() != 1){
             $error = 'Problem in testing job system: '.$job->getError();
-            $this->Logger->error('OvzConnector: '.$error);
+            $this->Logger->error('LxdConnector: '.$error);
             throw new \Exception($error); 
         }
     }

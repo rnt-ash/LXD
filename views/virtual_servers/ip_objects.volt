@@ -33,18 +33,18 @@
                                 'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_ip_edit")) }}
                             <a href="#" link="/virtual_servers/ipObjectDelete/{{ip.id}}" text="{{ _("virtualserver_ip_deleteinfo") }}"
                                 class="btn btn-default btn-xs confirm-button pending" data-toggle="tooltip" data-placement="top" title="{{ _("virtualserver_ip_delete") }}"><i class="fa fa-trash-o"></i></a>
-                            {% if ip.main == 0 AND ip.allocated != constant('\RNTForest\ovz\models\IpObjects::ALLOC_RESERVED') %}
+                            {% if ip.main == 0 AND ip.allocated != constant('\RNTForest\lxd\models\IpObjects::ALLOC_RESERVED') %}
                                 {{ link_to("virtual_servers/ipObjectMakeMain/"~ip.id,'<i class="fa fa-bolt"></i>',
                                     'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_ip_primary")) }}
                             {% endif %}
                         </td>
                         {% endif %}
                         <td>
-                            {% if ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_RESERVED') %}
+                            {% if ip.allocated == constant('\RNTForest\lxd\models\IpObjects::ALLOC_RESERVED') %}
                                 Reserved
-                            {% elseif ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_ASSIGNED') %}
+                            {% elseif ip.allocated == constant('\RNTForest\lxd\models\IpObjects::ALLOC_ASSIGNED') %}
                                 Assigned
-                            {% elseif ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_AUTOASSIGNED') %}
+                            {% elseif ip.allocated == constant('\RNTForest\lxd\models\IpObjects::ALLOC_AUTOASSIGNED') %}
                                 Auto Assigned
                             {% endif %}   
                         </td>

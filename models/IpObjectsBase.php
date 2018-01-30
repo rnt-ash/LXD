@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\models;
+namespace RNTForest\lxd\models;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\StringLength as StringLengthValitator;
@@ -282,7 +282,7 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
     * helper method: set linked DC Object
     * 
     */
-    public function setDCObject(\RNTForest\ovz\interfaces\IpServerInterface $dco){
+    public function setDCObject(\RNTForest\lxd\interfaces\IpServerInterface $dco){
         $this->server_class = get_class($dco);
         $this->server_id = $dco->getId();
     }
@@ -392,7 +392,7 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
         }
 
         // Check for possible reservations
-        if(!($this->server_class == '\RNTForest\ovz\models\Colocations' && $this->allocated == self::ALLOC_RESERVED)){
+        if(!($this->server_class == '\RNTForest\lxd\models\Colocations' && $this->allocated == self::ALLOC_RESERVED)){
             $reservations = $this->getReservations();
             if($reservations === false){
                 $message1 = self::translate("ipobjects_no_reservation");
@@ -451,43 +451,43 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
         $searching = false;
         $reservations = NULL;
         
-        if($this->server_class == '\RNTForest\ovz\models\VirtualServers'){
+        if($this->server_class == '\RNTForest\lxd\models\VirtualServers'){
             $searching = true;
             $reservations = self::find(array(
                 "conditions" => 
-                    "server_class = '".addslashes('\RNTForest\ovz\models\VirtualServers')."'".
+                    "server_class = '".addslashes('\RNTForest\lxd\models\VirtualServers')."'".
                     " AND server_id = ".$this->server_id.
                     " AND allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations->count() > 0) return $reservations;
         }
 
-        if($searching || $this->server_class == '\RNTForest\ovz\models\PhysicalServers'){
+        if($searching || $this->server_class == '\RNTForest\lxd\models\PhysicalServers'){
             $searching = true;
             $server_id = $this->server_id;
-            if($this->server_class == '\RNTForest\ovz\models\VirtualServers'){
+            if($this->server_class == '\RNTForest\lxd\models\VirtualServers'){
                 $server_id = $this->getDCObject()->physical_servers_id;
             }
             $reservations = self::find(array(
                 "conditions" => 
-                    "server_class = '".addslashes('\RNTForest\ovz\models\PhysicalServers')."'".
+                    "server_class = '".addslashes('\RNTForest\lxd\models\PhysicalServers')."'".
                     " AND server_id = ".$server_id.
                     " AND allocated = ".self::ALLOC_RESERVED,
             ));
             if($reservations->count() > 0) return $reservations;
         }            
 
-        if($searching || $this->server_class == '\RNTForest\ovz\models\Colocations'){
+        if($searching || $this->server_class == '\RNTForest\lxd\models\Colocations'){
             $server_id = $this->server_id;
-            if($this->server_class == '\RNTForest\ovz\models\VirtualServers'){
+            if($this->server_class == '\RNTForest\lxd\models\VirtualServers'){
                 $server_id = $this->getDCObject()->physicalServers->colocations_id;
             }
-            if($this->server_class == '\RNTForest\ovz\models\PhysicalServers'){
+            if($this->server_class == '\RNTForest\lxd\models\PhysicalServers'){
                 $server_id = $this->getDCObject()->colocations_id;
             }
             $reservations = self::find(array(
                 "conditions" => 
-                    "server_class = '".addslashes('\RNTForest\ovz\models\Colocations')."'".
+                    "server_class = '".addslashes('\RNTForest\lxd\models\Colocations')."'".
                     " AND server_id = ".$server_id.
                     " AND allocated = ".self::ALLOC_RESERVED,
             ));
@@ -501,18 +501,18 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
     /**
     * searching vor sub reservations of this reservation
     * 
-    * @return \RNTForest\ovz\models\IpObjects[]
+    * @return \RNTForest\lxd\models\IpObjects[]
     */
     public function getSubReservations() {
         $reservations = array();
-        if($this->server_class == '\RNTForest\ovz\models\Colocations'){
+        if($this->server_class == '\RNTForest\lxd\models\Colocations'){
             // get all physical servers in this colocation
             $physicalServers = PhysicalServers::find("colocations_id = ".$this->server_id);
             // get all reservations of this server
             foreach($physicalServers as $physicalServer){
                 $ipObjects = self::find(array(
                     "conditions" => 
-                        "server_class = '".addslashes('\RNTForest\ovz\models\PhysicalServers')."'".
+                        "server_class = '".addslashes('\RNTForest\lxd\models\PhysicalServers')."'".
                         " AND server_id = ".$physicalServer->id.
                         " AND allocated = ".self::ALLOC_RESERVED,
                     "order" => "value1,value2",
@@ -525,14 +525,14 @@ class IpObjectsBase extends \RNTForest\core\models\ModelBase
                 }
             }
         }            
-        if($this->server_class == '\RNTForest\ovz\models\PhysicalServers'){
+        if($this->server_class == '\RNTForest\lxd\models\PhysicalServers'){
             // get all virtual servers in this physical server
             $virtualServers = VirtualServers::find("physical_servers_id = ".$this->server_id);
             // get all reservations of this server
             foreach($virtualServers as $virtualServer){
                 $ipObjects = self::find(array(
                     "conditions" => 
-                        "server_class = '".addslashes('\RNTForest\ovz\models\VirtualServers')."'".
+                        "server_class = '".addslashes('\RNTForest\lxd\models\VirtualServers')."'".
                         " AND server_id = ".$virtualServer->id.
                         " AND allocated = ".self::ALLOC_RESERVED,
                     "order" => "value1,value2",

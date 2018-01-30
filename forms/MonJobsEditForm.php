@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Text;
@@ -26,8 +26,8 @@ use Phalcon\Forms\Element\Select;
 use Phalcon\Forms\Element\Hidden;
 use Phalcon\Forms\Element\Check;
 
-use RNTForest\ovz\models\MonJobs;
-use RNTForest\ovz\functions\Monitoring;
+use RNTForest\lxd\models\MonJobs;
+use RNTForest\lxd\functions\Monitoring;
 
 class MonJobsEditForm extends \RNTForest\core\forms\FormBase
 {

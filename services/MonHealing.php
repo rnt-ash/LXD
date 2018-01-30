@@ -17,11 +17,11 @@
 *
 */
   
-namespace RNTForest\ovz\services;
+namespace RNTForest\lxd\services;
 
-use \RNTForest\ovz\models\MonJobs;
-use \RNTForest\ovz\models\MonLogs;
-use \RNTForest\ovz\interfaces\MonServerInterface;
+use \RNTForest\lxd\models\MonJobs;
+use \RNTForest\lxd\models\MonLogs;
+use \RNTForest\lxd\interfaces\MonServerInterface;
 
 class MonHealing extends \Phalcon\DI\Injectable
 {
@@ -86,8 +86,8 @@ class MonHealing extends \Phalcon\DI\Injectable
                     $server = $this->getMonServerInstance($monJob);
                     
                     $pending = '';
-                    if($server instanceof \RNTForest\ovz\models\VirtualServers){
-                        $pending = 'RNTFOREST\ovz\models\VirtualServers:'.$server->getId().':general:1';
+                    if($server instanceof \RNTForest\lxd\models\VirtualServers){
+                        $pending = 'RNTFOREST\lxd\models\VirtualServers:'.$server->getId().':general:1';
                     }
                     
                     $healJobId = $this->executeHealJob('ovz_restart_vs',$monJob,$pending);
@@ -144,7 +144,7 @@ class MonHealing extends \Phalcon\DI\Injectable
         
         // alarm immediately if the parent of the MonServer is a PhysicalServer but has not an ovz=1 enabled
         $parent = $this->getParentOfMonServerInstance($monJob);
-        if($parent instanceof \RNTForest\ovz\models\PhysicalServers){
+        if($parent instanceof \RNTForest\lxd\models\PhysicalServers){
             if($parent->getOvz() == 0){
                 return True;
             }
@@ -215,7 +215,7 @@ class MonHealing extends \Phalcon\DI\Injectable
         if($monJob->getMonType() != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         
         $parent = $this->getParentOfMonServerInstance($monJob);
-        if(!($parent instanceof \RNTForest\ovz\models\PhysicalServers)){
+        if(!($parent instanceof \RNTForest\lxd\models\PhysicalServers)){
             throw new \Exception($this->translate("monitoring_parent_cannot_execute_jobs"));
         }
         $push = $this->getPush();
@@ -224,7 +224,7 @@ class MonHealing extends \Phalcon\DI\Injectable
         $healJobId = -1;
         
         $monServer = $this->getMonServerInstance($monJob);
-        if(!($monServer instanceof \RNTForest\ovz\models\VirtualServers)){
+        if(!($monServer instanceof \RNTForest\lxd\models\VirtualServers)){
             throw new \Exception($this->translate("monitoring_monserver_is_not_managable"));
         }
         $params['UUID'] = $monServer->getOvzUuid();
@@ -313,7 +313,7 @@ class MonHealing extends \Phalcon\DI\Injectable
     
     /**
     * 
-    * @return \RNTForest\ovz\services\MonAlarm
+    * @return \RNTForest\lxd\services\MonAlarm
     */
     private function getMonAlarm(){
         return $this->getDI()['monAlarm'];

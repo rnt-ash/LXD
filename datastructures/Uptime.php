@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\datastructures;
+namespace RNTForest\lxd\datastructures;
 
 /**
 * Helperclass to manage loose Uptime data for a single month (without relation to MonRemoteJob or YearMonth).

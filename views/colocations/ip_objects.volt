@@ -32,11 +32,11 @@
                                 class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="{{ _("colocations_view_delete") }}"><i class="fa fa-trash-o"></i></a>
                         </td>
                         <td>
-                            {% if ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_RESERVED') %}
+                            {% if ip.allocated == constant('\RNTForest\lxd\models\IpObjects::ALLOC_RESERVED') %}
                                 Reserved
-                            {% elseif ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_ASSIGNED') %}
+                            {% elseif ip.allocated == constant('\RNTForest\lxd\models\IpObjects::ALLOC_ASSIGNED') %}
                                 Assigned
-                            {% elseif ip.allocated == constant('\RNTForest\ovz\models\IpObjects::ALLOC_AUTOASSIGNED') %}
+                            {% elseif ip.allocated == constant('\RNTForest\lxd\models\IpObjects::ALLOC_AUTOASSIGNED') %}
                                 Auto Assigned
                             {% endif %}   
                         </td>

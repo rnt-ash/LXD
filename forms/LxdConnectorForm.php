@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Text;
@@ -28,7 +28,7 @@ use Phalcon\Validation\Validator\StringLength as StringLengthValidator;
 use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
-class OvzConnectorForm extends \RNTForest\core\forms\FormBase
+class LxdConnectorForm extends \RNTForest\core\forms\FormBase
 {
     
     public function initialize($entity = null, $userOptions = null)

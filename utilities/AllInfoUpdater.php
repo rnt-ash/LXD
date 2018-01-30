@@ -17,10 +17,10 @@
 *
 */
 
-namespace RNTForest\ovz\utilities;
+namespace RNTForest\lxd\utilities;
 
-use RNTForest\ovz\models\PhysicalServers;
-use RNTForest\ovz\models\VirtualServers;
+use RNTForest\lxd\models\PhysicalServers;
+use RNTForest\lxd\models\VirtualServers;
 use RNTForest\core\services\Push;
 use RNTForest\core\libraries\Helpers;
 

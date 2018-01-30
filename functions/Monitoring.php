@@ -1,17 +1,17 @@
 <?php
-namespace RNTForest\ovz\functions;
+namespace RNTForest\lxd\functions;
 
 class Monitoring{
 
     private static function buildBehaviorArray(){
         $behaviors = array();
         
-        $directory = new \DirectoryIterator($_SERVER['DOCUMENT_ROOT'].'/../vendor/rnt-forest/ovz/utilities/monbehaviors');
+        $directory = new \DirectoryIterator($_SERVER['DOCUMENT_ROOT'].'/../vendor/rnt-forest/lxd/utilities/monbehaviors');
         foreach($directory as $fileInfo){
             if($fileInfo->isDot()) continue;
             $fileName = $fileInfo->getFilename();
             $info = [];
-            $namespace = "\\RNTForest\\ovz\\utilities\\monbehaviors\\";
+            $namespace = "\\RNTForest\\lxd\\utilities\\monbehaviors\\";
             $class = str_replace('.php','',$fileName);
             $classpath = $namespace.$class;
             $info['classpath'] = $classpath;

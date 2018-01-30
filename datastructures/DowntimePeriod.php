@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\datastructures;
+namespace RNTForest\lxd\datastructures;
 
 use RNTForest\core\libraries\Helpers;
 

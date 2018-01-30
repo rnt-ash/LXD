@@ -20,7 +20,7 @@
             <tbody>
                 <tr>
                     <td id="snapshots">
-                    {% include "partials/ovz/virtual_servers/macros.inc.volt" %}
+                    {% include "partials/lxd/virtual_servers/macros.inc.volt" %}
                     
                     {% if snapshots is not empty %}
                         {{ render_snapshots(snapshots,item.id) }}

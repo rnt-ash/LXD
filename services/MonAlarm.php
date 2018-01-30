@@ -17,10 +17,10 @@
 *
 */
   
-namespace RNTForest\ovz\services;
+namespace RNTForest\lxd\services;
 
-use RNTForest\ovz\models\MonJobs;
-use RNTForest\ovz\models\MonLogs;
+use RNTForest\lxd\models\MonJobs;
+use RNTForest\lxd\models\MonLogs;
 use RNTForest\core\libraries\Helpers;
 
 class MonAlarm extends \Phalcon\DI\Injectable
@@ -318,7 +318,7 @@ class MonAlarm extends \Phalcon\DI\Injectable
     
     /**
     * Extracts the short name of a MonBehaviorClass with can have namespaces.
-    * \RNTForest\ovz\utilities\monbehaviors\PingMonBehavior -> Ping
+    * \RNTForest\lxd\utilities\monbehaviors\PingMonBehavior -> Ping
     * 
     * @param string $monBehaviorClass
     * @return string

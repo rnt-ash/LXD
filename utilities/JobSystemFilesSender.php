@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\utilities;
+namespace RNTForest\lxd\utilities;
 
 use RNTForest\core\libraries\RemoteSshConnection;
 
@@ -25,7 +25,7 @@ class JobSystemFilesSender extends \Phalcon\DI\Injectable
 {
     private $PathsToJobsystemDirectoriesOnAdminServer = [
         BASE_PATH.'/vendor/rnt-forest/core/jobserver/',
-        BASE_PATH.'/vendor/rnt-forest/ovz/jobserver/',
+        BASE_PATH.'/vendor/rnt-forest/lxd/jobserver/',
     ];
     
     private $HwsJobsystemRootDir;

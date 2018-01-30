@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Text;
@@ -30,8 +30,8 @@ use Phalcon\Validation;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
 use RNTForest\core\models\Customers;
-use RNTForest\ovz\models\Colocations;
-use RNTForest\ovz\models\PhysicalServers;
+use RNTForest\lxd\models\Colocations;
+use RNTForest\lxd\models\PhysicalServers;
 
 class PhysicalServersForm extends \RNTForest\core\forms\FormBase
 {

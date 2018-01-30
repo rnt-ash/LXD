@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\forms;
+namespace RNTForest\lxd\forms;
 
 use Phalcon\Forms\Form;
 use Phalcon\Forms\Element\Text;
@@ -32,8 +32,8 @@ use Phalcon\Validation\Validator\Regex as RegexValidator;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
 
 use RNTForest\core\models\Customers;
-use RNTForest\ovz\models\PhysicalServers;
-use RNTForest\ovz\models\VirtualServers;
+use RNTForest\lxd\models\PhysicalServers;
+use RNTForest\lxd\models\VirtualServers;
 
 class VirtualServersForm extends \RNTForest\core\forms\FormBase
 {
@@ -44,7 +44,6 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         // get params from session
         $session = $this->session->get("VirtualServersForm");
         $op = $session['op'];
-        $vstype = $session['vstype'];
         
         // id
         $this->add(new Hidden("id"));
@@ -102,8 +101,8 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $findParameters = array("order"=>"name");
         $physicalServers = PhysicalServers::findFromScope($scope,$findParameters);
         foreach($physicalServers as $physicalServer){
-            // show only ovz servers for CT's and VM's
-            if(($vstype == 'CT' || $vstype == 'VM') && $physicalServer->getOvz() != 1) continue;
+            // show only lxd servers for CT's
+            if($physicalServer->getLxd() != 1) continue;
             $physicalServersSelect[$physicalServer->getId()] = $physicalServer->getName()." ";
             $physicalServersSelect[$physicalServer->getId()] .= " [".count(VirtualServers::find("physical_servers_id = ".$physicalServer->getId()))."]";
         }

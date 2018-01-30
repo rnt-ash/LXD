@@ -17,17 +17,17 @@
 *
 */
 
-namespace RNTForest\ovz\models;
+namespace RNTForest\lxd\models;
 
-use RNTForest\ovz\interfaces\MonBehaviorInterface;
-use RNTForest\ovz\interfaces\MonLocalBehaviorInterface;
-use RNTForest\ovz\models\MonLogs;
-use RNTForest\ovz\models\MonUptimes;
+use RNTForest\lxd\interfaces\MonBehaviorInterface;
+use RNTForest\lxd\interfaces\MonLocalBehaviorInterface;
+use RNTForest\lxd\models\MonLogs;
+use RNTForest\lxd\models\MonUptimes;
 use RNTForest\core\libraries\Helpers;
-use RNTForest\ovz\datastructures\DowntimePeriod;
-use RNTForest\ovz\utilities\MonUptimesGenerator;
-use RNTForest\ovz\utilities\MonLocalDailyLogsGenerator;
-use RNTForest\ovz\functions\Monitoring;
+use RNTForest\lxd\datastructures\DowntimePeriod;
+use RNTForest\lxd\utilities\MonUptimesGenerator;
+use RNTForest\lxd\utilities\MonLocalDailyLogsGenerator;
+use RNTForest\lxd\functions\Monitoring;
 
 use Phalcon\Mvc\Model\Message as Message;
 use Phalcon\Mvc\Model\Behavior\Timestampable;
@@ -865,10 +865,10 @@ class MonJobsBase extends \RNTForest\core\models\ModelBase
         
         $startPreSQL = microtime(true);
         $rows = $modelManager->executeQuery(
-            "SELECT \\RNTForest\\ovz\\models\\MonLogs.modified, \\RNTForest\\ovz\\models\\MonLogs.value ".
-            "FROM \\RNTForest\\ovz\\models\\MonLogs ".
-            "WHERE \\RNTForest\\ovz\\models\\MonLogs.mon_jobs_id = :id: ".
-            "ORDER BY \\RNTForest\\ovz\\models\\MonLogs.modified ASC",
+            "SELECT \\RNTForest\\lxd\\models\\MonLogs.modified, \\RNTForest\\lxd\\models\\MonLogs.value ".
+            "FROM \\RNTForest\\lxd\\models\\MonLogs ".
+            "WHERE \\RNTForest\\lxd\\models\\MonLogs.mon_jobs_id = :id: ".
+            "ORDER BY \\RNTForest\\lxd\\models\\MonLogs.modified ASC",
             [
                 "id" => $this->getId()
             ]
@@ -975,11 +975,11 @@ class MonJobsBase extends \RNTForest\core\models\ModelBase
         if($this->mon_type != 'remote') throw new \Exception($this->translate('monitoring_monjobs_montype_remote_expected'));
         $modelManager = $this->getDI()['modelsManager'];
         $endLog = $modelManager->executeQuery(
-            "SELECT * FROM \\RNTForest\\ovz\\models\\MonLogs AS m1 ".
+            "SELECT * FROM \\RNTForest\\lxd\\models\\MonLogs AS m1 ".
             " WHERE m1.value = 1 ".
             " AND m1.mon_jobs_id = :monJobId: ".
             " AND m1.modified > (".
-            "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonLogs AS m2 ".
+            "   SELECT MAX(m2.modified) FROM \\RNTForest\\lxd\\models\\MonLogs AS m2 ".
             "       WHERE m2.value = 0 ".
             "       AND m2.mon_jobs_id = :monJobId:".
             " )".
@@ -990,11 +990,11 @@ class MonJobsBase extends \RNTForest\core\models\ModelBase
         $endModified = $endLog->getFirst()->getModified();
 
         $startLog = $modelManager->executeQuery(
-            "SELECT * FROM \\RNTForest\\ovz\\models\\MonLogs AS m1 ".
+            "SELECT * FROM \\RNTForest\\lxd\\models\\MonLogs AS m1 ".
             " WHERE m1.value = 0 ".
             " AND m1.mon_jobs_id = :monJobId: ".
             " AND m1.modified > (".
-            "   SELECT MAX(m2.modified) FROM \\RNTForest\\ovz\\models\\MonLogs AS m2 ".
+            "   SELECT MAX(m2.modified) FROM \\RNTForest\\lxd\\models\\MonLogs AS m2 ".
             "       WHERE m2.value = 1 ".
             "       AND m2.mon_jobs_id = :monJobId:".
             "       AND m2.modified < :endModified: ".
@@ -1262,7 +1262,7 @@ class MonJobsBase extends \RNTForest\core\models\ModelBase
     * set linked server
     * 
     */
-    public function setServer(\RNTForest\ovz\interfaces\MonServerInterface $server){
+    public function setServer(\RNTForest\lxd\interfaces\MonServerInterface $server){
         $this->server_class = get_class($server);
         $this->server_id = $server->getId();
     }
@@ -1270,7 +1270,7 @@ class MonJobsBase extends \RNTForest\core\models\ModelBase
     /**
     * returns linked server
     * 
-    * @return \RNTForest\ovz\interfaces\MonServerInterface
+    * @return \RNTForest\lxd\interfaces\MonServerInterface
     */
     public function getServer(){
         $server = $this->server_class::findFirst($this->server_id);
@@ -1317,7 +1317,7 @@ class MonJobsBase extends \RNTForest\core\models\ModelBase
     public function getShortName($serverType){
         $behaviors = Monitoring::getAllBehaviors($serverType);
         // special case on diskspace behavior
-        if($serverType == 'physical' && $this->mon_behavior_class == '\RNTForest\ovz\utilities\monbehaviors\DiskspacefreeMonLocalBehavior'){
+        if($serverType == 'physical' && $this->mon_behavior_class == '\RNTForest\lxd\utilities\monbehaviors\DiskspacefreeMonLocalBehavior'){
             // check if the MonJob is about vz or root diskspace
             if(in_array('/vz',json_decode($this->mon_behavior_params,true))){
                 return $behaviors[$this->mon_behavior_class."_vz"]['shortname'];
@@ -1342,7 +1342,7 @@ class MonJobsBase extends \RNTForest\core\models\ModelBase
         // update MainIp from Server Object in case it has changed since last execute
         $server = $this->getServer();
 
-        if(!($server instanceof \RNTForest\ovz\interfaces\MonServerInterface)){
+        if(!($server instanceof \RNTForest\lxd\interfaces\MonServerInterface)){
             throw new \Exception($this->translate("monitoring_mon_server_not_implements_interface"));        
         } 
 

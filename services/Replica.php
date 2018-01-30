@@ -17,18 +17,18 @@
 *
 */
 
-namespace RNTForest\ovz\services;
+namespace RNTForest\lxd\services;
 
 use Phalcon\DiInterface;   
 
-use RNTForest\ovz\models\VirtualServers;   
+use RNTForest\lxd\models\VirtualServers;   
 
 /**
 * @property \Phalcon\Logger\Adapter\File $logger
 * 
 * @property \RNTForest\core\services\Push $push
 * @property \RNTForest\hws\services\Sync $sync
-* @property \RNTForest\ovz\services\Replica $replica
+* @property \RNTForest\lxd\services\Replica $replica
 * @property \RNTForest\core\libraries\Permissions $permissions
 * 
 */
@@ -50,7 +50,7 @@ class Replica extends \Phalcon\DI\Injectable
     /**
     * starts a replica sync (background job)
     * 
-    * @param \RNTForest\ovz\models\VirtualServers $replicaMasterID
+    * @param \RNTForest\lxd\models\VirtualServers $replicaMasterID
     * @return \RNTForest\core\models\Jobs $job
     * @throws Exceptions
     */
@@ -119,12 +119,12 @@ class Replica extends \Phalcon\DI\Injectable
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
         // callback to update virtualserver
         $pending = array(
-            'model' => '\RNTForest\ovz\models\VirtualServers',
+            'model' => '\RNTForest\lxd\models\VirtualServers',
             'id' => $replicaMaster->getId(),
             'element' => 'replica',
             'severity' => 1,
             'params' => array(),
-            'callback' => '\RNTForest\ovz\functions\Pending::updateAfterReplicaRun'
+            'callback' => '\RNTForest\lxd\functions\Pending::updateAfterReplicaRun'
         );
         $job = $this->push->executeJob($replicaMaster->physicalServers,'ovz_sync_replica',$params,$pending);
         if($job->getDone() == 2){

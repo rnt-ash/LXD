@@ -17,7 +17,7 @@
 *
 */
 
-namespace RNTForest\ovz\models;
+namespace RNTForest\lxd\models;
 
 use Phalcon\Validation;
 use Phalcon\Validation\Validator\PresenceOf as PresenceOfValidator;
@@ -113,7 +113,7 @@ class MonLogsBase extends \RNTForest\core\models\ModelBase
         // do not inherit from ModelBase because of timestampable behavior ist not allowed here !!!
 
         // relations    
-        $this->hasOne("virtual_servers_id",'RNTForest\ovz\models\VirtualServers',"id",array("alias"=>"VirtualServer", "foreignKey"=>true));
+        $this->hasOne("virtual_servers_id",'RNTForest\lxd\models\VirtualServers',"id",array("alias"=>"VirtualServer", "foreignKey"=>true));
     }
     
     /**
