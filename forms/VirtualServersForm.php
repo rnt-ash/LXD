@@ -57,24 +57,6 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
 
-        // fqdn
-        if ($op == 'edit') {
-            $element = new Text("fqdn");
-            $message = $this->translate("virtualserver_hostname");
-            $element->setLabel($message);
-            $element->setAttribute("placeholder","host.domain.tld");
-            $element->setFilters(array('striptags', 'string'));
-            $message = $this->translate("virtualserver_hostname_valid");
-            $element->addValidators(array(
-                new RegexValidator([
-                    'pattern' => '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/',
-                    'message' => $messages,
-                    'allowEmpty' => true,
-                ])
-            ));
-            $this->add($element);
-        }
-
         // customer
         $this->add(new Hidden("customers_id"));
         
@@ -161,47 +143,6 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $element->setFilters(array('string', 'trim'));
         $this->add($element);
 
-        // root pwd
-        if ($op == 'new' && ($vstype == 'CT' || $vstype == 'VM')) {
-            $element = new Password("password");
-            $message = $this->translate("virtualserver_rootpassword");
-            $element->setLabel($message);
-            $element->setAttribute("placeholder","1234");
-            $element->setFilters(array('striptags', 'string'));
-            $element->addValidators(array(
-                new \Phalcon\Validation\Validator\PresenceOf([
-                    'message' => $this->translate("virtualserver_password_required")
-                ]),
-                new \Phalcon\Validation\Validator\StringLength([
-                    'min' => 8,
-                    'messageMinimum' => $this->translate("virtualserver_passwordmin")
-                ])
-            ));
-            $this->add($element);
-        }
-        $message = $this->translate("virtualserver_choose_ostemplate");
-        if ($op == 'new' && $vstype == 'CT') {
-            // OS templates
-            $element = new Select(
-                "ostemplate",
-                array(),
-                array(
-                    "using"      => array("id","name"),
-                    "useEmpty"   => true,
-                    "emptyText"  => $message,
-                    "emptyValue" => "0",            
-                )
-            );
-            $element->setLabel("OS Template");
-            $element->setFilters(array('striptags', 'string'));
-            $element->addValidators(array(
-                new \Phalcon\Validation\Validator\PresenceOf([
-                    'message' => $this->translate("virtualserver_ostemplate_required")
-                ])
-            ));
-            $this->add($element);
-        }
-        
         // description
         $element = new TextArea("description");
         $message = $this->translate("virtualserver_description");

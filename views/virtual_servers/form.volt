@@ -19,9 +19,6 @@
         {{ renderElement('fqdn',form,6) }}
         {{ renderElement('customers',form,6,'autocomplete') }}
         {{ renderElement('physical_servers_id',form,6,'bootstrap-select-live-search') }}
-        {{ renderElement('ostemplate',form,6) }}
-        {{ renderElement('password',form,6,'genPW') }}
-        {{ renderElement('distribution',form,6) }}
         {{ renderElement('core',form,6) }}
         {{ renderElement('memory',form,6) }}
         {{ renderElement('space',form,6) }}
@@ -29,7 +26,7 @@
         {{ renderElement('description',form) }}
 
         <div class="col-lg-12">
-            {{ submit_button(_("virtualserver_save"), "class": "btn btn-primary") }}
+            {{ submit_button(_("virtualserver_save"), "class": "btn btn-primary loadingScreen") }}
             {{ link_to('/virtual_servers/slidedata', _("virtualserver_cancel"), 'class': 'btn btn-default pull-right') }}
         </div>
         </form>

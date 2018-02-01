@@ -343,12 +343,12 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             if (!$this->preDelete($virtualServer))
                 return $this->forwardToTableSlideDataAction();
             
-            // execute ovz_destroy_vs job   
-            if($virtualServer->getOvz()){     
+            // execute lxd_delete_ct job   
+            if($virtualServer->getLxd()){     
                 // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
                 $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId();
-                $params = array("UUID"=>$virtualServer->getOvzUuid());
-                $job = $this->getPushService()->executeJob($virtualServer->physicalServers,'ovz_destroy_vs',$params,$pending);
+                $params = array("NAME"=>$virtualServer->getName());
+                $job = $this->getPushService()->executeJob($virtualServer->physicalServers,'lxd_delete_ct',$params,$pending);
                 if($job->getDone() == 2){
                     $message = $this->translate("virtualserver_job_destroy_failed");
                     throw new \Exception($message.$job->getError());
@@ -368,18 +368,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 }
             }
 
-            // delete MonJobs
-            $monJobs = MonJobs::find((array("server_class LIKE '%VirtualServers%' AND server_id = ".$virtualServer->getId())));
-            foreach($monJobs as $monJob){
-                if(!$monJob->delete()){
-                    foreach ($monJob->getMessages() as $message) {
-                        $this->flashSession->error($message);
-                    }
-                    $message = $this->translate("virtualserver_monjobs_destroy_failed");
-                    throw new \Exception($message);
-                }
-            }
-            
             // delete DB entry
             if (!$virtualServer->delete()) {
                 foreach ($virtualServer->getMessages() as $message) {
@@ -419,25 +407,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
     }
 
-    /**
-    * creates a new Virtual Machine
-    * 
-    */
-    public function newVMAction(){
-
-        // store in session
-        $this->session->set($this->getFormClassName(), array(
-            "op" => "new",
-            "vstype" => "VM",
-            //  prlctl set <VM_name> -d list  => get the list
-            "distribution" => "debian",
-        ));
-
-        $form = $this->getFormClass();
-        $virtualServerForm = new $form(new VirtualServers());
-        $this->forwardToFormAction($virtualServerForm);
-
-    }
 
     /**
     * creates a new independent Virtual Server
@@ -466,12 +435,12 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     protected function preSave($virtualServer,$form){
         try{
             // Workaround: if a Byte suffix is given convert Space to GB and Memory to MB
-            if(!is_numeric($virtualServer->getSpace())){
+            /*if(!is_numeric($virtualServer->getSpace())){
                 $virtualServer->setSpace(Helpers::convertBytesToGibiBytes(Helpers::convertToBytes($virtualServer->getSpace())));
             }
             if(!is_numeric($virtualServer->getMemory())){
                 $virtualServer->setMemory(Helpers::convertBytesToMibiBytes(Helpers::convertToBytes($virtualServer->getMemory())));    
-            }
+            }*/
             
             // validate physical server and check permissions
             $physicalServer = PhysicalServers::findFirst($virtualServer->getPhysicalServersId());
@@ -485,10 +454,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // only check if physical server is ovz enabled if a CT or VM is about to be created
             $vstype = $this->session->get("VirtualServersForm")['vstype'];
             $op = $this->session->get("VirtualServersForm")['op'];
-            if($vstype == 'CT' || $vstype == 'VM') $this->tryCheckOvzEnabled($physicalServer);
+            if($vstype == 'CT') $this->tryCheckLxdEnabled($physicalServer);
             
             // check if selected ostemplate exists on selected PS
-            if($op == 'new' && $vstype == 'CT'){
+            /*if($op == 'new' && $vstype == 'CT'){
                 // get available ostemplates from physical server
                 $ostemplates = json_decode($virtualServer->PhysicalServers->getOvzOstemplates(),true);
                 if(empty($ostemplates)){
@@ -502,7 +471,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                         return false;
                     }
                 }
-            }
+            }*/
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
@@ -512,32 +481,24 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     }
     
     /**
-    * generates a new CT or VM
+    * creates a new CT
     * 
     * @param VirtualServers $virtualServer
     * @param VirtualServersForm $form
     */
     protected function postSave($virtualServer,$form){
-
         try{
             $session = $this->session->get($this->getFormClassName());
-            if($session['vstype'] == 'CT' || $session['vstype'] == 'VM' ){
-                $virtualServer->setOvz(true);
-                $virtualServer->setOvzVstype($session['vstype']);
-                $virtualServer->setOvzUuid(\RNTForest\core\libraries\Helpers::genUuid());
+            if($session['vstype'] == 'CT'){
+                $virtualServer->setLxd(true);
 
                 $params = array(
-                    "VSTYPE"=>$virtualServer->getOvzVstype(),
-                    "UUID"=>$virtualServer->getOvzUuid(),
-                    "NAME"=>$virtualServer->getName(),
-                    "OSTEMPLATE"=>$form->getValue('ostemplate'),
-                    "DISTRIBUTION"=>$session['distribution'],
-                    "HOSTNAME"=>$virtualServer->getFqdn(),
-                    "NAMESERVER"=>$this->config->ovz['defaultNameserver'],
-                    "CPUS"=>$virtualServer->getCore(),
-                    "RAM"=>$virtualServer->getMemory(),
-                    "DISKSPACE"=>$virtualServer->getSpace(),
-                    "ROOTPWD"=>$form->getValue('password'),
+                    "NAME" => $virtualServer->getName(),
+                    "CPUS" => $virtualServer->getCore(),
+                    "RAM" => $virtualServer->getMemory(),
+                    "DISKSPACE" => $virtualServer->getSpace(),
+                    "STORAGEPOOL" => $this->config->lxd['defaultStoragePool'],
+                    "IMAGEALIAS" => $this->config->lxd['defaultImage']
                 );
                 
                 if(!$virtualServer->update()){
@@ -545,11 +506,15 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                     throw new \Exception($message);
                 }
 
-                // execute ovz_new_vs job        
+                // execute lxd_create_ct job        
                 // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
-                $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:2';
-                $job = $this->getPushService()->executeJob($virtualServer->PhysicalServers,'ovz_new_vs',$params,$pending);
+                $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:2';
+                $job = $this->getPushService()->executeJob($virtualServer->PhysicalServers,'lxd_create_ct',$params,$pending);
                 if($job->getDone() == 2){
+                    // delete virtual server if job was not successful
+                    $virtualServer->delete();
+                    
+                    // throw exception
                     $message = $this->translate("virtualserver_job_create_failed");
                     throw new \Exception($message.$job->getError());
                 }
@@ -2024,5 +1989,5 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->redirectToTableSlideDataAction();
             return;
         }
-    } 
+    }
 }

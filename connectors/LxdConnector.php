@@ -137,7 +137,7 @@ class LxdConnector extends \Phalcon\DI\Injectable
             unset($output);
             $output = $this->RemoteSshConnection->exec('php -m');
             if(!preg_match('`PDO`',$output)){
-                throw new \Exception("PHP PDO Extension not found. (yum install php-pdo)");
+                throw new \Exception("PHP PDO Extension not found. (apt-get install php-pdo)");
             }
         }catch(\Exception $e){
             $error = 'System is not supported: '.$this->MakePrettyException($e);
@@ -407,7 +407,7 @@ class LxdConnector extends \Phalcon\DI\Injectable
                 "\t".""."\n".
                 "\t"."// FileLogger"."\n".
                 "\t"."define('LOG_FILE','".$this->ConfigLxdJobsystemRootDir."log/filelogger.log');"."\n".
-                "\t"."define('LOG_LEVEL','NOTICE');"."\n".
+                "\t"."define('LOG_LEVEL','DEBUG');"."\n".
                 "\t".""."\n".
                 "\t"."// Security"."\n".
                 "\t"."define('PUBLIC_KEY_FILE','".$this->ConfigMyPublicKeyFilePath."');"."\n".
