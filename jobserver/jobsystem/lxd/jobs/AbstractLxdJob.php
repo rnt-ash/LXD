@@ -27,6 +27,13 @@ abstract class AbstractLxdJob extends AbstractJob{
         parent::__construct($context);
     }
     
+    /**
+    * Execute an API command
+    * 
+    * @param mixed $requestMethod GET, POST, PUT, PATCH, DELETE
+    * @param mixed $url the URL to call via curl
+    * @param mixed $data the data to pass to the URL as JSON
+    */
     protected function lxdApiExecCommand($requestMethod,$url,$data=""){
         $exitstatus = $this->Cli->execute('curl -s --unix-socket /var/lib/lxd/unix.socket -X '.$requestMethod.' -d \''.$data.'\' '.$url);
     }

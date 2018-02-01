@@ -555,6 +555,10 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         return $validator;
     }
     
+    public function getLxdStatus(){
+        return json_decode($this->lxd_settings,true)['status'];
+    }
+    
     /**
     * Add a PendingToken to the PendingEntity.
     * For conversion of a PendingString to a PendingToken use PendingHelpers::convert Method.
@@ -642,139 +646,5 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
                 ],
             ]
         );
-    }
-    
-    /**
-    * Get all MonRemoteJobs instances of this server.
-    *
-    * @return \Phalcon\Mvc\Model\ResultsetInterface 
-    */
-    public function getMonRemoteJobs(){
-        $reflection = new \ReflectionClass($this);
-        
-        return MonJobs::find(
-            [
-                "mon_type = 'remote' AND server_class = :class: AND server_id = :id:",
-                "bind" => [
-                    "class" => "\\".$reflection->getName(),
-                    "id" => $this->getId(),
-                ],
-            ]
-        );
-    }
-    
-    /**
-    * Get all MonLocalJobs instances of this server.
-    *
-    * @return \Phalcon\Mvc\Model\ResultsetInterface 
-    */
-    public function getMonLocalJobs(){
-        $reflection = new \ReflectionClass($this);
-        
-        return MonJobs::find(
-            [
-                "mon_type = 'local' AND server_class = :class: AND server_id = :id:",
-                "bind" => [
-                    "class" => "\\".$reflection->getName(),
-                    "id" => $this->getId(),
-                ],
-            ]
-        );
-    }
-    
-    /**
-    * Adds a new MonRemoteJobs for this server.
-    * 
-    * @param string $behaviorName
-    * @return MonJobs $monJob
-    */
-    public function addMonRemoteJob($behaviorName){
-        // validate and clean parameters
-        $allBehaviors = Monitoring::getAllBehaviors('virtual');
-        if(key_exists($behaviorName,$allBehaviors)){
-            $behavior = $allBehaviors[$behaviorName]['classpath'];
-        }else{
-            throw new \Exception($this->translate("monitoring_monjobs_add_no_valid_behavior"));
-        }
-        
-        $reflection = new \ReflectionClass($this);
-        
-        // and save the new job
-        $monJob = new MonJobs();
-        $monJob->setServerId($this->getId());
-        $monJob->setServerClass("\\".$reflection->getName());
-        $monJob->setMonBehaviorClass($behavior);
-        
-        // set healing to 1 if HttpMonBehavior
-        if(strpos($monJob->getMonBehaviorClass(),'HttpMonBehavior') > 0){
-            $monJob->healing = 1;
-        }
-        
-        return $monJob;
-    }
-    
-    /**
-    * Adds a new MonLocalJob for this server.
-    * 
-    * @param string $behaviorName
-    * @return MonJobs $monJob
-    */
-    public function addMonLocalJob($behaviorName){
-        // validate and clean parameters
-        $allBehaviors = Monitoring::getAllBehaviors('virtual');
-        if(key_exists($behaviorName,$allBehaviors)){
-            $behavior = $allBehaviors[$behaviorName]['classpath'];
-        }else{
-            throw new \Exception($this->translate("monitoring_monjobs_add_no_valid_behavior"));
-        }
-        
-        // gen the warn and maximal value
-        $warningValue = $maximalValue = 0;
-        if(strpos($behavior,'Cpu')){
-            $warningValue = 50;
-            $maximalValue = 80;
-        
-            // set params
-            $behaviorParams = '["guest","cpu","usage"]';
-        }elseif(strpos($behavior,'Memoryfree')){
-            // warning at a quarter, minimal 512
-            $warningValue = intval($this->getMemory()*0.25);
-            if($warningValue < 512) $warningValue = 512;
-            
-            // maximal at ten percent, minimal 256
-            $maximalValue = intval($this->getMemory()*0.1);
-            if($maximalValue < 256) $maximalValue = 256;
-            
-            // set params
-            $behaviorParams = '["guest","ram","memory_free_mb"]';
-        }elseif(strpos($behavior,'Diskspacefree')){
-            // warning at a ten percent, minimal 2
-            $warningValue = intval($this->getSpace()*0.1);
-            if($warningValue < 2) $warningValue = 2;
-            
-            // maximal at five percent, minimal 1 
-            $maximalValue = intval($this->getSpace()*0.05);
-            if($maximalValue < 1) $maximalValue = 1;
-            
-            // set params
-            $behaviorParams = '["FsInfo","/","free_gb"]';
-        }
-        
-        $reflection = new \ReflectionClass($this);
-        
-        // and save the new job
-        $monJob = new MonJobs();
-        $monJob->setServerId($this->getId());
-        $monJob->setServerClass("\\".$reflection->getName());
-        $monJob->setMonBehaviorClass($behavior);
-        $monJob->setMonBehaviorParams($behaviorParams);
-        $monJob->setWarningValue($warningValue);
-        $monJob->setMaximalValue($maximalValue);
-        
-        if(strpos($monJob->getMonBehaviorClass(),'Diskspace') > 0){
-            $monJob->alarm_period = 360;
-        }
-        
-        return $monJob;
     }
 }

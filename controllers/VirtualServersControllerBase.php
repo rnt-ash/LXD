@@ -168,151 +168,52 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $message = self::translate("virtualserver_server_not_lxd_enabled");
             throw new \Exception($message);
         }
-    }   
-
+    }
+    
     /**
-    * execute ovz_start_vs job
+    * execute lxd_change_ctstate job
     * 
     * @param \RNTForest\lxd\models\VirtualServers $virtualServer
     * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
     * @throws \Exceptions
     */
-    protected function tryStartVS($virtualServer){
-
+    protected function tryChangeCTState($virtualServer,$action){
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
         $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
-        $params = array('UUID'=>$virtualServer->getOvzUuid());
-        $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_start_vs',$params,$pending);
-        
-        return $job;
-    }
-        
-    /**
-    * execute ovz_stop_vs job
-    * 
-    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
-    * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
-    * @throws \Exceptions
-    */
-    protected function tryStopVS($virtualServer){
-
-        // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
-        $params = array('UUID'=>$virtualServer->getOvzUuid());
-        $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_stop_vs',$params,$pending);
+        $params = array(
+            'NAME'=>$virtualServer->getName(),
+            'ACTION' => $action
+        );
+        $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_change_ctstate',$params,$pending);
         
         return $job;
     }
 
     /**
-    * execute ovz_restart_vs job
-    * 
-    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
-    * @return {\RNTForest\core\models\Jobs|\RNTForest\core\models\JobsBase}
-    * @throws \Exceptions
-    */
-    protected function tryRestartVS($virtualServer){
-
-        // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-        $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
-        $params = array('UUID'=>$virtualServer->getOvzUuid());
-        $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_restart_vs',$params,$pending);
-        
-        return $job;
-    }
-
-    /**
-    * start VS
+    * Change state of CT
     * 
     * @param int $serverId
+    * @param string $action
     */
-    public function startVSAction($serverId){
-
+    public function changeCTStateAction($serverId,$action){
         // sanitize parameters
         $serverId = $this->filter->sanitize($serverId, "int");
+        $action = $this->filter->sanitize($action,["trim","striptags"]);
 
         try{
             // validate
             $virtualServer = VirtualServers::tryFindById($serverId);
             $this->tryCheckPermission('virtual_servers','changestate',array("item"=>$virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
+            $this->tryCheckLxdEnabled($virtualServer);
 
             // try to start
-            $job = $this->tryStartVS($virtualServer);
+            $job = $this->tryChangeCTState($virtualServer,$action);
 
             // save new state            
             $this->virtualServerSettingsSave($job,$virtualServer);
 
             // success
-            $message = $this->translate("virtualserver_job_start");
-            $this->flashSession->success($message);
-
-        }catch(\Exception $e){
-            $this->flashSession->error($e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        // go back to slidedata view
-        $this->redirectTo("virtual_servers/slidedata");
-    }
-
-    /**
-    * stop VS
-    * 
-    * @param int $serverId
-    */
-    public function stopVSAction($serverId){
-
-        // sanitize parameters
-        $serverId = $this->filter->sanitize($serverId, "int");
-
-        try{
-            // validate
-            $virtualServer = VirtualServers::tryFindById($serverId);
-            $this->tryCheckPermission('virtual_servers','changestate',array("item"=>$virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
-            
-            // try to stop        
-            $job = $this->tryStopVS($virtualServer);
-
-            // save new state            
-            $this->virtualServerSettingsSave($job,$virtualServer);
-
-            // success
-            $message = $this->translate("virtualserver_job_stop");
-            $this->flashSession->success($message);
-
-        }catch(\Exception $e){
-            $this->flashSession->error($e->getMessage());
-            $this->logger->error($e->getMessage());
-        }
-        // go back to slidedata view
-        $this->redirectTo("virtual_servers/slidedata");
-    }
-
-    /**
-    * restart VS
-    * 
-    * @param int $serverId
-    */
-    public function restartVSAction($serverId){
-
-        // sanitize parameters
-        $serverId = $this->filter->sanitize($serverId, "int");
-
-        try{
-            // validate
-            $virtualServer = VirtualServers::tryFindById($serverId);
-            $this->tryCheckPermission('virtual_servers','changestate',array("item"=>$virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
-
-            // try to restart
-            $job = $this->tryRestartVS($virtualServer);
-
-            // save new state            
-            $this->virtualServerSettingsSave($job,$virtualServer);
-
-            // success
-            $message = self::translate("virtualserver_job_restart");
+            $message = $this->translate("virtualserver_job_change_state");
             $this->flashSession->success($message);
 
         }catch(\Exception $e){
@@ -519,12 +420,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                     throw new \Exception($message.$job->getError());
                 }
                 
-                // save lxd settings to the database
-                $virtualServer->setLxdSettings(json_encode($job->getRetval(true)['metadata']));
-                if(!$virtualServer->update()){
-                    $message = $this->translate("virtualserver_update_server_failed");
-                    throw new \Exception($message);
-                }
+                // save the settings from the CT
+                $this->virtualServerSettingsSave($job,$virtualServer);
             }
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
@@ -1261,11 +1158,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * @throws \Exceptions
     */
     public static function virtualServerSettingsSave($job,$virtualServer){
-        // save settings
-        $settings = $job->getRetval(true);
-        $virtualServer->setOvzSettings($job->getRetval());
-        self::virtualServerSettingsAssign($virtualServer,$settings);
-
+        // save lxd settings to the database
+        $virtualServer->setLxdSettings(json_encode($job->getRetval(true)['metadata']));
         if ($virtualServer->update() === false) {
             $messages = $virtualServer->getMessages();
             foreach ($messages as $message) {

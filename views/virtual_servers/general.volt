@@ -9,15 +9,18 @@
                     <div class="btn-group">
                         {% if permissions.checkPermission("virtual_servers", "changestate") %}
                             {% set buttonstate = "btn-info" %}
-                            {% set buttonstate = "btn-success" %}
-                            {% set buttonstate = "btn-danger" %}
+                            {% if item.lxd_status == 'Running' %}
+                                {% set buttonstate = "btn-success" %}
+                            {% elseif item.lxd_status == 'Stopped' %}
+                                {% set buttonstate = "btn-danger" %}
+                            {% endif %}
                             <button type="button" class="btn {{buttonstate}} dropdown-toggle btn-xs pending" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-lightbulb-o text-default"></i>&nbsp;<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li>{{ link_to("virtual_servers/startVS/"~item.id,'<i class="fa fa-play"></i> '~_("virtualserver_general_start"), 'class': 'loadingScreen pending') }}</li>
-                                <li>{{ link_to("virtual_servers/stopVS/"~item.id,'<i class="fa fa-ban"></i> '~_("virtualserver_general_stop"), 'class': 'loadingScreen pending') }}</li>
-                                <li>{{ link_to("virtual_servers/restartVS/"~item.id,'<i class="fa fa-retweet"></i> '~_("virtualserver_general_restart"), 'class': 'loadingScreen pending') }}</li>
+                                <li>{{ link_to("virtual_servers/changeCTState/"~item.id~"/start",'<i class="fa fa-play"></i> '~_("virtualserver_general_start"), 'class': 'loadingScreen pending') }}</li>
+                                <li>{{ link_to("virtual_servers/changeCTState/"~item.id~"/stop",'<i class="fa fa-ban"></i> '~_("virtualserver_general_stop"), 'class': 'loadingScreen pending') }}</li>
+                                <li>{{ link_to("virtual_servers/changeCTState/"~item.id~"/restart",'<i class="fa fa-retweet"></i> '~_("virtualserver_general_restart"), 'class': 'loadingScreen pending') }}</li>
                             </ul>
                         {% endif %}
                     </div>
@@ -87,7 +90,7 @@
                         {{ _("virtualserver_general_state") }}
                     </td>
                     <td>
-                        N/A
+                        {{item.lxd_status}}
                     </td>
                 </tr>
                 <tr>
