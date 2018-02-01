@@ -16,18 +16,13 @@
         {% endif %}
 
         <div class="clearfix">
-            {{ renderElement('dns',form,6) }}
             {{ renderElement('cores',form,6) }}
+            {{ renderElement('memory',form,6) }}
         </div>
         <div class="clearfix">
-            {{ renderElement('memory',form,6) }}
             {{ renderElement('diskspace',form,6) }}
         </div>
-        <input type="hidden" name="startOnBoot" value="0">
-        {{ renderElement('startOnBoot',form,12,'check') }}
         
-        {{ renderElement('description',form )}}
-
         <div class="col-lg-12">
             {{ submit_button(_("virtualserver_save"), "class": "btn btn-primary loadingScreen") }}
             {{ link_to('/virtual_servers/slidedata', _("virtualserver_cancel"), 'class': 'btn btn-default pull-right') }}

@@ -99,30 +99,5 @@ class VirtualServersConfigureForm extends \RNTForest\core\forms\FormBase
             ])
         ));
         $this->add($element);
-        
-        // dns
-        $element = new Text("dns");
-        $message = $this->translate("virtualserver_dnsserver");
-        $element->setLabel($message);
-        $element->setAttribute("placeholder","8.8.8.8");
-        $element->setFilters(array('striptags', 'string'));
-        $this->add($element);
-        
-        // start on boot
-        $element = new Check("startOnBoot",array(
-            'value' => 1,
-        ));
-        $message = $this->translate("virtualserver_startonboot");
-        $element->setLabel($message);
-        $element->setFilters(array('int'));
-        $message = $this->translate("virtualserver_startonboot_info");
-        $element->addValidators(array(
-            new BetweenValidator([
-                'minimum' => 0,
-                'maximum' => 1,
-                'message' => $message,
-            ]),
-        ));
-        $this->add($element);
     }
 }

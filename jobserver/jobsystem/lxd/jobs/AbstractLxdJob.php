@@ -35,7 +35,7 @@ abstract class AbstractLxdJob extends AbstractJob{
     * @param mixed $data the data to pass to the URL as JSON
     */
     protected function lxdApiExecCommand($requestMethod,$url,$data=""){
-        $exitstatus = $this->Cli->execute('curl -s --unix-socket /var/lib/lxd/unix.socket -X '.$requestMethod.' -d \''.$data.'\' '.$url);
+        return $this->Cli->execute('curl -s --unix-socket /var/lib/lxd/unix.socket -X '.$requestMethod.' -d \''.$data.'\' '.$url);
     }
     
     protected function lxdApiCheckOperation($successMessage){

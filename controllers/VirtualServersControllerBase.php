@@ -210,7 +210,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $job = $this->tryChangeCTState($virtualServer,$action);
 
             // save new state            
-            $this->virtualServerSettingsSave($job,$virtualServer);
+            self::virtualServerSettingsSave($job,$virtualServer);
 
             // success
             $message = $this->translate("virtualserver_job_change_state");
@@ -421,7 +421,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 }
                 
                 // save the settings from the CT
-                $this->virtualServerSettingsSave($job,$virtualServer);
+                self::virtualServerSettingsSave($job,$virtualServer);
             }
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
@@ -925,29 +925,22 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // validate
             $virtualServer = VirtualServers::tryFindById($serverId);
             $this->tryCheckPermission('virtual_servers','changestate',array("item"=>$virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
+            $this->tryCheckLxdEnabled($virtualServer);
 
-            // execute ovz_all_info
+            // execute lxd_get_settings
             // no pending needed because job reads only
-            $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_all_info',$params);
-            $this->trySaveAllInfo($job,$virtualServer);
-
-            // get OVZ Settings
-            $ovzSettings = json_decode($virtualServer->getOvzSettings(),true);
+            $params = array('NAME'=>$virtualServer->getName());
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_get_settings',$params);
+            
+            // save the settings gotten from the job
+            self::virtualServerSettingsSave($job,$virtualServer);
 
             // fill form fields
             $virtualServersConfigureFormFields = new VirtualServersConfigureFormFields();
             $virtualServersConfigureFormFields->virtual_servers_id = $virtualServer->getId();
-            $virtualServersConfigureFormFields->dns = $ovzSettings['DNS Servers'];
             $virtualServersConfigureFormFields->cores = $virtualServer->getCore();
             $virtualServersConfigureFormFields->memory = Helpers::formatBytesHelper(Helpers::convertToBytes($virtualServer->getMemory()."MB"));
             $virtualServersConfigureFormFields->diskspace = Helpers::formatBytesHelper(Helpers::convertToBytes($virtualServer->getSpace()."GB"));
-            if($ovzSettings['Autostart'] == 'on'){
-                $virtualServersConfigureFormFields->startOnBoot = 1;
-            }elseif($ovzSettings['Autostart'] == 'off') {
-                $virtualServersConfigureFormFields->startOnBoot = 0;
-            }
 
             // call view
             $this->view->form = new VirtualServersConfigureForm($virtualServersConfigureFormFields); 
@@ -974,13 +967,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // validate
             $virtualServer = VirtualServers::tryFindById($this->request->getPost("virtual_servers_id", "int"));
             $this->tryCheckPermission('virtual_servers','changestate',array("item"=>$virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
-
-            // execute ovz_all_info
-            // no pending needed because job is reads only
-            $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_all_info',$params);
-            $this->trySaveAllInfo($job,$virtualServer);
+            $this->tryCheckLxdEnabled($virtualServer);
 
             // validate FORM
             $form = new VirtualServersConfigureForm();
@@ -992,25 +979,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // business logic
-            // dns
-            $dns = '';
-            if(!empty($form->dns)){
-                $dnsIPs = explode(' ',$form->dns);
-                // check if every IP is valid
-                foreach($dnsIPs as $dnsIP){
-                    if(!empty($dnsIP)){
-                        if(!IpObjects::isValidIPv4($dnsIP)){
-                            $message1 = $this->translate("virtualserver_IP_not_valid");
-                            $message = $dnsIP.$message1;
-                            $this->redirectErrorToVirtualServersConfigure($message,'dns',$form);
-                        }else{
-                            // create string with all DNS IPs
-                            $dns .= $dnsIP.' ';
-                        }
-                    }
-                }
-            }
-
             // cores
             $core = intval($form->cores);
 
@@ -1065,7 +1033,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // check if diskspace is min
-            if($diskspace < Helpers::convertToBytes('20GB')){
+            if($diskspace < Helpers::convertToBytes('5GB')){
                 $message1 = $this->translate("virtualserver_min_space");
                 $message = $message1;
                 return $this->redirectErrorToVirtualServersConfigure($message,'diskspace',$form);
@@ -1080,22 +1048,17 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
 
             // final diskspace in MibiBytes
             $diskspace = Helpers::convertBytesToGibiBytes($diskspace);
-
-            // execute ovz_modify_vs job        
-            $virtualServerConfig = array(
-                'nameserver' => $dns,
-                'cpus' => $core,
-                'memsize' => $memory,
-                'diskspace' => $diskspace,
-                'onboot' => ($form->startOnBoot)?'yes':'no',
-            );
+            
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $params = array(
-                'UUID'=>$virtualServer->getOvzUuid(),
-                'CONFIG'=>$virtualServerConfig
+                'NAME' => $virtualServer->getName(),
+                'CPUS' => $core,
+                'RAM' => $memory,
+                'DISKSPACE' => $diskspace,
+                'STORAGEPOOL' => $virtualServer->getLxdSettingsArray()['devices']['root']['pool']
             );
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_modify_ct',$params,$pending);
             $this->virtualServerSettingsSave($job,$virtualServer);
 
             // success
@@ -1122,34 +1085,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     }
 
     /**
-    * try to save all infos from ovz_all_info job to virtual server
-    * 
-    * @param \RNTForest\core\models\Jobs $job
-    * @param \RNTForest\ovz\models\VirtualServers $virtualServer
-    * 
-    * @throws \Exceptions
-    */
-    public static function trySaveAllInfo($job,$virtualServer){
-        // save settings
-        $retval = $job->getRetval(true);
-        $uuid = $virtualServer->getOvzUuid();
-
-        $virtualServer->setOvzStatistics(json_encode($retval['GuestStatistics'][$uuid]));
-        $settings = $retval['GuestInfo'][$uuid];
-        $virtualServer->setOvzSettings(json_encode($settings));
-        self::virtualServerSettingsAssign($virtualServer,$settings);
-
-        if ($virtualServer->update() === false) {
-            $messages = $virtualServer->getMessages();
-            foreach ($messages as $message) {
-                \Phalcon\Di::getDefault()->get('flashSession')->warning($message);
-            }
-            $message = self::translate("virtualserver_update_failed");
-            throw new \Exception($message.$virtualServer->getName());
-        }
-    }
-    
-    /**
     * try to save settings from jobs to virtual server
     * 
     * @param \RNTForest\core\models\Jobs $job
@@ -1160,6 +1095,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     public static function virtualServerSettingsSave($job,$virtualServer){
         // save lxd settings to the database
         $virtualServer->setLxdSettings(json_encode($job->getRetval(true)['metadata']));
+        
+        self::virtualServerSettingsAssign($virtualServer);
+        
         if ($virtualServer->update() === false) {
             $messages = $virtualServer->getMessages();
             foreach ($messages as $message) {
@@ -1171,19 +1109,20 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     }
 
     /**
-    * assign the ovz settings to its relevant value
+    * assign the lxd settings to its relevant value
     * 
     * @param VirtualServers $virtualServer
-    * @param mixed $settings
     */
-    public static function virtualServerSettingsAssign(\RNTForest\ovz\models\VirtualServers $virtualServer,$settings){
-        $virtualServer->setName($settings['Name']);
-        $virtualServer->setDescription($settings['Description']);
-        $virtualServer->setOvz(1);
-        $virtualServer->setOvzVstype($settings['Type']);
-        $virtualServer->setCore(intval($settings['Hardware']['cpu']['cpus']));
-        $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['memory']['size_in_mb'])));
-        $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['Hardware']['hdd0']['size_in_gb'])));
+    public static function virtualServerSettingsAssign(\RNTForest\lxd\models\VirtualServers $virtualServer){
+        $settings = $virtualServer->getLxdSettingsArray();
+        
+        $virtualServer->setName($settings['name']);
+        $virtualServer->setLxd(1);
+        $virtualServer->setCore(intval($settings['config']['limits.cpu']));
+        $memoryInBytes = intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['config']['limits.memory']));
+        $virtualServer->setMemory(intval(\RNTForest\core\libraries\Helpers::convertBytesToMibiBytes($memoryInBytes)));
+        $spaceInBytes = intval(\RNTForest\core\libraries\Helpers::convertToBytes($settings['devices']['root']['size']));
+        $virtualServer->setSpace(intval(\RNTForest\core\libraries\Helpers::convertBytesToGibiBytes($spaceInBytes)));
     }
 
     public function ovzReplicaActivateAction($virtualServersId){
