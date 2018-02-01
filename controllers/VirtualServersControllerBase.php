@@ -518,6 +518,13 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                     $message = $this->translate("virtualserver_job_create_failed");
                     throw new \Exception($message.$job->getError());
                 }
+                
+                // save lxd settings to the database
+                $virtualServer->setLxdSettings($job->getRetval());
+                if(!$virtualServer->update()){
+                    $message = $this->translate("virtualserver_update_server_failed");
+                    throw new \Exception($message);
+                }
             }
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());

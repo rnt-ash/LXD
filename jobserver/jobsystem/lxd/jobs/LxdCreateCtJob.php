@@ -34,7 +34,7 @@ class LxdCreateCtJob extends AbstractLxdJob {
                 "IMAGEALIAS" => "Assigned alias of the image for the CT"
             ],
             "params_example" => '{"NAME":"newContainer","CPUS":"4","RAM":"4GB","DISKSPACE":"100GB","STORAGEPOOL":"zfs_pool","IMAGEALIAS":"ubuntu 16.04"}',
-            "retval" => "nothing specified, maybe some output from the CLI",
+            "retval" => "JSON with settings of the container",
             "warning" => "nothing specified",
             "error" => "different causes (Name already exists, or something while effectively creating the CT fails)",
         ];
@@ -46,6 +46,13 @@ class LxdCreateCtJob extends AbstractLxdJob {
         // execute API command to create new CT
         $exitstatus = $this->lxdApiExecCommand('POST','a/1.0/containers','{"name": "'.$this->Params['NAME'].'","config" : {"limits.cpu": "'.$this->Params['CPUS'].'", "limits.memory": "'.$this->Params['RAM'].'"}, "devices": {"root": {"path": "/", "pool": "'.$this->Params['STORAGEPOOL'].'", "size": "'.$this->Params['DISKSPACE'].'", "type": "disk"}}, "source": {"type": "image", "alias": "'.$this->Params['IMAGEALIAS'].'"}}');
         
+        // check if operation is created and executed successfully
         $this->lxdApiCheckOperation('Created CT successful');
+        
+        // if createing was successful, put the settings in the retval
+        if($this->Done == 1){
+            $this->lxdApiExecCommand('GET','a/1.0/containers/'.$this->Params['NAME']);
+            $this->Retval = $this->Context->getCli()->getOutput()[0];
+        }
     }
 }

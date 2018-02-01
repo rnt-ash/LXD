@@ -85,6 +85,12 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     *
     * @var string
     */
+    protected $lxd_settings;
+    
+    /**
+    *
+    * @var string
+    */
     protected $lxd_snapshots;
 
     /**
@@ -181,6 +187,16 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     public function setLxd($lxd)
     {
         $this->lxd = $lxd;
+    }
+    
+    /**
+    * LXD settings as JSON
+    *
+    * @param string $lxd_settings
+    */
+    public function setLxdSettings($lxd_settings)
+    {
+        $this->lxd_settings = $lxd_settings;
     }
     
     /**
@@ -316,6 +332,16 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     public function getLxd()
     {
         return $this->lxd;
+    }
+    
+    /**
+    * Returns the value of field lxd_settings
+    *
+    * @return integer
+    */
+    public function getLxdSettings()
+    {
+        return $this->lxd_settings;
     }
     
     /**

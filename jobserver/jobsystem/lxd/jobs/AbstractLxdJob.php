@@ -41,7 +41,7 @@ abstract class AbstractLxdJob extends AbstractJob{
             // check if operation was successful
             unset($output);
             $output = json_decode($this->Context->getCli()->getOutput()[0],true);
-            if($output['metadata']['status'] == 'Success'){
+            if($output['metadata']['status_code'] == '200'){
                 $this->Done = 1;
                 $this->Retval = $this->Context->getCli()->getOutput()[0];
                 $this->Context->getLogger()->debug($successMessage);
