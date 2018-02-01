@@ -520,7 +520,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 }
                 
                 // save lxd settings to the database
-                $virtualServer->setLxdSettings($job->getRetval());
+                $virtualServer->setLxdSettings(json_encode($job->getRetval(true)['metadata']));
                 if(!$virtualServer->update()){
                     $message = $this->translate("virtualserver_update_server_failed");
                     throw new \Exception($message);

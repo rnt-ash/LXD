@@ -41,6 +41,7 @@ class LxdDeleteCtJob extends AbstractLxdJob {
         // execute API command to delete CT
         $exitstatus = $this->lxdApiExecCommand('DELETE','a/1.0/containers/'.$this->Params['NAME']);
         
+        // check if operation is created and executed successfully
         $this->lxdApiCheckOperation('Deleting CT successful');
     }
 }

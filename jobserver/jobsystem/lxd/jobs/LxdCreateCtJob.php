@@ -49,7 +49,7 @@ class LxdCreateCtJob extends AbstractLxdJob {
         // check if operation is created and executed successfully
         $this->lxdApiCheckOperation('Created CT successful');
         
-        // if createing was successful, put the settings in the retval
+        // if creating was successful, put the settings in the retval
         if($this->Done == 1){
             $this->lxdApiExecCommand('GET','a/1.0/containers/'.$this->Params['NAME']);
             $this->Retval = $this->Context->getCli()->getOutput()[0];
