@@ -180,6 +180,7 @@ return [
             
     // Virtual Server
     "virtualserver_all_virtualservers" => "Alle Virtual Servers",
+    "virtualserver_job_create_failed" => "Virtueller Server konnte nicht erstellt werden: ",
     "virtualserver_does_not_exist" => "Der virtuelle Server existiert nicht: ",
     "virtualserver_not_ovz_integrated" => "der virtuelle Server ist nicht im OVZ integriert",
     "virtualserver_job_failed" => "Ausführen des Jobs (ovz_modify_vs) fehlgeschlagen! Fehler: ",
@@ -188,13 +189,7 @@ return [
     "virtualserver_server_not_ovz_enabled" => "Server ist nicht im OVZ aktiviert",
     "virtualserver_job_infolist_failed" => "Ausführen des Jobs (ovz_all_info) fehlgeschlagen: ",
     "virtualserver_info_success" => "Informationen erfolgreich aktualisiert",
-    "virtualserver_job_create_failed" => "Erstellen des virtuellen Servers fehgeschlagen: ",
-    "virtualserver_job_start_failed" => "Ausführen des Jobs (ovz_start_vs) fehlgeschlagen: ",
-    "virtualserver_job_start" => "Virtueller Server wurde erfolgreich gestartet",
-    "virtualserver_job_stop_failed" => "Ausführen des Jobs (ovz_stop_vs) fehlgeschlagen: ",
-    "virtualserver_job_stop" => "Virtueller Server wurde erfolgreich angehalten",
-    "virtualserver_job_restart_failed" => "Ausführen des Jobs (ovz_restart_vs) fehlgeschlagen: ",
-    "virtualserver_job_restart" => "Virtueller Server wurde erfolgreich neugestartet",
+    "virtualserver_job_change_state" => "Status der Virtuellen Servers wurde ergolreich geändert",
     "virtualserver_not_found" => "Virtueller Server wurde nicht gefunden.",
     "virtualserver_job_destroy_failed" => "Löschen/ Zerstören des virtuellen Servers fehlgeschlagen: ",
     "virtualserver_job_destroy" => "Virtueller Server wurde erfolgreich gelöscht",

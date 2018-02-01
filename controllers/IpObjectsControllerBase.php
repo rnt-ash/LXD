@@ -129,9 +129,10 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
         // configure ip on virtual servers
         if($ipobject->getServerClass() == '\RNTForest\lxd\models\VirtualServers' && $ipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
             $error = $this->configureAllocatedIpOnVirtualServer($ipobject, 'add');
-            if(!empty($error))
+            if(!empty($error)){
                 $message = $this->translate("ipobjects_ip_conf_failed");
                 $this->flashSession->warning($message.$error);
+            }
         }
 
         // clean up
@@ -160,9 +161,10 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
         // configure ip on virtual servers
         if($ipobject->getServerClass() == '\RNTForest\lxd\models\VirtualServers' && $ipobject->getAllocated() >= IpObjects::ALLOC_ASSIGNED){
             $error = $this->configureAllocatedIpOnVirtualServer($ipobject, 'del');
-            if(!empty($error))
+            if(!empty($error)){
                 $message = $this->translate("ipobjects_ip_conf_failed");
                 $this->flashSession->warning($message.$error);
+            }
         }
         
         // try to delete
@@ -253,29 +255,24 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
             $virtualServer = VirtualServers::tryFindById($ip->getServerID());  
             VirtualServersControllerBase::tryCheckLxdEnabled($virtualServer);
 
-            // execute ovz_modify_vs job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
             $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
             if($op == 'add'){
-                $config = array("ipadd"=>$ip->getValue1());
+                $job = 'lxd_assign_ip';
+                
+                // prepare config file for the CT
+                $config = file_get_contents(BASE_PATH."/vendor/rnt-forest/lxd/config/interfaces_template.txt");
+                $config = str_replace('%%IPADDRESS%%', $ip->getValue1(), $config);
+                $config = str_replace('%%GATEWAY%%', $this->config->lxd['defaultGateway'], $config);
+                $config = str_replace('%%NETMASK%%', $this->config->lxd['defaultNetmask'], $config);
+                $config = str_replace('%%NAMESERVERS%%', $this->config->lxd['defaultNameserver'], $config);
+                
+                $params = array('NAME' => $virtualServer->getName(),'CONFIG' => $config);
             }else{
-                $config = array("ipdel"=>$ip->getValue1());
+                $job = 'lxd_remove_ip';
+                $params = array('NAME' => $virtualServer->getName());
             }
-            $params = array('UUID'=>$virtualServer->getOvzUuid(),'CONFIG'=>$config,);
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_modify_vs',$params,$pending);
-
-            // save new ovz settings
-            VirtualServersControllerBase::virtualServerSettingsSave($job, $virtualServer);
-
-            // update virtual server 
-            if ($virtualServer->update() === false) {
-                $messages = $virtualServer->getMessages();
-                foreach ($messages as $message) {
-                    $this->flashSession->warning($message);
-                }
-                $message = $this->translate("virtualserver_update_failed");
-                throw new \Exception($message.$virtualServer->getName());
-            }
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,$job,$params,$pending);
 
             // change allocated
             $ip->setAllocated(IpObjects::ALLOC_AUTOASSIGNED);

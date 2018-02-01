@@ -721,7 +721,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // store in session
         $this->session->set("IpObjectsForm", array(
             "op" => "new",
-            "server_class" => '\RNTForest\ovz\models\VirtualServers',
+            "server_class" => '\RNTForest\lxd\models\VirtualServers',
             "server_id" => intval($id),
             "origin" => array(
                 'controller' => 'virtual_servers',

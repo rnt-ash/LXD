@@ -43,8 +43,8 @@
     {{ renderElement('allocated',form) }}
     {{ renderElement('comment',form) }}
 
-    {{ submit_button(_("ipobjects_edit_save"), "class": "btn btn-primary") }}
-    {{ link_to('/ipobjects/cancel', _("ipobjects_edit_cancel"), 'class': 'btn btn-default pull-right') }}
+    {{ submit_button(_("ipobjects_edit_save"), "class": "btn btn-primary loadingScreen") }}
+    {{ link_to('/ip_objects/cancel', _("ipobjects_edit_cancel"), 'class': 'btn btn-default pull-right') }}
             
     </form>
 </div>
