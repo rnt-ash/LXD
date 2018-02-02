@@ -43,7 +43,7 @@ class IpObjectsControllerBase extends \RNTForest\core\controllers\ControllerBase
     */
     protected function forwardToOrigin(){
         $session = $this->session->get("IpObjectsForm");
-        return $this->dispatcher->forward($session['origin']);
+        return $this->redirectTo($session['origin']['controller']."/".$session['origin']['action']);
     }
 
 

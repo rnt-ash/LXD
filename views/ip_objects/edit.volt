@@ -38,8 +38,6 @@
     {% endif %}
 
     {{ renderElement('value1',form) }}
-    {{ renderElement('value2',form) }}
-    {{ renderElement('main',form) }}
     {{ renderElement('allocated',form) }}
     {{ renderElement('comment',form) }}
 

@@ -27,15 +27,6 @@
                 <span id="selectRows" class="select">
                     {{ select_static('limit',['10':'10 '~_("tableslide_rows"),'25':'25 '~_("tableslide_rows"),'50':'50 '~_("tableslide_rows"),'100':'100 '~_("tableslide_rows")],'size':'1','class':'selectpicker','data-width':'auto','onchange':'javascript: this.form.submit();') }}
                 </span>
-                {% if permissions.getScope("virtual_servers","replicas") == "*" %}
-                <br>
-                <div id="replicaStatsForm" class="col-lg-5 input-group">
-                    {{ text_field("replicaDate",'class':'form-control bootstrap-datepicker','placeholder':_("virtualserver_replicapdf_placeholder")) }}
-                    <span class="input-group-addon" id="showReplicaStats" style="cursor: pointer;">
-                        <i class="fa fa-external-link"></i>
-                    </span>
-                </div>
-                {% endif %}
             </div>
             <div class="col-sm-8 col-lg-6 serverFilter pull-right">
                 <div class="col-xs-12 input-group">

@@ -66,15 +66,7 @@ class IpObjectsForm extends \RNTForest\core\forms\FormBase
             $element->setFilters(array('striptags', 'string', 'trim'));
             $this->add($element);
             
-            // value2
-            $element = new Text("value2");
-            $message = $this->translate("ipobjects_ip_addition");
-            $element->setLabel($message);
-            $message = $this->translate("ipobjects_ip_additioninfo");
-            $element->setAttribute("placeholder", $message);
-            $element->setFilters(array('striptags', 'string', 'trim'));
-            $this->add($element);
-
+          
             // allocated
             $element = new Select("allocated",array(
                 IpObjects::ALLOC_RESERVED => "Reserved",
@@ -88,20 +80,7 @@ class IpObjectsForm extends \RNTForest\core\forms\FormBase
             $message = $this->translate("ipobjects_allocated");
             $element->setLabel($message);
             $element->setFilters(array('int'));
-            $this->add($element);
-            
-            // main
-            $messagemain = $this->translate("ipobjects_ismain");
-            $messagenotmain = $this->translate("ipobjects_isnotmain");
-            $element = new Select("main",array(
-                0 => $messagemain,
-                1 => $messagenotmain,
-            ));
-            $message = $this->translate("ipobjects_ip_main");
-            $element->setLabel($message);
-            $element->setFilters(array('int'));
-            $this->add($element);
-            
+            $this->add($element);            
         }
         
         // comment

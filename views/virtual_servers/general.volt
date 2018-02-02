@@ -1,7 +1,7 @@
 <div class="clearfix panel panel-default sub-panel">
     {% set state = slideSectionState(item.id,'VirtualServersController','general') %}
     <div class="panel-heading">
-        <span role="button" data-target="#slide_section_general_{{item.id}}" onclick="toggleSectionState('slide_section_general_{{item.id}}','virtual_servers','',this)" data-toggle="collapse">
+        <span role="button" data-target="#slide_section_general_{{item.id}}" onclick="toggleSectionState('slide_section_general_{{item.id}}','virtual_servers','',event)" data-toggle="collapse">
             <h5 class="panel-title">
                 <i id="slide_section_general_{{item.id}}_icon" class="fa fa-chevron-{% if state == 'show' %}down{% else %}right{% endif %}"></i>&nbsp;{{ _("virtualserver_generalinfo") }}
                 <div class="pull-right">
