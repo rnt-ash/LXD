@@ -10,10 +10,10 @@
         <div class="col-md-12">
         {{ partial("partials/lxd/virtual_servers/ip_objects.volt") }}
         </div>
-    {#{% if item.ovz == 1 and permissions.checkPermission("virtual_servers", "snapshots") %}
+    {% if item.lxd == 1 and permissions.checkPermission("virtual_servers", "snapshots") %}
         <div class="col-md-12">
         {{ partial("partials/lxd/virtual_servers/snapshots.volt") }}
         </div>
-    {% endif %}#}
+    {% endif %}
     </div>
 </div>

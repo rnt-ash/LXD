@@ -363,6 +363,16 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
     {
         return $this->lxd_snapshots;
     }
+    
+    /**
+    * Return the value of field lxd_snapshots as array
+    * 
+    * @return array
+    */
+    public function getLxdSnapshotsArray()
+    {
+        return json_decode($this->lxd_snapshots,true);
+    }
 
     /**
     * Returns the value of field fqdn

@@ -59,6 +59,38 @@ abstract class AbstractLxdJob extends AbstractJob{
             $this->commandFailed($output['error'],$exitstatus);
         }
     }
+    
+    protected function lxdListSnapshots($ctName){
+        // get all snapshots of this CT
+        $this->lxdApiExecCommand('GET','a/1.0/containers/'.$ctName.'/snapshots');
+        $output = json_decode($this->Context->getCli()->getOutput()[0],true);
+        if($output['status_code'] == 200){
+            // go through all snapshots
+            $snapshotList = array();
+            foreach($output['metadata'] as $snapshot){
+                // get more details
+                $this->lxdApiExecCommand('GET','a'.$snapshot);
+                $output = json_decode($this->Context->getCli()->getOutput()[0],true);
+                
+                // save name and creation date to array
+                if($output['status_code'] == 200){
+                    // get only name of the snapshot (without CT name)
+                    $name = substr($output['metadata']['name'],strpos($output['metadata']['name'],'/')+1);
+                    
+                    // save snapshot to array
+                    $snapshotList[$name]['created_at'] = $output['metadata']['created_at'];
+                }else{
+                    return $this->commandFailed("Getting Snapshot details failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput()),$exitstatus);
+                }
+            }
+            
+            $this->Done = 1;
+            $this->Retval = json_encode($snapshotList);
+            $this->Context->getLogger()->debug('Listing snapshot successul');
+        }else{
+            return $this->commandFailed("Listing snapshots failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput()),$exitstatus);
+        }
+    }
 
     /**
     * helper method

@@ -3,7 +3,7 @@
 {{ partial("partials/core/partials/renderFormElement") }}
 
 <div class="page-header">
-    <h2><i class="fa fa-cube" aria-hidden="true"></i>{{ _("virtualserver_title") }}</h2>
+    <h2><i class="fa fa-cube" aria-hidden="true"></i> {{ _("virtualserver_title") }}</h2>
 </div>
 
 <div class="well">

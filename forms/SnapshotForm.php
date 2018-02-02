@@ -63,21 +63,6 @@ class SnapshotForm extends \RNTForest\core\forms\FormBase
             )),
         ));
         $this->add($element);
-
-        // description
-        $element = new Text("description");
-        $message = $this->translate("virtualserver_description");
-        $element->setLabel($message);
-        $element->setAttribute("placeholder",$message);
-        $element->setFilters(array('striptags', 'string'));
-        $message = $this->translate("virtualserver_description_valid");
-        $element->addValidators(array(
-            new StringLengthValidator(array(
-                'max' => 250,
-                'message' => $message
-            ))
-        ));
-        $this->add($element);
     }
 
 }

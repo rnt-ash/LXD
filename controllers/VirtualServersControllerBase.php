@@ -437,7 +437,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * 
     * @param int $serverId
     */
-    public function ovzSnapshotListAction($virtualServerId){
+    public function lxdSnapshotListAction($virtualServerId){
 
         // sanitize parameters
         $virtualServerId = $this->filter->sanitize($virtualServerId, "int");
@@ -446,16 +446,16 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // validate
             $virtualServer = VirtualServers::tryFindById($virtualServerId);  
             $this->tryCheckPermission('virtual_servers', 'snapshots', array('item' => $virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
+            $this->tryCheckLxdEnabled($virtualServer);
 
-            // execute ovz_list_snapshots job 
+            // execute lxd_list_snapshots job 
             // no pending needed because job is readonly       
-            $params = array('UUID'=>$virtualServer->getOvzUuid());
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_list_snapshots',$params);
+            $params = array('NAME'=>$virtualServer->getName());
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_list_snapshots',$params);
 
             // save snapshots
             $snapshots = $job->getRetval();
-            $this->ovzSnapshotSave($virtualServer,$snapshots);
+            $this->lxdSnapshotSave($virtualServer,$snapshots);
 
             // success
             $message = $this->translate("virtualserver_snapshot_update");
@@ -476,26 +476,26 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * @param mixed $snapshotId
     * @param int $serverId
     */
-    public function ovzSnapshotSwitchAction($snapshotId,$virtualServerId) {
+    public function lxdSnapshotSwitchAction($snapshotName,$virtualServerId) {
         // sanitize parameters
         $virtualServerId = $this->filter->sanitize($virtualServerId, "int");
-        $snapshotId = $this->filter->sanitize($snapshotId, "string");
+        $snapshotName = $this->filter->sanitize($snapshotName, "string");
         
         try {    
             // validate
             $virtualServer = VirtualServers::tryFindById($virtualServerId);  
             $this->tryCheckPermission('virtual_servers', 'snapshots', array('item' => $virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
+            $this->tryCheckLxdEnabled($virtualServer);
 
-            // execute ovz_switch_snapshot job
+            // execute lxd_restore_snapshot job
             // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
-            $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId();
-            $params = array('UUID'=>$virtualServer->getOvzUuid(),'SNAPSHOTID'=>$snapshotId);
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_switch_snapshot',$params,$pending);
+            $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId();
+            $params = array('CTNAME'=>$virtualServer->getName(),'SNAPSHOTNAME'=>$snapshotName);
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_restore_snapshot',$params,$pending);
 
             // save snapshots
             $snapshots = $job->getRetval();
-            $this->ovzSnapshotSave($virtualServer,$snapshots);
+            $this->lxdSnapshotSave($virtualServer,$snapshots);
 
             // success
             $message = $this->translate("virtualserver_snapshot_switched");
@@ -516,7 +516,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * 
     * @param mixed $virtualServersId
     */
-    public function ovzSnapshotCreateAction($virtualServersId){
+    public function lxdSnapshotCreateAction($virtualServersId){
 
         // sanitize
         $virtualServersId = $this->filter->sanitize($virtualServersId,"int");
@@ -525,7 +525,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // find virtual server
             $virtualServer = VirtualServers::tryFindById($virtualServersId);  
             $this->tryCheckPermission('virtual_servers', 'snapshots', array('item' => $virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
+            $this->tryCheckLxdEnabled($virtualServer);
             
             // prepare form fields
             $snapshotFormFields = new SnapshotFormFields();
@@ -550,7 +550,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * @param string $name
     * @param string $description
     */
-    public function ovzSnapshotCreateExecuteAction() {
+    public function lxdSnapshotCreateExecuteAction() {
         // POST request?
         if (!$this->request->isPost()) 
             return $this->redirectTo("virtual_servers/slidedata");
@@ -569,17 +569,17 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // validate
             $virtualServer = VirtualServers::tryFindById($item->virtual_servers_id);  
             $this->tryCheckPermission('virtual_servers', 'snapshots', array('item' => $virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
+            $this->tryCheckLxdEnabled($virtualServer);
 
-            // execute ovz_list_snapshots job        
+            // execute lxd_create_snapshot job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
-            $params = array('UUID'=>$virtualServer->getOvzUuid(),'NAME'=>$item->name,'DESCRIPTION'=>$item->description);
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_create_snapshot',$params,$pending);
+            $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $params = array('CTNAME'=>$virtualServer->getName(),'SNAPSHOTNAME'=>$item->name);
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_create_snapshot',$params,$pending);
             
             // save snapshots
             $snapshots = $job->getRetval();
-            $this->ovzSnapshotSave($virtualServer,$snapshots);
+            $this->lxdSnapshotSave($virtualServer,$snapshots);
 
             // success
             $message = $this->translate("virtualserver_snapshot_created");
@@ -600,27 +600,27 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     * @param mixed $snapshotId
     * @param int $serverId
     */
-    public function ovzSnapshotDeleteAction($snapshotId,$virtualServerId) {
+    public function lxdSnapshotDeleteAction($snapshotName,$virtualServerId) {
 
         // sanitize
-        $snapshotId = $this->filter->sanitize($snapshotId, "string");
+        $snapshotName = $this->filter->sanitize($snapshotName, "string");
         $virtualServerId = $this->filter->sanitize($virtualServerId, "int");
         
         try {    
             // validate
             $virtualServer = VirtualServers::tryFindById($virtualServerId);  
             $this->tryCheckPermission('virtual_servers', 'snapshots', array('item' => $virtualServer));
-            $this->tryCheckOvzEnabled($virtualServer);
+            $this->tryCheckLxdEnabled($virtualServer);
 
-            // execute ovz_delete_snapshot job        
+            // execute lxd_delete_snapshot job        
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
-            $pending = '\RNTForest\ovz\models\VirtualServers:'.$virtualServer->getId().':general:1';
-            $params = array('UUID'=>$virtualServer->getOvzUuid(),'SNAPSHOTID'=>$snapshotId);
-            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'ovz_delete_snapshot',$params,$pending);
+            $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
+            $params = array('CTNAME'=>$virtualServer->getName(),'SNAPSHOTNAME'=>$snapshotName);
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_delete_snapshot',$params,$pending);
 
             // save snapshots
             $snapshots = $job->getRetval();
-            $this->ovzSnapshotSave($virtualServer,$snapshots);
+            $this->lxdSnapshotSave($virtualServer,$snapshots);
 
             // success
             $message = $this->translate("virtualserver_snapshot_deleted");
@@ -637,68 +637,15 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     }
     
     /**
-    * renders all snapshots to one server
-    * 
-    * @param mixed $item
-    */
-    private function ovzSnapshotRenderList($virtualServer){
-        // convert the json to an array
-        $snapshots = json_decode($virtualServer->getOvzSnapshots(), true);
-        if(!is_array($snapshots)) $snapshots=array();
-
-        // sort all the snapshots
-        $snapshots = $this->ovzSnapshotGetChilds("",$snapshots);
-
-        return $snapshots;
-    }
-
-    /**
-    * sorts the array depending of the parent
-    * 
-    * @param string $parent UUID of the parent snapshot
-    * @param array $snapshots array with the snapshots in it
-    */
-    private function ovzSnapshotGetChilds($parent,$snapshots){ 
-        $sortedSnapshots = array();
-
-        // run through all snapshots
-        foreach($snapshots as $key=>$snapshot){
-            if(key_exists('Parent', $snapshot) && $snapshot['Parent']===$parent) {
-                // is the snapshot allowed to be deleted? not if it's mounted or if it's an replica
-                if(stripos($snapshot['Name'],"Replica")){
-                    $snapshot['Removable'] = 0; 
-                }else {
-                    $snapshot['Removable'] = 1;
-                }
-
-                // convert the date
-                $snapshot['Date'] = date("d.m.Y H:i:s",strtotime($snapshot['Date']));
-
-                // get all child snapshots
-                $snapshot['Childs'] = $this->ovzSnapshotGetChilds($snapshot['UUID'],$snapshots);
-
-                // is a childsnapshot mounted?
-                foreach($snapshot['Childs'] as $childSnapshot){
-                    if ($childSnapshot['Removable']==0) $snapshot['Removable'] = 0;
-                }
-
-                // convert all snapshots to one array
-                $sortedSnapshots[] = $snapshot;
-            }
-        }
-        return $sortedSnapshots;
-    }
-    
-    /**
     * Save snapshot settings in virtual server model
     * 
     * @param mixed $virtualServer
     * @param mixed $snapshots
     * @throws /Exceptions
     */
-    private function ovzSnapshotSave($virtualServer,$snapshots){
+    private function lxdSnapshotSave($virtualServer,$snapshots){
         // set snapshots
-        $virtualServer->setOvzSnapshots($snapshots);
+        $virtualServer->setLxdSnapshots($snapshots);
         
         // save object
         if ($virtualServer->save() === false) {
