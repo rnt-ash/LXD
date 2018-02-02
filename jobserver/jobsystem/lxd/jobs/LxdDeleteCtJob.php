@@ -38,6 +38,12 @@ class LxdDeleteCtJob extends AbstractLxdJob {
     public function run() {
         $this->Context->getLogger()->debug("CT delete!");
         
+        // stop container before deleting
+        $exitstatus = $this->lxdApiExecCommand('PUT','a/1.0/containers/'.$this->Params['NAME'].'/state','{"action": "stop"}');
+        
+        // check if operation is created and executed successfully
+        $this->lxdApiCheckOperation('Stopped the CT successfully');
+        
         // execute API command to delete CT
         $exitstatus = $this->lxdApiExecCommand('DELETE','a/1.0/containers/'.$this->Params['NAME']);
         
