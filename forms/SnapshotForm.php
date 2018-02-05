@@ -43,22 +43,27 @@ class SnapshotForm extends \RNTForest\core\forms\FormBase
         $element->setAttribute("placeholder",$message);
         $element->setFilters(array('striptags', 'string'));
         $message = $this->translate("virtualserver_name_required");
-        $message1 = $this->translate("virtualserver_snapshotname_replica");
-        $message2 = $this->translate("virtualserver_snapshotname_required");        
+        $message2 = $this->translate("virtualserver_name_valid");        
+        
+        /**
+        * Same as the virtual_servers name in the model
+        * 
+        * maximum 63 characters, 
+        * may not contain dots, 
+        * may not start by a digit or dash, 
+        * may not end by a dash,
+        * must be made entirely of letters, digits or hyphens.
+        */
         $element->addValidators(array(
             new PresenceOfValidator(array(
                 'message' => $message
             )),
             new StringLengthValidator(array(
-                'max' => 64,
+                'max' => 63,
                 'min' => 3,
             )),
             new RegexValidator(array(
-                'pattern' => '/^(?!.*replica).*$/',
-                'message' => $message1
-            )),
-            new RegexValidator(array(
-                'pattern' => '/^[äöüÄÖÜ0-9a-zA-Z-_().!?\s]{3,64}$/',
+                'pattern' => '/^[a-zA-Z][a-zA-Z0-9\-]*$/',
                 'message' => $message2
             )),
         ));
