@@ -48,15 +48,6 @@ class VirtualServersModifyForm extends \RNTForest\core\forms\FormBase
         $element->setFilters(array('striptags', 'string'));
         $this->add($element);
 
-        // fqdn
-        $element = new Text("fqdn");
-        $message = $this->translate("virtualserver_hostname");
-        $element->setLabel($message);
-        $element->setAttribute("placeholder","host.domain.tld");
-        $element->setFilters(array('striptags', 'string'));
-        
-        $this->add($element);
-        
         // customer
         $this->add(new Hidden("customers_id"));
         
@@ -77,7 +68,6 @@ class VirtualServersModifyForm extends \RNTForest\core\forms\FormBase
         ));
         $this->add($element);
         
-
         // activation_date
         $element = new Text("activation_date");
         $message = $this->translate("virtualserver_activdate");

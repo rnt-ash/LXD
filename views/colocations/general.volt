@@ -7,7 +7,7 @@
                 <div class="pull-right">
                     {{ link_to("colocations/generateIpPdf/"~item.id,'<i class="fa  fa-file-pdf-o"></i>','class': 'btn btn-default btn-xs', 'target': '_blank', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("colocations_createpdf")) }}
                     {{ link_to("colocations/edit/"~item.id,'<i class="fa fa-pencil"></i>',
-                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("colocations_editovz")) }}
+                        'class': 'btn btn-default btn-xs', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("colocations_edit")) }}
                     <a href="#" link="/colocations/delete/{{item.id}}" text="{{ _("colocations_view_delmessage") }}"
                         class="btn btn-default btn-xs confirm-button" data-toggle="tooltip" data-placement="top" title="Delete{{ _("colocations_delcolocation") }}"><i class="fa fa-trash-o"></i></a>
                 </div>

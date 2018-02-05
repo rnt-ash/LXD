@@ -15,15 +15,22 @@
             <div class="alert alert-danger" role="alert">{{form.getMessagesFor('id')[0]}}</div>  
         {% endif %}
 
-        {{ renderElement('name',form,6) }}
-        {{ renderElement('fqdn',form,6) }}
-        {{ renderElement('customers',form,6,'autocomplete') }}
-        {{ renderElement('physical_servers_id',form,6,'bootstrap-select-live-search') }}
-        {{ renderElement('core',form,6) }}
-        {{ renderElement('memory',form,6) }}
-        {{ renderElement('space',form,6) }}
-        {{ renderElement('activation_date',form,6,'datepicker') }}
-        {{ renderElement('description',form) }}
+        <div class="clearfix">
+            {{ renderElement('name',form,6) }}
+            {{ renderElement('customers',form,6,'autocomplete') }}
+        </div>
+        <div class="clearfix">
+            {{ renderElement('physical_servers_id',form,6,'bootstrap-select-live-search') }}
+            {{ renderElement('core',form,6) }}
+        </div>
+        <div class="clearfix">
+            {{ renderElement('memory',form,6) }}
+            {{ renderElement('space',form,6) }}
+        </div>
+        <div class="clearfix">
+            {{ renderElement('activation_date',form,6,'datepicker') }}
+            {{ renderElement('description',form) }}
+        </div>
 
         <div class="col-lg-12">
             {{ submit_button(_("virtualserver_save"), "class": "btn btn-primary loadingScreen") }}

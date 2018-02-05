@@ -29,15 +29,12 @@
                     {% if item.lxd == 1 %}
                         {% if permissions.checkPermission("virtual_servers", "modify") %}
                             {{ link_to("virtual_servers/virtualServerModify/"~item.id,'<i class="fa fa-pencil"></i>',
-                                'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
+                                'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_edit")) }}
                         {% endif %}
-                        
-                        {{ link_to("virtual_servers/rootPasswordChange/"~item.id,'<i class="fa fa-key"></i>',
-                            'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_setpwd")) }}
                     {% else %}
                         {% if permissions.checkPermission("virtual_servers", "edit") %}
                             {{ link_to("virtual_servers/edit/"~item.id,'<i class="fa fa-pencil"></i>',
-                                'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_editovz")) }}
+                                'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_edit")) }}
                         {% endif %}
                     {% endif %}
                     {% if permissions.checkPermission("virtual_servers", "delete") %}

@@ -17,13 +17,12 @@
 
         <div class="clearfix">
             {{ renderElement('name',form,6) }}
-            {{ renderElement('fqdn',form,6) }}
+            {{ renderElement('customers',form,6,'autocomplete') }}
         </div>
         <div class="clearfix">
-            {{ renderElement('customers',form,6,'autocomplete') }}
             {{ renderElement('activation_date',form,6,'datepicker','','bottom') }}
+            {{ renderElement('description',form )}}
         </div>
-        {{ renderElement('description',form )}}
 
         <div class="col-lg-12">
             {{ submit_button(_("virtualserver_save"), "class": "btn btn-primary loadingScreen") }}
