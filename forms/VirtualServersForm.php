@@ -105,7 +105,7 @@ class VirtualServersForm extends \RNTForest\core\forms\FormBase
         $this->add($element);
 
         // core
-        $element = new Numeric("core");
+        $element = new Text("core");
         $message = $this->translate("virtualserver_cores");
         $element->setLabel($message);
         $element->setDefault(4);

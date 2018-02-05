@@ -335,14 +335,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     */
     protected function preSave($virtualServer,$form){
         try{
-            // Workaround: if a Byte suffix is given convert Space to GB and Memory to MB
-            /*if(!is_numeric($virtualServer->getSpace())){
-                $virtualServer->setSpace(Helpers::convertBytesToGibiBytes(Helpers::convertToBytes($virtualServer->getSpace())));
-            }
-            if(!is_numeric($virtualServer->getMemory())){
-                $virtualServer->setMemory(Helpers::convertBytesToMibiBytes(Helpers::convertToBytes($virtualServer->getMemory())));    
-            }*/
-            
             // validate physical server and check permissions
             $physicalServer = PhysicalServers::findFirst($virtualServer->getPhysicalServersId());
             if(!$physicalServer){
@@ -355,24 +347,23 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // only check if physical server is ovz enabled if a CT or VM is about to be created
             $vstype = $this->session->get("VirtualServersForm")['vstype'];
             $op = $this->session->get("VirtualServersForm")['op'];
-            if($vstype == 'CT') $this->tryCheckLxdEnabled($physicalServer);
-            
-            // check if selected ostemplate exists on selected PS
-            /*if($op == 'new' && $vstype == 'CT'){
-                // get available ostemplates from physical server
-                $ostemplates = json_decode($virtualServer->PhysicalServers->getOvzOstemplates(),true);
-                if(empty($ostemplates)){
-                    $message = new \Phalcon\Validation\Message($this->translate("virtualserver_no_ostemplates_found"),"ostemplate");            
-                    $form->appendMessage($message);
+            if($vstype == 'CT') {
+                $this->tryCheckLxdEnabled($physicalServer);
+                
+                // check if HW Specs are valid
+                $specs = $this->checkHardwareSpecs($virtualServer->getCore(),$virtualServer->getMemory(),$virtualServer->getSpace(),$virtualServer,$form);
+                
+                // if an error appeard, go back to form
+                if(key_exists('error',$specs)){
+                    $form->appendMessage(new \Phalcon\Validation\Message($specs['error']['message'],$specs['error']['field']));
                     return false;
                 }else{
-                    if(!array_search($virtualServer->ostemplate,array_column($ostemplates,'name'))){
-                        $message = new \Phalcon\Validation\Message($this->translate("virtualserver_ostemplate_not_valid"),"ostemplate");            
-                        $form->appendMessage($message);
-                        return false;
-                    }
+                    // if everything was ok, set correct formated values
+                    $virtualServer->setCore($specs['cores']);
+                    $virtualServer->setMemory($specs['memory']);
+                    $virtualServer->setSpace($specs['diskspace']);
                 }
-            }*/
+            }
         }catch(\Exception $e){
             $this->flashSession->error($e->getMessage());
             $this->logger->error($e->getMessage());
@@ -885,9 +876,9 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             // fill form fields
             $virtualServersConfigureFormFields = new VirtualServersConfigureFormFields();
             $virtualServersConfigureFormFields->virtual_servers_id = $virtualServer->getId();
-            $virtualServersConfigureFormFields->cores = $virtualServer->getCore();
+            $virtualServersConfigureFormFields->core = $virtualServer->getCore();
             $virtualServersConfigureFormFields->memory = Helpers::formatBytesHelper(Helpers::convertToBytes($virtualServer->getMemory()."MB"));
-            $virtualServersConfigureFormFields->diskspace = Helpers::formatBytesHelper(Helpers::convertToBytes($virtualServer->getSpace()."GB"));
+            $virtualServersConfigureFormFields->space = Helpers::formatBytesHelper(Helpers::convertToBytes($virtualServer->getSpace()."GB"));
 
             // call view
             $this->view->form = new VirtualServersConfigureForm($virtualServersConfigureFormFields); 
@@ -926,83 +917,20 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             }
 
             // business logic
-            // cores
-            $core = intval($form->cores);
-
-            if($core < 1){
-                $message1 = $this->translate("virtualserver_min_core");
-                $message = $message1;
-                return $this->redirectErrorToVirtualServersConfigure($message,'cores',$form);
+            $retval = $this->checkHardwareSpecs($form->core,$form->memory,$form->space,$virtualServer,$form);
+            
+            // if an error appeared, go back to form
+            if(key_exists('error',$retval)){
+                return $this->redirectErrorToVirtualServersConfigure($retval['error']['message'],$retval['error']['field'],$retval['error']['form']);
             }
-
-            if($core > $virtualServer->PhysicalServers->getCore()){
-                $message1 = $this->translate("virtualserver_max_core");
-                $message = $message1.$virtualServer->PhysicalServers->getCore().')';
-                return $this->redirectErrorToVirtualServersConfigure($message,'cores',$form);
-            }
-
-            // memory
-            $memory = Helpers::convertToBytes($form->memory);
-
-            // check if memory is numeric
-            if(!is_numeric($memory)){
-                $message1 = $this->translate("virtualserver_ram_numeric");
-                $message = $message1;
-                return $this->redirectErrorToVirtualServersConfigure($message,'memory',$form);
-            }
-
-            // chech if memory is minmum 512 MB
-            if($memory < Helpers::convertToBytes('512MB')){
-                $message1 = $this->translate("virtualserver_min_ram");
-                $message = $message1;
-                return $this->redirectErrorToVirtualServersConfigure($message,'memory',$form);
-            } 
-
-            // check if memory of host is exceeded
-            $hostRam = Helpers::convertToBytes($virtualServer->PhysicalServers->getMemory().'MB');
-            if($memory > $hostRam){
-                $message1 = $this->translate("virtualserver_max_ram");
-                $message = $message1.$virtualServer->PhysicalServers->getMemory().' MB)';
-                return $this->redirectErrorToVirtualServersConfigure($message,'memory',$form);
-            }
-
-            // final memory in MibiBytes
-            $memory = Helpers::convertBytesToMibiBytes($memory);
-
-            // space
-            $diskspace = Helpers::convertToBytes($form->diskspace);
-
-            // check if diskpace is numeric
-            if(!is_numeric($diskspace)){
-                $message1 = $this->translate("virtualserver_space_numeric");
-                $message = $message1;
-                return $this->redirectErrorToVirtualServersConfigure($message,'diskspace',$form);
-            }
-
-            // check if diskspace is min
-            if($diskspace < Helpers::convertToBytes('5GB')){
-                $message1 = $this->translate("virtualserver_min_space");
-                $message = $message1;
-                return $this->redirectErrorToVirtualServersConfigure($message,'diskspace',$form);
-            }
-            // check if diskspace of host is exceeded
-            $hostDiskspace = Helpers::convertToBytes($virtualServer->PhysicalServers->getSpace().'GB');
-            if($diskspace > $hostDiskspace){
-                $message1 = $this->translate("virtualserver_max_space");
-                $message = $message1.$virtualServer->PhysicalServers->getSpace().' GB)';
-                return $this->redirectErrorToVirtualServersConfigure($message,'diskspace',$form);
-            }
-
-            // final diskspace in MibiBytes
-            $diskspace = Helpers::convertBytesToGibiBytes($diskspace);
             
             // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
             $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
             $params = array(
                 'NAME' => $virtualServer->getName(),
-                'CPUS' => $core,
-                'RAM' => $memory,
-                'DISKSPACE' => $diskspace,
+                'CPUS' => $retval['cores'],
+                'RAM' => $retval['memory'],
+                'DISKSPACE' => $retval['diskspace'],
                 'STORAGEPOOL' => $virtualServer->getLxdSettingsArray()['devices']['root']['pool']
             );
             $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_modify_ct',$params,$pending);
@@ -1022,6 +950,77 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $this->redirectTo("virtual_servers/slidedata");
             return;
         }
+    }
+    
+    private function checkHardwareSpecs($core,$memory,$diskspace,$virtualServer,$form){
+        // cores
+        // check if cores is numeric
+        if(!is_numeric($core)){
+            $message = $this->translate("virtualserver_core_numeric");
+            return array('error'=>array('message'=>$message,'field'=>'core','form'=>$form));
+        }
+
+        if($core < 1){
+            $message = $this->translate("virtualserver_min_core");
+            return array('error'=>array('message'=>$message,'field'=>'core','form'=>$form));
+        }
+
+        if($core > $virtualServer->PhysicalServers->getCore()){
+            $message = $this->translate("virtualserver_max_core").$virtualServer->PhysicalServers->getCore().')';
+            return array('error'=>array('message'=>$message,'field'=>'core','form'=>$form));
+        }
+
+        // memory
+        $memory = Helpers::convertToBytes($memory);
+
+        // check if memory is numeric
+        if(!is_numeric($memory)){
+            $message = $this->translate("virtualserver_ram_numeric");
+            return array('error'=>array('message'=>$message,'field'=>'memory','form'=>$form));
+        }
+
+        // chech if memory is minmum 512 MB
+        if($memory < Helpers::convertToBytes('512MB')){
+            $message = $this->translate("virtualserver_min_ram");
+            return array('error'=>array('message'=>$message,'field'=>'memory','form'=>$form));
+        } 
+
+        // check if memory of host is exceeded
+        $hostRam = Helpers::convertToBytes($virtualServer->PhysicalServers->getMemory().'MB');
+        if($memory > $hostRam){
+            $message = $this->translate("virtualserver_max_ram").$virtualServer->PhysicalServers->getMemory().' MB)';
+            return array('error'=>array('message'=>$message,'field'=>'memory','form'=>$form));
+        }
+
+        // final memory in MibiBytes
+        $memory = Helpers::convertBytesToMibiBytes($memory);
+
+        // space
+        $diskspace = Helpers::convertToBytes($diskspace);
+
+        // check if diskpace is numeric
+        if(!is_numeric($diskspace)){
+            $message = $this->translate("virtualserver_space_numeric");
+            return array('error'=>array('message'=>$message,'field'=>'space','form'=>$form));
+        }
+
+        // check if diskspace is min
+        if($diskspace < Helpers::convertToBytes('5GB')){
+            $message = $this->translate("virtualserver_min_space");
+            return array('error'=>array('message'=>$message,'field'=>'space','form'=>$form));
+        }
+        // check if diskspace of host is exceeded
+        $hostDiskspace = Helpers::convertToBytes($virtualServer->PhysicalServers->getSpace().'GB');
+        if($diskspace > $hostDiskspace){
+            $message = $this->translate("virtualserver_max_space").$virtualServer->PhysicalServers->getSpace().' GB)';
+            return array('error'=>array('message'=>$message,'field'=>'space','form'=>$form));
+        }
+
+        // final diskspace in MibiBytes
+        $diskspace = Helpers::convertBytesToGibiBytes($diskspace);
+        
+        // return all formatted and validated values
+        return array('cores'=>$core,'memory'=>$memory,'diskspace'=>$diskspace);
     }
 
     private function redirectErrorToVirtualServersConfigure($message,$field,$form){

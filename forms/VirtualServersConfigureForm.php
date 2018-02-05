@@ -42,7 +42,7 @@ class VirtualServersConfigureForm extends \RNTForest\core\forms\FormBase
         $this->add(new Hidden("virtual_servers_id"));
 
         // core
-        $element = new Numeric("cores");
+        $element = new Text("core");
         $message = $this->translate("virtualserver_cores");
         $element->setLabel($message);
         $message = $this->translate("virtualserver_cores_example");
@@ -79,7 +79,7 @@ class VirtualServersConfigureForm extends \RNTForest\core\forms\FormBase
         $this->add($element);
 
         // space
-        $element = new Text("diskspace");
+        $element = new Text("space");
         $message = $this->translate("virtualserver_discspace");
         $element->setLabel($message);
         $message = $this->translate("virtualserver_discspace_example");

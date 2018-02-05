@@ -506,13 +506,13 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
 
         // name
         /**
-        * Container name that can be used to refer to said container in commands.
-        * The virtual machine name must not exceed 40 characters
-        * Names must be alphanumeric and may contain the characters \, -, _. Names
-        * with white spaces must be enclosed in quotation marks.
-        * Link: https://docs.openvz.org/openvz_command_line_reference.webhelp/_miscellaneous_parameters.html 
+        * maximum 63 characters, 
+        * may not contain dots, 
+        * may not start by a digit or dash, 
+        * may not end by a dash,
+        * must be made entirely of letters, digits or hyphens.
         * 
-        * Due to the need of points in the name and no known downside, we allow the usage of points! 
+        * Link: https://github.com/lxc/lxd/issues/1431
         */
         $message = self::translate("virtualserver_name_required");
         $validator->add('name', new PresenceOfValidator([
@@ -522,15 +522,16 @@ class VirtualServersBase extends \RNTForest\core\models\ModelBase implements Job
         $messagemax = self::translate("virtualserver_namemax");
         $messagemin = self::translate("virtualserver_namemin");
         $validator->add('name', new StringLengthValitator([
-            'max' => 40,
+            'max' => 63,
             'min' => 3,
             'messageMaximum' => $messagemax,
             'messageMinimum' => $messagemin,
         ]));
 
+        // see description above
         $message = self::translate("virtualserver_name_valid");
         $validator->add('name', new RegexValidator([
-            'pattern' => '/^[a-zA-Z0-9\-_\s\.]*$/',
+            'pattern' => '/^[a-zA-Z][a-zA-Z0-9\-]*$/',
             'message' => $message
         ]));        
 

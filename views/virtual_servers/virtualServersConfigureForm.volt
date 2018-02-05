@@ -16,11 +16,11 @@
         {% endif %}
 
         <div class="clearfix">
-            {{ renderElement('cores',form,6) }}
+            {{ renderElement('core',form,6) }}
             {{ renderElement('memory',form,6) }}
         </div>
         <div class="clearfix">
-            {{ renderElement('diskspace',form,6) }}
+            {{ renderElement('space',form,6) }}
         </div>
         
         <div class="col-lg-12">
