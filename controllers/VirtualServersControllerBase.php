@@ -181,7 +181,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         // pending with severity 1 so that in error state further jobs can be executed but the entity is marked with a errormessage     
         $pending = '\RNTForest\lxd\models\VirtualServers:'.$virtualServer->getId().':general:1';
         $params = array(
-            'NAME'=>$virtualServer->getName(),
+            'NAME' => $virtualServer->getName(),
             'ACTION' => $action
         );
         $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_change_ctstate',$params,$pending);
@@ -387,8 +387,8 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 $params = array(
                     "NAME" => $virtualServer->getName(),
                     "CPUS" => $virtualServer->getCore(),
-                    "RAM" => $virtualServer->getMemory(),
-                    "DISKSPACE" => $virtualServer->getSpace(),
+                    "RAM" => $virtualServer->getMemory()."MB",
+                    "DISKSPACE" => $virtualServer->getSpace()."GB",
                     "STORAGEPOOL" => $this->config->lxd['defaultStoragePool'],
                     "IMAGEALIAS" => $this->config->lxd['defaultImage']
                 );

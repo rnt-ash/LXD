@@ -189,7 +189,7 @@ return [
     "virtualserver_server_not_ovz_enabled" => "Server ist nicht im OVZ aktiviert",
     "virtualserver_job_infolist_failed" => "Ausführen des Jobs (ovz_all_info) fehlgeschlagen: ",
     "virtualserver_info_success" => "Informationen erfolgreich aktualisiert",
-    "virtualserver_job_change_state" => "Status des Virtuellen Servers wurde ergolreich geändert",
+    "virtualserver_job_change_state" => "Status des Virtuellen Servers wurde erfolgreich geändert",
     "virtualserver_not_found" => "Virtueller Server wurde nicht gefunden.",
     "virtualserver_job_destroy_failed" => "Löschen/ Zerstören des virtuellen Servers fehlgeschlagen: ",
     "virtualserver_job_destroy" => "Virtueller Server wurde erfolgreich gelöscht",
