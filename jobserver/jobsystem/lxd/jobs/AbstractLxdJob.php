@@ -38,6 +38,11 @@ abstract class AbstractLxdJob extends AbstractJob{
         return $this->Cli->execute('curl -s --unix-socket /var/lib/lxd/unix.socket -X '.$requestMethod.' -d \''.$data.'\' '.$url);
     }
     
+    /**
+    * Checks if an operation was successful and puts the output in either the retval or error
+    * 
+    * @param mixed $successMessage
+    */
     protected function lxdApiCheckOperation($successMessage){
         // check if operation could be created
         $output = json_decode($this->Context->getCli()->getOutput()[0],true);
@@ -86,7 +91,7 @@ abstract class AbstractLxdJob extends AbstractJob{
             
             $this->Done = 1;
             $this->Retval = json_encode($snapshotList);
-            $this->Context->getLogger()->debug('Listing snapshot successul');
+            $this->Context->getLogger()->debug('Listing snapshot successful');
         }else{
             return $this->commandFailed("Listing snapshots failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput()),$exitstatus);
         }

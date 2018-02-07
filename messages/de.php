@@ -276,7 +276,7 @@ return [
     "virtualserver_title" => " Virtuelle Server",
     "virtualserver_view_new" => "Neu",
     "virtualserver_view_independentsys" => "Unabhängiges System",
-    "virtualserver_view_container" => "Kontainer (CT)",
+    "virtualserver_view_container" => "Container (CT)",
     "virtualserver_view_vm" => "Virtuelle Maschine (VM)",
     "virtualserver_view_vm_beta" => "(funktioniert nicht in der Beta!)",
     "virtualserver_snapshot" => "Snapshots",

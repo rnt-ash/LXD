@@ -32,7 +32,7 @@ class LxdModifyCtJob extends AbstractLxdJob {
                 "DISKSPACE" => "Diskspace in GB",
                 "STORAGEPOOL" => "Pool to which the the CT is assigned",
             ],
-            "params_example" => '{"NAME":"my-container","CPUS":"4","RAM":"2048MB","DISKSPACE":"50GB"}',
+            "params_example" => '{"NAME":"my-container","CPUS":"4","RAM":"2048MB","DISKSPACE":"50GB","STORAGEPOOL":"zfs_pool"}',
             "retval" => "CT settings as JSON",
             "warning" => "nothing specified",
             "error" => "different causes (CT doesn't exist, or something while effectively modifying the CT fails)",

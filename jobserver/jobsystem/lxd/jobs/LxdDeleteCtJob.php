@@ -31,7 +31,7 @@ class LxdDeleteCtJob extends AbstractLxdJob {
             "params_example" => '{"NAME":"my-container"}',
             "retval" => "nothing specified, maybe some output from the CLI",
             "warning" => "nothing specified",
-            "error" => "different causes (Name already exists, or something while effectively deleting the CT fails)",
+            "error" => "different causes (Name doesn't exists, or something while effectively deleting the CT fails)",
         ];
     }
     

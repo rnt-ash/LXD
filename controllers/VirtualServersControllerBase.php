@@ -383,6 +383,10 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
             $session = $this->session->get($this->getFormClassName());
             if($session['vstype'] == 'CT'){
                 $virtualServer->setLxd(true);
+                if(!$virtualServer->update()){
+                    $message = $this->translate("virtualserver_update_server_failed");
+                    throw new \Exception($message);
+                }
 
                 $params = array(
                     "NAME" => $virtualServer->getName(),
@@ -392,11 +396,6 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                     "STORAGEPOOL" => $this->config->lxd['defaultStoragePool'],
                     "IMAGEALIAS" => $this->config->lxd['defaultImage']
                 );
-                
-                if(!$virtualServer->update()){
-                    $message = $this->translate("virtualserver_update_server_failed");
-                    throw new \Exception($message);
-                }
 
                 // execute lxd_create_ct job        
                 // pending with severity 2 so that in error state no further jobs can be executed and the entity is locked     
@@ -462,7 +461,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
     }
 
     /**
-    * switch to an snapshot
+    * switch to a snapshot
     * 
     * @param mixed $snapshotId
     * @param int $serverId
@@ -935,6 +934,15 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         }
     }
     
+    /**
+    * Checks if the HW Specs are valid and returns the correct formatted values
+    * 
+    * @param mixed $core
+    * @param long $memory
+    * @param long $diskspace
+    * @param mixed $virtualServer
+    * @param mixed $form
+    */
     private function checkHardwareSpecs($core,$memory,$diskspace,$virtualServer,$form){
         // cores
         // check if cores is numeric
@@ -1006,6 +1014,14 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         return array('cores'=>$core,'memory'=>$memory,'diskspace'=>$diskspace);
     }
 
+    /**
+    * go back to the form if an error appears
+    * 
+    * @param mixed $message
+    * @param mixed $field
+    * @param mixed $form
+    * @return mixed
+    */
     private function redirectErrorToVirtualServersConfigure($message,$field,$form){
         $form->appendMessage(new \Phalcon\Validation\Message($message,$field));
         $this->view->form = $form; 
