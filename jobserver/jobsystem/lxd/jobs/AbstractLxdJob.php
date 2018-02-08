@@ -65,6 +65,11 @@ abstract class AbstractLxdJob extends AbstractJob{
         }
     }
     
+    /**
+    * Get all snapshots on the server and create a new json with the name and creation date
+    * 
+    * @param mixed $ctName
+    */
     protected function lxdListSnapshots($ctName){
         // get all snapshots of this CT
         $this->lxdApiExecCommand('GET','a/1.0/containers/'.$ctName.'/snapshots');
@@ -95,6 +100,42 @@ abstract class AbstractLxdJob extends AbstractJob{
         }else{
             return $this->commandFailed("Listing snapshots failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput()),$exitstatus);
         }
+    }
+    
+    /**
+    * Creates an array with all images including the aliases and fingerprints and returns it
+    * 
+    */
+    protected function lxdGetImageList(){
+        $imageList = array();
+        
+        // get all images
+        $this->lxdApiExecCommand('GET','a/1.0/images');
+        $output = json_decode($this->Context->getCli()->getOutput()[0],true);
+        if($output['status_code'] == 200){
+            // go through all images
+            foreach($output['metadata'] as $image){
+                // get more details
+                $this->lxdApiExecCommand('GET','a'.$image);
+                $output = json_decode($this->Context->getCli()->getOutput()[0],true);
+                
+                // save name and fingerprint to array
+                if($output['status_code'] == 200){
+                    // go throug all aliases
+                    foreach($output['metadata']['aliases'] as $alias){
+                        $imageList[$alias['name']]['fingerprint'] = $output['metadata']['fingerprint'];
+                    }
+                    
+                }else{
+                    return $this->commandFailed("Getting image details failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput()),$exitstatus);
+                }
+            }
+        }else{
+            return $this->commandFailed("Getting images failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput()),$exitstatus);
+        }
+        
+        // return the array
+        return $imageList;
     }
 
     /**
