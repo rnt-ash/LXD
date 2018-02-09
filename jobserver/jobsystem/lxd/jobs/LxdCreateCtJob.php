@@ -43,9 +43,22 @@ class LxdCreateCtJob extends AbstractLxdJob {
     public function run() {
         $this->Context->getLogger()->debug("CT create!");
         
-        // get list of images with alias an fingerprints
-        $images = $this->lxdGetImageList();
-        if(!key_exists($this->Params['IMAGEALIAS'],$images)) return $this->commandFailed("Image \"".$this->Params['IMAGEALIAS']."\" doesn't exist, please check your config file for the right default image");
+        // get all image aliases on the server
+        $exitstatus = $this->lxdApiExecCommand('GET','a/1.0/images/aliases');
+        $output = json_decode($this->Context->getCli()->getOutput()[0],true);
+        if($output['status_code'] == 200){
+            $imageExists = false;
+            // go through each alias and check if it matches with the image alias from the params
+            foreach($output['metadata'] as $alias){
+                if (strpos($alias, $this->Params['IMAGEALIAS']) !== false) {
+                    $imageExists = true;
+                }
+            }
+        }else{
+            return $this->commandFailed("Getting image aliases failed. Exit Code: ".$exitstatus.", Output:\n".implode("\n",$this->Context->getCli()->getOutput()),$exitstatus);
+        }
+        // if the image doesn't exist, return error
+        if(!$imageExists) return $this->commandFailed("Image \"".$this->Params['IMAGEALIAS']."\" doesn't exist, please check your config file for the right default image");
         
         // execute API command to create new CT
         $exitstatus = $this->lxdApiExecCommand('POST','a/1.0/containers','{"name": "'.$this->Params['NAME'].'","config" : {"limits.cpu": "'.$this->Params['CPUS'].'", "limits.memory": "'.$this->Params['RAM'].'"}, "devices": {"root": {"path": "/", "pool": "'.$this->Params['STORAGEPOOL'].'", "size": "'.$this->Params['DISKSPACE'].'", "type": "disk"}}, "source": {"type": "image", "alias": "'.$this->Params['IMAGEALIAS'].'"}}');
