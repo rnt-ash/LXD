@@ -916,7 +916,7 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
                 'STORAGEPOOL' => $virtualServer->getLxdSettingsArray()['devices']['root']['pool']
             );
             $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_modify_ct',$params,$pending);
-            $this->virtualServerSettingsSave($job,$virtualServer);
+            self::virtualServerSettingsSave($job,$virtualServer);
 
             // success
             $message = $this->translate("virtualserver_job_modifyvs");
@@ -1029,6 +1029,40 @@ class VirtualServersControllerBase extends \RNTForest\core\controllers\TableSlid
         return; 
     }
 
+    /**
+    * updates LXD settings
+    * 
+    * @param int $serverId
+    */
+    public function lxdUpdateSettingsAction($serverId){
+        // sanitize parameters
+        $serverId = $this->filter->sanitize($serverId, "int");
+
+        try{
+            // validating
+            $virtualServer = VirtualServers::tryFindById($serverId);
+            $this->tryCheckPermission('virtual_servers','general',array('item' => $virtualServer));
+            $this->tryCheckLxdEnabled($virtualServer);
+
+            // execute lxd_get_settings
+            // no pending needed because job reads only
+            $params = array('NAME'=>$virtualServer->getName());
+            $job = $this->tryExecuteJob($virtualServer->PhysicalServers,'lxd_get_settings',$params);
+            
+            // save the settings gotten from the job
+            self::virtualServerSettingsSave($job,$virtualServer);
+
+            // success
+            $message = $this->translate("virtualserver_info_success");
+            $this->flashSession->success($message);
+        }catch(\Exception $e){
+            $this->flashSession->error($e->getMessage());
+            $this->logger->error($e->getMessage());
+        }
+        // go back to slidedata view
+        $this->redirectTo("virtual_servers/slidedata");
+    }
+    
     /**
     * try to save settings from jobs to virtual server
     * 

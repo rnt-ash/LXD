@@ -45,7 +45,7 @@ class LxdCreateCtJob extends AbstractLxdJob {
         
         // get list of images with alias an fingerprints
         $images = $this->lxdGetImageList();
-        if(!key_exists($this->Params['IMAGEALIAS'],$images)) return $this->commandFailed("Image alias doesn't exist, please check your config file for the right default image");
+        if(!key_exists($this->Params['IMAGEALIAS'],$images)) return $this->commandFailed("Image \"".$this->Params['IMAGEALIAS']."\" doesn't exist, please check your config file for the right default image");
         
         // execute API command to create new CT
         $exitstatus = $this->lxdApiExecCommand('POST','a/1.0/containers','{"name": "'.$this->Params['NAME'].'","config" : {"limits.cpu": "'.$this->Params['CPUS'].'", "limits.memory": "'.$this->Params['RAM'].'"}, "devices": {"root": {"path": "/", "pool": "'.$this->Params['STORAGEPOOL'].'", "size": "'.$this->Params['DISKSPACE'].'", "type": "disk"}}, "source": {"type": "image", "alias": "'.$this->Params['IMAGEALIAS'].'"}}');

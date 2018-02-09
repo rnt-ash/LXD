@@ -31,6 +31,8 @@
                             {{ link_to("virtual_servers/virtualServerModify/"~item.id,'<i class="fa fa-pencil"></i>',
                                 'class': 'btn btn-default btn-xs pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_edit")) }}
                         {% endif %}
+                        {{ link_to("virtual_servers/lxdUpdateSettings/"~item.id,'<i class="fa fa-refresh"></i>',
+                            'class': 'btn btn-default btn-xs loadingScreen pending', 'data-toggle':'tooltip', 'data-placement':'top', 'title':_("virtualserver_general_updatelxd")) }}
                     {% else %}
                         {% if permissions.checkPermission("virtual_servers", "edit") %}
                             {{ link_to("virtual_servers/edit/"~item.id,'<i class="fa fa-pencil"></i>',
@@ -90,6 +92,7 @@
                         {{item.lxd_status}}
                     </td>
                 </tr>
+                {% if item.description != '' %}
                 <tr>
                     <td>
                         {{ _("virtualserver_general_description") }}
@@ -98,6 +101,7 @@
                         {{item.description}}
                     </td>
                 </tr>
+                {% endif %}
             </tbody>
         </table>
     </div>

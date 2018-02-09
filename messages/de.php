@@ -305,6 +305,7 @@ return [
     "virtualserver_hwspec_memory" => "Memory (RAM): ",
     "virtualserver_hwspec_space" => "Speicher",
     "virtualserver_generalinfo" => "Allgemeine Information",
+    "virtualserver_general_updatelxd" => "LXD Informationen aktualiseren",
     "virtualserver_general_start" => "Start",
     "virtualserver_general_stop" => "Stop",
     "virtualserver_general_restart" => "Neustart",
